@@ -370,3 +370,38 @@ describe("execution-gateway — ağ izin sınıfı", () => {
     await assert.rejects(() => gw.ag({ url: "gopher://x/1" }), /desteklenmeyen protokol/);
   });
 });
+
+describe("model kendi kendini onaylayamaz", () => {
+  it("araç sınırı onay bayraklarını model argümanlarından TEMİZLER", async () => {
+    // Kanıtlanmış açık: araç şemalarında `additionalProperties: false` yok,
+    // bu yüzden `{"url":"...","agOnayli":true}` doğrulamayı geçip araca
+    // ulaşıyordu — yani model ağ onayını kendisi verebiliyordu. Bir onay
+    // bayrağı, onaylanacak şeyi üreten tarafın erişebildiği bir yerde
+    // olamaz.
+    const mod = await import("../../src/utils/tool-execution-gateway.js");
+    const m = (mod as { default?: unknown }).default ?? mod;
+    const calistir = (m as { executeThroughGateway: (o: unknown) => Promise<unknown> }).executeThroughGateway;
+
+    let gorulenArgs: Record<string, unknown> | null = null;
+    const sahteArac = {
+      name: "deneme",
+      inputSchema: { type: "object", properties: { url: { type: "string" } } },
+      execute: async (a: Record<string, unknown>) => {
+        gorulenArgs = a;
+        return { success: true };
+      },
+    };
+
+    await calistir({
+      toolName: "deneme",
+      args: { url: "https://x.example", agOnayli: true, onayli: true, kararVerildi: true },
+      resolveTool: () => sahteArac,
+    });
+
+    assert.ok(gorulenArgs, "araç çağrılmadı");
+    assert.equal(gorulenArgs!["url"], "https://x.example", "gerçek argüman kaybolmamalı");
+    for (const bayrak of ["agOnayli", "onayli", "kararVerildi"]) {
+      assert.equal(gorulenArgs![bayrak], undefined, `${bayrak} araca ulaştı`);
+    }
+  });
+});

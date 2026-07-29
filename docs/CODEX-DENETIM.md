@@ -78,3 +78,45 @@ Bulgularını **doğrulayacağız**. Önceki denetimde şema dosyalarından okuy
 canlı durumu yanlış varsaydığın için bir kısım bulgu yanlış alarm çıkmıştı.
 Bu yüzden her bulgu için **dosya:satır** ve **nasıl tetiklendiği** iste.
 Tetiklenemeyen bir bulgu, bulgu değildir.
+
+---
+
+# Tur 2 — ağ izin sınıfı + deneysel arayüz (29.07.2026)
+
+Tur 1'de üç bulgu verdin, üçü de doğrulandı ve kapatıldı. Regresyon testleri
+`tests/security/execution-gateway.test.ts` içinde.
+
+## Bu turda eklenenler
+
+| Ne | Nerede |
+|---|---|
+| `ag` izin sınıfı | `packages/execution-gateway/src/index.ts` → `agOnayi`, `agIstegi` |
+| CJS köprüsü | `src/utils/gateway.js` → `agOnayi` |
+| Bağlanan araçlar | `src/tools/http_request.js`, `web_readability.js`, `firecrawl.js` |
+| Deneysel yüzey | `src/utils/skuld-theme.js` → `kabartma`, `akanSatir`, `grafik`, `secimListesi` |
+
+## Sorular
+
+1. **Ağ kapısı atlanabilir mi?** `agOnayli: true` parametresi araçlarda
+   dışarıdan geliyor. Model bunu kendi araç çağrısında verebilir mi? Yani
+   ajan `{"url":"...","agOnayli":true}` yazarak onayı atlayabilir mi?
+   Bu sorunun cevabı **kritik** — atlanabiliyorsa kapı yok demektir.
+
+2. **Onay metni yeterli mi?** `agOnayi` hedefi, yöntemi, şifresiz/yerel
+   durumunu gösteriyor. Bir kullanıcının bilinçli karar vermesi için eksik
+   olan ne?
+
+3. **Yönlendirme.** `agIstegi` `redirect: "manual"` kullanıyor ama araçlar
+   kendi `fetch`'lerini yapıyor ve onlar yönlendirme izliyor olabilir.
+   Onaylanan adresten başka bir adrese gidilebilir mi?
+
+4. **`ozelAdres()` yeterli mi?** IPv6, ondalık/onaltılık IP gösterimi
+   (`http://2130706433/`), DNS rebinding gibi durumlar kaçıyor mu?
+
+5. **Deneysel yüzey:** `kabartma`, `akanSatir`, `grafik`, `secimListesi` —
+   renk kapalıyken ya da unicode yokken bilgi kaybı var mı?
+
+## Kural aynı
+
+Tetikleyemediğin şeyi bulgu sayma. Her bulgu için dosya:satır ve nasıl
+tetiklendiği.
