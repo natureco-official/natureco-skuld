@@ -425,8 +425,13 @@ const BRAILLE = ['⣀', '⣄', '⣆', '⣇', '⣧', '⣷', '⣿', '⣿'];
 function grafik(degerler, ton = 300) {
   if (!Array.isArray(degerler) || degerler.length === 0) return '';
   if (!CAPS.unicode) {
-    // Unicode yoksa bilgi kaybolmasın: en yüksek değeri metin olarak ver.
-    return `[max ${Math.max(...degerler)}]`;
+    // Unicode yoksa SERİNİN KENDİSİ verilir.
+    //
+    // Eski hâli yalnızca en yüksek değeri döndürüyordu ve yorumunda "bilgi
+    // kaybolmasın" yazıyordu — oysa [1,9,2] ile [2,9,1] aynı çıktıyı
+    // veriyordu, yani şeklin tamamı kayboluyordu. Yorumun iddiası koda
+    // uymuyordu (Codex denetimi, 29.07.2026).
+    return `[${degerler.join(' ')}]`;
   }
   const enb = Math.max(...degerler, 1);
   const s = degerler

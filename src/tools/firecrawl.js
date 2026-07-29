@@ -20,7 +20,10 @@ module.exports = {
     // metni her iki adresi de gösterir: gidilen servis ve taranan hedef.
     try {
       await require('../utils/gateway').agOnayi({
-        url: 'https://api.firecrawl.dev/v1/scrape',
+        // Onayda GERÇEK uç gösterilir. Önceki hâli her zaman `/scrape`
+        // yazıyordu ama `mode=crawl` verildiğinde `/crawl` çağrılıyordu —
+        // yani kullanıcı onayladığından başka bir uca gidiliyordu.
+        url: `https://api.firecrawl.dev/v1/${(params && params.mode) === 'crawl' ? 'crawl' : 'scrape'}`,
         yontem: 'POST',
         amac: `firecrawl — hedef: ${(params && params.url) || 'belirtilmemiş'}`,
         kararVerildi: (params && params.agOnayli) === true,
@@ -47,6 +50,7 @@ module.exports = {
         // Crawl mode
         const crawlResponse = await fetch('https://api.firecrawl.dev/v1/crawl', {
           method: 'POST',
+        redirect: 'manual', // yönlendirme yeni bir hedeftir; izlenmez
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
           body: JSON.stringify({
             url: params.url,
@@ -92,6 +96,7 @@ module.exports = {
       // Scrape mode
       const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
         method: 'POST',
+        redirect: 'manual', // yönlendirme yeni bir hedeftir; izlenmez
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
         body: JSON.stringify({ url: params.url, formats })
       });

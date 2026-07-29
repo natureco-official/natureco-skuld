@@ -29,7 +29,12 @@ module.exports = {
       });
       const response = await fetch(params.url, {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NatureCo-CLI/2.0; +https://natureco.me)' },
-        signal: AbortSignal.timeout(15000)
+        signal: AbortSignal.timeout(15000),
+      // Yönlendirme İZLENMEZ. Onaylanan adres bir şeydir, `302 Location:`
+      // ile gidilen başka bir şeydir; ilkini onaylamak ikincisini onaylamaz.
+      // Klasik istismar: onaylı genel bir URL, 169.254.169.254 metadata
+      // ucuna yönlendirir (Codex denetimi, 29.07.2026).
+      redirect: 'manual',
       });
 
       if (!response.ok) {

@@ -595,8 +595,18 @@ export interface AgIstegi {
 
 /** Yerel/özel ağ hedefi mi? SSRF için ayrı gerekçe üretilir. */
 function ozelAdres(host: string): boolean {
-  const h = host.toLowerCase();
-  if (h === "localhost" || h === "::1" || h.endsWith(".localhost")) return true;
+  // `new URL()` IPv6'yı köşeli parantezle verir ve ondalık/onaltılık IPv4'ü
+  // zaten 127.0.0.1 biçimine normalize eder; parantezi soymak yeterli.
+  // Codex denetimi (29.07.2026): `[::1]`, `fc00::/7` ve `fe80::/10`
+  // işaretlenmiyordu — yani `http://[::1]/` "yerel" uyarısı ÜRETMİYORDU.
+  const h = host.toLowerCase().replace(/^\[|\]$/g, "");
+  if (h === "localhost" || h === "::1" || h === "::" || h.endsWith(".localhost")) return true;
+  // IPv6 benzersiz yerel (fc00::/7) ve bağlantı yerel (fe80::/10)
+  if (/^f[cd][0-9a-f]{2}:/.test(h)) return true;
+  if (/^fe[89ab][0-9a-f]:/.test(h)) return true;
+  // IPv4-eşlemeli IPv6: ::ffff:127.0.0.1 ya da ::ffff:7f00:1
+  const eslemeli = h.match(/^::ffff:(.+)$/);
+  if (eslemeli) return ozelAdres(eslemeli[1]!);
   if (/^127\./.test(h) || /^10\./.test(h) || /^192\.168\./.test(h)) return true;
   if (/^172\.(1[6-9]|2\d|3[01])\./.test(h)) return true;
   if (/^169\.254\./.test(h)) return true; // bulut metadata uçları

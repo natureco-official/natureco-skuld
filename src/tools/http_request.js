@@ -33,6 +33,11 @@ async function httpRequest({ url, method = 'GET', headers = {}, body = null, tim
       method: method.toUpperCase(),
       headers: { 'User-Agent': 'NatureCo-CLI/4.9.0', ...headers },
       signal: controller.signal,
+      // Yönlendirme İZLENMEZ. Onaylanan adres bir şeydir, `302 Location:`
+      // ile gidilen başka bir şeydir; ilkini onaylamak ikincisini onaylamaz.
+      // Klasik istismar: onaylı genel bir URL, 169.254.169.254 metadata
+      // ucuna yönlendirir (Codex denetimi, 29.07.2026).
+      redirect: 'manual',
     };
     if (body && ['POST', 'PUT', 'PATCH'].includes(options.method)) {
       if (typeof body === 'string') options.body = body;

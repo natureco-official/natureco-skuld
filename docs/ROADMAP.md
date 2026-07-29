@@ -59,12 +59,10 @@ ilk maddesi bu.
    injection ile veri sızdırma) tam bu yoldan gerçekleşir ve şu an duracak
    bir şey yok.
 
-### S2 — Farklılaştırıcıları döngüye bağla
+### S2 — Farklılaştırıcıları döngüye bağla ✅ (29.07.2026)
 
-Üç paket de yazılı ve testli ama ajan döngüsünün dışında duruyor:
-
-- **Urðr hafızası** → `coding-session` içine RECALL/REMEMBER adımları.
-- **Kalite kapısı** → değişiklik sonrası; korumalı modül ihlali koşumu durdurur.
+- **Urðr hafızası** ✅ `runAgentic` içinde RECALL ve REMEMBER.
+- **Kalite kapısı** ✅ değişiklik sonrası; blokladıysa hafızaya yazılmaz.
 - **Verðandi kapsülü** → pasif kalır; geri açma koşulu ölçümde
   (`benchmarks/RAPOR-2026-07-29.md`).
 
@@ -117,6 +115,22 @@ NatureCo SSO, Developer Portal, Cupertino köprüsü, imzalı plugin kurulumu.
 3. Tek güvenlik kapısı — **S1 bitene kadar bu bir hedef, bir gerçek değil.**
 4. Eksik özellik dürüstçe bildirilir.
 5. Geri alınabilir değişiklikler.
+
+## Açık kalan kritik bulgu — `code_execution` ağ kapısını atlıyor
+
+Codex tur 2, birinci soruda şunu buldu ve **doğrulanmadı ama makul**:
+`code_execution` ajan modunda izinli ve Node kodunu kısıtsız çalıştırıyor.
+Model `globalThis.fetch(...)` yazarak ağ kapısına hiç uğramadan dışarı
+çıkabilir.
+
+Bu, ağ izin sınıfının değerini büyük ölçüde düşürüyor: kapı bir kapıysa,
+yanındaki duvarın da olması gerekir. Çözüm kolay değil — Node kodunu
+kısıtlamak ya ayrı bir süreç + izin devri ya da `vm` tabanlı bir sandbox
+gerektiriyor, ve ikisi de yeni saldırı yüzeyi getiriyor.
+
+**Şimdilik dürüst konum:** ağ kapısı `http_request`, `web_readability` ve
+`firecrawl` için gerçek; `code_execution` için YOK. Bu bir eksik değil,
+açık bir delik ve öyle yazıyor.
 
 ## Ölçüm
 
