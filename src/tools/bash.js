@@ -1,4 +1,8 @@
-const { execSync } = require('child_process');
+// child_process ARTIK DOĞRUDAN KULLANILMIYOR: çalıştırma execution-gateway
+// üzerinden yapılıyor. Kapı şunları ekliyor ve bu dosyada hiçbiri yoktu:
+// workspace sınırı, symlink kaçış kontrolü, çıktıda sır maskeleme, çıktı
+// boyut sınırı. Karar hâlâ buradaki approvals katmanında alınıyor.
+const { kapiAc } = require('../utils/gateway');
 const os = require('os');
 const chalk = require('chalk');
 const { isDangerousCommand, checkCommand, isSafeCommand } = require('../utils/approvals');
@@ -27,7 +31,7 @@ module.exports = {
 
       // Skip approval checks for safe commands
       if (isSafeCommand(command)) {
-        return runCommand(command);
+        return await runCommand(command);
       }
 
       // Check command against approvals policy
@@ -60,7 +64,7 @@ module.exports = {
         };
       }
 
-      return runCommand(approval.editedCommand || command);
+      return await runCommand(approval.editedCommand || command);
     } catch (error) {
       return {
         success: false,
@@ -71,7 +75,7 @@ module.exports = {
   }
 };
 
-function runCommand(command) {
+async function runCommand(command) {
   let cmd = command;
   if (process.platform !== 'win32') {
     cmd = cmd.replace(/\/home(\/[^\s]*)?/g, (match, subpath) => {
@@ -79,15 +83,27 @@ function runCommand(command) {
     });
   }
 
-  const output = execSync(cmd, {
-    encoding: 'utf-8',
-    maxBuffer: 10 * 1024 * 1024,
-    timeout: 30000,
-    shell: true,
-  });
+  // Kabuk yolu bilinçli: bu araç boru ve zincir içeren komut DİZESİ alıyor.
+  // Kapı bunu ayrı bir yetenek olarak tanıyor; argüman ayrıştırma yok,
+  // koruma onaydan ve çıktı işlemeden geliyor.
+  // `kararVerildi: true` — izin kararı yukarıdaki approvals katmanında
+  // verildi; kapının aynı komut için ikinci kez sorması kullanıcıya çift
+  // istem gösterirdi ve ikinci istemi gören kimse ilkini okumaz.
+  const kapi = await kapiAc({ kararVerildi: true, zamanAsimiMs: 30000 });
+  const sonuc = await kapi.kabuk({ komut: cmd });
+
+  if (sonuc.cikisKodu !== 0) {
+    return {
+      success: false,
+      error: `Command exited with code ${sonuc.cikisKodu}${sonuc.zamanAsimi ? ' (timed out)' : ''}`,
+      output: sonuc.stdout.trim(),
+      stderr: sonuc.stderr.trim(),
+    };
+  }
 
   return {
     success: true,
-    output: output.trim(),
+    output: sonuc.stdout.trim(),
+    ...(sonuc.kesildi ? { truncated: true } : {}),
   };
 }

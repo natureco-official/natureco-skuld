@@ -126,4 +126,11 @@ NatureCo SSO, Developer Portal, Cupertino köprüsü, imzalı plugin kurulumu.
 | Eklenen paket testi | 27 geçiyor |
 | Komut | 102 → 91 |
 | Araç | 92 |
-| Kapıdan geçmeyen çağrı noktası | **26** ← S1'in hedefi |
+| `child_process` import eden dosya (`src/`) | **61 → 59** ← S1'in hedefi |
+| Bunlardan `src/tools/` altında | 26 → **24** |
+
+### S1 ilerlemesi
+
+| Tarih | Bağlanan | Kalan (`src/tools/`) |
+|---|---|---|
+| 29.07 | `bash.js`, `shell_command.js` | 24 |

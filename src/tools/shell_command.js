@@ -5,40 +5,46 @@
  * "find / -name *.log", "ls -la", "df -h" gibi.
  */
 
-const { spawn } = require('child_process');
+// child_process ARTIK DOĞRUDAN KULLANILMIYOR — execution-gateway üzerinden.
+const { kapiAc } = require('../utils/gateway');
 const os = require('os');
 const { isSafeCommand, checkCommand, isDangerousCommand } = require('../utils/approvals');
 
 async function runShell({ command, cwd = null, timeoutMs = 10000 }) {
   if (!command) return { success: false, error: 'command gerekli' };
 
-  return new Promise((resolve) => {
-    const isWin = process.platform === 'win32';
-    const shell = isWin ? (process.env.ComSpec || 'cmd.exe') : 'bash';
-    const shellArgs = isWin ? ['/d', '/s', '/c', command] : ['-c', command];
-    const proc = spawn(shell, shellArgs, {
-      cwd: cwd || os.homedir(),
-      timeout: timeoutMs,
-      env: { ...process.env, FORCE_COLOR: '0' },
-    });
+  // Çalışma kökü: istenen cwd, yoksa süreç dizini.
+  //
+  // Eski hâli `cwd || os.homedir()` idi — yani hiçbir dizin verilmediğinde
+  // komut KULLANICININ EV DİZİNİNDE çalışıyordu. Bir kodlama aracının
+  // varsayılanı projenin dışı olmamalı; ev dizini ssh anahtarlarından tarayıcı
+  // profillerine kadar her şeyi içerir. Varsayılan artık process.cwd().
+  const kok = cwd || process.cwd();
 
-    let stdout = '';
-    let stderr = '';
-    proc.stdout.on('data', d => stdout += d.toString());
-    proc.stderr.on('data', d => stderr += d.toString());
+  try {
+    // Kapı: workspace sınırı (verilen köke göre), symlink kaçış kontrolü,
+    // çıktıda sır maskeleme, çıktı boyut sınırı, zaman aşımı.
+    // Karar yukarıdaki approvals katmanında verildi.
+    const kapi = await kapiAc({ workspace: kok, kararVerildi: true, zamanAsimiMs: timeoutMs });
+    const sonuc = await kapi.kabuk({ komut: command });
 
-    proc.on('close', (code) => {
-      const truncated = (s) => s.length > 8000 ? s.slice(0, 8000) + '\n... (kesildi)' : s;
-      resolve({
-        success: code === 0,
-        command,
-        exitCode: code,
-        stdout: truncated(stdout).trim(),
-        stderr: truncated(stderr).trim(),
-      });
-    });
-    proc.on('error', (e) => resolve({ success: false, error: e.message, command }));
-  });
+    return {
+      success: sonuc.cikisKodu === 0,
+      exitCode: sonuc.cikisKodu,
+      // Kırpma bu aracın MEVCUT sözleşmesi: çağıranlar stdout'u satır sonu
+      // olmadan bekliyor. Kapıya bağlarken düşürmüştüm ve Windows
+      // taşınabilirlik testi yakaladı — sondaki `\r\n` yüzünden regex'in `$`
+      // çapası tutmadı. Kırpma kapının işi değil çağıranın; kapı ham verir.
+      stdout: sonuc.stdout.trim(),
+      stderr: sonuc.stderr.trim(),
+      durationMs: sonuc.sureMs,
+      ...(sonuc.zamanAsimi ? { timedOut: true } : {}),
+      ...(sonuc.kesildi ? { truncated: true } : {}),
+      ...(sonuc.cikisKodu === 0 ? {} : { error: `exit ${sonuc.cikisKodu}` }),
+    };
+  } catch (hata) {
+    return { success: false, error: hata && hata.message ? hata.message : String(hata) };
+  }
 }
 
 module.exports = {
