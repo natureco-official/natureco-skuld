@@ -84,9 +84,28 @@ bir sonraki kaydı — `chat`'i — yuttu. `chat` korunacaklardandı.
 
 ### Parti 4 — ağ/küme yönetimi ✅ (29.07.2026)
 
-`bonjour` `dns` `node` `nodes` `proxy` `gateway` `admin-rpc` `qr`
+`bonjour` `dns` `proxy` `admin-rpc` `qr`
 
-Kayıt 79 → 72.
+Kayıt 79 → 75.
+
+**`gateway` `node` `nodes` geri alındı — ROADMAP'e aykırı silinmişlerdi.**
+Bu dosyadaki parti 4 listesi onları içeriyordu ama ROADMAP S4 aynı üçünü
+kırpma listesinden açıkça ÇIKARMIŞTI: *"alt ajan yönetimi ve çok makineli
+çalışma hedefe dahil; önce ne yaptıklarına bakılacak, sonra karar
+verilecek."* Bakılmadan silindiler.
+
+Bakıldığında gerekçe doğrulandı: `node run <id> <komut>` eşleştirilmiş uzak
+makinede komut çalıştırıyor, `nodes` cihaz eşleştirme ve onayını yönetiyor,
+`gateway` 541 satırlık WebSocket katmanı. Üçü de kayıtlı bir kararın
+koruduğu alanda.
+
+İki liste aynı şeyi farklı söylüyordu ve ben güncel olanı değil, elimin
+altındakini izledim. Kayıtlı bir kararı sessizce geçersiz kılmak, kararı hiç
+almamış olmaktan kötü.
+
+**`bots` silindi kaldı**, gerekçesi ölçüldü: 80 satır, tek işi *"List your AI
+bots"* ve `agents` komutu zaten `list|set|info|add|bindings|bind|unbind|
+set-identity` yapıyor. Kapsam dışı olduğu için değil, tekrar olduğu için.
 
 **`acp` bu listeden ÇIKARILDI ve geri alındı.** Adı bir ağ protokolü gibi
 duruyor, o yüzden "ağ/küme" partisine yazılmıştı. Gerçekte

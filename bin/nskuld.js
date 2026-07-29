@@ -64,6 +64,9 @@ const terminal = require('../src/commands/terminal');
 const transcripts = require('../src/commands/transcripts');
 const wiki = require('../src/commands/wiki');
 const browser = require('../src/commands/browser');
+const nodes = require('../src/commands/nodes');
+const node = require('../src/commands/node');
+const gateway = require('../src/commands/gateway');
 const tools = require('../src/commands/tools');
 
 const program = new Command();
@@ -761,6 +764,35 @@ program
     // (older, un-merged) agent than `natureco code`.
     const codeV5 = require('../src/commands/code_v5');
     codeV5(file ? path.dirname(path.resolve(file)) : process.cwd(), {});
+  });
+
+program
+  .command('gateway [action]')
+  .description('WebSocket gateway (start|stop|status|call|usage-cost|probe|discover|install|uninstall|health|restart|diagnostics|run)')
+  .action((action) => {
+    if (action === 'stop' || action === 'status') {
+      const gatewayServerCmd = require('../src/commands/gateway-server');
+      gatewayServerCmd(action);
+    } else {
+      const args = process.argv.slice(3);
+      gateway(...args);
+    }
+  });
+
+program
+  .command('node <action>')
+  .description('Node host management (run|status|install|uninstall|stop|restart)')
+  .action((action) => {
+    const args = process.argv.slice(3);
+    node(args);
+  });
+
+program
+  .command('nodes [action]')
+  .description('Node network management (list|pair|approve|reject|remove|rename|status|describe|invoke|notify|push|canvas|camera|screen|location)')
+  .action((action) => {
+    const args = process.argv.slice(3);
+    nodes(args);
   });
 
 program

@@ -74,14 +74,7 @@ describe('AUDIT_FINDINGS_3 low-severity regressions', () => {
   const commandActions = {
     security: ['audit', 'allowlist', 'policy', 'secrets'],
     directory: ['self', 'peers', 'search', 'register', 'remove', 'groups'],
-    // `nodes` parti 4'te kaldırıldı (küme yönetimi, kodlama yüzeyi değil).
-    // Gövdesi `src/commands/nodes.js` altında duruyor ama komut kayıtlı
-    // olmadığı için `nodes --help` artık çıkış kodu 1 veriyor.
-    //
-    // Aynı partide `acp` de kaldırılmıştı ve bu YANLIŞTI: adı ağ komutu gibi
-    // duruyor ama `src/commands/code_v5`'e yönlenen bir kodlama takma adı.
-    // Bu test onu yakaladı, geri alındı. Silerek sınır çizmenin bedeli bu —
-    // ve testlerin bunun için orada olmasının sebebi de bu.
+    nodes: ['list', 'pair', 'approve', 'reject', 'remove', 'rename', 'status', 'describe', 'invoke', 'notify', 'push', 'canvas', 'camera', 'screen', 'location'],
     sandbox: ['list', 'create', 'destroy', 'exec'],
     webhooks: ['list', 'gmail setup', 'gmail run'],
   };
