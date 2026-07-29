@@ -591,6 +591,21 @@ export interface AgIstegi {
   readonly yontem?: string;
   /** Neden isteniyor — onay metnine girer. */
   readonly amac?: string;
+  /** Gönderilecek gövdenin boyutu. Onay metninde gösterilir. */
+  readonly govdeBayt?: number;
+  /**
+   * Gönderilecek başlıkların ADLARI. DEĞERLERİ DEĞİL — `Authorization`
+   * değerini onay ekranına basmak, sızıntıyı önlemek için var olan ekranın
+   * kendisini sızıntıya çevirirdi.
+   */
+  readonly baslikAdlari?: readonly string[];
+}
+
+/** İnsan okur biçimde boyut. Onay metninde "gövde 1.4 MB" gibi görünür. */
+function boyutMetni(bayt: number): string {
+  if (bayt < 1024) return `${bayt} bayt`;
+  if (bayt < 1024 * 1024) return `${(bayt / 1024).toFixed(1)} KB`;
+  return `${(bayt / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 /** Yerel/özel ağ hedefi mi? SSRF için ayrı gerekçe üretilir. */
@@ -671,6 +686,22 @@ export async function agOnayi(
   if (ozelAdres(url.hostname)) isaretler.push("YEREL/ÖZEL ağ hedefi");
   const yontem = (istek.yontem ?? "GET").toUpperCase();
   if (yontem !== "GET" && yontem !== "HEAD") isaretler.push(`${yontem} — veri GÖNDERİYOR`);
+
+  // Codex denetimi (29.07.2026, tur 2, soru 2): onay metni NEREYE
+  // gidildiğini gösteriyordu ama NE gittiğini göstermiyordu. "POST
+  // https://x.example/log" iki bayt da gönderebilir, deponun tamamını da;
+  // ikisi arasındaki fark tam olarak kullanıcının karar verdiği şey.
+  if (typeof istek.govdeBayt === "number" && istek.govdeBayt > 0) {
+    isaretler.push(`gövde ${boyutMetni(istek.govdeBayt)}`);
+  }
+  const adlar = (istek.baslikAdlari ?? []).map((b) => b.toLowerCase());
+  const kimlikBasliklari = adlar.filter((b) =>
+    b === "authorization" || b === "cookie" || b === "proxy-authorization" ||
+    b.startsWith("x-api-key") || b.endsWith("-token"),
+  );
+  if (kimlikBasliklari.length > 0) {
+    isaretler.push(`KİMLİK BİLGİSİ başlığı: ${kimlikBasliklari.join(", ")}`);
+  }
 
   const karar = await onay({
     sinif: "ag",

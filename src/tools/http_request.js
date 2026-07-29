@@ -15,7 +15,18 @@ async function httpRequest({ url, method = 'GET', headers = {}, body = null, tim
   // durumları işaretler ve onaysız geçişi engeller. İsteğin kendisi burada
   // kalıyor — başlık, gövde ve zaman aşımı mantığı bu aracın.
   try {
-    await agOnayi({ url, yontem: method, amac: 'http_request aracı', kararVerildi: agOnayli === true });
+    // Onay metnine NE gönderildiği de girer: boyut ve başlık ADLARI.
+    // Değerler ASLA gösterilmez — `Authorization` değerini onay ekranına
+    // basmak, sızıntıyı önlemek için var olan ekranı sızıntıya çevirirdi.
+    const govde = body == null ? null : (typeof body === 'string' ? body : JSON.stringify(body));
+    await agOnayi({
+      url,
+      yontem: method,
+      amac: 'http_request aracı',
+      kararVerildi: agOnayli === true,
+      govdeBayt: govde == null ? 0 : Buffer.byteLength(govde, 'utf8'),
+      baslikAdlari: Object.keys(headers || {}),
+    });
   } catch (hata) {
     return { success: false, error: hata && hata.message ? hata.message : String(hata) };
   }

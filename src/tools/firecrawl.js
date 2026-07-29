@@ -27,6 +27,9 @@ module.exports = {
         yontem: 'POST',
         amac: `firecrawl — hedef: ${(params && params.url) || 'belirtilmemiş'}`,
         kararVerildi: (params && params.agOnayli) === true,
+        // Firecrawl her zaman API anahtarı taşır; kullanıcı bunu görmeli.
+        baslikAdlari: ['Authorization', 'Content-Type'],
+        govdeBayt: Buffer.byteLength(JSON.stringify(params || {}), 'utf8'),
       });
     } catch (hata) {
       return { success: false, error: hata && hata.message ? hata.message : String(hata) };

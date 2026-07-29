@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, rm, writeFile, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { after, describe, it } from "node:test";
-import { ExecutionGateway, otomatikRet } from "../../packages/execution-gateway/src/index.ts";
+import { ExecutionGateway, otomatikRet, agOnayi } from "../../packages/execution-gateway/src/index.ts";
 import type { OnayIstegi } from "../../packages/execution-gateway/src/index.ts";
 
 const gecici: string[] = [];
@@ -403,5 +403,46 @@ describe("model kendi kendini onaylayamaz", () => {
     for (const bayrak of ["agOnayli", "onayli", "kararVerildi"]) {
       assert.equal(gorulenArgs![bayrak], undefined, `${bayrak} araca ulaştı`);
     }
+  });
+});
+
+describe("Codex tur 2 — onay metni ne gönderildiğini de gösterir", () => {
+  // Bulgu 2: metin NEREYE gidildiğini gösteriyordu ama NE gittiğini
+  // göstermiyordu. Aynı "POST https://x/log" satırı iki bayt da gönderebilir,
+  // deponun tamamını da — ve karar tam olarak bu farkta veriliyor.
+  async function onayMetni(istek: any): Promise<OnayIstegi> {
+    let gorulen: OnayIstegi | null = null;
+    await assert.rejects(
+      agOnayi(async (i) => { gorulen = i; return "ret"; }, process.cwd(), istek),
+    );
+    assert.ok(gorulen, "onay isteği hiç üretilmedi");
+    return gorulen!;
+  }
+
+  it("gövde boyutu ve kimlik başlıkları gerekçeye girer", async () => {
+    const g = await onayMetni({
+      url: "https://veri.example/topla",
+      yontem: "POST",
+      amac: "test",
+      govdeBayt: 1536000,
+      baslikAdlari: ["Authorization", "Content-Type", "X-Api-Key"],
+    });
+    assert.match(g.gerekce ?? "", /gövde 1\.5 MB/);
+    assert.match(g.gerekce ?? "", /KİMLİK BİLGİSİ başlığı/);
+    assert.match(g.gerekce ?? "", /authorization/);
+  });
+
+  it("başlık DEĞERLERİ onay metnine ASLA girmez", async () => {
+    // Onay ekranı sızıntıyı önlemek için var; sırrı ekrana basmak onu
+    // sızıntının kendisi yapardı. Kapıya yalnızca adlar geçiyor.
+    const g = await onayMetni({
+      url: "https://x.example/", yontem: "POST", baslikAdlari: ["Authorization"],
+    });
+    assert.ok(!JSON.stringify(g).includes("Bearer"));
+  });
+
+  it("gövde yoksa boyut satırı hiç görünmez", async () => {
+    const g = await onayMetni({ url: "https://x.example/", yontem: "GET", govdeBayt: 0 });
+    assert.ok(!(g.gerekce ?? "").includes("gövde"));
   });
 });
