@@ -22,25 +22,19 @@ const logout = require('../src/commands/logout');
 const account = require('../src/commands/account');
 const dna = require('../src/commands/dna');
 const lang = require('../src/commands/lang');
-const bots = require('../src/commands/bots');
 const chat = require('../src/commands/chat');
 const help = require('../src/commands/help');
-const gateway = require('../src/commands/gateway');
 const init = require('../src/commands/init');
 const config = require('../src/commands/config');
 const ask = require('../src/commands/ask');
 const run = require('../src/commands/run');
 const webhooks = require('../src/commands/webhooks');
-const bonjour = require('../src/commands/bonjour');
 const policy = require('../src/commands/policy');
-const clickclack = require('../src/commands/clickclack');
-const adminRpc = require('../src/commands/admin-rpc');
 const ocPath = require('../src/commands/oc-path');
 const workboard = require('../src/commands/workboard');
 const threadOwnership = require('../src/commands/thread-ownership');
 const devicePair = require('../src/commands/device-pair');
 const openProse = require('../src/commands/open-prose');
-const vydra = require('../src/commands/vydra');
 // OpenClaw uyumlu komutlar
 const agent = require('../src/commands/agent');
 const approvals = require('../src/commands/approvals');
@@ -50,27 +44,19 @@ const cost = require('../src/commands/cost');
 const naturehub = require('../src/commands/naturehub');
 const medium = require('../src/commands/medium');
 const seo = require('../src/commands/seo');
-const xp = require('../src/commands/xp');
 const team = require('../src/commands/team');
 const repl = require('../src/commands/repl');
 const capability = require('../src/commands/capability');
-const commitments = require('../src/commands/commitments');
 const completion = require('../src/commands/completion');
 const configure = require('../src/commands/configure');
-const crestodian = require('../src/commands/crestodian');
 const daemon = require('../src/commands/daemon');
 const devices = require('../src/commands/devices');
 const directory = require('../src/commands/directory');
-const dns = require('../src/commands/dns');
 const docs = require('../src/commands/docs');
 const execPolicy = require('../src/commands/exec-policy');
 const health = require('../src/commands/health');
 const infer = require('../src/commands/infer');
-const node = require('../src/commands/node');
-const nodes = require('../src/commands/nodes');
 const onboard = require('../src/commands/onboard');
-const proxy = require('../src/commands/proxy');
-const qr = require('../src/commands/qr');
 const sandbox = require('../src/commands/sandbox');
 const secrets = require('../src/commands/secrets');
 const system = require('../src/commands/system');
@@ -94,10 +80,8 @@ ${chalk.yellow('🤖 AI & Chat')}
   ${chalk.cyan('code')}          Code agent — dosya oku, yaz, komut çalıştır
   ${chalk.cyan('ask')}           Tek soru sor
   ${chalk.cyan('run')}           Markdown script çalıştır
-  ${chalk.cyan('bots')}          Bot listesi
   ${chalk.cyan('agent')}         One-shot agent (run|abort|tail|logs)
   ${chalk.cyan('agents')}        Agent yönetimi (list|set|info|add|bindings|bind|unbind|set-identity)
-  ${chalk.cyan('commitments')}   Eylem taahhütleri (list|add|check|resolve|summary|pending|done)
   ${chalk.cyan('infer')}         Yetenek/algılama (list|inspect|model|image|audio|tts|video|web|embedding|auth)
 
 ${chalk.yellow('⚙️  Kurulum & Ayarlar')}
@@ -116,7 +100,6 @@ ${chalk.yellow('⚙️  Kurulum & Ayarlar')}
 
 ${chalk.yellow('🔌 Entegrasyonlar')}
   ${chalk.cyan('channels')}      Kanal yönetimi (list|status|add|remove|logs|login|logout|capabilities|resolve)
-  ${chalk.cyan('gateway')}       WebSocket gateway (start|stop|status|call|usage-cost|probe|discover|install|uninstall|health|restart|diagnostics|run)
 
 ${chalk.yellow('💻 Geliştirici Araçları')}
   ${chalk.cyan('git')}           Git entegrasyonu
@@ -146,32 +129,21 @@ ${chalk.yellow('📊 Yönetim & Sistem')}
   ${chalk.cyan('workboard')}     Görev/pano yönetimi
 
 ${chalk.yellow('🛰️  Ağ & Cihaz')}
-  ${chalk.cyan('bonjour')}       Ağ keşfi ve servis tarama
-  ${chalk.cyan('dns')}           Ağ keşfi — DNS (discover|resolve|setup)
   ${chalk.cyan('directory')}     Dizin sorgulama (self|peers|search|register|remove)
   ${chalk.cyan('policy')}        Workspace uyumluluk politikası
-  ${chalk.cyan('clickclack')}    Bildirim/beep kanalı
-  ${chalk.cyan('admin-rpc')}     HTTP admin RPC endpoint
   ${chalk.cyan('oc-path')}       nc:// URI path handler
   ${chalk.cyan('thread-ownership')} Slack thread koordinasyonu
   ${chalk.cyan('device-pair')}   Cihaz eşleştirme (QR kod)
   ${chalk.cyan('devices')}       Cihaz yönetimi (list|pair|unpair|token|regenerate-token|rotate|revoke|clear)
-  ${chalk.cyan('qr')}            QR kod ile eşleştirme
   ${chalk.cyan('pairing')}       Cihaz eşleştirme (list|approve|reject|generate)
 
 ${chalk.yellow('🔧 Altyapı')}
   ${chalk.cyan('daemon')}        Gateway daemon (status|start|stop|restart)
-  ${chalk.cyan('node')}          Node host (run|status|install|uninstall|stop|restart)
-  ${chalk.cyan('nodes')}         Node network (list|pending|approve|reject|remove|rename|status|describe|invoke|notify|push|canvas|camera|screen|location)
-  ${chalk.cyan('proxy')}         Debug proxy (start|stop|status|run|coverage|sessions|query|blob|purge)
   ${chalk.cyan('sandbox')}       Sandbox container (list|recreate|explain)
   ${chalk.cyan('capability')}    Yetenek sorgulama (list|inspect)
-  ${chalk.cyan('acp')}           ACP endpoint (status|info)
   ${chalk.cyan('path')}          nc:// URI path yönetimi (resolve|find|set|validate|emit)
-  ${chalk.cyan('clawbot')}       Legacy clawbot (qr)
 
 ${chalk.yellow('📦 Medya & İçerik')}
-  ${chalk.cyan('vydra')}         Vydra medya sağlayıcı
   ${chalk.cyan('docs')}          Dokümantasyon arama
   ${chalk.cyan('browser')}       Browser automation (status|start|stop|tabs|open|close|navigate|screenshot|snapshot|click|type|press|resize|hover|drag|select|upload|fill|dialog|wait|evaluate|console|pdf|profiles|focus|reset-profile|create-profile|delete-profile)
 
@@ -218,11 +190,6 @@ program
   .command('logout')
   .description('Logout and remove stored credentials')
   .action(logout);
-
-program
-  .command('bots')
-  .description('List your AI bots')
-  .action(bots);
 
 program
   .command('chat [bot-name...]')
@@ -375,19 +342,6 @@ program
   });
 
 program
-  .command('gateway [action]')
-  .description('WebSocket gateway (start|stop|status|call|usage-cost|probe|discover|install|uninstall|health|restart|diagnostics|run)')
-  .action((action) => {
-    if (action === 'stop' || action === 'status') {
-      const gatewayServerCmd = require('../src/commands/gateway-server');
-      gatewayServerCmd(action);
-    } else {
-      const args = process.argv.slice(3);
-      gateway(...args);
-    }
-  });
-
-program
   .command('ultrareview [file]')
   .description('Ultra detailed code review')
   .action((file) => {
@@ -467,15 +421,6 @@ program
   });
 
 program
-  .command('bonjour [action]')
-  .description('Network discovery (scan|discover|status) — find NatureCo services on LAN')
-  .action((action) => {
-    const bonjourCmd = require('../src/commands/bonjour');
-    const args = process.argv.slice(3);
-    bonjourCmd(args);
-  });
-
-program
   .command('policy [action]')
   .description('Workspace policy checks (check|set|list|remove)')
   .action((action) => {
@@ -485,23 +430,6 @@ program
   });
 
 program
-
-program
-  .command('clickclack [action]')
-  .description('ClickClack notification channel (status|test|enable|disable|listen|notify)')
-  .action((action) => {
-    const clickclackCmd = require('../src/commands/clickclack');
-    const args = process.argv.slice(3);
-    clickclackCmd(args);
-  });
-
-program
-  .command('admin-rpc [action]')
-  .description('Admin HTTP RPC server (status|start|stop|call|methods)')
-  .action((action) => {
-    const args = process.argv.slice(3);
-    adminRpc(args);
-  });
 
 program
   .command('oc-path [action]')
@@ -537,14 +465,6 @@ program
 
 
 program
-  .command('vydra [action]')
-  .description('Vydra media provider (status|configure|test)')
-  .action((action) => {
-    const args = process.argv.slice(3);
-    vydra(args);
-  });
-
-program
   .command('models [action] [params...]')
   .description('Manage AI models (list|set|scan|aliases|fallbacks|set-image|image-fallbacks)')
   .allowUnknownOption()
@@ -570,13 +490,6 @@ program
 
 
 
-
-program
-  .command('xp [action]')
-  .description('NatureCo XP/Level sistemi')
-  .action((action) => {
-    xp(action ? [action] : []);
-  });
 
 program
   .command('tools [action] [name]')
@@ -713,13 +626,6 @@ program
   });
 
 program
-  .command('commitments <action> [text...]')
-  .description('Manage action commitments (list|add|check|resolve|summary|pending|done)')
-  .action((action, text) => {
-    commitments([action, ...(text || [])]);
-  });
-
-program
   .command('completion <shell>')
   .description('Generate shell completion script (bash|zsh|fish|powershell)')
   .action((shell) => {
@@ -731,14 +637,6 @@ program
   .description('Interactive configuration wizard')
   .action(() => {
     configure(process.argv.slice(3));
-  });
-
-program
-  .command('crestodian [action]')
-  .description('Crestodian repair assistant (repair|analyze|plan)')
-  .action((action) => {
-    const args = process.argv.slice(3);
-    crestodian(args);
   });
 
 program
@@ -762,14 +660,6 @@ program
   .action((action) => {
     const args = process.argv.slice(3);
     directory(args);
-  });
-
-program
-  .command('dns <action>')
-  .description('Network DNS discovery (discover|resolve)')
-  .action((action) => {
-    const args = process.argv.slice(3);
-    dns(args);
   });
 
 program
@@ -804,42 +694,10 @@ program
   });
 
 program
-  .command('node <action>')
-  .description('Node host management (run|status|install|uninstall|stop|restart)')
-  .action((action) => {
-    const args = process.argv.slice(3);
-    node(args);
-  });
-
-program
-  .command('nodes [action]')
-  .description('Node network management (list|pair|approve|reject|remove|rename|status|describe|invoke|notify|push|canvas|camera|screen|location)')
-  .action((action) => {
-    const args = process.argv.slice(3);
-    nodes(args);
-  });
-
-program
   .command('onboard')
   .description('Interactive onboarding wizard')
   .action(() => {
     onboard(process.argv.slice(3));
-  });
-
-program
-  .command('proxy [action]')
-  .description('Debug proxy server (start|stop|status|run|coverage|sessions|query|blob|purge)')
-  .action((action) => {
-    const args = process.argv.slice(3);
-    proxy(args);
-  });
-
-program
-  .command('qr [action]')
-  .description('QR code pairing (show|generate|verify)')
-  .action((action) => {
-    const args = process.argv.slice(3);
-    qr(args);
   });
 
 program
@@ -894,16 +752,6 @@ program
     const pathCmd = require('../src/commands/path');
     pathCmd([action, ...(params || [])]);
   });
-
-program
-  .command('clawbot [action] [params...]')
-  .description('Legacy clawbot namespace (qr)')
-  .action((action, params) => {
-    const clawbotCmd = require('../src/commands/clawbot');
-    clawbotCmd([action, ...(params || [])]);
-  });
-
-// === OpenClaw uyumlu alias komutlar ===
 
 program
   .command('acp [file]')

@@ -68,13 +68,34 @@ var ama bunlar hata değil: özel blok `addHelpText("after", …)` ile ekleniyor
 commander'ın kendi listesi zaten hepsini gösteriyor. Bunu ölçmeden yazsaydım
 17 yanlış alarm üretirdim.
 
-### Parti 3 — bot kişilikleri ve genel sohbet yüzeyleri
+### Parti 3 — bot kişilikleri ve genel sohbet yüzeyleri ✅ (29.07.2026)
 
 `bots` `clawbot` `crestodian` `vydra` `clickclack` `xp` `commitments`
 
-### Parti 4 — ağ/küme yönetimi
+Kayıt 86 → 79. Kullanılmayan `require` satırları da silindi: modül hâlâ
+yükleniyorsa sınır çizilmemiş, yalnızca gizlenmiş olur.
 
-`bonjour` `dns` `node` `nodes` `proxy` `gateway` `admin-rpc` `acp` `qr`
+**Betik bir kez fazlasını sildi.** Blokları `});` ile biten desene göre
+kesiyordum; `.command('bots')` bloğu `.action(bots);` ile bittiği için desen
+bir sonraki kaydı — `chat`'i — yuttu. `chat` korunacaklardandı.
+`yardim-tutarlilik.mjs` bunu aynı dakikada yakaladı. Blok sınırı artık
+`^program
+  .command(` ile bulunuyor, bitişe bakılmıyor.
+
+### Parti 4 — ağ/küme yönetimi ✅ (29.07.2026)
+
+`bonjour` `dns` `node` `nodes` `proxy` `gateway` `admin-rpc` `qr`
+
+Kayıt 79 → 72.
+
+**`acp` bu listeden ÇIKARILDI ve geri alındı.** Adı bir ağ protokolü gibi
+duruyor, o yüzden "ağ/küme" partisine yazılmıştı. Gerçekte
+`src/commands/code_v5`'e yönlenen bir **kodlama takma adı** — yani tam olarak
+ürünün merkezinde olan şey. Devralınan bir test (`L-02`) bunu yakaladı.
+
+Bu, kullanıcının daha önce düzelttiği hatanın aynısı: `dashboard`,
+`workboard`, `browser`, `cron` gibi yüzeyleri "kodlama değil" diye eleme
+eğilimi. Ada bakarak sınıflandırmak ucuz ve yanlış.
 `directory` `channels` `team` `onboard`
 
 ## Geri alınan karar — bunlar KALIYOR
