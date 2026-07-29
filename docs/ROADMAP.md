@@ -1,85 +1,129 @@
-# ROADMAP — Skuld
+# ROADMAP — NatureCo Skuld
 
-**Tarih:** 29 Temmuz 2026
-**Durum:** keşif tamamlandı, P0 karar kapısı bekliyor
+**Gözden geçirme:** 29 Temmuz 2026
+**Hedef (kullanıcı tanımı):** *"Senin yapabildiğin her şeyi Skuld da yapabilmeli."*
 
-## P0 — Güvenilir local coding agent
+## Önceki planın öncülü yanlıştı
 
-Amaç: hesapsız, tek makinede, kanıt üreterek çalışan bir kodlama ajanı.
+Eski yol haritası Skuld'u minimal bir çekirdekten dışa doğru inşa edilecek bir
+şey sayıyordu: P0-1 iskelet, P0-4 araçları taşı, P0-5 ajan döngüsü…
 
-| # | İş paketi | Bağımlılık | Kabul kriteri |
-|---|---|---|---|
-| P0-1 | Depo iskeleti, isim kararı uygulanmış, lisans/provenans altyapısı | **NAME_CHECK kararı** | `THIRD_PARTY_NOTICES.md`, taşınan her dosyada kaynak SHA |
-| P0-2 | `execution-gateway`: tek kapı, structured spawn, workspace confinement, symlink guard, secret masking | — | Gateway dışında `child_process` import'u **lint hatası**; adversarial testler geçer |
-| P0-3 | `provider-core`: 5 model adaptörünün normalize sözleşmesi | P0-1 | Fake provider ile deterministik test; gerçek çağrı yok |
-| P0-4 | Kodlama çekirdeğinin taşınması (`code_v5`, `agentic-runner`, 9 araç) + ESM/TS dönüşümü | P0-2, P0-3 | Taşınan her modülün testi taşındı ve yeşil |
-| P0-5 | `agent-core`: INTAKE→REMEMBER state machine, resumable session | P0-4 | Çökme sonrası resume testi |
-| ~~P0-6~~ ✅ | `memory`: Urðr MCP adaptörü + **sözleşme testleri** | — | **Tamamlandı 29.07.2026:** 5 sözleşme testi geçiyor; iki ayrı süreçte yaz→hatırla doğrulandı |
-| P0-7 ⏸ | `context-engine`: Verðandi MCP adaptörü | — | **Yazıldı, çalışıyor, 29.07.2026'da PASİFE alındı.** Tasarruf yarı kanıtlandı: "dosya adı verilmişse atla" ölçüldü ve ek yükü sıfırladı; diğer taraftaki fark koşum dalgalanmasının (aynı görevde 84×) altında kaldı. `--kapsul` ile açılır. Dönüş koşulu aşağıda ([rapor](../benchmarks/RAPOR-2026-07-29.md)) |
-| ~~P0-8~~ ✅ | `quality-gate`: CodeDNA JSON subprocess sözleşmesi | — | **Tamamlandı 29.07.2026:** korumalı modül ihlali bloklar (çıkış 3), CodeDNA sezgileri yalnızca raporlar; CodeDNA yokken kapı yine çalışır |
-| P0-9 | Checkpoint/rollback, içerik-hash önkoşulu | P0-4 | Stale patch reddedilir; dirty worktree korunur |
-| P0-10 | `doctor`, `--json` stabil şema, audit log, exit code'lar | P0-1 | Şema testli, exit code'lar belgeli |
-| P0-11 | CI: Linux/macOS/Windows × Node destek matrisi | P0-1 | Üç platformda yeşil |
-| P0-12 | `benchmarks/` harness, A/B koşulları | P0-6,7,8 | Verðandi açık/kapalı raporu üretir |
-| P0-13 | Cupertino capability detection prototipi | P0-2 | Plain terminalde tam çalışır |
+Fork alındıktan sonra yapılan envanter bunu çürüttü. Aşağıdakilerin **hepsi**
+zaten fork'ta var ve **testleri de var**:
 
-### P0 kabul kriterleri (prompt'tan, hepsi test edilebilir)
+| Yetenek | Fork'taki karşılığı | Testi |
+|---|---|---|
+| Alt ajan / görev devri | `sub_agent`, `delegate_task`, `async_delegation` | `sub-agent.test.js` |
+| Plan modu | `plan`, `utils/plan-mode.js` | `plan-mode.test.js` |
+| Görev listesi | `todo_write` | `todo-write-tool.test.js` |
+| Arka plan görevleri | `utils/background.js` | `background.test.js` |
+| Worktree izolasyonu | `utils/worktree.js` | `worktree.test.js` |
+| LSP | `utils/lsp-client.js` | `lsp-client.test.js` |
+| Oturum sürdürme | `utils/coding-session.js`, `sessions` | `coding-session.test.js` |
+| Cerrahi düzenleme | `edit_file`, `structural_patch` | ✓ |
+| Arama | `grep_search`, `file_search`, `web_search`, `exa_search` | ✓ |
+| Notebook | `notebook_edit` | — |
+| Checkpoint | `checkpoint` | ✓ |
+| Kullanıcıya soru | `clarify` | ✓ |
+| Skill / plugin / MCP | `skills_*`, `plugin`, `mcp` | ✓ |
+| Hafıza | `memory_tree`, `cross_session_memory` | ✓ |
 
-- [ ] Temiz fixture repo'da özellik ekler, testleri çalıştırır
-- [ ] Dirty worktree'deki kullanıcı değişikliklerini korur
-- [ ] Destructive komut onaysız çalışmaz
-- [ ] Stale patch reddedilir
-- [ ] Çökme sonrası session resume edilir
-- [ ] Urðr'a kaynaklı karar yazılır, sonraki oturumda **doğru scope'ta** bulunur
-- [ ] Verðandi açık/kapalı benchmark raporu üretir
-- [ ] CodeDNA protected module ihlalini yakalar
-- [ ] **Hesap olmadan local kullanım çalışır**
+**Sonuç: eksik olan yetenek değil.** İş sıfırdan inşa değil; doğrulama,
+bağlama ve ayıklama.
 
-### P0-7 neden pasif ve ne zaman geri açılır
+## En büyük açık: kapı üründe yürürlükte değil
 
-Kod, testler ve eşik yerinde duruyor; yalnızca varsayılan kapalı. Geri açma
-koşulu **tek bir ölçüm**: görev başına 5-10 tekrarla, medyan üzerinden,
-dosya adı vermeyen görevlerde kapsülün tasarruf sağladığının gösterilmesi.
+`packages/execution-gateway` yazıldı, 13 düşman testi geçiyor, sınır lint'i
+yeşil. Ama:
 
-Şu anki engel teknik değil istatistiksel: aynı görevin taban kolu bir koşumda
-58.104, diğerinde 694 input token harcadı. Bu oynaklık ölçmeye çalıştığımız
-etkiden büyük olduğu sürece n=1 hiçbir şey söylemez.
+- Hiçbir yerden **kullanılmıyor** — `src/` ve `bin/` altında tek bir
+  `@skuld/*` import'u yok.
+- `src/tools/` altında **26 dosya doğrudan `child_process` çağırıyor**.
+- Sınır lint'i yalnızca `packages/` altını tarıyor; orası kimsenin çağırmadığı
+  bir köşe olduğu için kural fiilen hiçbir şeyi korumuyor.
 
-Kanıtlanmamış bir yolu varsayılan yapmak, ölçümü beklerken kullanıcıya
-maliyet bindirmek olurdu.
+Yani "tek güvenlik kapısı" bugün bir ilke değil, bir niyet. Yol haritasının
+ilk maddesi bu.
 
-## P1 — Ekosistem entegrasyonu
+## Sıra
 
-- NatureCo device flow + keychain token storage
-- Developer Portal cihaz/oturum görünürlüğü
-- Cupertino native status/diff/approval köprüsü
-- MCP/plugin SDK, imzalı ve izin manifestli kurulum
-- Gelişmiş context profilleri, maliyet bütçesi
-- Paketleme, installer, auto-update + rollback
-- Dokümantasyon sitesi
+### S1 — Kapıyı gerçekten devreye al
 
-## P2 — Takım ve uzak çalışma
+1. `src/tools/bash.js` ve `shell_command.js` → `execution-gateway` üzerinden.
+2. Kalan çağrı noktalarını tek tek geçir; her biri ayrı commit, her commit
+   sonrası tam test.
+3. Sınır lint'inin kapsamını `packages/` → `src/` + `bin/` olarak genişlet.
+   Kapsam genişlemesi **en sona**: önce sıfır ihlal, sonra kural.
+4. **Ağ izin sınıfı** (`ag`): `web-fetch`, `browser`, `http_request` bu sınıfa
+   bağlanır; onay metni **hedef adresi gösterir**. ADR-0002'de T2 (prompt
+   injection ile veri sızdırma) tam bu yoldan gerçekleşir ve şu an duracak
+   bir şey yok.
 
-- Opt-in şifreli senkronizasyon (ayrı ADR)
-- ZeroLink uzak coding, net hedef gösterimi — **Mac→Windows yönü önce test edilmeli**
-- Takım policy paketleri, shared decisions, CodeDNA trendleri
-- Background/cloud görevleri (ayrı threat model)
+### S2 — Farklılaştırıcıları döngüye bağla
 
-## P0 sonrasına bırakılan opsiyonel modüller
+Üç paket de yazılı ve testli ama ajan döngüsünün dışında duruyor:
 
-Mesajlaşma gateway'leri, Medium/SEO/NatureHub, medya üretimi, genel chatbot, cron/hooks/webhooks, web dashboard. Her biri: ayrı paket sınırı, bağımsız permission manifest, kullanılmadığında yüklenmeme, ayrı hafıza scope'u, dış etkili eylemlerde açık onay.
+- **Urðr hafızası** → `coding-session` içine RECALL/REMEMBER adımları.
+- **Kalite kapısı** → değişiklik sonrası; korumalı modül ihlali koşumu durdurur.
+- **Verðandi kapsülü** → pasif kalır; geri açma koşulu ölçümde
+  (`benchmarks/RAPOR-2026-07-29.md`).
 
-## Riskler
+### S3 — Yetenek eşitliği denetimi
 
-| Risk | Olasılık | Etki | Azaltma |
-|---|---|---|---|
-| **İsim çakışması** — npm/PyPI alınmış, GitHub'da en popüler "skuld" bir stealer malware | kesin | yüksek (marka + güvenlik itibarı) | NAME_CHECK kararı **kod yazmadan önce** |
-| **urdr'ın 0 testi** — hafıza katmanı doğrulanmamış | kesin | yüksek | Sözleşme testleri Skuld tarafında (P0-6); upstream'e test PR'ı |
-| CommonJS→ESM dönüşümünde sessiz kırılma | orta | yüksek | Dosya başına test taşıma; 1127 testin yeşil kalması kabul kriteri |
-| Gateway'in gerçekten tek kapı olmaması | orta | **kritik** | Lint kuralı (P0-2), belge değil |
-| Verðandi TS-only → diğer dillerde zayıf | kesin | orta | Açıkça duyurulacak; parser adaptör arayüzü P0, doldurma P1 |
-| Küçük görevlerde kapsül ek yükü maliyeti artırıyor (T01 +%21) | kesin | orta | Bypass eşiği benchmark ile (P0-7,12) |
-| CodeDNA Python bağımlılıkları (`tree_sitter_python`) | kesin | düşük | Graceful degradation + `doctor` |
-| natureco-cli'nin 22 runtime bağımlılığı | orta | orta | Kodlama dışı yüzey atılınca azalır; kalanlar denetlenecek |
-| ZeroLink Mac→Windows hiç test edilmemiş | kesin | orta | P2'ye kadar "desteklenmiyor" denecek |
-| Kalite eşdeğerliği hâlâ kanıtsız (Verðandi'de de öyle) | kesin | yüksek (pazarlama riski) | Kör değerlendirme yapılmadan iddia edilmeyecek |
+Envanter "var" diyor; "çalışıyor" demiyor. Her yetenek için uçtan uca bir
+kanıt koşumu: alt ajan gerçekten alt ajan başlatıyor mu, worktree gerçekten
+izole mi, plan modu gerçekten uygulamayı engelliyor mu, LSP gerçekten bir dil
+sunucusuna bağlanıyor mu.
+
+Şimdiye kadar **çalıştırarak** bulunan üç kusur, bu denetimin neden gerektiğini
+gösteriyor:
+
+- `gatewayScreen` her çağrıda çöküyordu (`COLORS.cyan` tanımsızdı).
+- Kurulum sihirbazı TTY yokken çöküyordu — kullanıcının gördüğü ilk ekran.
+- Kelime işareti boruya iki kez düşüyordu.
+
+Hiçbiri 1127 testin ürettiği bir uyarı değildi.
+
+### S4 — Ayıklama (küçültülmüş kapsam)
+
+Kırpma hedefi artık "minimal araç" değil, **"Claude Code'un yapmadığı ve
+kodlama döngüsüne hizmet etmeyen yüzeyler"**. Bu, listeyi ciddi biçimde
+kısaltıyor.
+
+| Parti | Komutlar | Gerekçe |
+|---|---|---|
+| 1 ✅ | `discord` `slack` `telegram` `whatsapp` `signal` `imessage` `sms` `irc` `mattermost` `message` `voice` | Kodlama ajanının mesajlaşma köprüsü yok; dış etkili eylemler izin sınırını gereksiz genişletiyor |
+| 2 | `medium` `naturehub` `seo` `wiki` `open-prose` | Yayıncılık; kodlama döngüsüne değmiyor |
+| 3 | `clawbot` `crestodian` `vydra` `clickclack` `xp` | Bot kişilikleri |
+| 4 | `bonjour` `dns` `proxy` `admin-rpc` `qr` | Ağ/küme yönetimi |
+
+**Kalanlar** — ilk sınıflandırmada yanlışlıkla çıkarılacaklar listesindeydiler:
+`dashboard` `workboard` `browser` `web-fetch` `cron` `hooks` `webhooks`
+`daemon`. Hepsi kodlama döngüsüne hizmet ediyor; gerekçeleri
+[`KOMUT-KIRPMA.md`](KOMUT-KIRPMA.md) içinde.
+
+`bots`, `channels`, `team`, `directory`, `onboard`, `gateway`, `node`, `nodes`
+kırpma listesinden **çıkarıldı**: alt ajan yönetimi ve çok makineli çalışma
+hedefe dahil; önce ne yaptıklarına bakılacak, sonra karar verilecek.
+
+### S5 — Kimlik ve ekosistem
+
+NatureCo SSO, Developer Portal, Cupertino köprüsü, imzalı plugin kurulumu.
+
+## Değişmeyenler
+
+1. Local-first: hesapsız çalışır, kaynak kodu opt-in olmadan çıkmaz.
+2. Kanıtsız başarı yok: ajan "tamamlandı" demeden önce ne çalıştırdığını gösterir.
+3. Tek güvenlik kapısı — **S1 bitene kadar bu bir hedef, bir gerçek değil.**
+4. Eksik özellik dürüstçe bildirilir.
+5. Geri alınabilir değişiklikler.
+
+## Ölçüm
+
+| | Değer |
+|---|---|
+| Devralınan test | 1127 geçiyor / 3 atlanıyor |
+| Eklenen paket testi | 27 geçiyor |
+| Komut | 102 → 91 |
+| Araç | 92 |
+| Kapıdan geçmeyen çağrı noktası | **26** ← S1'in hedefi |
