@@ -133,3 +133,24 @@ Bu iş yapılana kadar `web-fetch` ve `browser` mevcut hâlleriyle duruyor;
 |---|---:|---|
 | Fork | 102 | 1127 ✓ |
 | Parti 1 sonrası | 91 | 1127 ✓ |
+
+## Ölçülen sonuç
+
+92 → 72 komut kaydı, 20 ölü `require`.
+
+`--help` açılışı (medyan, 15 koşum, aynı makinede arka arkaya üç tur):
+
+| Tur | Kırpma öncesi | Kırpma sonrası | Fark |
+|---|---|---|---|
+| 1 | 388 ms | 322 ms | %17.2 |
+| 2 | 393 ms | 327 ms | %16.7 |
+| 3 | 388 ms | 326 ms | %15.9 |
+
+Üç tur, çünkü tek koşum yeterli değil: Verðandi ölçümünde koşumlar arası
+84 kat fark çıkmıştı ve ona dayanan bir eşik yanlış çıkmıştı. Burada dağılım
+dar, %15.9–17.2 aralığı gerçek.
+
+İlk ölçüm geçersizdi ve atıldı: eski dosyayı `TEMP`'ten çalıştırınca göreli
+`require`'lar çözülmüyor, süreç hata yolunda erken çıkıyor ve "eski sürüm
+daha hızlı" gibi görünüyordu. Karşılaştırma için iki dosya da depo içinde
+durmalı.
