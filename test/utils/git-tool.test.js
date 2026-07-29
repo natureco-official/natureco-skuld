@@ -32,8 +32,8 @@ describe('git aracı — tokenizeArgs (shell enjeksiyonu imkansiz)', () => {
 
 describe('git aracı — remote yazma guard (bypass kapatıldı)', () => {
   for (const sub of ['add', 'set-url', 'remove', 'rm', 'rename']) {
-    it(`remote ${sub} engellenir (git çağrılmadan önce)`, () => {
-      const r = git.execute({ operation: 'remote', args: `${sub} origin https://evil.example/x` });
+    it(`remote ${sub} engellenir (git çağrılmadan önce)`, async () => {
+      const r = await git.execute({ operation: 'remote', args: `${sub} origin https://evil.example/x` });
       expect(r.success).toBe(false);
       expect(r.error).toMatch(/engellend|guvenlik/i);
     });
@@ -41,16 +41,16 @@ describe('git aracı — remote yazma guard (bypass kapatıldı)', () => {
 });
 
 describe('git aracı — esnek giriş + bilinmeyen operasyon', () => {
-  it('bilinmeyen operasyon net hata döndürür (sessiz başarısızlık yok)', () => {
-    const r = git.execute({ operation: 'kesinlikle-yok' });
+  it('bilinmeyen operasyon net hata döndürür (sessiz başarısızlık yok)', async () => {
+    const r = await git.execute({ operation: 'kesinlikle-yok' });
     expect(r.success).toBe(false);
     expect(r.error).toMatch(/Bilinmeyen git islemi/i);
   });
 
-  it('operation yoksa args/command\'dan ilk token operation olur', () => {
+  it('operation yoksa args/command\'dan ilk token operation olur', async () => {
     // "push ..." güvenli değil ama parse'ın operation'ı çıkardığını görmek için
     // bilinmeyen bir operasyon kullan → "Bilinmeyen git islemi: foo" almalıyız.
-    const r = git.execute({ command: 'foo bar baz' });
+    const r = await git.execute({ command: 'foo bar baz' });
     expect(r.success).toBe(false);
     expect(r.error).toMatch(/foo/i);
   });

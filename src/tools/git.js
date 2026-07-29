@@ -1,4 +1,8 @@
-const { execFileSync } = require('child_process');
+// child_process ARTIK DOĞRUDAN KULLANILMIYOR — execution-gateway üzerinden.
+// Bu araç zaten sağlamdı (execFile + shell:false + alt komut beyaz listesi).
+// Kapının eklediği farklı: workspace sınırı, çıktıda sır maskeleme, çıktı
+// boyut sınırı ve zaman aşımı — dördü de burada yoktu.
+const { kapiAc } = require('../utils/gateway');
 
 // v5.38 GUVENLIK: args'i shell'e sokmadan token'lara ayir. execFileSync shell:false ile
 // calisir; boylece ";", "&&", "|", "$()", backtick gibi metakarakterler ISLEM GORMEZ —
@@ -29,7 +33,7 @@ module.exports = {
     required: ['operation']
   },
 
-  execute({ operation, args = '', message = '', command = '', cwd: userCwd = '' }) {
+  async execute({ operation, args = '', message = '', command = '', cwd: userCwd = '' }) {
     // v5.6.22: Git repo otomatik bul - this baglami kayboldugu icin module-level helper kullan
     // v5.38: ajan bir cwd verdiyse ve orada .git varsa onu kullan; yoksa oradan yukari tara.
     const cwd = findGitRepo(userCwd);
@@ -68,9 +72,31 @@ module.exports = {
         case 'rev-parse': gitArgs = ['rev-parse', ...(tok.length ? tok : ['HEAD'])]; break;
         default: return { success: false, error: `Bilinmeyen git islemi: "${operation}". Gecerli: status, diff, log, branch, add, commit, show, remote, tag, describe, rev-parse` };
       }
-      // shell:false (execFile default) → args ne olursa olsun shell yorumlamaz.
-      const output = execFileSync('git', gitArgs, { cwd, stdio: 'pipe', encoding: 'utf8' });
-      return { success: true, output: (output || '').trim() };
+      // Kapı: yapılandırılmış yol (kabuk DEĞİL) — git argümanları zaten
+      // token'lara ayrılmış durumda, tam olarak bu yola uygun.
+      //
+      // workspace olarak bulunan depo kökü veriliyor. findGitRepo() cwd'de
+      // .git yoksa ~/Projects gibi yerlere kayabiliyor; kapıya o kökü vermek,
+      // en azından o kökün DIŞINA çıkılmamasını garanti eder.
+      const kapi = await kapiAc({
+        workspace: cwd,
+        kararVerildi: true,
+        zamanAsimiMs: 60000,
+      });
+      const sonuc = await kapi.calistir({ komut: 'git', argumanlar: gitArgs });
+
+      if (sonuc.cikisKodu !== 0) {
+        return {
+          success: false,
+          error: (sonuc.stderr || `git exit ${sonuc.cikisKodu}`).trim(),
+          ...(sonuc.zamanAsimi ? { timedOut: true } : {}),
+        };
+      }
+      return {
+        success: true,
+        output: sonuc.stdout.trim(),
+        ...(sonuc.kesildi ? { truncated: true } : {}),
+      };
     } catch (err) {
       return { success: false, error: err.stderr?.toString() || err.message };
     }
