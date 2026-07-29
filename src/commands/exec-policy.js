@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const POLICY_FILE = path.join(os.homedir(), '.natureco', 'exec-policy.json');
+const POLICY_FILE = path.join(os.homedir(), '.nskuld', 'exec-policy.json');
 
 const PRESETS = {
   strict: { allowCommands: false, allowScripts: false, timeout: 10000, sandbox: 'strict', approvals: 'all' },

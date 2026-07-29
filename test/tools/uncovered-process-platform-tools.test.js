@@ -58,7 +58,7 @@ describe('previously uncovered process tools', () => {
     expect(await tool.execute({ task: 'review safely', agent: 'review', timeoutMs: 1234 })).toMatchObject({
       success: true, task: 'review safely', agent: 'general', output: 'delegated result', exitCode: 0,
     });
-    expect(spawn).toHaveBeenCalledWith('node', [path.resolve('bin/natureco.js'), 'ask', '"review safely"'], expect.objectContaining({ timeout: 1234 }));
+    expect(spawn).toHaveBeenCalledWith('node', [path.resolve('bin/nskuld.js'), 'ask', '"review safely"'], expect.objectContaining({ timeout: 1234 }));
   });
 });
 

@@ -19,7 +19,7 @@ const path = require('path');
 const os = require('os');
 const { scanForThreats } = require('./threat-patterns');
 
-const MEMORY_DIR = path.join(os.homedir(), '.natureco', 'memories');
+const MEMORY_DIR = path.join(os.homedir(), '.nskuld', 'memories');
 const ENTRY_DELIMITER = '\n§\n';
 
 class MemoryStore {

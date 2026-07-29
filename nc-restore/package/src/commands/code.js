@@ -156,7 +156,7 @@ function buildIndexPrompt(index) {
 
 // ── Proje hafızası ────────────────────────────────────────────────────────────
 function getProjectMemoryPath(workDir) {
-  return path.join(workDir, '.natureco', 'project.md');
+  return path.join(workDir, '.nskuld', 'project.md');
 }
 
 function loadProjectMemory(workDir) {

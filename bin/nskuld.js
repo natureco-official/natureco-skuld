@@ -89,8 +89,8 @@ const tools = require('../src/commands/tools');
 const program = new Command();
 
 program
-  .name('natureco')
-  .description('NatureCo AI Bot Terminal Interface')
+  .name('nskuld')
+  .description('NatureCo Skuld — coding-first AI agent')
   .version(packageJson.version)
   .showSuggestionAfterError(true); // yazım hatasında "şunu mu demek istediniz?"
 
@@ -1077,7 +1077,7 @@ const argv = process.argv.slice(2);
 const GLOBAL_FLAGS = ['--no-splash', '--plain', '--profile'];
 const realArgs = argv.filter(a => !GLOBAL_FLAGS.includes(a) && !a.startsWith('--profile='));
 const hasCommand = realArgs.length > 0;
-const CONFIG_DIR = path.join(os.homedir(), '.natureco');
+const CONFIG_DIR = path.join(os.homedir(), '.nskuld');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
 
 // Yardım/versiyon için asla first-run'a sokma

@@ -6,14 +6,14 @@ const { loadToolManifest } = require('../utils/tool-manifest');
 const os = require('os');
 const { foldTr } = require('../utils/tr-text');
 
-const WORKFLOW_DIR = path.join(os.homedir(), '.natureco', 'workflows');
-const WORKFLOW_HISTORY = path.join(os.homedir(), '.natureco', 'workflow-history.json');
+const WORKFLOW_DIR = path.join(os.homedir(), '.nskuld', 'workflows');
+const WORKFLOW_HISTORY = path.join(os.homedir(), '.nskuld', 'workflow-history.json');
 
 const { buildSkillIndex } = require('../utils/skill-index');
 
 function ensureDir(dir) { try { fs.mkdirSync(dir, { recursive: true }); } catch {} }
 function loadConfig() {
-  try { return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.natureco', 'config.json'), 'utf8')); } catch { return {}; }
+  try { return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.nskuld', 'config.json'), 'utf8')); } catch { return {}; }
 }
 function isMiniMax(url) { return url && (url.includes('minimax.io') || url.includes('minimaxi.com') || url.includes('minimax.cn')); }
 function isGemini(url) { return url && (url.includes('generativelanguage.googleapis.com') || url.includes('gemini')); }
@@ -24,7 +24,7 @@ function allToolNames() {
 
 function loadUserMemory(username) {
   try {
-    const dir = path.join(os.homedir(), '.natureco', 'memory');
+    const dir = path.join(os.homedir(), '.nskuld', 'memory');
     const uname = foldTr(username || 'default');
     // Kullanici-ozel dosya (`<user>.json`) + legacy `default.json`'i birlestir.
     // Eski kurulumlarda hafiza default.json'a yazilmis olabilir; okuyucu sadece

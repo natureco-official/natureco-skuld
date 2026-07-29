@@ -16,7 +16,7 @@ const path = require('path');
 const os = require('os');
 const { execFileSync } = require('child_process');
 
-const WORKTREE_DIR = path.join(process.cwd(), '.natureco', 'worktrees');
+const WORKTREE_DIR = path.join(process.cwd(), '.nskuld', 'worktrees');
 const SAFE_IDENTIFIER_RE = /^[A-Za-z0-9](?:[A-Za-z0-9_/-]{0,126}[A-Za-z0-9_-])?$/;
 
 function isSafeIdentifier(value) {
@@ -158,7 +158,7 @@ class Worktree {
    * Copy entire directory tree (fallback for non-git repos).
    */
   _copyTree(src, dest) {
-    const skipDirs = new Set(['node_modules', '.git', '.natureco']);
+    const skipDirs = new Set(['node_modules', '.git', '.nskuld']);
     const entries = fs.readdirSync(src, { withFileTypes: true });
     for (const entry of entries) {
       if (entry.name.startsWith('.') || skipDirs.has(entry.name)) continue;

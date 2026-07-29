@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const TASKS_FILE = path.join(os.homedir(), '.natureco', 'tasks.json');
+const TASKS_FILE = path.join(os.homedir(), '.nskuld', 'tasks.json');
 const TASK_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 const STALE_QUEUED_MS = 10 * 60 * 1000;
 const STALE_RUNNING_MS = 30 * 60 * 1000;

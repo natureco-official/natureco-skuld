@@ -40,7 +40,7 @@ describe('previously uncovered persistent mutation tools', () => {
       action: 'create', name: 'release/plan', description: 'release proof', steps: ['Deploy {{ app }}', { content: 'Check {{ app }}' }],
     });
     expect(created).toMatchObject({ success: true, stepCount: 2 });
-    expect(fs.existsSync(path.join(home, '.natureco', 'blueprints', 'release_plan.json'))).toBe(true);
+    expect(fs.existsSync(path.join(home, '.nskuld', 'blueprints', 'release_plan.json'))).toBe(true);
     expect(await tool.execute({ action: 'execute', name: 'release/plan', data: { app: 'NatureCo' } })).toMatchObject({
       success: true, steps: ['Deploy NatureCo', 'Check NatureCo'],
     });
@@ -55,7 +55,7 @@ describe('previously uncovered persistent mutation tools', () => {
 
     expect(await tool.execute({ action: 'save' })).toMatchObject({ success: false });
     expect((await tool.execute({ action: 'save', name: 'phase/one', data: { step: 3, ready: true } })).success).toBe(true);
-    expect(JSON.parse(fs.readFileSync(path.join(home, '.natureco', 'checkpoints', 'phase_one.json'), 'utf8')).data).toEqual({ step: 3, ready: true });
+    expect(JSON.parse(fs.readFileSync(path.join(home, '.nskuld', 'checkpoints', 'phase_one.json'), 'utf8')).data).toEqual({ step: 3, ready: true });
     expect(await tool.execute({ action: 'load', name: 'phase/one' })).toMatchObject({ success: true, data: { step: 3, ready: true } });
     expect(await tool.execute({ action: 'list' })).toMatchObject({ checkpoints: [expect.objectContaining({ name: 'phase/one', size: 2 })] });
     expect((await tool.execute({ action: 'delete', name: 'phase/one' })).success).toBe(true);
@@ -70,7 +70,7 @@ describe('previously uncovered persistent mutation tools', () => {
     const added = await tool.execute({ action: 'add', title: 'Ship tests', priority: 'high' });
     expect(added).toMatchObject({ success: true, card: expect.objectContaining({ title: 'Ship tests', priority: 'high' }) });
     expect(await tool.execute({ action: 'move', id: added.card.id, column: 'done' })).toMatchObject({ success: true, from: 'todo', to: 'done' });
-    const stored = JSON.parse(fs.readFileSync(path.join(home, '.natureco', 'kanban.json'), 'utf8'));
+    const stored = JSON.parse(fs.readFileSync(path.join(home, '.nskuld', 'kanban.json'), 'utf8'));
     expect(stored.columns.done[0].id).toBe(added.card.id);
     expect((await tool.execute({ action: 'remove', id: added.card.id })).success).toBe(true);
     expect(await tool.execute({ action: 'remove', id: added.card.id })).toMatchObject({ success: false });
@@ -100,7 +100,7 @@ describe('previously uncovered persistent mutation tools', () => {
 
     expect(JSON.parse(await tool.execute({ action: 'create', name: 'proof-skill', content: 'no frontmatter' }))).toMatchObject({ success: false });
     expect(JSON.parse(await tool.execute({ action: 'create', name: 'proof-skill', content }))).toMatchObject({ success: true });
-    const skillFile = path.join(home, '.natureco', 'skills', 'proof-skill', 'SKILL.md');
+    const skillFile = path.join(home, '.nskuld', 'skills', 'proof-skill', 'SKILL.md');
     expect(fs.readFileSync(skillFile, 'utf8')).toBe(content);
     expect(JSON.parse(await tool.execute({ action: 'patch', name: 'proof-skill', content: `${content}\nUpdated` }))).toMatchObject({ success: true });
     expect(fs.readFileSync(skillFile, 'utf8')).toContain('Updated');
@@ -115,7 +115,7 @@ describe('previously uncovered persistent mutation tools', () => {
     expect(await tool.execute({ action: 'install' })).toMatchObject({ success: false, error: expect.stringMatching(/skillName/) });
     const installed = await tool.execute({ action: 'install', skillName: 'code-review' });
     expect(installed).toMatchObject({ success: true, skill: expect.objectContaining({ name: 'Code Review' }) });
-    expect(fs.readFileSync(path.join(home, '.natureco', 'skills', 'code-review', 'SKILL.md'), 'utf8')).toContain('grep_search');
+    expect(fs.readFileSync(path.join(home, '.nskuld', 'skills', 'code-review', 'SKILL.md'), 'utf8')).toContain('grep_search');
     expect((await tool.execute({ action: 'uninstall', skillName: 'code-review' })).success).toBe(true);
     expect(await tool.execute({ action: 'uninstall', skillName: 'code-review' })).toMatchObject({ success: false });
   });
@@ -127,7 +127,7 @@ describe('previously uncovered persistent mutation tools', () => {
     expect(await tool.execute({ action: 'assign', threadId: 'room-7' })).toMatchObject({ success: false });
     expect(await tool.execute({ action: 'assign', threadId: 'room-7', agentName: 'security' })).toMatchObject({ success: true });
     expect(await tool.execute({ action: 'status', threadId: 'room-7' })).toMatchObject({ success: true, assignedAgent: 'security', isAssigned: true });
-    expect(JSON.parse(fs.readFileSync(path.join(home, '.natureco', 'config.json'), 'utf8')).threadOwnership).toEqual({ 'room-7': 'security' });
+    expect(JSON.parse(fs.readFileSync(path.join(home, '.nskuld', 'config.json'), 'utf8')).threadOwnership).toEqual({ 'room-7': 'security' });
     expect((await tool.execute({ action: 'release', threadId: 'room-7' })).success).toBe(true);
     expect(await tool.execute({ action: 'status', threadId: 'room-7' })).toMatchObject({ assignedAgent: null, isAssigned: false });
   });
@@ -141,7 +141,7 @@ describe('previously uncovered persistent mutation tools', () => {
     expect(listed).toMatchObject({ success: true });
     expect(listed.providers.map(p => p.name)).toEqual(expect.arrayContaining(['openai', 'anthropic', 'gemini', 'minimax', 'ollama']));
     expect(await tool.execute({ action: 'switch', provider: 'ollama', model: 'qwen3' })).toMatchObject({ success: true });
-    expect(JSON.parse(fs.readFileSync(path.join(home, '.natureco', 'config.json'), 'utf8'))).toMatchObject({ modelProvider: 'ollama', providerModel: 'qwen3' });
+    expect(JSON.parse(fs.readFileSync(path.join(home, '.nskuld', 'config.json'), 'utf8'))).toMatchObject({ modelProvider: 'ollama', providerModel: 'qwen3' });
   });
 
   it('search_provider lists backends and persists selection without searching remotely', async () => {
@@ -152,6 +152,6 @@ describe('previously uncovered persistent mutation tools', () => {
     const listed = await tool.execute({ action: 'list' });
     expect(listed.providers.map(p => p.name)).toEqual(expect.arrayContaining(['duckduckgo', 'exa', 'searxng', 'tavily']));
     expect(await tool.execute({ action: 'switch', provider: 'duckduckgo' })).toMatchObject({ success: true });
-    expect(JSON.parse(fs.readFileSync(path.join(home, '.natureco', 'config.json'), 'utf8')).searchProvider).toBe('duckduckgo');
+    expect(JSON.parse(fs.readFileSync(path.join(home, '.nskuld', 'config.json'), 'utf8')).searchProvider).toBe('duckduckgo');
   });
 });

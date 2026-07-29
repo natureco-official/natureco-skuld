@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const COMMITMENTS_FILE = path.join(os.homedir(), '.natureco', 'commitments.json');
+const COMMITMENTS_FILE = path.join(os.homedir(), '.nskuld', 'commitments.json');
 
 function load() {
   if (!fs.existsSync(COMMITMENTS_FILE)) return [];

@@ -7,7 +7,7 @@ const { writeJsonAtomicSync, readJsonSafeSync } = require('./atomic-file');
 
 class DeliveryStore {
   constructor(options = {}) {
-    this.file = options.file || path.join(os.homedir(), '.natureco', 'delivery-queue.json');
+    this.file = options.file || path.join(os.homedir(), '.nskuld', 'delivery-queue.json');
     this.maxItems = options.maxItems || 10000;
   }
 

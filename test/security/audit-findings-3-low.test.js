@@ -24,7 +24,7 @@ function runNode(args, home) {
 }
 
 function cli(args, home) {
-  return runNode([path.join(repoRoot, 'bin', 'natureco.js'), ...args], home);
+  return runNode([path.join(repoRoot, 'bin', 'nskuld.js'), ...args], home);
 }
 
 afterEach(() => {
@@ -62,7 +62,7 @@ describe('AUDIT_FINDINGS_3 low-severity regressions', () => {
     for (const file of ['acp.js', 'memory.js', 'tui.js']) {
       expect(fs.existsSync(path.join(repoRoot, 'src', 'commands', file))).toBe(false);
     }
-    const bin = fs.readFileSync(path.join(repoRoot, 'bin', 'natureco.js'), 'utf8');
+    const bin = fs.readFileSync(path.join(repoRoot, 'bin', 'nskuld.js'), 'utf8');
     expect(bin).toContain(".command('acp [file]')");
     expect(bin).toContain("require('../src/commands/code')");
     expect(bin).toContain(".command('memory [action] [params...]')");

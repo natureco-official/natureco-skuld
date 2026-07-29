@@ -7,7 +7,7 @@ const os = require('os');
 const { getConfig } = require('../utils/config');
 const { foldTr } = require('../utils/tr-text');
 
-const PEERS_FILE = path.join(os.homedir(), '.natureco', 'peers.json');
+const PEERS_FILE = path.join(os.homedir(), '.nskuld', 'peers.json');
 
 function loadPeers() {
   try {

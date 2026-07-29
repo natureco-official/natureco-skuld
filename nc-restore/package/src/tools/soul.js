@@ -22,7 +22,7 @@ const SOUL_FILES = ["SOUL.md", "IDENTITY.md", "AGENTS.md"];
 
 const SOUL_PATHS = [];
 for (const file of SOUL_FILES) {
-  SOUL_PATHS.push(path.join(os.homedir(), ".natureco", "soul", file));
+  SOUL_PATHS.push(path.join(os.homedir(), ".nskuld", "soul", file));
 }
 for (const file of SOUL_FILES) {
   SOUL_PATHS.push(path.join(process.cwd(), file));
@@ -39,7 +39,7 @@ const FILE_DESCRIPTIONS = {
 
 function findFile(fileName) {
   for (const dir of [
-    path.join(os.homedir(), ".natureco", "soul"),
+    path.join(os.homedir(), ".nskuld", "soul"),
     process.cwd(),
     path.resolve(__dirname, "..", "..", "soul"),
   ]) {

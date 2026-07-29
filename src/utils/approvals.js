@@ -6,7 +6,7 @@ const inquirer = require('./inquirer-wrapper');
 const { NatureCoError } = require('./errors');
 const { writeJsonAtomicSync, readJsonSafeSync } = require('./atomic-file');
 
-const APPROVALS_FILE = path.join(os.homedir(), '.natureco', 'exec-approvals.json');
+const APPROVALS_FILE = path.join(os.homedir(), '.nskuld', 'exec-approvals.json');
 const DEFAULT_TIMEOUT_MS = 1800000; // 30 min
 
 // 0o600 = owner read/write only. The allowlist controls which commands

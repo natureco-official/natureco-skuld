@@ -1,9 +1,9 @@
 {
-  "name": "natureco-cli",
-  "version": "5.71.2",
-  "description": "Terminal-native AI agent CLI with bilingual TR/EN UI, multi-agent orchestration, persistent memory, secure tools and messaging integrations.",
+  "name": "natureco-skuld",
+  "version": "0.1.0",
+  "description": "NatureCo Skuld — coding-first AI agent with persistent memory and a post-change quality gate",
   "bin": {
-    "natureco": "bin/natureco.js"
+    "nskuld": "bin/nskuld.js"
   },
   "files": [
     "bin/",
@@ -27,11 +27,11 @@
     "lint": "eslint src/ bin/ test/",
     "lint:fix": "eslint src/ bin/ test/ --fix",
     "lint:errors-only": "eslint src/ bin/ test/ --quiet",
-    "smoke": "node --check bin/natureco.js && node bin/natureco.js help",
+    "smoke": "node --check bin/nskuld.js && node bin/nskuld.js help",
     "smoke:context": "node scripts/e2e-context-smoke.js",
     "smoke:browser": "node scripts/e2e-browser-smoke.js",
     "postinstall": "node scripts/postinstall.js",
-    "prepublishOnly": "node --check bin/natureco.js && eslint src/ bin/ test/ --quiet && vitest run"
+    "prepublishOnly": "node --check bin/nskuld.js && eslint src/ bin/ test/ --quiet && vitest run"
   },
   "keywords": [
     "natureco",

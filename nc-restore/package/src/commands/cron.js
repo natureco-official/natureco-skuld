@@ -5,8 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const CRONS_FILE = path.join(os.homedir(), '.natureco', 'crons.json');
-const CRONS_RUNS_FILE = path.join(os.homedir(), '.natureco', 'cron-runs.json');
+const CRONS_FILE = path.join(os.homedir(), '.nskuld', 'crons.json');
+const CRONS_RUNS_FILE = path.join(os.homedir(), '.nskuld', 'cron-runs.json');
 
 /**
  * Normalize WhatsApp number from JID format to clean phone number

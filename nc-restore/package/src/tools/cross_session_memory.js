@@ -14,8 +14,8 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const SESSION_DIR = path.join(os.homedir(), ".natureco", "sessions");
-const MEMORY_DIR = path.join(os.homedir(), ".natureco", "memory");
+const SESSION_DIR = path.join(os.homedir(), ".nskuld", "sessions");
+const MEMORY_DIR = path.join(os.homedir(), ".nskuld", "memory");
 
 function loadSession(id) {
   try {

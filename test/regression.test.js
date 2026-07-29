@@ -3,14 +3,14 @@ import path from 'path';
 import fs from 'fs';
 
 const COMMANDS_DIR = path.resolve(__dirname, '../src/commands');
-const BIN_PATH = path.resolve(__dirname, '../bin/natureco.js');
+const BIN_PATH = path.resolve(__dirname, '../bin/nskuld.js');
 
 describe('regression: all commands', () => {
   const commandFiles = fs.readdirSync(COMMANDS_DIR)
     .filter(f => f.endsWith('.js'))
     .sort();
 
-  it('bin/natureco.js passes syntax check', () => {
+  it('bin/nskuld.js passes syntax check', () => {
     const result = require('child_process').execSync(
       `node --check "${BIN_PATH}"`,
       { encoding: 'utf8', timeout: 30000 }

@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { foldTr } = require('../utils/tr-text');
 
-const SESSIONS_DIR = path.join(process.env.HOME || process.env.USERPROFILE || __dirname, '.natureco', 'sessions');
+const SESSIONS_DIR = path.join(process.env.HOME || process.env.USERPROFILE || __dirname, '.nskuld', 'sessions');
 
 function getAllMessages() {
   const messages = [];

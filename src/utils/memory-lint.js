@@ -20,7 +20,7 @@ const path = require('path');
 const os = require('os');
 const { foldTr } = require('./tr-text');
 
-const MEMORY_DIR = path.join(os.homedir(), '.natureco', 'memory');
+const MEMORY_DIR = path.join(os.homedir(), '.nskuld', 'memory');
 const DUP = 0.85;
 const CONFLICT = 0.5;
 // Root files: Urðr "root-N-name.md" / "kök-N-…" and NatureCo native "N-name.md".

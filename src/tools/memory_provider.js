@@ -20,7 +20,7 @@ require('../providers/mem0-memory');
 require('../providers/supermemory-memory');
 require('../providers/rest-memory');
 const loadConfig = () => {
-  try { return JSON.parse(require('fs').readFileSync(require('path').join(require('os').homedir(), '.natureco', 'config.json'), 'utf8')); } catch { return {}; }
+  try { return JSON.parse(require('fs').readFileSync(require('path').join(require('os').homedir(), '.nskuld', 'config.json'), 'utf8')); } catch { return {}; }
 };
 
 const name = 'memory_provider';

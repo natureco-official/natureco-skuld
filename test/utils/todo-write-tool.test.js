@@ -72,9 +72,9 @@ describe('backwards compatibility — legacy {content, action: done} shape', () 
   });
 
   it('reads legacy on-disk format and normalizes missing fields', async () => {
-    fs.mkdirSync(path.join(tmpHome, '.natureco'), { recursive: true });
+    fs.mkdirSync(path.join(tmpHome, '.nskuld'), { recursive: true });
     fs.writeFileSync(
-      path.join(tmpHome, '.natureco', 'todos.json'),
+      path.join(tmpHome, '.nskuld', 'todos.json'),
       JSON.stringify([
         { id: 'old1', content: 'eski format', status: 'pending', priority: 'low', createdAt: '2026-01-01T00:00:00Z' },
       ]),
@@ -191,7 +191,7 @@ describe('new TaskCreate-style features', () => {
 describe('persistence', () => {
   it('uses atomic write (no .tmp residue in ~/.natureco/)', async () => {
     await mod.execute({ action: 'add', content: 'test' });
-    const dir = path.join(tmpHome, '.natureco');
+    const dir = path.join(tmpHome, '.nskuld');
     const entries = fs.readdirSync(dir);
     expect(entries.filter(e => e.includes('.tmp'))).toHaveLength(0);
     expect(entries).toContain('todos.json');

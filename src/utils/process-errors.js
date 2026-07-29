@@ -18,7 +18,7 @@
 const path = require('path');
 const os = require('os');
 
-const ERROR_LOG_PATH = path.join(os.homedir(), '.natureco', 'logs', 'crash.log');
+const ERROR_LOG_PATH = path.join(os.homedir(), '.nskuld', 'logs', 'crash.log');
 
 let _installed = false;
 let _registered = { rejection: null, exception: null, streamError: null };

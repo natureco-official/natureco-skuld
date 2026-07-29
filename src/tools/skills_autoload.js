@@ -15,7 +15,7 @@ const path = require("path");
 const os = require("os");
 const { foldTr } = require("../utils/tr-text");
 
-const SKILLS_DIR = path.join(os.homedir(), ".natureco", "skills");
+const SKILLS_DIR = path.join(os.homedir(), ".nskuld", "skills");
 
 /**
  * Anahtar kelime -> skill mapping

@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const USER_SKILLS_DIR = path.join(os.homedir(), '.natureco', 'skills');
+const USER_SKILLS_DIR = path.join(os.homedir(), '.nskuld', 'skills');
 
 const name = 'skill_manage';
 const description = 'Create, update (patch), or delete skills. Use skill_view(name) to read skill content first, then skill_manage to create/patch it. Skills contain reusable workflows, instructions, and conventions.';

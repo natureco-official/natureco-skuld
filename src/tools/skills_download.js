@@ -16,7 +16,7 @@ const path = require('path');
 const os = require('os');
 
 const BUILTIN_SKILLS_DIR = path.join(__dirname, '..', '..', 'skills');
-const USER_SKILLS_DIR = path.join(os.homedir(), '.natureco', 'skills');
+const USER_SKILLS_DIR = path.join(os.homedir(), '.nskuld', 'skills');
 
 // Known skill repos with high-quality skills
 const KNOWN_REPOS = [
@@ -40,7 +40,7 @@ const KNOWN_REPOS = [
 // (KNOWN_REPOS hiç kullanılmıyordu). İndirilen SKILL.md içeriği skills_autoload ile
 // system prompt'a enjekte edildiğinden → prompt injection → (shell_command bypass'ıyla)
 // RCE zinciri. Artık yalnızca KNOWN_REPOS + kullanıcı onaylı allowlist indirilebilir.
-const SKILLS_ALLOWLIST_FILE = path.join(os.homedir(), '.natureco', 'skills-allowlist.json');
+const SKILLS_ALLOWLIST_FILE = path.join(os.homedir(), '.nskuld', 'skills-allowlist.json');
 
 function _userAllowlistedRepos() {
   try {

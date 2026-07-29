@@ -51,8 +51,8 @@ const inputSchema = {
 
 // ── Legacy search helpers (from memory_search.js) ────────────────────────
 
-const MEMORY_DIR = path.join(os.homedir(), '.natureco', 'memory');
-const SESSION_DIR = path.join(os.homedir(), '.natureco', 'sessions');
+const MEMORY_DIR = path.join(os.homedir(), '.nskuld', 'memory');
+const SESSION_DIR = path.join(os.homedir(), '.nskuld', 'sessions');
 
 function _searchInObject(obj, query, pathStr) {
   const results = [];

@@ -20,7 +20,7 @@ const path = require('path');
 const os = require('os');
 const https = require('https');
 
-const CACHE_FILE = path.join(os.homedir(), '.natureco', 'update-check.json');
+const CACHE_FILE = path.join(os.homedir(), '.nskuld', 'update-check.json');
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 saat
 const REGISTRY_URL = 'https://registry.npmjs.org/natureco-cli/latest';
 

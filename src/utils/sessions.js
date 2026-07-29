@@ -5,7 +5,7 @@ const { writeJsonAtomicSync, readJsonSafeSync } = require('./atomic-file');
 
 // ── Legacy botId-based sessions ─────────────────────────────────────────────────
 
-const HISTORY_DIR = path.join(os.homedir(), '.natureco', 'history');
+const HISTORY_DIR = path.join(os.homedir(), '.nskuld', 'history');
 
 function getSessionsDir(botId) {
   return path.join(HISTORY_DIR, botId, 'sessions');
@@ -95,7 +95,7 @@ function addMessageToSession(botId, sessionId, userMessage, botReply) {
 
 // ── Command-based sessions ──────────────────────────────────────────────────────
 
-const SESSIONS_DIR = path.join(os.homedir(), '.natureco', 'sessions');
+const SESSIONS_DIR = path.join(os.homedir(), '.nskuld', 'sessions');
 
 function saveSession(commandName, messages, metadata = {}) {
   if (!fs.existsSync(SESSIONS_DIR)) {

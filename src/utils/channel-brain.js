@@ -25,7 +25,7 @@ const os = require('os');
 // Kalici bilgi burada YASAMAZ (o memory_write/memory_tree'de) — bu sadece "az once ne
 // konustuk" baglami. Kanal basina ayri dosya: Telegram sohbeti ile SMS sohbeti ayri
 // akislardir; ortak olan kisilik + kalici hafizadir.
-const HISTORY_DIR = path.join(os.homedir(), '.natureco', 'channel-history');
+const HISTORY_DIR = path.join(os.homedir(), '.nskuld', 'channel-history');
 const MAX_HISTORY = 40;   // diskte saklanan mesaj sayisi (user+assistant toplam)
 const SEND_HISTORY = 12;  // modele gonderilen son mesaj sayisi
 

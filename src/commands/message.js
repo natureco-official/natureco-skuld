@@ -6,8 +6,8 @@ const os = require('os');
 const { getConfig } = require('../utils/config');
 const { foldTr } = require('../utils/tr-text');
 
-const HISTORY_FILE = path.join(os.homedir(), '.natureco', 'messages.jsonl');
-const PID_FILE = path.join(os.homedir(), '.natureco', 'gateway.pid');
+const HISTORY_FILE = path.join(os.homedir(), '.nskuld', 'messages.jsonl');
+const PID_FILE = path.join(os.homedir(), '.nskuld', 'gateway.pid');
 const GATEWAY_HTTP_URL = 'http://127.0.0.1:3847/send';
 
 const VALID_CHANNELS = ['telegram', 'whatsapp', 'discord', 'slack', 'signal', 'irc', 'mattermost', 'imessage', 'sms'];
@@ -460,7 +460,7 @@ async function message(args) {
     const ch = flags.channel || nonFlagArgs[1];
     const msgId = flags['message-id'] || nonFlagArgs[2];
     if (!ch || !msgId) { console.log(chalk.red('\nUsage: message reactions <channel> <messageId>\n')); process.exit(1); }
-    const file = path.join(os.homedir(), '.natureco', 'reactions.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'reactions.jsonl');
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     try { fs.appendFileSync(file, JSON.stringify({ action: 'reactions', channel: ch, messageId: msgId, timestamp: new Date().toISOString() }) + '\n', 'utf8'); } catch (err) { F.warning(err.message); }
@@ -478,7 +478,7 @@ async function message(args) {
   if (action === 'pins') {
     const ch = flags.channel || nonFlagArgs[1];
     if (!ch) { console.log(chalk.red('\nUsage: message pins <channel>\n')); process.exit(1); }
-    const file = path.join(os.homedir(), '.natureco', 'pins.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'pins.jsonl');
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     F.info('Pinned messages in ' + ch + ':');
@@ -496,7 +496,7 @@ async function message(args) {
     const ch = flags.channel || nonFlagArgs[1];
     const user = flags.user || nonFlagArgs[2];
     if (!ch) { console.log(chalk.red('\nUsage: message permissions <channel> [user]\n')); process.exit(1); }
-    const file = path.join(os.homedir(), '.natureco', 'permissions.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'permissions.jsonl');
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const entry = { action: 'permissions', channel: ch, user: user || null, timestamp: new Date().toISOString() };
@@ -510,7 +510,7 @@ async function message(args) {
   if (compoundAction === 'channel info') {
     const ch = flags.channel || nonFlagArgs[2];
     if (!ch) { console.log(chalk.red('\nUsage: message channel info <channel>\n')); process.exit(1); }
-    const file = path.join(os.homedir(), '.natureco', 'channels.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'channels.jsonl');
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const entry = { action: 'channel info', channel: ch, timestamp: new Date().toISOString() };
@@ -524,7 +524,7 @@ async function message(args) {
 
   // ── channel list ─────────────────────────────────────────────────
   if (compoundAction === 'channel list') {
-    const file = path.join(os.homedir(), '.natureco', 'channels.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'channels.jsonl');
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     F.info('Available channels:');
@@ -540,7 +540,7 @@ async function message(args) {
     const ch = flags.channel || nonFlagArgs[2];
     const user = flags.user || nonFlagArgs[3];
     if (!ch || !user) { console.log(chalk.red('\nUsage: message member info <channel> <user>\n')); process.exit(1); }
-    const file = path.join(os.homedir(), '.natureco', 'members.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'members.jsonl');
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const entry = { action: 'member info', channel: ch, user, timestamp: new Date().toISOString() };
@@ -555,7 +555,7 @@ async function message(args) {
   // ── voice status ─────────────────────────────────────────────────
   if (compoundAction === 'voice status') {
     const ch = flags.channel || nonFlagArgs[2];
-    const file = path.join(os.homedir(), '.natureco', 'voice.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'voice.jsonl');
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const entry = { action: 'voice status', channel: ch || 'all', timestamp: new Date().toISOString() };
@@ -568,7 +568,7 @@ async function message(args) {
   // ── event list ──────────────────────────────────────────────────
   if (compoundAction === 'event list') {
     const ch = flags.channel || nonFlagArgs[2];
-    const file = path.join(os.homedir(), '.natureco', 'events.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'events.jsonl');
     F.info('Events' + (ch ? ' in ' + ch : '') + ':');
     if (fs.existsSync(file)) {
       const entries = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
@@ -585,7 +585,7 @@ async function message(args) {
     const name = flags.name || nonFlagArgs[3];
     const time = flags.time || nonFlagArgs[4];
     if (!ch || !name) { console.log(chalk.red('\nUsage: message event create <channel> <name> [time]\n')); process.exit(1); }
-    const file = path.join(os.homedir(), '.natureco', 'events.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'events.jsonl');
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const entry = { action: 'event create', channel: ch, name, time: time || null, timestamp: new Date().toISOString() };
@@ -663,7 +663,7 @@ async function message(args) {
     const user = flags.user || nonFlagArgs[2];
     const duration = flags.duration || nonFlagArgs[3] || '5m';
     if (!ch || !user) { console.log(chalk.red('\nUsage: message timeout <channel> <user> [duration]\n')); process.exit(1); }
-    const file = path.join(os.homedir(), '.natureco', 'moderation.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'moderation.jsonl');
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const entry = { action: 'timeout', channel: ch, user, duration, timestamp: new Date().toISOString() };
@@ -677,7 +677,7 @@ async function message(args) {
     const ch = flags.channel || nonFlagArgs[1];
     const user = flags.user || nonFlagArgs[2];
     if (!ch || !user) { console.log(chalk.red('\nUsage: message kick <channel> <user>\n')); process.exit(1); }
-    const file = path.join(os.homedir(), '.natureco', 'moderation.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'moderation.jsonl');
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const entry = { action: 'kick', channel: ch, user, timestamp: new Date().toISOString() };
@@ -692,7 +692,7 @@ async function message(args) {
     const user = flags.user || nonFlagArgs[2];
     const reason = flags.reason || nonFlagArgs[3] || 'No reason specified';
     if (!ch || !user) { console.log(chalk.red('\nUsage: message ban <channel> <user> [reason]\n')); process.exit(1); }
-    const file = path.join(os.homedir(), '.natureco', 'moderation.jsonl');
+    const file = path.join(os.homedir(), '.nskuld', 'moderation.jsonl');
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const entry = { action: 'ban', channel: ch, user, reason, timestamp: new Date().toISOString() };

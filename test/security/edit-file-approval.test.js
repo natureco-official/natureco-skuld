@@ -107,6 +107,6 @@ describe('3) kanal kaynaklı çağrı — bayrak açık olsa bile paket kaynağ�
       { workflow: { execute: async () => ({ success: true, passthrough: true, reply: 'ok' }) }, getConfig: () => ({ botName: 'T' }) }
     );
     expect(process.env.NATURECO_CHANNEL_ORIGIN).toBe('1');
-    try { fs.unlinkSync(path.join(os.homedir(), '.natureco', 'channel-history', 'testsec_c1.json')); } catch {}
+    try { fs.unlinkSync(path.join(os.homedir(), '.nskuld', 'channel-history', 'testsec_c1.json')); } catch {}
   });
 });

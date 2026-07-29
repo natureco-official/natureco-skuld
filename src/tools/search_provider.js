@@ -1,5 +1,5 @@
 const loadConfig = () => {
-  try { return JSON.parse(require('fs').readFileSync(require('path').join(require('os').homedir(), '.natureco', 'config.json'), 'utf8')); } catch { return {}; }
+  try { return JSON.parse(require('fs').readFileSync(require('path').join(require('os').homedir(), '.nskuld', 'config.json'), 'utf8')); } catch { return {}; }
 };
 
 require('../providers/search/tavily');

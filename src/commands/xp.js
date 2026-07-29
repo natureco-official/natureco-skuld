@@ -24,7 +24,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const XP_FILE = path.join(os.homedir(), '.natureco', 'xp.json');
+const XP_FILE = path.join(os.homedir(), '.nskuld', 'xp.json');
 const LEVELS = [
   { level: 1, minXP: 0,    title: L('🌱 Tohum', '🌱 Seed'),      color: chalk.green },
   { level: 2, minXP: 100,  title: L('🌿 Filiz', '🌿 Sprout'),      color: chalk.green },

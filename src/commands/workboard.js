@@ -6,7 +6,7 @@ const path = require('path');
 const os = require('os');
 const { getConfig, saveConfig } = require('../utils/config');
 
-const BOARD_FILE = path.join(os.homedir(), '.natureco', 'data', 'workboard.json');
+const BOARD_FILE = path.join(os.homedir(), '.nskuld', 'data', 'workboard.json');
 
 function loadBoard() {
   try {

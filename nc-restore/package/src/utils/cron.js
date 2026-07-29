@@ -3,8 +3,8 @@ const path = require('path');
 const os = require('os');
 const cron = require('node-cron');
 
-const CRON_FILE = path.join(os.homedir(), '.natureco', 'cron.json');
-const CRON_LOGS_DIR = path.join(os.homedir(), '.natureco', 'cron-logs');
+const CRON_FILE = path.join(os.homedir(), '.nskuld', 'cron.json');
+const CRON_LOGS_DIR = path.join(os.homedir(), '.nskuld', 'cron-logs');
 
 function ensureCronDirs() {
   const dir = path.dirname(CRON_FILE);

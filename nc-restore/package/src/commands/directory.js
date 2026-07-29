@@ -4,7 +4,7 @@ const fs = require('fs');
 const os = require('os');
 const { getConfig } = require('../utils/config');
 
-const PEERS_FILE = path.join(os.homedir(), '.natureco', 'peers.json');
+const PEERS_FILE = path.join(os.homedir(), '.nskuld', 'peers.json');
 
 function loadPeers() {
   try {

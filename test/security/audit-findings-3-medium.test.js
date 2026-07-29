@@ -14,7 +14,7 @@ function tempHome(prefix) {
 }
 
 function cli(args, home) {
-  return spawnSync(process.execPath, [path.join(repoRoot, 'bin', 'natureco.js'), ...args], {
+  return spawnSync(process.execPath, [path.join(repoRoot, 'bin', 'nskuld.js'), ...args], {
     cwd: repoRoot,
     env: { ...process.env, HOME: home, USERPROFILE: home, FORCE_COLOR: '0', NATURECO_LANG: 'en' },
     encoding: 'utf8',
@@ -53,7 +53,7 @@ describe('AUDIT_FINDINGS_3 medium-severity regressions', () => {
     expect(sandbox.status).toBe(0);
     expect(sandbox.stdout + sandbox.stderr).toContain(`Sandbox created: ${name}`);
     const sandboxDir = path.join(os.tmpdir(), 'natureco-sandboxes', name);
-    expect(JSON.parse(fs.readFileSync(path.join(sandboxDir, '.natureco-sandbox'), 'utf8')).name).toBe(name);
+    expect(JSON.parse(fs.readFileSync(path.join(sandboxDir, '.nskuld-sandbox'), 'utf8')).name).toBe(name);
     fs.rmSync(sandboxDir, { recursive: true, force: true });
   });
 
@@ -81,7 +81,7 @@ describe('AUDIT_FINDINGS_3 medium-severity regressions', () => {
   it('M-06 persists an honest not_implemented cron run record', async () => {
     const home = tempHome('natureco-m06-');
     vi.spyOn(os, 'homedir').mockReturnValue(home);
-    const dir = path.join(home, '.natureco');
+    const dir = path.join(home, '.nskuld');
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'crons.json'), JSON.stringify([{
       name: 'proof-job', schedule: '* * * * *', action: 'telegram', target: 'test', prompt: 'proof',
@@ -96,7 +96,7 @@ describe('AUDIT_FINDINGS_3 medium-severity regressions', () => {
   it('M-07 uses taskkill argv on Windows and process.kill SIGTERM on POSIX', async () => {
     const home = tempHome('natureco-m07-');
     vi.spyOn(os, 'homedir').mockReturnValue(home);
-    const dir = path.join(home, '.natureco');
+    const dir = path.join(home, '.nskuld');
     const pidFile = path.join(dir, 'gateway.pid');
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(pidFile, '4242');

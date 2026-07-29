@@ -106,7 +106,7 @@ function saveLocal(text) {
   const fs = require('fs');
   const path = require('path');
   const os = require('os');
-  const file = path.join(os.homedir(), '.natureco', 'naturehub-pending.jsonl');
+  const file = path.join(os.homedir(), '.nskuld', 'naturehub-pending.jsonl');
   const dir = path.dirname(file);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.appendFileSync(file, JSON.stringify({ ts: new Date().toISOString(), text }) + '\n');

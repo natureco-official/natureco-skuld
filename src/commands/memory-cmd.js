@@ -9,7 +9,7 @@ const { loadMemory, saveMemory, clearMemory } = require('../utils/memory');
 const { getConfig } = require('../utils/config');
 const { foldTr } = require('../utils/tr-text');
 
-const MEMORY_DIR = path.join(os.homedir(), '.natureco', 'memory');
+const MEMORY_DIR = path.join(os.homedir(), '.nskuld', 'memory');
 
 async function memoryCmd(args) {
   const [action, ...params] = (args || []);
@@ -354,7 +354,7 @@ function wikiSearchCmd(query) {
 
 // ── Wiki Page Functions (v5.6.16 inline) ─────────────────────────────
 function listWikiPages() {
-  const WIKI_DIR = path.join(os.homedir(), '.natureco', 'wiki');
+  const WIKI_DIR = path.join(os.homedir(), '.nskuld', 'wiki');
   if (!fs.existsSync(WIKI_DIR)) {
     console.log(chalk.gray(L('\n  Wiki bos.\n', '\n  Wiki is empty.\n')));
     return;
@@ -367,7 +367,7 @@ function listWikiPages() {
 
 function getWikiPage(slug) {
   if (!slug) return;
-  const WIKI_DIR = path.join(os.homedir(), '.natureco', 'wiki');
+  const WIKI_DIR = path.join(os.homedir(), '.nskuld', 'wiki');
   const filePath = path.join(WIKI_DIR, `${slug}.md`);
   if (!fs.existsSync(filePath)) {
     console.log(chalk.red(`\n  ❌ ${L('Wiki sayfasi bulunamadi', 'Wiki page not found')}: ${slug}\n`));
@@ -380,7 +380,7 @@ function getWikiPage(slug) {
 
 function saveWikiPage(slug, content) {
   if (!slug) return;
-  const WIKI_DIR = path.join(os.homedir(), '.natureco', 'wiki');
+  const WIKI_DIR = path.join(os.homedir(), '.nskuld', 'wiki');
   if (!fs.existsSync(WIKI_DIR)) fs.mkdirSync(WIKI_DIR, { recursive: true });
   const filePath = path.join(WIKI_DIR, `${slug}.md`);
   fs.writeFileSync(filePath, content);
@@ -389,7 +389,7 @@ function saveWikiPage(slug, content) {
 
 function searchWikiPages(query) {
   if (!query) return [];
-  const WIKI_DIR = path.join(os.homedir(), '.natureco', 'wiki');
+  const WIKI_DIR = path.join(os.homedir(), '.nskuld', 'wiki');
   if (!fs.existsSync(WIKI_DIR)) return [];
   const lower = foldTr(query);
   return fs.readdirSync(WIKI_DIR)

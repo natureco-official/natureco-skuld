@@ -4,7 +4,7 @@ const path = require('path');
 const os = require('os');
 const { execSync } = require('child_process');
 
-const NATURECO_DIR = path.join(os.homedir(), '.natureco');
+const NATURECO_DIR = path.join(os.homedir(), '.nskuld');
 
 function backup(args) {
   const [action, ...params] = args || [];
@@ -20,7 +20,7 @@ function backup(args) {
 }
 
 function createBackup() {
-  const backupDir = path.join(os.homedir(), '.natureco-backups');
+  const backupDir = path.join(os.homedir(), '.nskuld-backups');
   if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true });
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -52,7 +52,7 @@ function createBackup() {
 }
 
 function listBackups() {
-  const backupDir = path.join(os.homedir(), '.natureco-backups');
+  const backupDir = path.join(os.homedir(), '.nskuld-backups');
   console.log(chalk.cyan('\n  📋 Backups\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
 
@@ -85,7 +85,7 @@ function restoreBackup(file) {
     process.exit(1);
   }
 
-  const backupDir = path.join(os.homedir(), '.natureco-backups');
+  const backupDir = path.join(os.homedir(), '.nskuld-backups');
   const backupFile = path.join(backupDir, file);
 
   if (!fs.existsSync(backupFile)) {
@@ -109,7 +109,7 @@ function verifyBackup(file) {
     process.exit(1);
   }
 
-  const backupDir = path.join(os.homedir(), '.natureco-backups');
+  const backupDir = path.join(os.homedir(), '.nskuld-backups');
   const backupFile = path.join(backupDir, file);
 
   if (!fs.existsSync(backupFile)) {

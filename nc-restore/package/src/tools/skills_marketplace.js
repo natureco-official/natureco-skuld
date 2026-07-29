@@ -12,8 +12,8 @@ const path = require("path");
 const os = require("os");
 const https = require("https");
 
-const MARKETPLACE_DIR = path.join(os.homedir(), ".natureco", "marketplace");
-const SKILLS_DIR = path.join(os.homedir(), ".natureco", "skills");
+const MARKETPLACE_DIR = path.join(os.homedir(), ".nskuld", "marketplace");
+const SKILLS_DIR = path.join(os.homedir(), ".nskuld", "skills");
 
 /**
  * Marketplace URL'leri — Parton kendi GitHub repo'sunu koyacak

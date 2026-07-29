@@ -8,7 +8,7 @@ const fs = require('fs');
 const os = require('os');
 const { URL } = require('url');
 
-const PROXY_STATE_FILE = path.join(os.homedir(), '.natureco', 'proxy-state.json');
+const PROXY_STATE_FILE = path.join(os.homedir(), '.nskuld', 'proxy-state.json');
 
 function getState() {
   if (!fs.existsSync(PROXY_STATE_FILE)) {

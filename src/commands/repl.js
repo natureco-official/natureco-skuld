@@ -1110,7 +1110,7 @@ function printHelp() {
 
 function runCliCommand(args) {
   return new Promise((resolve) => {
-    const proc = spawn('node', [path.join(__dirname, '..', '..', 'bin', 'natureco.js'), ...args], {
+    const proc = spawn('node', [path.join(__dirname, '..', '..', 'bin', 'nskuld.js'), ...args], {
       stdio: 'inherit',
     });
     proc.on('close', (code) => resolve(code));
@@ -1149,7 +1149,7 @@ async function startRepl(args) {
   // BotName'i memory'ye persist et (her oturumda ayni kalsin)
   try {
     const fs = require('fs');
-    const memFile = path.join(os.homedir(), '.natureco', 'memory', foldTr(cfg.userName || 'default') + '.json');
+    const memFile = path.join(os.homedir(), '.nskuld', 'memory', foldTr(cfg.userName || 'default') + '.json');
     if (fs.existsSync(memFile)) {
       const memData = JSON.parse(memFile, 'utf8');
       if (!memData.botName || memData.botName !== memory.botName) {

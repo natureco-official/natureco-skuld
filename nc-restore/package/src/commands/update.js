@@ -5,7 +5,7 @@ const os = require('os');
 const { execSync } = require('child_process');
 const readline = require('readline');
 
-const VERSION_FILE = path.join(os.homedir(), '.natureco', 'version.json');
+const VERSION_FILE = path.join(os.homedir(), '.nskuld', 'version.json');
 
 function rlQuestion(query) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });

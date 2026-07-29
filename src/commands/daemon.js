@@ -24,7 +24,7 @@ function daemon(args) {
 }
 
 function statusDaemon() {
-  const pidFile = path.join(os.homedir(), '.natureco', 'gateway.pid');
+  const pidFile = path.join(os.homedir(), '.nskuld', 'gateway.pid');
   let running = false;
   let pid = null;
 
@@ -69,7 +69,7 @@ function startDaemon() {
 function stopDaemon(platform = process.platform, kill = process.kill.bind(process), execFile = execFileSync) {
   console.log(chalk.cyan('\n  Stopping Gateway daemon...\n'));
   try {
-    const pidFile = path.join(os.homedir(), '.natureco', 'gateway.pid');
+    const pidFile = path.join(os.homedir(), '.nskuld', 'gateway.pid');
     if (!fs.existsSync(pidFile)) throw new Error('daemon PID file not found');
     const rawPid = fs.readFileSync(pidFile, 'utf8').trim();
     const pid = Number.parseInt(rawPid, 10);

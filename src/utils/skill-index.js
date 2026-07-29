@@ -11,8 +11,8 @@ const path = require('path');
 const os = require('os');
 
 const BUILTIN_SKILLS_DIR = path.join(__dirname, '..', '..', 'skills');
-const USER_SKILLS_DIR = path.join(os.homedir(), '.natureco', 'skills');
-const PROJECT_SKILLS_DIR = path.join(process.cwd(), '.natureco', 'skills');
+const USER_SKILLS_DIR = path.join(os.homedir(), '.nskuld', 'skills');
+const PROJECT_SKILLS_DIR = path.join(process.cwd(), '.nskuld', 'skills');
 
 function _parseFrontmatter(content) {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);

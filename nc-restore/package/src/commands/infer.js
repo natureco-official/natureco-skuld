@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const STATE_FILE = path.join(os.homedir(), '.natureco', 'infer-state.json');
+const STATE_FILE = path.join(os.homedir(), '.nskuld', 'infer-state.json');
 
 function readState() {
   try {

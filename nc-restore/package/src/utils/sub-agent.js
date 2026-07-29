@@ -3,7 +3,7 @@ const path = require('path');
 const os = require('os');
 const { getProviderConfig } = require('./api');
 
-const SUB_AGENTS_FILE = path.join(os.homedir(), '.natureco', 'sub-agents.json');
+const SUB_AGENTS_FILE = path.join(os.homedir(), '.nskuld', 'sub-agents.json');
 
 const SYSTEM_PROMPTS = {
   explore: 'You are a research agent. Find information, explore codebases, search files. Be concise.',

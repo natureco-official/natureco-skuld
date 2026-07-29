@@ -5,7 +5,7 @@ const os = require('os');
 const { getApiKey, getConfig } = require('../utils/config');
 const { getBots, sendMessage } = require('../utils/api');
 
-const REVIEWS_DIR = path.join(os.homedir(), '.natureco', 'reviews');
+const REVIEWS_DIR = path.join(os.homedir(), '.nskuld', 'reviews');
 
 async function ultrareview(filePath) {
   const apiKey = getApiKey();

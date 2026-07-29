@@ -7,7 +7,7 @@ const path = require('path');
 const os = require('os');
 const { MemoryProvider, registerProvider } = require('../utils/memory-provider');
 
-const BASE_DIR = path.join(os.homedir(), '.natureco', 'memory');
+const BASE_DIR = path.join(os.homedir(), '.nskuld', 'memory');
 
 class FileMemoryProvider extends MemoryProvider {
   constructor(config = {}) {

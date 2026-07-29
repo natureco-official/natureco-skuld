@@ -73,13 +73,13 @@ describe('admin-rpc — auth + bind (Madde 8)', () => {
     expect(r.status).toBe(401);
   });
   it('doğru token ile health 200', async () => {
-    const token = fs.readFileSync(path.join(TEST_HOME, '.natureco', 'admin-token'), 'utf8').trim();
+    const token = fs.readFileSync(path.join(TEST_HOME, '.nskuld', 'admin-token'), 'utf8').trim();
     const r = await postJson(PORT, { method: 'health' }, token);
     expect(r.status).toBe(200);
     expect(r.body.ok).toBe(true);
   });
   it('admin-token dosyası 0o600 (POSIX)', () => {
-    const tokenFile = path.join(TEST_HOME, '.natureco', 'admin-token');
+    const tokenFile = path.join(TEST_HOME, '.nskuld', 'admin-token');
     expect(fs.existsSync(tokenFile)).toBe(true);
     if (process.platform !== 'win32') {
       expect(fs.statSync(tokenFile).mode & 0o777).toBe(0o600);

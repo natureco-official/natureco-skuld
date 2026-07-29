@@ -22,7 +22,7 @@ const { requireApproval, RISK } = require('../utils/dangerous');
 async function reset() {
   const args = process.argv.slice(3);
   const home = os.homedir();
-  const baseDir = path.join(home, '.natureco');
+  const baseDir = path.join(home, '.nskuld');
 
   // v5.6.16: Dangerous command approval
   const isFullReset = args.includes('--all') || args.includes('--personal');

@@ -6,8 +6,8 @@ const chalk = require('chalk');
 const inquirer = require('./inquirer-wrapper');
 const { NatureCoError } = require('./errors');
 
-const APPROVALS_FILE = path.join(os.homedir(), '.natureco', 'exec-approvals.json');
-const APPROVALS_SOCKET_PATH = path.join(os.homedir(), '.natureco', 'exec-approvals.sock');
+const APPROVALS_FILE = path.join(os.homedir(), '.nskuld', 'exec-approvals.json');
+const APPROVALS_SOCKET_PATH = path.join(os.homedir(), '.nskuld', 'exec-approvals.sock');
 const DEFAULT_TIMEOUT_MS = 1800000; // 30 min
 
 class ExecApprovalError extends NatureCoError {

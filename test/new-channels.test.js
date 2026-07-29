@@ -243,7 +243,7 @@ describe('gateway registration', () => {
 
 describe('CLI surface', () => {
   it('registers a command per new channel', () => {
-    const src = fs.readFileSync(path.resolve('bin/natureco.js'), 'utf8');
+    const src = fs.readFileSync(path.resolve('bin/nskuld.js'), 'utf8');
     for (const name of ['matrix', 'teams', 'googlechat', 'zalo']) {
       expect(src).toContain(`'${name}'`);
     }

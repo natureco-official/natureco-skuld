@@ -83,7 +83,7 @@ describe('tool-hooks', () => {
     });
 
     it('returns deny when a deny rule matches', () => {
-      const cfgPath = path.join(tmpHome, '.natureco');
+      const cfgPath = path.join(tmpHome, '.nskuld');
       fs.mkdirSync(cfgPath, { recursive: true });
       fs.writeFileSync(path.join(cfgPath, 'config.json'), JSON.stringify({
         toolHooks: {
@@ -105,7 +105,7 @@ describe('tool-hooks', () => {
     });
 
     it('loads rules from config', () => {
-      const cfgPath = path.join(tmpHome, '.natureco');
+      const cfgPath = path.join(tmpHome, '.nskuld');
       fs.mkdirSync(cfgPath, { recursive: true });
       fs.writeFileSync(path.join(cfgPath, 'config.json'), JSON.stringify({
         toolHooks: {

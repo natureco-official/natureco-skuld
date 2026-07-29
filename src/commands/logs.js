@@ -4,7 +4,7 @@ const path = require('path');
 const os = require('os');
 const { foldTr } = require('../utils/tr-text');
 
-const LOG_FILE = path.join(os.homedir(), '.natureco', 'natureco.log');
+const LOG_FILE = path.join(os.homedir(), '.nskuld', 'natureco.log');
 
 function ensureLog() {
   const dir = path.dirname(LOG_FILE);

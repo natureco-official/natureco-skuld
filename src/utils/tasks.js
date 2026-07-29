@@ -10,7 +10,7 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 
-const TASKS_FILE = path.join(os.homedir(), '.natureco', 'tasks.json');
+const TASKS_FILE = path.join(os.homedir(), '.nskuld', 'tasks.json');
 
 class TaskManager {
   constructor() {

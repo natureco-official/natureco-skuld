@@ -82,7 +82,7 @@ function createSandbox(name) {
   }
 
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, '.natureco-sandbox'), JSON.stringify({ created: new Date().toISOString(), name: sandboxName }));
+  fs.writeFileSync(path.join(dir, '.nskuld-sandbox'), JSON.stringify({ created: new Date().toISOString(), name: sandboxName }));
 
   console.log(chalk.green(`\n  ✅ Sandbox created: ${sandboxName}\n`));
   console.log(chalk.gray(`  Directory: ${dir}\n`));

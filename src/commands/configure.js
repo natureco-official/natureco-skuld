@@ -5,7 +5,7 @@ const os = require('os');
 const readline = require('readline');
 const { writePrivateFile } = require('../utils/config');
 
-const BASE_DIR = path.join(os.homedir(), '.natureco');
+const BASE_DIR = path.join(os.homedir(), '.nskuld');
 const CONFIG_FILE = path.join(BASE_DIR, 'config.json');
 
 function getConfig() {

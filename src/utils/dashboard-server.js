@@ -23,7 +23,7 @@ const { getDashboardPort, getDashboardHost } = require('./ports');
 const PORT = getDashboardPort();
 const HOST = getDashboardHost();
 
-const NATURECO_DIR = path.join(os.homedir(), '.natureco');
+const NATURECO_DIR = path.join(os.homedir(), '.nskuld');
 
 function safeReadJSON(filePath) {
   try {

@@ -20,7 +20,7 @@ const os = require('os');
 function loadRules() {
   const rules = { pre: [], post: [] };
   try {
-    const cfgPath = path.join(os.homedir(), '.natureco', 'config.json');
+    const cfgPath = path.join(os.homedir(), '.nskuld', 'config.json');
     if (fs.existsSync(cfgPath)) {
       const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
       if (cfg.toolHooks) {
@@ -39,7 +39,7 @@ function loadRules() {
   } catch {}
   // Check project-level hooks.json
   try {
-    const projectCfg = path.join(process.cwd(), '.natureco', 'hooks.json');
+    const projectCfg = path.join(process.cwd(), '.nskuld', 'hooks.json');
     if (fs.existsSync(projectCfg)) {
       const pCfg = JSON.parse(fs.readFileSync(projectCfg, 'utf8'));
       if (pCfg.pre) {
@@ -131,7 +131,7 @@ function runPostHooks(toolName, args, result) {
   for (const rule of rules.post) {
     if (matchRule(rule, toolName, args)) {
       try {
-        const hook = require(path.join(os.homedir(), '.natureco', 'hooks', rule.action));
+        const hook = require(path.join(os.homedir(), '.nskuld', 'hooks', rule.action));
         if (typeof hook === 'function') {
           return hook({ toolName, args, result }) || result;
         }

@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const HISTORY_DIR = path.join(process.cwd(), '.natureco', 'history');
+const HISTORY_DIR = path.join(process.cwd(), '.nskuld', 'history');
 const MAX_SNAPSHOTS_PER_FILE = 20;
 
 function ensureDir() {

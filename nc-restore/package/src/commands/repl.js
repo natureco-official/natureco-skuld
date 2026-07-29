@@ -73,10 +73,10 @@ const CLI_COMMANDS = {
   '/dashboard': { desc: 'Web dashboard başlat (port 7421)', run: ['dashboard', 'start'] },
 };
 
-const MEMORY_DIR = path.join(os.homedir(), '.natureco', 'memory');
-const SESSION_DIR = path.join(os.homedir(), '.natureco', 'sessions');
-const SESSIONS_INDEX = path.join(os.homedir(), '.natureco', 'sessions.json');
-const REPL_STATE = path.join(os.homedir(), '.natureco', 'repl-state.json');
+const MEMORY_DIR = path.join(os.homedir(), '.nskuld', 'memory');
+const SESSION_DIR = path.join(os.homedir(), '.nskuld', 'sessions');
+const SESSIONS_INDEX = path.join(os.homedir(), '.nskuld', 'sessions.json');
+const REPL_STATE = path.join(os.homedir(), '.nskuld', 'repl-state.json');
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -84,7 +84,7 @@ function ensureDir(dir) {
 
 function getConfig() {
   try {
-    return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.natureco', 'config.json'), 'utf8'));
+    return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.nskuld', 'config.json'), 'utf8'));
   } catch { return {}; }
 }
 
@@ -469,7 +469,7 @@ async function startRepl(args) {
   // BotName'i memory'ye persist et (her oturumda ayni kalsin)
   try {
     const fs = require('fs');
-    const memFile = path.join(os.homedir(), '.natureco', 'memory', ((cfg.userName || 'default').toLowerCase()) + '.json');
+    const memFile = path.join(os.homedir(), '.nskuld', 'memory', ((cfg.userName || 'default').toLowerCase()) + '.json');
     if (fs.existsSync(memFile)) {
       const memData = JSON.parse(memFile, 'utf8');
       if (!memData.botName || memData.botName !== memory.botName) {

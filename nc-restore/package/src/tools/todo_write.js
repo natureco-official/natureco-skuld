@@ -8,7 +8,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const TODO_FILE = path.join(os.homedir(), ".natureco", "todos.json");
+const TODO_FILE = path.join(os.homedir(), ".nskuld", "todos.json");
 
 function loadTodos() {
   try {

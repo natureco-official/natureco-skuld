@@ -10,8 +10,8 @@ const inquirer = require('../utils/inquirer-wrapper');
 const { getConfig, saveConfig } = require('../utils/config');
 const { getBots } = require('../utils/api');
 
-const BINDINGS_FILE = path.join(os.homedir(), '.natureco', 'agent-bindings.json');
-const IDENTITIES_FILE = path.join(os.homedir(), '.natureco', 'agent-identities.json');
+const BINDINGS_FILE = path.join(os.homedir(), '.nskuld', 'agent-bindings.json');
+const IDENTITIES_FILE = path.join(os.homedir(), '.nskuld', 'agent-identities.json');
 
 function loadBindings() {
   try {

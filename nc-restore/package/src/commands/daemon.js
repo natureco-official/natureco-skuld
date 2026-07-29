@@ -22,7 +22,7 @@ function daemon(args) {
 }
 
 function statusDaemon() {
-  const pidFile = path.join(os.homedir(), '.natureco', 'daemon.pid');
+  const pidFile = path.join(os.homedir(), '.nskuld', 'daemon.pid');
   let running = false;
   let pid = null;
 

@@ -138,7 +138,7 @@ function detectTestCommand(index) {
 // ── Per-project memory ──────────────────────────────────────────────────────
 
 function getProjectMemoryPath(workDir) {
-  return path.join(workDir, '.natureco', 'project.md');
+  return path.join(workDir, '.nskuld', 'project.md');
 }
 
 function loadProjectMemory(workDir) {

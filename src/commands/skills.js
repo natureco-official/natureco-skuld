@@ -194,7 +194,7 @@ async function searchMarketplace(query) {
 }
 
 function uninstallMarketplace(skillName) {
-  const skillDir = path.join(os.homedir(), '.natureco', 'skills', skillName);
+  const skillDir = path.join(os.homedir(), '.nskuld', 'skills', skillName);
   if (fs.existsSync(skillDir)) {
     fs.rmSync(skillDir, { recursive: true });
     console.log(chalk.green('\n  ✓ ' + skillName + L(' kaldirildi\n', ' removed\n')));
@@ -438,7 +438,7 @@ async function checkSkills() {
   }
   let issues = 0;
   for (const skill of skills) {
-    const skillPath = path.join(os.homedir(), '.natureco', 'skills', skill.slug || skill.name);
+    const skillPath = path.join(os.homedir(), '.nskuld', 'skills', skill.slug || skill.name);
     const hasSkillMd = fs.existsSync(path.join(skillPath, 'SKILL.md'));
     const hasPackage = fs.existsSync(path.join(skillPath, 'package.json'));
     const status = hasSkillMd ? chalk.green('✓') : chalk.yellow('⚠ missing SKILL.md');

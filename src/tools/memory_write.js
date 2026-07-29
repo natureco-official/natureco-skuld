@@ -12,7 +12,7 @@ const { foldTr } = require("../utils/tr-text");
 const { writeJsonAtomicSync, readJsonSafeSync } = require("../utils/atomic-file");
 const { createMemoryRecord, resolveConflict, factKey } = require("../utils/memory-record");
 
-const MEMORY_DIR = path.join(os.homedir(), ".natureco", "memory");
+const MEMORY_DIR = path.join(os.homedir(), ".nskuld", "memory");
 
 // Soft cap on per-user fact count. Decay already prunes old/low-importance
 // facts; this just bounds the worst-case file size and prompt-injection

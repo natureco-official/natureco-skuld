@@ -8,7 +8,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const KANBAN_FILE = path.join(os.homedir(), ".natureco", "kanban.json");
+const KANBAN_FILE = path.join(os.homedir(), ".nskuld", "kanban.json");
 
 function loadBoard() {
   try {

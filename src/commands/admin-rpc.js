@@ -57,7 +57,7 @@ function getOrCreateAdminToken() {
   const path = require('path');
   const os = require('os');
   const crypto = require('crypto');
-  const dir = path.join(os.homedir(), '.natureco');
+  const dir = path.join(os.homedir(), '.nskuld');
   const tokenFile = path.join(dir, 'admin-token');
   try {
     if (fs.existsSync(tokenFile)) {
@@ -181,7 +181,7 @@ async function callMethod(method, jsonParams) {
   if (method === 'logs.tail') {
     const lines = normalizeTailLines(params.lines);
     try {
-      const logPath = require('path').join(require('os').homedir(), '.natureco', 'logs', 'gateway.log');
+      const logPath = require('path').join(require('os').homedir(), '.nskuld', 'logs', 'gateway.log');
       const output = readLogTail(logPath, lines);
       console.log(output);
     } catch {

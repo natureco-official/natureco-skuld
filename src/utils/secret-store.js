@@ -22,7 +22,7 @@ class LinuxSecretServiceBackend {
 }
 
 class WindowsDpapiBackend {
-  constructor(options = {}) { this.file = options.file || path.join(os.homedir(), '.natureco', 'secrets.dpapi.json'); this.execFile = options.execFile || execFileSync; }
+  constructor(options = {}) { this.file = options.file || path.join(os.homedir(), '.nskuld', 'secrets.dpapi.json'); this.execFile = options.execFile || execFileSync; }
   _run(script, input) {
     const encoded = Buffer.from(script, 'utf16le').toString('base64');
     return this.execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', encoded], { input, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true }).trim();
@@ -46,7 +46,7 @@ class WindowsDpapiBackend {
 class EncryptedFileBackend {
   constructor(options = {}) {
     if (!options.masterKey) throw new Error('NATURECO_MASTER_KEY is required for encrypted file secret storage');
-    this.file = options.file || path.join(os.homedir(), '.natureco', 'secrets.enc.json');
+    this.file = options.file || path.join(os.homedir(), '.nskuld', 'secrets.enc.json');
     this.key = crypto.scryptSync(String(options.masterKey), 'natureco-secret-store-v1', 32);
   }
   _load() { return readJsonSafeSync(this.file, { version: 1, entries: {} }); }

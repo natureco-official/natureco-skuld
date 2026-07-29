@@ -99,7 +99,7 @@ function logoutChannel(channel) {
     delete config.telegramAllowedChats;
   } else if (ch === 'whatsapp') {
     if (config.whatsappBotId) {
-      const sessionDir = path.join(os.homedir(), '.natureco', 'whatsapp-sessions', config.whatsappBotId);
+      const sessionDir = path.join(os.homedir(), '.nskuld', 'whatsapp-sessions', config.whatsappBotId);
       if (fs.existsSync(sessionDir)) {
         fs.rmSync(sessionDir, { recursive: true, force: true });
       }
@@ -366,7 +366,7 @@ function removeChannel(channel) {
     delete config.telegramAllowedChats;
   } else if (ch === 'whatsapp') {
     if (config.whatsappBotId) {
-      const sessionDir = path.join(os.homedir(), '.natureco', 'whatsapp-sessions', config.whatsappBotId);
+      const sessionDir = path.join(os.homedir(), '.nskuld', 'whatsapp-sessions', config.whatsappBotId);
       if (fs.existsSync(sessionDir)) {
         fs.rmSync(sessionDir, { recursive: true, force: true });
       }
@@ -410,7 +410,7 @@ function removeChannel(channel) {
 }
 
 function channelLogs(channel) {
-  const logFile = path.join(os.homedir(), '.natureco', 'gateway.log');
+  const logFile = path.join(os.homedir(), '.nskuld', 'gateway.log');
   if (!fs.existsSync(logFile)) {
     F.meta('Log file not found.');
     return;

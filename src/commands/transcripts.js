@@ -18,7 +18,7 @@ function transcripts(args) {
 }
 
 function listTranscripts() {
-  const sessionsDir = path.join(os.homedir(), '.natureco', 'sessions');
+  const sessionsDir = path.join(os.homedir(), '.nskuld', 'sessions');
   console.log(chalk.cyan('\n  📜 Transcripts\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
 
@@ -49,7 +49,7 @@ function showTranscript(id) {
     process.exit(1);
   }
 
-  const sessionsDir = path.join(os.homedir(), '.natureco', 'sessions');
+  const sessionsDir = path.join(os.homedir(), '.nskuld', 'sessions');
   const file = path.join(sessionsDir, `${id}.json`);
 
   if (!fs.existsSync(file)) {
@@ -78,7 +78,7 @@ function deleteTranscript(id) {
     process.exit(1);
   }
 
-  const sessionsDir = path.join(os.homedir(), '.natureco', 'sessions');
+  const sessionsDir = path.join(os.homedir(), '.nskuld', 'sessions');
   const file = path.join(sessionsDir, `${id}.json`);
 
   let target = file;

@@ -2,10 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const USER_HOOKS_DIR = path.join(os.homedir(), '.natureco', 'hooks');
+const USER_HOOKS_DIR = path.join(os.homedir(), '.nskuld', 'hooks');
 
 function getProjectHooksDir() {
-  return path.join(process.cwd(), '.natureco', 'hooks');
+  return path.join(process.cwd(), '.nskuld', 'hooks');
 }
 
 function ensureHooksDirs() {

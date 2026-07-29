@@ -4,7 +4,7 @@ const path = require('path');
 const os = require('os');
 const { execSync, spawn } = require('child_process');
 
-const SESSIONS_FILE = path.join(os.homedir(), '.natureco', 'terminal-sessions.json');
+const SESSIONS_FILE = path.join(os.homedir(), '.nskuld', 'terminal-sessions.json');
 
 function loadSessions() {
   if (!fs.existsSync(SESSIONS_FILE)) return [];

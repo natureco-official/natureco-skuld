@@ -37,7 +37,7 @@ async function delegate({ task, agent = "general", timeoutMs = 60000 }) {
   // Bu basitlestirilmis versiyon: kendi agent sistemi yerine
   // natureco'nun REPL'ini sub-process olarak baslatip gorev verir
   return new Promise((resolve) => {
-    const cliPath = path.resolve(__dirname, "..", "..", "bin", "natureco.js");
+    const cliPath = path.resolve(__dirname, "..", "..", 'bin', 'nskuld.js');
     const args = ["ask", `"${task.replace(/"/g, '\\"')}"`];
 
     let stdout = "";

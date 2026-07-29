@@ -56,11 +56,11 @@ function ensureHomeNatureco() {
   log('\n[2/4] NatureCo dizinleri...');
   const home = os.homedir();
   const dirs = [
-    path.join(home, '.natureco'),
-    path.join(home, '.natureco', 'memory'),
-    path.join(home, '.natureco', 'soul'),
-    path.join(home, '.natureco', 'sessions'),
-    path.join(home, '.natureco', 'personal'),
+    path.join(home, '.nskuld'),
+    path.join(home, '.nskuld', 'memory'),
+    path.join(home, '.nskuld', 'soul'),
+    path.join(home, '.nskuld', 'sessions'),
+    path.join(home, '.nskuld', 'personal'),
   ];
   for (const d of dirs) {
     if (!fs.existsSync(d)) {
@@ -92,7 +92,7 @@ function checkHomebrewConflict() {
 
 function runDoctor() {
   log('\n[4/4] Sistem kontrolu...');
-  const result = run(process.execPath, [path.join(__dirname, '..', 'bin', 'natureco.js'), 'doctor']);
+  const result = run(process.execPath, [path.join(__dirname, '..', 'bin', 'nskuld.js'), 'doctor']);
   if (result !== null) {
     const ok = result.includes('saglikli') || result.includes('geçti');
     if (ok) {

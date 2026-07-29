@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const MEMORY_DIR = path.join(os.homedir(), '.natureco', 'memory');
+const MEMORY_DIR = path.join(os.homedir(), '.nskuld', 'memory');
 const INDEX_FILE = path.join(MEMORY_DIR, 'index.json');
 
 function ensureDir(dir) {

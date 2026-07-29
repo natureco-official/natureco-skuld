@@ -17,10 +17,10 @@ describe('config.js dosya izinleri (Madde 3)', () => {
     vi.resetModules();
     const config = await import('../../src/utils/config.js');
     config.saveConfig({ providerUrl: 'https://x', providerApiKey: 'secret-key', userName: 't' }, { skipBackup: true, skipValidation: true });
-    const cfgFile = path.join(TEST_HOME, '.natureco', 'config.json');
+    const cfgFile = path.join(TEST_HOME, '.nskuld', 'config.json');
     expect(fs.existsSync(cfgFile)).toBe(true);
     expect(fs.statSync(cfgFile).mode & 0o777).toBe(0o600);
-    expect(fs.statSync(path.join(TEST_HOME, '.natureco')).mode & 0o777).toBe(0o700);
+    expect(fs.statSync(path.join(TEST_HOME, '.nskuld')).mode & 0o777).toBe(0o700);
   });
 
   it('restoreConfig sonrası config.json 0o600 (POSIX) — v5.43.1 regresyonu', async () => {

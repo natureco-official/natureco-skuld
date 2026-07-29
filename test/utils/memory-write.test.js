@@ -134,7 +134,7 @@ describe('addMemory end-to-end', () => {
 
   it('persists via atomic write (no temp residue in memory dir)', () => {
     mod._internals.addMemory({ username: 'u3', fact: 'foo' });
-    const dir = path.join(tmpHome, '.natureco', 'memory');
+    const dir = path.join(tmpHome, '.nskuld', 'memory');
     const entries = fs.readdirSync(dir);
     expect(entries.filter(e => e.includes('.tmp'))).toHaveLength(0);
     expect(entries).toContain('u3.json');

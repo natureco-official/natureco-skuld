@@ -22,7 +22,7 @@ const url = require('url');
 const PORT = 7421;
 const HOST = '127.0.0.1';
 
-const NATURECO_DIR = path.join(os.homedir(), '.natureco');
+const NATURECO_DIR = path.join(os.homedir(), '.nskuld');
 
 function safeReadJSON(filePath) {
   try {

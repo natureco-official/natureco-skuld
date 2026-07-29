@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const MCP_CONFIG = path.join(os.homedir(), '.natureco', 'mcp-servers.json');
+const MCP_CONFIG = path.join(os.homedir(), '.nskuld', 'mcp-servers.json');
 
 function loadServers() {
   if (!fs.existsSync(MCP_CONFIG)) return {};

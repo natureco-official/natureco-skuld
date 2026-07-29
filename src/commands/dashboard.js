@@ -21,7 +21,7 @@ const dashboardServer = require('../utils/dashboard-server');
 
 const DASHBOARD_PORT = dashboardServer.PORT;
 const DASHBOARD_URL = `http://${dashboardServer.HOST}:${DASHBOARD_PORT}`;
-const PID_FILE = path.join(os.homedir(), '.natureco', 'dashboard.pid');
+const PID_FILE = path.join(os.homedir(), '.nskuld', 'dashboard.pid');
 
 function isPortInUse(port, host = '127.0.0.1') {
   return new Promise((resolve) => {

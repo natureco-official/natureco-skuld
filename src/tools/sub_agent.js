@@ -12,7 +12,7 @@ const path = require('path');
 const os = require('os');
 
 function loadConfig() {
-  try { return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.natureco', 'config.json'), 'utf8')); } catch { return {}; }
+  try { return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.nskuld', 'config.json'), 'utf8')); } catch { return {}; }
 }
 
 function isMiniMax(url) { return url && (url.includes('minimax.io') || url.includes('minimaxi.com') || url.includes('minimax.cn')); }

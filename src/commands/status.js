@@ -39,7 +39,7 @@ async function cmdRun() {
   lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Version          ') + tui.styled(`v${version}`.padEnd(36), { color: tui.PALETTE.text, bold: true }) + tui.styled(' │', { color: tui.PALETTE.border }));
   lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Platform         ') + tui.styled(`${process.platform} ${os.release()}`.padEnd(36), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
 
-  const pidFile = path.join(os.homedir(), '.natureco', 'gateway.pid');
+  const pidFile = path.join(os.homedir(), '.nskuld', 'gateway.pid');
   const gatewayRunning = fs.existsSync(pidFile);
   const gatewayStatus = gatewayRunning
     ? tui.styled(L('  ✓ Çalışıyor ', '  ✓ Running   '), { bg: tui.PALETTE.success, color: '#000', bold: true })
@@ -53,7 +53,7 @@ async function cmdRun() {
     lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Bot              ') + tui.styled((cfg.botName || '—').padEnd(36), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
   }
 
-  const nodesFile = path.join(os.homedir(), '.natureco', 'nodes.json');
+  const nodesFile = path.join(os.homedir(), '.nskuld', 'nodes.json');
   let nodeCount = 0;
   if (fs.existsSync(nodesFile)) {
     try { nodeCount = Object.keys(JSON.parse(fs.readFileSync(nodesFile, 'utf8'))).length; } catch {}
@@ -101,7 +101,7 @@ function cmdSimple() {
 
   const config = tryRequire('../utils/config');
   const cfg = config ? config.getConfig() : {};
-  const pidFile = path.join(os.homedir(), '.natureco', 'gateway.pid');
+  const pidFile = path.join(os.homedir(), '.nskuld', 'gateway.pid');
   const gatewayRunning = fs.existsSync(pidFile);
 
   F.dot(gatewayRunning, 'Gateway');

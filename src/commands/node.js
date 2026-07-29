@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const NODES_FILE = path.join(os.homedir(), '.natureco', 'nodes.json');
+const NODES_FILE = path.join(os.homedir(), '.nskuld', 'nodes.json');
 
 function loadNodes() {
   if (!fs.existsSync(NODES_FILE)) return {};

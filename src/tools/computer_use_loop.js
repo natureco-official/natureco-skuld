@@ -13,7 +13,7 @@ const { buildChatEndpoint, isMiniMax, isAnthropic } = require('../utils/provider
 const { captureScreenshot: platformScreenshot, executeAction: platformExecute } = require('../utils/platform-gui');
 
 function loadConfig() {
-  try { return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.natureco', 'config.json'), 'utf8')); } catch { return {}; }
+  try { return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.nskuld', 'config.json'), 'utf8')); } catch { return {}; }
 }
 
 // Windows' `timeout` command requires a real interactive console handle and fails with

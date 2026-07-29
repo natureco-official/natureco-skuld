@@ -38,7 +38,7 @@ describe('cron_create — komut güvenliği (Madde 9)', () => {
     expect(r.crontabUpdated).toBe(false);
     expect(r.systemCrontab).toBe(false);
     // uygulama-içi kayıt yapıldı
-    const cronsFile = path.join(TEST_HOME, '.natureco', 'crons.json');
+    const cronsFile = path.join(TEST_HOME, '.nskuld', 'crons.json');
     expect(fs.existsSync(cronsFile)).toBe(true);
     const saved = JSON.parse(fs.readFileSync(cronsFile, 'utf8'));
     expect(saved.some(c => c.name === 'daily' && c.command === 'echo hi')).toBe(true);

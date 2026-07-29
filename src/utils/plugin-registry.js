@@ -4,8 +4,8 @@ const os = require('os');
 const { execFileSync } = require('child_process');
 const { PluginError, handleError } = require('./errors');
 
-const PLUGINS_DIR = path.join(os.homedir(), '.natureco', 'plugins');
-const REGISTRY_FILE = path.join(os.homedir(), '.natureco', 'plugin-registry.json');
+const PLUGINS_DIR = path.join(os.homedir(), '.nskuld', 'plugins');
+const REGISTRY_FILE = path.join(os.homedir(), '.nskuld', 'plugin-registry.json');
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });

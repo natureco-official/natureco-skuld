@@ -19,8 +19,8 @@ const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
 
-const PATTERNS_FILE = path.join(os.homedir(), '.natureco', 'patterns.json');
-const PROPOSALS_FILE = path.join(os.homedir(), '.natureco', 'skill-proposals.json');
+const PATTERNS_FILE = path.join(os.homedir(), '.nskuld', 'patterns.json');
+const PROPOSALS_FILE = path.join(os.homedir(), '.nskuld', 'skill-proposals.json');
 const MIN_REPETITIONS = 3;        // 3 kez tekrar etmeli
 const WINDOW_SIZE = 5;            // Son N tool çağrısına bak
 const COOLDOWN_MS = 24 * 3600 * 1000; // Aynı pattern'i 24 saat içinde tekrar önerme
@@ -258,7 +258,7 @@ function acceptProposal(proposalId) {
   if (idx === -1) return { success: false, reason: 'Proposal bulunamadı' };
 
   const proposal = proposals[idx];
-  const userSkillsDir = path.join(os.homedir(), '.natureco', 'skills');
+  const userSkillsDir = path.join(os.homedir(), '.nskuld', 'skills');
   if (!fs.existsSync(userSkillsDir)) fs.mkdirSync(userSkillsDir, { recursive: true });
 
   const skillDir = path.join(userSkillsDir, proposal.suggestedName);

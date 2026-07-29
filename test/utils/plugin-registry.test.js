@@ -42,7 +42,7 @@ describe('plugin-registry', () => {
     });
 
     it('should handle corrupted registry file', () => {
-      const dir = path.join(TEST_HOME, '.natureco');
+      const dir = path.join(TEST_HOME, '.nskuld');
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, 'plugin-registry.json'), '{corrupted}', 'utf-8');
       const registry = mod.loadRegistry();
@@ -198,7 +198,7 @@ describe('plugin-registry', () => {
 
   describe('PLUGINS_DIR', () => {
     it('should point to .natureco/plugins', () => {
-      expect(mod.PLUGINS_DIR).toContain('.natureco');
+      expect(mod.PLUGINS_DIR).toContain('.nskuld');
       expect(mod.PLUGINS_DIR).toContain('plugins');
     });
   });

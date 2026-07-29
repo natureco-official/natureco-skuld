@@ -7,8 +7,8 @@ const pino = require('pino');
 const { loadBaileys } = require('../utils/baileys');
 const { ApiError } = require('../utils/errors');
 
-const PID_FILE = path.join(os.homedir(), '.natureco', 'gateway.pid');
-const LOG_FILE = path.join(os.homedir(), '.natureco', 'gateway.log');
+const PID_FILE = path.join(os.homedir(), '.nskuld', 'gateway.pid');
+const LOG_FILE = path.join(os.homedir(), '.nskuld', 'gateway.log');
 
 // Silent logger for Baileys
 const silentLogger = {
@@ -157,7 +157,7 @@ async function runGatewayWorker() {
   
   // Start WhatsApp if configured
   if (config.whatsappConnected && config.whatsappBotId) {
-    const sessionDir = path.join(os.homedir(), '.natureco', 'whatsapp-sessions', config.whatsappBotId);
+    const sessionDir = path.join(os.homedir(), '.nskuld', 'whatsapp-sessions', config.whatsappBotId);
     
     if (fs.existsSync(sessionDir)) {
       const phone = config.whatsappPhone?.split(':')[0].replace('@s.whatsapp.net', '') || 'unknown';
@@ -1833,7 +1833,7 @@ function startHttpServer() {
 function startCronJobs(config) {
   try {
     const nodeCron = require('node-cron');
-    const CRONS_FILE = path.join(os.homedir(), '.natureco', 'crons.json');
+    const CRONS_FILE = path.join(os.homedir(), '.nskuld', 'crons.json');
     
     if (!fs.existsSync(CRONS_FILE)) {
       log('cron', 'No cron jobs configured', 'gray');

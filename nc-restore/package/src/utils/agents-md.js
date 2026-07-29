@@ -5,8 +5,8 @@ const cache = new Map();
 
 const AGENTS_MD_FILENAMES = [
   'AGENTS.md',
-  '.natureco/AGENTS.md',
-  '.natureco/INSTRUCTIONS.md',
+  '.nskuld/AGENTS.md',
+  '.nskuld/INSTRUCTIONS.md',
 ];
 
 function isRoot(dir) {

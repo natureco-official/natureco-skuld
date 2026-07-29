@@ -116,7 +116,7 @@ function runCheck(name, fn) {
 }
 
 function checkConfig() {
-  const configDir = path.join(os.homedir(), '.natureco');
+  const configDir = path.join(os.homedir(), '.nskuld');
   const configFile = path.join(configDir, 'config.json');
 
   if (!fs.existsSync(configDir)) return { status: 'fail', message: '~/.natureco directory does not exist' };
@@ -131,7 +131,7 @@ function checkConfig() {
 }
 
 function checkGateway() {
-  const pidFile = path.join(os.homedir(), '.natureco', 'gateway.pid');
+  const pidFile = path.join(os.homedir(), '.nskuld', 'gateway.pid');
   if (!fs.existsSync(pidFile)) return { status: 'warn', message: 'Gateway is not running' };
 
   try {
@@ -144,7 +144,7 @@ function checkGateway() {
 }
 
 function checkNodes() {
-  const nodesFile = path.join(os.homedir(), '.natureco', 'nodes.json');
+  const nodesFile = path.join(os.homedir(), '.nskuld', 'nodes.json');
   if (!fs.existsSync(nodesFile)) return { status: 'warn', message: 'No nodes configured' };
 
   try {
@@ -158,7 +158,7 @@ function checkNodes() {
 }
 
 function checkDisk() {
-  const dir = path.join(os.homedir(), '.natureco');
+  const dir = path.join(os.homedir(), '.nskuld');
   if (!fs.existsSync(dir)) return { status: 'warn', message: '~/.natureco does not exist' };
 
   try {

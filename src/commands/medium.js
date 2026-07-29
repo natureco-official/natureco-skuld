@@ -104,7 +104,7 @@ async function cmdDraft(args) {
     console.log(chalk.gray(L('\n  Token almak için: ', '\n  To get a token: ')) + chalk.cyan('https://medium.com/me/settings/tokens'));
     console.log('');
     // Yerel taslak kaydet
-    const draftDir = path.join(os.homedir(), '.natureco', 'medium-drafts');
+    const draftDir = path.join(os.homedir(), '.nskuld', 'medium-drafts');
     if (!fs.existsSync(draftDir)) fs.mkdirSync(draftDir, { recursive: true });
     const draftFile = path.join(draftDir, `${Date.now()}-${path.basename(filePath, '.md')}.json`);
     fs.writeFileSync(draftFile, JSON.stringify({ title, body, source: filePath, createdAt: new Date().toISOString() }, null, 2));
@@ -169,7 +169,7 @@ async function cmdPublish(args) {
 }
 
 function cmdList() {
-  const draftDir = path.join(os.homedir(), '.natureco', 'medium-drafts');
+  const draftDir = path.join(os.homedir(), '.nskuld', 'medium-drafts');
   if (!fs.existsSync(draftDir)) {
     console.log(chalk.gray(L('\n  Henüz taslak yok.\n', '\n  No drafts yet.\n')));
     return;

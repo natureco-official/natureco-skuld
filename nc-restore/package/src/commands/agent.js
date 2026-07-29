@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const BINDINGS_FILE = path.join(os.homedir(), '.natureco', 'agent-bindings.json');
-const IDENTITIES_FILE = path.join(os.homedir(), '.natureco', 'agent-identities.json');
+const BINDINGS_FILE = path.join(os.homedir(), '.nskuld', 'agent-bindings.json');
+const IDENTITIES_FILE = path.join(os.homedir(), '.nskuld', 'agent-identities.json');
 
 async function agent(args) {
   const opts = {};

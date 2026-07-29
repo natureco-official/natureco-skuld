@@ -5,7 +5,7 @@ const os = require('os');
 const crypto = require('crypto');
 const { getConfig, saveConfig } = require('../utils/config');
 
-const PAIRING_FILE = path.join(os.homedir(), '.natureco', 'data', 'pairings.json');
+const PAIRING_FILE = path.join(os.homedir(), '.nskuld', 'data', 'pairings.json');
 
 function loadPairings() {
   try {

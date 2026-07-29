@@ -5,7 +5,7 @@ const { getProviderConfig } = require('./api');
 const { AgentWorkspaceManager } = require('./agent-workspace');
 const { getLang: _gl } = require('./i18n');
 
-const SUB_AGENTS_FILE = path.join(os.homedir(), '.natureco', 'sub-agents.json');
+const SUB_AGENTS_FILE = path.join(os.homedir(), '.nskuld', 'sub-agents.json');
 
 /**
  * Sub-agent personas.

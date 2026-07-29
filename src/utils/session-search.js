@@ -8,7 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const SESSIONS_DIR = path.join(process.cwd(), '.natureco', 'sessions');
+const SESSIONS_DIR = path.join(process.cwd(), '.nskuld', 'sessions');
 
 function getSessions() {
   if (!fs.existsSync(SESSIONS_DIR)) return [];

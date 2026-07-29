@@ -12,7 +12,7 @@ function normalizeWindowsPaths(str) {
   result = result.replace(/[A-Za-z]:\/\.openclaw\//g, `${homeDir}/.natureco/`);
 
   // Migrate .openclaw paths to .natureco
-  result = result.replace(/\.openclaw\//g, '.natureco/');
+  result = result.replace(/\.openclaw\//g, '.nskuld/');
 
   // Normalize mixed path separators
   result = result.replace(/workspace\/scripts\\/g, 'workspace/scripts/');

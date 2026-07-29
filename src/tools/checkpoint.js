@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const CHECKPOINT_DIR = path.join(process.env.HOME || process.env.USERPROFILE || __dirname, '.natureco', 'checkpoints');
+const CHECKPOINT_DIR = path.join(process.env.HOME || process.env.USERPROFILE || __dirname, '.nskuld', 'checkpoints');
 
 function ensureDir(dir) { try { fs.mkdirSync(dir, { recursive: true }); } catch {} }
 

@@ -79,7 +79,7 @@ async function getContext({ visible = true, recovery = false } = {}) {
   contextPromise = (async () => {
     const { chromium } = require('playwright-core');
     const executablePath = findChrome();
-    const userDataDir = path.join(os.homedir(), '.natureco', recovery ? `browser-profile-recovery-${process.pid}` : 'browser-profile');
+    const userDataDir = path.join(os.homedir(), '.nskuld', recovery ? `browser-profile-recovery-${process.pid}` : 'browser-profile');
     fs.mkdirSync(userDataDir, { recursive: true });
 
     const baseArgs = ['--no-first-run', '--no-default-browser-check'];
@@ -121,7 +121,7 @@ async function getContext({ visible = true, recovery = false } = {}) {
         contextPromise = null;
         activePage = null;
         // Retry once with a fresh profile directory
-        const freshDir = path.join(os.homedir(), '.natureco', 'browser-profile-fresh-' + process.pid);
+        const freshDir = path.join(os.homedir(), '.nskuld', 'browser-profile-fresh-' + process.pid);
         fs.mkdirSync(freshDir, { recursive: true });
         const context = await chromium.launchPersistentContext(freshDir, {
           headless: !visible,

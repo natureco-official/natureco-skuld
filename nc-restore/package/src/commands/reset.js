@@ -21,7 +21,7 @@ const chalk = require('chalk');
 async function reset() {
   const args = process.argv.slice(3);
   const home = os.homedir();
-  const baseDir = path.join(home, '.natureco');
+  const baseDir = path.join(home, '.nskuld');
 
   console.log(chalk.yellow('\n\u26a0  RESET - Tum veriler silinecek!\n'));
 

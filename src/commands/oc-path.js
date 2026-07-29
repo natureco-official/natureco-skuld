@@ -32,7 +32,7 @@ function resolveNcPath(ncPath) {
   }
 
   if (scope === 'config' || scope === 'c') {
-    const configDir = path.join(os.homedir(), '.natureco');
+    const configDir = path.join(os.homedir(), '.nskuld');
     return { type: 'config', path: rest.length ? path.join(configDir, ...rest) : configDir, description: 'Config directory' };
   }
 
@@ -60,7 +60,7 @@ function resolveNcPath(ncPath) {
   }
 
   if (scope === 'data' || scope === 'd') {
-    const dataDir = path.join(os.homedir(), '.natureco', 'data');
+    const dataDir = path.join(os.homedir(), '.nskuld', 'data');
     return { type: 'data', path: rest.length ? path.join(dataDir, ...rest) : dataDir, description: 'Data directory' };
   }
 

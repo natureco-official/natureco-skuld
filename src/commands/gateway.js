@@ -215,7 +215,7 @@ async function gateway(action, ...args) {
   }
 
   if (action === 'stop') {
-    const pidFile = path.join(os.homedir(), '.natureco', 'gateway.pid');
+    const pidFile = path.join(os.homedir(), '.nskuld', 'gateway.pid');
     if (!fs.existsSync(pidFile)) {
       console.log('\n' + tui.C.muted('  Gateway zaten durmuş.') + '\n');
       return;
@@ -345,7 +345,7 @@ async function startGateway() {
   }
 
   // PID dosyası kontrol — zaten çalışıyor mu?
-  const pidFile = path.join(os.homedir(), '.natureco', 'gateway.pid');
+  const pidFile = path.join(os.homedir(), '.nskuld', 'gateway.pid');
   if (fs.existsSync(pidFile)) {
     const existingPid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
     try {
@@ -365,7 +365,7 @@ async function startGateway() {
   console.log(tui.styled('  ' + '─'.repeat(56), { color: tui.PALETTE.border }));
 
   // Log dosyası
-  const logFile = path.join(os.homedir(), '.natureco', 'gateway.log');
+  const logFile = path.join(os.homedir(), '.nskuld', 'gateway.log');
   const out = fs.openSync(logFile, 'a');
   const err = fs.openSync(logFile, 'a');
 
@@ -527,7 +527,7 @@ async function startWhatsAppProvider(sessionDir, config) {
 
 function checkGatewayRunning() {
   try {
-    const pidFile = path.join(os.homedir(), '.natureco', 'gateway.pid');
+    const pidFile = path.join(os.homedir(), '.nskuld', 'gateway.pid');
     if (fs.existsSync(pidFile)) {
       const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
       process.kill(pid, 0);

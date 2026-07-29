@@ -4,7 +4,7 @@ const path = require('path');
 const os = require('os');
 
 const PORT = 3847;
-const LOG_FILE = path.join(os.homedir(), '.natureco', 'gateway.log');
+const LOG_FILE = path.join(os.homedir(), '.nskuld', 'gateway.log');
 
 function log(message) {
   const timestamp = new Date().toISOString();

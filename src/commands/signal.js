@@ -8,7 +8,7 @@ const path = require('path');
 const os = require('os');
 const { spawn, execSync, execFileSync } = require('child_process');
 
-const SIGNAL_DIR = path.join(os.homedir(), '.natureco', 'signal');
+const SIGNAL_DIR = path.join(os.homedir(), '.nskuld', 'signal');
 const SIGNAL_PID_FILE = path.join(SIGNAL_DIR, 'daemon.pid');
 const SIGNAL_LOG_FILE = path.join(SIGNAL_DIR, 'daemon.log');
 const SIGNAL_CLI_VERSION = '0.13.6';

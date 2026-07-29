@@ -56,7 +56,7 @@ describe('sub-agent utilities', () => {
       expect(result.result).toBe('mock response');
       expect(result.duration).toBeGreaterThanOrEqual(0);
 
-      const agentsFile = path.join(TEST_HOME, '.natureco', 'sub-agents.json');
+      const agentsFile = path.join(TEST_HOME, '.nskuld', 'sub-agents.json');
       const agents = JSON.parse(fs.readFileSync(agentsFile, 'utf8'));
       expect(agents.length).toBe(1);
       expect(agents[0].type).toBe('explore');
@@ -81,7 +81,7 @@ describe('sub-agent utilities', () => {
       expect(result.results.length).toBe(2);
       expect(result.failed).toEqual([]);
 
-      const agentsFile = path.join(TEST_HOME, '.natureco', 'sub-agents.json');
+      const agentsFile = path.join(TEST_HOME, '.nskuld', 'sub-agents.json');
       const saved = JSON.parse(fs.readFileSync(agentsFile, 'utf8'));
       expect(saved.length).toBe(2);
     });
@@ -89,7 +89,7 @@ describe('sub-agent utilities', () => {
 
   describe('getStatus', () => {
     it('should return summary object with total, running, completed, failed', async () => {
-      const agentsDir = path.join(TEST_HOME, '.natureco');
+      const agentsDir = path.join(TEST_HOME, '.nskuld');
       const agentsFile = path.join(agentsDir, 'sub-agents.json');
       if (!fs.existsSync(agentsDir)) fs.mkdirSync(agentsDir, { recursive: true });
 

@@ -170,7 +170,7 @@ describe('background tasks', () => {
     it('should find stale queued tasks', () => {
       mod.createTask({ message: 'stale' });
 
-      const tasksFile = path.join(TEST_HOME, '.natureco', 'tasks.json');
+      const tasksFile = path.join(TEST_HOME, '.nskuld', 'tasks.json');
       const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf-8'));
       tasks[0].createdAt = new Date(Date.now() - 20 * 60 * 1000).toISOString();
       fs.writeFileSync(tasksFile, JSON.stringify(tasks), 'utf-8');
@@ -185,7 +185,7 @@ describe('background tasks', () => {
       const task = mod.createTask({ message: 'stale running' });
       mod.updateTask(task.id, { status: 'running' });
 
-      const tasksFile = path.join(TEST_HOME, '.natureco', 'tasks.json');
+      const tasksFile = path.join(TEST_HOME, '.nskuld', 'tasks.json');
       const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf-8'));
       const idx = tasks.findIndex(t => t.id === task.id);
       tasks[idx].startedAt = new Date(Date.now() - 40 * 60 * 1000).toISOString();
@@ -201,7 +201,7 @@ describe('background tasks', () => {
       const task = mod.createTask({ message: 'no cleanup' });
       mod.updateTask(task.id, { status: 'succeeded' });
 
-      const tasksFile = path.join(TEST_HOME, '.natureco', 'tasks.json');
+      const tasksFile = path.join(TEST_HOME, '.nskuld', 'tasks.json');
       const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf-8'));
       const idx = tasks.findIndex(t => t.id === task.id);
       delete tasks[idx].cleanupAfter;
@@ -216,7 +216,7 @@ describe('background tasks', () => {
       const task = mod.createTask({ message: 'inconsistent' });
       mod.updateTask(task.id, { status: 'failed' });
 
-      const tasksFile = path.join(TEST_HOME, '.natureco', 'tasks.json');
+      const tasksFile = path.join(TEST_HOME, '.nskuld', 'tasks.json');
       const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf-8'));
       const idx = tasks.findIndex(t => t.id === task.id);
       tasks[idx].startedAt = new Date(Date.now() + 10000).toISOString();
@@ -231,7 +231,7 @@ describe('background tasks', () => {
   describe('maintenanceTasks', () => {
     it('should reconcile stale queued tasks as lost (dry-run)', () => {
       mod.createTask({ message: 'stale for maintenance' });
-      const tasksFile = path.join(TEST_HOME, '.natureco', 'tasks.json');
+      const tasksFile = path.join(TEST_HOME, '.nskuld', 'tasks.json');
       const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf-8'));
       tasks[0].createdAt = new Date(Date.now() - 20 * 60 * 1000).toISOString();
       fs.writeFileSync(tasksFile, JSON.stringify(tasks), 'utf-8');
@@ -245,7 +245,7 @@ describe('background tasks', () => {
 
     it('should reconcile stale queued tasks as lost (apply)', () => {
       const task = mod.createTask({ message: 'stale for apply' });
-      const tasksFile = path.join(TEST_HOME, '.natureco', 'tasks.json');
+      const tasksFile = path.join(TEST_HOME, '.nskuld', 'tasks.json');
       const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf-8'));
       tasks[0].createdAt = new Date(Date.now() - 20 * 60 * 1000).toISOString();
       fs.writeFileSync(tasksFile, JSON.stringify(tasks), 'utf-8');

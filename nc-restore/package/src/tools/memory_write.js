@@ -9,7 +9,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const MEMORY_DIR = path.join(os.homedir(), ".natureco", "memory");
+const MEMORY_DIR = path.join(os.homedir(), ".nskuld", "memory");
 
 function getMemoryFile(username) {
   const name = (username || "default").toLowerCase();

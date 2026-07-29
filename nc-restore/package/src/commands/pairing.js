@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const PAIRINGS_FILE = path.join(os.homedir(), '.natureco', 'pairings.json');
+const PAIRINGS_FILE = path.join(os.homedir(), '.nskuld', 'pairings.json');
 
 function loadPairings() {
   if (!fs.existsSync(PAIRINGS_FILE)) return [];

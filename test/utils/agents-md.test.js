@@ -32,21 +32,21 @@ describe('agents-md utilities', () => {
     });
 
     it('should find .natureco/AGENTS.md', () => {
-      fs.mkdirSync(path.join(tempDir, '.natureco'));
-      fs.writeFileSync(path.join(tempDir, '.natureco', 'AGENTS.md'), 'natureco content', 'utf8');
+      fs.mkdirSync(path.join(tempDir, '.nskuld'));
+      fs.writeFileSync(path.join(tempDir, '.nskuld', 'AGENTS.md'), 'natureco content', 'utf8');
       expect(mod.loadInstructions(tempDir)).toBe('natureco content');
     });
 
     it('should find .natureco/INSTRUCTIONS.md', () => {
-      fs.mkdirSync(path.join(tempDir, '.natureco'));
-      fs.writeFileSync(path.join(tempDir, '.natureco', 'INSTRUCTIONS.md'), 'instructions', 'utf8');
+      fs.mkdirSync(path.join(tempDir, '.nskuld'));
+      fs.writeFileSync(path.join(tempDir, '.nskuld', 'INSTRUCTIONS.md'), 'instructions', 'utf8');
       expect(mod.loadInstructions(tempDir)).toBe('instructions');
     });
 
     it('should prefer AGENTS.md over .natureco/AGENTS.md', () => {
       fs.writeFileSync(path.join(tempDir, 'AGENTS.md'), 'root agents', 'utf8');
-      fs.mkdirSync(path.join(tempDir, '.natureco'));
-      fs.writeFileSync(path.join(tempDir, '.natureco', 'AGENTS.md'), 'natureco agents', 'utf8');
+      fs.mkdirSync(path.join(tempDir, '.nskuld'));
+      fs.writeFileSync(path.join(tempDir, '.nskuld', 'AGENTS.md'), 'natureco agents', 'utf8');
       expect(mod.loadInstructions(tempDir)).toBe('root agents');
     });
 

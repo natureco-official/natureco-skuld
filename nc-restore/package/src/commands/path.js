@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-const PATHS_FILE = path.join(os.homedir(), '.natureco', 'paths.json');
+const PATHS_FILE = path.join(os.homedir(), '.nskuld', 'paths.json');
 
 function loadPaths() {
   try {

@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const WEBHOOKS_FILE = path.join(os.homedir(), '.natureco', 'webhooks.json');
+const WEBHOOKS_FILE = path.join(os.homedir(), '.nskuld', 'webhooks.json');
 
 function loadWebhooks() {
   if (!fs.existsSync(WEBHOOKS_FILE)) return [];

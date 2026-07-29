@@ -7,7 +7,7 @@ const inquirer = require('../utils/inquirer-wrapper');
 const brand = require('../utils/branding');
 const { COLORS, FULL_LOGO } = brand;
 
-const BASE_DIR = path.join(os.homedir(), '.natureco');
+const BASE_DIR = path.join(os.homedir(), '.nskuld');
 const CONFIG_FILE = path.join(BASE_DIR, 'config.json');
 
 const DIRS = ['sources', 'concepts', 'cache', 'skills', 'memory', 'sessions', 'backups'];

@@ -32,7 +32,7 @@ const POLICY_CHECKS = [
     id: 'config-exists',
     name: 'Config Dosyası',
     check: () => {
-      const configFile = path.join(os.homedir(), '.natureco', 'config.json');
+      const configFile = path.join(os.homedir(), '.nskuld', 'config.json');
       if (!fs.existsSync(configFile)) {
         return { status: 'fail', message: 'config.json bulunamadı', fix: 'natureco setup çalıştırın' };
       }

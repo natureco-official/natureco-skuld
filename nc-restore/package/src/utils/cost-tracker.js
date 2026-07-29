@@ -190,8 +190,8 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const COST_FILE = path.join(os.homedir(), '.natureco', 'cost-tracking.json');
-const BUDGET_CONFIG_FILE = path.join(os.homedir(), '.natureco', 'budget-config.json');
+const COST_FILE = path.join(os.homedir(), '.nskuld', 'cost-tracking.json');
+const BUDGET_CONFIG_FILE = path.join(os.homedir(), '.nskuld', 'budget-config.json');
 
 const DEFAULT_BUDGET = {
   dailyLimit: 5.00,       // USD/gün

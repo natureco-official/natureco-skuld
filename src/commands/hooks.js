@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const HOOKS_FILE = path.join(os.homedir(), '.natureco', 'hooks.json');
+const HOOKS_FILE = path.join(os.homedir(), '.nskuld', 'hooks.json');
 
 function loadHooks() {
   if (!fs.existsSync(HOOKS_FILE)) return [];

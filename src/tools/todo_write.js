@@ -18,7 +18,7 @@ const path = require('path');
 const os = require('os');
 const { writeJsonAtomicSync, readJsonSafeSync } = require('../utils/atomic-file');
 
-const TODO_FILE = path.join(os.homedir(), '.natureco', 'todos.json');
+const TODO_FILE = path.join(os.homedir(), '.nskuld', 'todos.json');
 
 const VALID_STATUSES = new Set(['pending', 'in_progress', 'completed', 'deleted']);
 const VALID_PRIORITIES = new Set(['low', 'medium', 'high']);

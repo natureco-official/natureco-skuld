@@ -8,7 +8,7 @@ const BUILTIN_SKILLS_DIR = path.join(__dirname, '..', '..', 'skills');
 const USER_SKILLS_DIR = path.join(CONFIG_DIR, 'skills');
 
 function getProjectSkillsDir() {
-  return path.join(process.cwd(), '.natureco', 'skills');
+  return path.join(process.cwd(), '.nskuld', 'skills');
 }
 
 // Scan built-in skill slugs at module load time

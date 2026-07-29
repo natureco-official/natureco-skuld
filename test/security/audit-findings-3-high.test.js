@@ -108,7 +108,7 @@ describe('AUDIT_FINDINGS_3 high-severity regressions', () => {
     const port = String(42000 + Math.floor(Math.random() * 10000));
     adminRpc.startAdmin(port);
     await new Promise(resolve => setTimeout(resolve, 50));
-    const token = fs.readFileSync(path.join(home, '.natureco', 'admin-token'), 'utf8').trim();
+    const token = fs.readFileSync(path.join(home, '.nskuld', 'admin-token'), 'utf8').trim();
     const output = outputOf(log);
     expect(output).toContain('value hidden');
     expect(output).toContain('<token-from-file>');
@@ -134,7 +134,7 @@ describe('AUDIT_FINDINGS_3 high-severity regressions', () => {
 
   it('H-04 exits non-zero for unreachable send and kick while retaining audit JSONL', () => {
     const home = tempHome('natureco-h04-');
-    const configDir = path.join(home, '.natureco');
+    const configDir = path.join(home, '.nskuld');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(path.join(configDir, 'config.json'), JSON.stringify({ discordBotId: 'configured' }));
     const env = { ...process.env, HOME: home, USERPROFILE: home, FORCE_COLOR: '0' };

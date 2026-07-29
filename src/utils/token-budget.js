@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const BUDGET_FILE = path.join(os.homedir(), '.natureco', 'token-budget.json');
-const USAGE_FILE = path.join(os.homedir(), '.natureco', 'token-usage.json');
+const BUDGET_FILE = path.join(os.homedir(), '.nskuld', 'token-budget.json');
+const USAGE_FILE = path.join(os.homedir(), '.nskuld', 'token-usage.json');
 
 const PRESETS = {
   efficient: {

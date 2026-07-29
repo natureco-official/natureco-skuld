@@ -30,7 +30,7 @@ afterEach(() => {
 });
 
 function writeConfig(permissions) {
-  const cfgDir = path.join(tmpHome, '.natureco');
+  const cfgDir = path.join(tmpHome, '.nskuld');
   fs.mkdirSync(cfgDir, { recursive: true });
   fs.writeFileSync(path.join(cfgDir, 'config.json'), JSON.stringify({ permissions }));
 }

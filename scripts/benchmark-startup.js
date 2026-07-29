@@ -3,7 +3,7 @@
 const { spawnSync } = require('child_process');
 const path = require('path');
 
-const bin = path.join(__dirname, '..', 'bin', 'natureco.js');
+const bin = path.join(__dirname, '..', 'bin', 'nskuld.js');
 function measure(args, runs = 7) {
   const samples = [];
   for (let i = 0; i < runs; i++) {

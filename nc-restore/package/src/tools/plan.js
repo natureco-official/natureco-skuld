@@ -14,11 +14,11 @@ const path = require("path");
 const os = require("os");
 const https = require("https");
 
-const PLAN_DIR = path.join(os.homedir(), ".natureco", "plans");
+const PLAN_DIR = path.join(os.homedir(), ".nskuld", "plans");
 
 function loadConfig() {
   try {
-    return JSON.parse(fs.readFileSync(path.join(os.homedir(), ".natureco", "config.json"), "utf8"));
+    return JSON.parse(fs.readFileSync(path.join(os.homedir(), ".nskuld", "config.json"), "utf8"));
   } catch { return {}; }
 }
 

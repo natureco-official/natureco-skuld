@@ -18,7 +18,7 @@ const SUPABASE_ANON = process.env.NATURECO_SUPABASE_ANON || 'eyJhbGciOiJIUzI1NiI
 const AUTH_BASE = `${SUPABASE_URL}/auth/v1`;
 
 function authFile() {
-  return path.join(os.homedir(), '.natureco', 'auth.json');
+  return path.join(os.homedir(), '.nskuld', 'auth.json');
 }
 
 function loadSession() {

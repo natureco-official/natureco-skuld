@@ -16,7 +16,7 @@ const { NatureCoError, ChannelError, handleError } = require('../utils/errors');
 const logger = pino({ level: 'silent' });
 
 // WhatsApp session directory
-const WHATSAPP_SESSION_DIR = path.join(os.homedir(), '.natureco', 'whatsapp-sessions');
+const WHATSAPP_SESSION_DIR = path.join(os.homedir(), '.nskuld', 'whatsapp-sessions');
 
 const { checkExistingToken } = require('./channel-helper');
 

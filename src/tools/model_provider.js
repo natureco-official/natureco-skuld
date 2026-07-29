@@ -24,7 +24,7 @@ async function execute(params) {
   const fs = require('fs');
   const path = require('path');
   const os = require('os');
-  const cfg = (() => { try { return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.natureco', 'config.json'), 'utf8')); } catch { return {}; } })();
+  const cfg = (() => { try { return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.nskuld', 'config.json'), 'utf8')); } catch { return {}; } })();
   const { getProviderNames, getProvider, resolveProviderConfig, detectFamily } = require('../utils/model-provider');
 
   switch (params.action) {

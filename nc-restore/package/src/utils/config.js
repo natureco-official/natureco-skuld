@@ -11,7 +11,7 @@ try {
   json5 = null;
 }
 
-const CONFIG_DIR = path.join(os.homedir(), '.natureco');
+const CONFIG_DIR = path.join(os.homedir(), '.nskuld');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
 const CONFIG_BACKUP_DIR = path.join(CONFIG_DIR, 'backups');
 const MAX_BACKUPS = 10;
@@ -26,7 +26,7 @@ function getProfileDir() {
     ? (profileArg.split('=')[1] || 'default')
     : (profileIdx !== -1 ? (process.argv[profileIdx + 1] || 'default') : null);
   if (profile && profile !== 'default') {
-    return path.join(os.homedir(), `.natureco-${profile}`);
+    return path.join(os.homedir(), `.nskuld-${profile}`);
   }
   return CONFIG_DIR;
 }

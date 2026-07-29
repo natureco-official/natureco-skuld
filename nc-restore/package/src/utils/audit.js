@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const AUDIT_DIR = path.join(os.homedir(), '.natureco', 'audit');
+const AUDIT_DIR = path.join(os.homedir(), '.nskuld', 'audit');
 const RETENTION_DAYS = 30;
 
 // Action tipleri

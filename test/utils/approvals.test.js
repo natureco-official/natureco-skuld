@@ -244,7 +244,7 @@ describe('approvals', () => {
   describe('getApprovalsPath', () => {
     it('should return correct path', () => {
       const p = mod.getApprovalsPath();
-      expect(p).toContain('.natureco');
+      expect(p).toContain('.nskuld');
       expect(p).toContain('exec-approvals.json');
     });
   });

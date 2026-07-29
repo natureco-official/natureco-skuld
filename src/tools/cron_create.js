@@ -10,7 +10,7 @@ const path = require("path");
 const os = require("os");
 const { execSync } = require("child_process");
 
-const CRON_FILE = path.join(os.homedir(), ".natureco", "crons.json");
+const CRON_FILE = path.join(os.homedir(), ".nskuld", "crons.json");
 
 function loadCrons() {
   try {

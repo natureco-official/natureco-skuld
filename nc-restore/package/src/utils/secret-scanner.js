@@ -46,7 +46,7 @@ const SECRET_PATTERNS = [
 
 // Tarama dışı dosyalar
 const SKIP_DIRS = new Set([
-  'node_modules', '.git', '.natureco', 'dist', 'build',
+  'node_modules', '.git', '.nskuld', 'dist', 'build',
   'coverage', '.next', '.cache', '.venv', 'venv',
 ]);
 const SKIP_EXT = new Set([

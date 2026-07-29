@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const BLUEPRINTS_DIR = path.join(process.env.HOME || process.env.USERPROFILE || __dirname, '.natureco', 'blueprints');
+const BLUEPRINTS_DIR = path.join(process.env.HOME || process.env.USERPROFILE || __dirname, '.nskuld', 'blueprints');
 
 function ensureDir(dir) { try { fs.mkdirSync(dir, { recursive: true }); } catch {} }
 

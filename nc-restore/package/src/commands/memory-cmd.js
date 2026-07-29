@@ -5,7 +5,7 @@ const os = require('os');
 const { loadMemory, saveMemory, clearMemory } = require('../utils/memory');
 const { getConfig } = require('../utils/config');
 
-const MEMORY_DIR = path.join(os.homedir(), '.natureco', 'memory');
+const MEMORY_DIR = path.join(os.homedir(), '.nskuld', 'memory');
 
 async function memoryCmd(args) {
   const [action, ...params] = (args || []);

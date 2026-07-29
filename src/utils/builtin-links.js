@@ -28,7 +28,7 @@ const LINKS = [
  * @param {string} [baseDir] test için ~/.natureco yerine kullanılacak dizin
  */
 function ensureBuiltinLinks(baseDir) {
-  const base = baseDir || path.join(os.homedir(), '.natureco');
+  const base = baseDir || path.join(os.homedir(), '.nskuld');
   for (const { name, target } of LINKS) {
     try {
       if (!fs.existsSync(target)) continue; // paket bozuksa sessiz geç

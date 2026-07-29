@@ -13,8 +13,8 @@ const os = require("os");
 const https = require("https");
 const { foldTr } = require("../utils/tr-text");
 
-const MARKETPLACE_DIR = path.join(os.homedir(), ".natureco", "marketplace");
-const SKILLS_DIR = path.join(os.homedir(), ".natureco", "skills");
+const MARKETPLACE_DIR = path.join(os.homedir(), ".nskuld", "marketplace");
+const SKILLS_DIR = path.join(os.homedir(), ".nskuld", "skills");
 
 /**
  * Marketplace URL'leri — kullanici GitHub repo'su

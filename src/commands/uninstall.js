@@ -6,7 +6,7 @@ const { execSync } = require('child_process');
 const readline = require('readline');
 const { requireApproval, RISK } = require('../utils/dangerous');
 
-const BASE_DIR = path.join(os.homedir(), '.natureco');
+const BASE_DIR = path.join(os.homedir(), '.nskuld');
 
 function rlQuestion(query) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });

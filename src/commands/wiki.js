@@ -4,7 +4,7 @@ const path = require('path');
 const os = require('os');
 const { foldTr } = require('../utils/tr-text');
 
-const WIKI_DIR = path.join(os.homedir(), '.natureco', 'wiki');
+const WIKI_DIR = path.join(os.homedir(), '.nskuld', 'wiki');
 const VAULT_FILE = path.join(WIKI_DIR, 'vault.json');
 const DIRS = {
   sources: path.join(WIKI_DIR, 'sources'),

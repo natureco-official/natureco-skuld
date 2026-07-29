@@ -28,7 +28,7 @@ const ROOTS = [
 ];
 
 function treeDir(username) {
-  return path.join(os.homedir(), '.natureco', 'memory', 'tree', foldTr(username || 'default'));
+  return path.join(os.homedir(), '.nskuld', 'memory', 'tree', foldTr(username || 'default'));
 }
 function rootPath(username, id) { return path.join(treeDir(username), id + '.md'); }
 function readSafe(username, id) { try { return fs.readFileSync(rootPath(username, id), 'utf8'); } catch { return ''; } }

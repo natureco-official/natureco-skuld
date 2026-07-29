@@ -25,8 +25,8 @@ const path = require("path");
 const os = require("os");
 const https = require("https");
 
-const PLUGIN_DIR = path.join(os.homedir(), ".natureco", "plugins");
-const ENABLED_FILE = path.join(os.homedir(), ".natureco", "enabled-plugins.json");
+const PLUGIN_DIR = path.join(os.homedir(), ".nskuld", "plugins");
+const ENABLED_FILE = path.join(os.homedir(), ".nskuld", "enabled-plugins.json");
 
 /**
  * Plugin metadata yukle

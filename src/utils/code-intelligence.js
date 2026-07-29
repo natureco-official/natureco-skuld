@@ -12,7 +12,7 @@ const DEFINITION_PATTERNS = [
 
 function walkCodeFiles(root, limit = 5000) {
   const files = [];
-  const ignored = new Set(['node_modules', '.git', '.natureco', 'dist', 'build', 'coverage']);
+  const ignored = new Set(['node_modules', '.git', '.nskuld', 'dist', 'build', 'coverage']);
   function walk(dir) {
     if (files.length >= limit) return;
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {

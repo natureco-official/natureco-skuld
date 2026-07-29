@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 function getAgentsFilePath() {
-  return path.join(process.cwd(), '.natureco', 'AGENTS.md');
+  return path.join(process.cwd(), '.nskuld', 'AGENTS.md');
 }
 
 // Read AGENTS.md content

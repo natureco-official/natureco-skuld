@@ -24,20 +24,20 @@ describe('doctor --fix (v5.43.2)', () => {
     expect(applied.some(a => a.includes('created dir'))).toBe(true);
     // beklenen dizinler artık var
     for (const d of ['memory', 'sessions', 'backups', 'audit']) {
-      expect(fs.existsSync(path.join(TEST_HOME, '.natureco', d))).toBe(true);
+      expect(fs.existsSync(path.join(TEST_HOME, '.nskuld', d))).toBe(true);
     }
   });
 
   it('applyFixes config.json iznini 0600\'e sıkılaştırır (POSIX)', async () => {
     if (process.platform === 'win32') return; // Windows ACL — atla
     vi.spyOn(os, 'homedir').mockReturnValue(TEST_HOME);
-    fs.mkdirSync(path.join(TEST_HOME, '.natureco'), { recursive: true });
-    fs.writeFileSync(path.join(TEST_HOME, '.natureco', 'config.json'), '{"providerApiKey":"secret"}');
-    fs.chmodSync(path.join(TEST_HOME, '.natureco', 'config.json'), 0o644); // kasıtlı zayıf
+    fs.mkdirSync(path.join(TEST_HOME, '.nskuld'), { recursive: true });
+    fs.writeFileSync(path.join(TEST_HOME, '.nskuld', 'config.json'), '{"providerApiKey":"secret"}');
+    fs.chmodSync(path.join(TEST_HOME, '.nskuld', 'config.json'), 0o644); // kasıtlı zayıf
     vi.resetModules();
     const doctor = (await import('../../src/commands/doctor.js')).default;
     doctor.applyFixes();
-    expect(fs.statSync(path.join(TEST_HOME, '.natureco', 'config.json')).mode & 0o777).toBe(0o600);
+    expect(fs.statSync(path.join(TEST_HOME, '.nskuld', 'config.json')).mode & 0o777).toBe(0o600);
   });
 
   it('doctor(["--fix"]) "Unknown doctor action" HATASI vermez (asıl bug)', async () => {

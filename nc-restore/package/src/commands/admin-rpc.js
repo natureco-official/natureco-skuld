@@ -117,7 +117,7 @@ async function callMethod(method, jsonParams) {
     const lines = params.lines || 20;
     const { execSync } = require('child_process');
     try {
-      const logPath = require('path').join(require('os').homedir(), '.natureco', 'logs', 'gateway.log');
+      const logPath = require('path').join(require('os').homedir(), '.nskuld', 'logs', 'gateway.log');
       const output = execSync(`tail -${lines} "${logPath}"`, { encoding: 'utf8', maxBuffer: 1024 * 1024 });
       console.log(output);
     } catch {

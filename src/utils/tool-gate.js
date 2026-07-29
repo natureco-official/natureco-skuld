@@ -151,7 +151,7 @@ function assessRisk(tool, args = {}) {
     if (cmd.includes('killall') || cmd.includes('pkill') || cmd.includes('kill -9')) {
       return { requiresApproval: true, level: 'high', reason: `${L('Süreç sonlandırma', 'Process termination')}: ${args.command}` };
     }
-    if (cmd.includes('.natureco') && (cmd.includes('rm') || cmd.includes('mv'))) {
+    if (cmd.includes('.nskuld') && (cmd.includes('rm') || cmd.includes('mv'))) {
       return { requiresApproval: true, level: 'high', reason: `${L('NatureCo dizininde tehlikeli işlem', 'Dangerous operation in the NatureCo directory')}: ${args.command}` };
     }
 
@@ -181,7 +181,7 @@ function assessRisk(tool, args = {}) {
     if (systemNeedles.some(needle => normalized.includes(needle))) {
       return { requiresApproval: true, level: 'high', reason: `${L('Sistem dosyası', 'System file')}: ${args.path || args.filePath}` };
     }
-    if (normalized.includes('.natureco/config.json') || normalized.includes('.natureco/soul/')) {
+    if (normalized.includes('.nskuld/config.json') || normalized.includes('.nskuld/soul/')) {
       return { requiresApproval: true, level: 'medium', reason: `${L('NatureCo config dosyası', 'NatureCo config file')}: ${args.path || args.filePath}` };
     }
   }

@@ -72,8 +72,8 @@ afterEach(() => {
 describe('workflow delete honest outcome', () => {
   it('reports a real deletion as successful and a missing workflow as unsuccessful', async () => {
     const home = tempHome('natureco-workflow-');
-    fs.mkdirSync(path.join(home, '.natureco'), { recursive: true });
-    fs.writeFileSync(path.join(home, '.natureco', 'config.json'), JSON.stringify({
+    fs.mkdirSync(path.join(home, '.nskuld'), { recursive: true });
+    fs.writeFileSync(path.join(home, '.nskuld', 'config.json'), JSON.stringify({
       providerUrl: 'https://provider.invalid',
       providerApiKey: 'test-key',
     }));
@@ -122,7 +122,7 @@ describe('GitHub plugin installation honest outcome', () => {
     const result = await plugin.installFromGitHub('https://github.com/test/proof-plugin');
     expect(result.success).toBe(true);
     expect(result.downloaded).toEqual(['plugin.json', 'index.js', 'README.md']);
-    expect(fs.existsSync(path.join(home, '.natureco', 'plugins', 'proof-plugin', 'index.js'))).toBe(true);
+    expect(fs.existsSync(path.join(home, '.nskuld', 'plugins', 'proof-plugin', 'index.js'))).toBe(true);
   });
 
   it('reports a non-2xx mandatory file and removes the partial directory', async () => {
@@ -139,7 +139,7 @@ describe('GitHub plugin installation honest outcome', () => {
     const result = await plugin.installFromGitHub('https://github.com/test/broken-plugin');
     expect(result).toMatchObject({ success: false, cleanedUp: true, missingMandatory: ['index.js'] });
     expect(result.failures).toEqual(expect.arrayContaining([expect.objectContaining({ file: 'index.js', written: false })]));
-    expect(fs.existsSync(path.join(home, '.natureco', 'plugins', 'broken-plugin'))).toBe(false);
+    expect(fs.existsSync(path.join(home, '.nskuld', 'plugins', 'broken-plugin'))).toBe(false);
   });
 });
 
@@ -152,7 +152,7 @@ describe('memory JSON bridge honest outcome', () => {
     const result = JSON.parse(await memory.execute({ action: 'add', target: 'user', username: 'proof', content: 'likes tea' }));
 
     expect(result).toMatchObject({ success: true, bridge: { success: true } });
-    expect(fs.existsSync(path.join(home, '.natureco', 'memory', 'proof.json'))).toBe(true);
+    expect(fs.existsSync(path.join(home, '.nskuld', 'memory', 'proof.json'))).toBe(true);
   });
 
   it('reports partial failure when the primary store writes but the JSON bridge cannot', async () => {
@@ -172,6 +172,6 @@ describe('memory JSON bridge honest outcome', () => {
       partial: true,
       bridge: { success: false, error: 'injected bridge write failure' },
     });
-    expect(fs.readFileSync(path.join(home, '.natureco', 'memories', 'USER.md'), 'utf8')).toContain('likes coffee');
+    expect(fs.readFileSync(path.join(home, '.nskuld', 'memories', 'USER.md'), 'utf8')).toContain('likes coffee');
   });
 });

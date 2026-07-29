@@ -5,7 +5,7 @@ const path = require('path');
 const os = require('os');
 const { writeJsonAtomicSync, readJsonSafeSync } = require('./atomic-file');
 
-const PAIRINGS_FILE = path.join(os.homedir(), '.natureco', 'pairings.json');
+const PAIRINGS_FILE = path.join(os.homedir(), '.nskuld', 'pairings.json');
 
 function loadPairings() {
   const value = readJsonSafeSync(PAIRINGS_FILE, []);

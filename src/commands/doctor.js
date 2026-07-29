@@ -10,7 +10,7 @@ const audit = require('../utils/audit');
 const secrets = require('../utils/secret-scanner');
 const { execFileSync } = require('child_process');
 
-const BASE_DIR = path.join(os.homedir(), '.natureco');
+const BASE_DIR = path.join(os.homedir(), '.nskuld');
 const CONFIG_FILE = path.join(BASE_DIR, 'config.json');
 
 const CHECKS = [

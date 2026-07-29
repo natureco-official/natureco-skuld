@@ -25,8 +25,8 @@ const { matchGlob, flattenArgs } = require('./tool-hooks');
 function loadPermissionRules() {
   const rules = [];
   const sources = [
-    path.join(os.homedir(), '.natureco', 'config.json'),
-    path.join(process.cwd(), '.natureco', 'config.json'),
+    path.join(os.homedir(), '.nskuld', 'config.json'),
+    path.join(process.cwd(), '.nskuld', 'config.json'),
   ];
   for (const cfgPath of sources) {
     try {
@@ -95,7 +95,7 @@ const _permSessionCache = new Map();
 
 function loadPersistentApprovals() {
   try {
-    const f = path.join(os.homedir(), '.natureco', 'perm-approvals.json');
+    const f = path.join(os.homedir(), '.nskuld', 'perm-approvals.json');
     if (fs.existsSync(f)) return JSON.parse(fs.readFileSync(f, 'utf8'));
   } catch {}
   return {};
@@ -103,7 +103,7 @@ function loadPersistentApprovals() {
 
 function savePersistentApproval(key) {
   try {
-    const f = path.join(os.homedir(), '.natureco', 'perm-approvals.json');
+    const f = path.join(os.homedir(), '.nskuld', 'perm-approvals.json');
     const data = loadPersistentApprovals();
     data[key] = { approved: true, at: Date.now() };
     const dir = path.dirname(f);

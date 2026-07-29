@@ -2,10 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const USER_COMMANDS_DIR = path.join(os.homedir(), '.natureco', 'commands');
+const USER_COMMANDS_DIR = path.join(os.homedir(), '.nskuld', 'commands');
 
 function getProjectCommandsDir() {
-  return path.join(process.cwd(), '.natureco', 'commands');
+  return path.join(process.cwd(), '.nskuld', 'commands');
 }
 
 function ensureCommandsDirs() {

@@ -17,7 +17,7 @@ async function init() {
   }
 
   // Mevcut klasörde .natureco var mı kontrol et
-  const projectDir = path.join(process.cwd(), '.natureco');
+  const projectDir = path.join(process.cwd(), '.nskuld');
   if (fs.existsSync(projectDir)) {
     console.log(chalk.yellow(L('⚠️  Bu klasörde zaten .natureco/ mevcut.\n', '⚠️  This folder already has .natureco/.\n')));
     const { overwrite } = await inquirer.prompt([

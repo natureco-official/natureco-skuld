@@ -9,8 +9,8 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const MEMORY_DIR = path.join(os.homedir(), ".natureco", "memory");
-const SESSION_DIR = path.join(os.homedir(), ".natureco", "sessions");
+const MEMORY_DIR = path.join(os.homedir(), ".nskuld", "memory");
+const SESSION_DIR = path.join(os.homedir(), ".nskuld", "sessions");
 
 function listFiles(dir) {
   try {

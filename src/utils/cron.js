@@ -10,7 +10,7 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 
-const CRON_FILE = path.join(os.homedir(), '.natureco', 'cron-jobs.json');
+const CRON_FILE = path.join(os.homedir(), '.nskuld', 'cron-jobs.json');
 
 function parseCron(expr) {
   const parts = expr.trim().split(/\s+/);

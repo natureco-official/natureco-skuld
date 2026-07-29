@@ -274,7 +274,7 @@ async function startDashboard({ port = PORT } = {}) {
       // Config
       let provider = "—", model = "—";
       try {
-        const cfg = JSON.parse(fs.readFileSync(path.join(os.homedir(), ".natureco", "config.json"), "utf8"));
+        const cfg = JSON.parse(fs.readFileSync(path.join(os.homedir(), ".nskuld", "config.json"), "utf8"));
         provider = new URL(cfg.providerUrl).hostname;
         model = cfg.providerModel || "—";
       } catch {}
@@ -282,7 +282,7 @@ async function startDashboard({ port = PORT } = {}) {
       // Sessions
       let sessionCount = 0;
       try {
-        const sessDir = path.join(os.homedir(), ".natureco", "sessions");
+        const sessDir = path.join(os.homedir(), ".nskuld", "sessions");
         if (fs.existsSync(sessDir)) {
           sessionCount = fs.readdirSync(sessDir).filter(f => f.endsWith(".json")).length;
         }
@@ -292,7 +292,7 @@ async function startDashboard({ port = PORT } = {}) {
       let pluginCount = 0;
       let plugins = [];
       try {
-        const pluginDir = path.join(os.homedir(), ".natureco", "plugins");
+        const pluginDir = path.join(os.homedir(), ".nskuld", "plugins");
         if (fs.existsSync(pluginDir)) {
           plugins = fs.readdirSync(pluginDir).map(name => {
             try {

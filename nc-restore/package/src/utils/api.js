@@ -115,7 +115,7 @@ function buildRequestBody(messages, model, options, provider) {
 
 
 // Persistent conversation directory
-const CONV_DIR = path.join(os.homedir(), '.natureco', 'conversations');
+const CONV_DIR = path.join(os.homedir(), '.nskuld', 'conversations');
 
 // Conversation history for multi-turn chat (deprecated - now using disk storage)
 const conversationHistory = new Map();

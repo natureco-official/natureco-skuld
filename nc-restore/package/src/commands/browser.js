@@ -4,7 +4,7 @@ const os = require('os');
 const chalk = require('chalk');
 const { getConfig, saveConfig } = require('../utils/config');
 
-const BROWSER_STATE_FILE = path.join(os.homedir(), '.natureco', 'browser-state.json');
+const BROWSER_STATE_FILE = path.join(os.homedir(), '.nskuld', 'browser-state.json');
 
 function getState() {
   if (!fs.existsSync(BROWSER_STATE_FILE)) {
@@ -396,7 +396,7 @@ function cmdScreenshot(params) {
   const fullPage = params.includes('--full-page');
 
   const filename = `screenshot-${Date.now()}.png`;
-  const dir = path.join(os.homedir(), '.natureco', 'screenshots');
+  const dir = path.join(os.homedir(), '.nskuld', 'screenshots');
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -418,7 +418,7 @@ function cmdSnapshot() {
   }
 
   const filename = `snapshot-${Date.now()}.html`;
-  const dir = path.join(os.homedir(), '.natureco', 'snapshots');
+  const dir = path.join(os.homedir(), '.nskuld', 'snapshots');
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }

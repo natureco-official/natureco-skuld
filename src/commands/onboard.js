@@ -4,7 +4,7 @@ const path = require('path');
 const os = require('os');
 const { writePrivateFile } = require('../utils/config');
 
-const BASE_DIR = path.join(os.homedir(), '.natureco');
+const BASE_DIR = path.join(os.homedir(), '.nskuld');
 const CONFIG_FILE = path.join(BASE_DIR, 'config.json');
 
 const STEPS = ['gateway', 'auth', 'workspace', 'channels', 'skills', 'health'];

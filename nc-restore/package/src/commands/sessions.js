@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const SESSIONS_DIR = path.join(os.homedir(), '.natureco', 'sessions');
+const SESSIONS_DIR = path.join(os.homedir(), '.nskuld', 'sessions');
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });

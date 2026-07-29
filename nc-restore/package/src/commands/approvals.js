@@ -6,8 +6,8 @@ const path = require('path');
 const os = require('os');
 const { getConfig, saveConfig } = require('../utils/config');
 
-const APPROVALS_FILE = path.join(os.homedir(), '.natureco', 'approvals.json');
-const ALLOWLIST_FILE = path.join(os.homedir(), '.natureco', 'approval-allowlist.json');
+const APPROVALS_FILE = path.join(os.homedir(), '.nskuld', 'approvals.json');
+const ALLOWLIST_FILE = path.join(os.homedir(), '.nskuld', 'approval-allowlist.json');
 
 function loadQueue() {
   if (!fs.existsSync(APPROVALS_FILE)) return [];

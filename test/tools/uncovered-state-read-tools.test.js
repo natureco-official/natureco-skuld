@@ -68,8 +68,8 @@ describe('previously uncovered state and read tools', () => {
 
   it('cross_session_memory lists and loads real session data and rejects a missing session', async () => {
     const home = isolatedHome('natureco-cross-session-');
-    const sessionsDir = path.join(home, '.natureco', 'sessions');
-    const memoryDir = path.join(home, '.natureco', 'memory');
+    const sessionsDir = path.join(home, '.nskuld', 'sessions');
+    const memoryDir = path.join(home, '.nskuld', 'memory');
     fs.mkdirSync(sessionsDir, { recursive: true });
     fs.mkdirSync(memoryDir, { recursive: true });
     const session = {
@@ -126,7 +126,7 @@ describe('previously uncovered state and read tools', () => {
 
   it('session_search searches real current and legacy session shapes and validates query', async () => {
     const home = isolatedHome('natureco-session-search-');
-    const sessionsDir = path.join(home, '.natureco', 'sessions');
+    const sessionsDir = path.join(home, '.nskuld', 'sessions');
     fs.mkdirSync(sessionsDir, { recursive: true });
     fs.writeFileSync(path.join(sessionsDir, 'current.json'), JSON.stringify({
       savedAt: '2026-07-20T10:00:00.000Z',
@@ -154,7 +154,7 @@ describe('previously uncovered state and read tools', () => {
 
   it('skills_list discovers an isolated user skill and handles an empty category', async () => {
     const home = isolatedHome('natureco-skills-list-');
-    const skillDir = path.join(home, '.natureco', 'skills', 'proof-skill');
+    const skillDir = path.join(home, '.nskuld', 'skills', 'proof-skill');
     fs.mkdirSync(skillDir, { recursive: true });
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), '---\nname: proof-skill\ndescription: Real discovery proof\n---\n\nInstructions');
     const tool = require('../../src/tools/skills_list');
@@ -169,7 +169,7 @@ describe('previously uncovered state and read tools', () => {
 
   it('soul reads and summarizes isolated identity files and rejects an unknown action', async () => {
     const home = isolatedHome('natureco-soul-');
-    const soulDir = path.join(home, '.natureco', 'soul');
+    const soulDir = path.join(home, '.nskuld', 'soul');
     fs.mkdirSync(soulDir, { recursive: true });
     fs.writeFileSync(path.join(soulDir, 'SOUL.md'), '# Calm\n- Verify every claim');
     fs.writeFileSync(path.join(soulDir, 'IDENTITY.md'), '# Tester\nEvidence-first');
@@ -184,7 +184,7 @@ describe('previously uncovered state and read tools', () => {
 
   it('soul info reports per-file metadata keyed by filename (regression: files:{} bug)', async () => {
     const home = isolatedHome('natureco-soul-info-');
-    const soulDir = path.join(home, '.natureco', 'soul');
+    const soulDir = path.join(home, '.nskuld', 'soul');
     fs.mkdirSync(soulDir, { recursive: true });
     fs.writeFileSync(path.join(soulDir, 'SOUL.md'), '# Calm\nline two\nline three');
     const tool = require('../../src/tools/soul');

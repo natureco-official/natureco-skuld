@@ -202,7 +202,7 @@ async function chat(botName, options = {}) {
   resetSessionStats();
 
   // ── What's New kontrolü ─────────────────────────────────────────────────────
-  const lastVersionFile = path.join(os.homedir(), '.natureco', 'lastVersion');
+  const lastVersionFile = path.join(os.homedir(), '.nskuld', 'lastVersion');
   let lastVersion = '';
   try { lastVersion = fs.readFileSync(lastVersionFile, 'utf8').trim(); } catch {}
   const isNewVersion = lastVersion !== version;

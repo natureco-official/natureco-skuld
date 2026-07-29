@@ -256,7 +256,7 @@ async function migrate(options) {
       }
       
       // Save to NatureCo memory
-      const memoryDir = path.join(os.homedir(), '.natureco', 'memory');
+      const memoryDir = path.join(os.homedir(), '.nskuld', 'memory');
       fs.mkdirSync(memoryDir, { recursive: true });
       
       // Save to universal-provider.json (primary)
@@ -339,7 +339,7 @@ async function migrate(options) {
     const scriptsSourceDir = path.join(openclawDir, 'workspace', 'scripts');
     
     if (fs.existsSync(scriptsSourceDir)) {
-      const scriptsDestDir = path.join(os.homedir(), '.natureco', 'workspace', 'scripts');
+      const scriptsDestDir = path.join(os.homedir(), '.nskuld', 'workspace', 'scripts');
       fs.mkdirSync(scriptsDestDir, { recursive: true });
       
       // Copy all files and fix paths
@@ -366,7 +366,7 @@ async function migrate(options) {
       }
       
       // Create package.json for workspace scripts
-      const workspaceDir = path.join(os.homedir(), '.natureco', 'workspace', 'scripts');
+      const workspaceDir = path.join(os.homedir(), '.nskuld', 'workspace', 'scripts');
       const workspacePackageJson = {
         name: "natureco-workspace",
         version: "1.0.0",
@@ -478,7 +478,7 @@ async function migrate(options) {
       }
       
       // Save to NatureCo crons
-      const cronsFile = path.join(os.homedir(), '.natureco', 'crons.json');
+      const cronsFile = path.join(os.homedir(), '.nskuld', 'crons.json');
       
       // Load existing crons and check for duplicates by name
       let existingCrons = [];
@@ -528,7 +528,7 @@ async function migrate(options) {
       const config = getConfig();
       const botId = config.defaultBotId || 'whatsapp_default';
       
-      const naturecoSessionPath = path.join(os.homedir(), '.natureco', 'whatsapp-sessions', `whatsapp_${botId}`);
+      const naturecoSessionPath = path.join(os.homedir(), '.nskuld', 'whatsapp-sessions', `whatsapp_${botId}`);
       
       // Copy directory recursively
       fs.mkdirSync(naturecoSessionPath, { recursive: true });
@@ -543,7 +543,7 @@ async function migrate(options) {
   // 5. Skills migration
   try {
     const openclawSkillsDir = path.join(openclawDir, 'workspace', 'skills');
-    const naturecSkillsDir = path.join(os.homedir(), '.natureco', 'skills');
+    const naturecSkillsDir = path.join(os.homedir(), '.nskuld', 'skills');
     
     if (fs.existsSync(openclawSkillsDir)) {
       fs.mkdirSync(naturecSkillsDir, { recursive: true });
@@ -680,7 +680,7 @@ async function migrateClaudeCode() {
 
       if (projects.length > 0) {
         console.log(chalk.gray(`\n  ${L('Claude projeleri bulundu', 'Claude projects found')}: ${projects.length}\n`));
-        const projectsDir = path.join(os.homedir(), '.natureco', 'claude-projects');
+        const projectsDir = path.join(os.homedir(), '.nskuld', 'claude-projects');
         fs.mkdirSync(projectsDir, { recursive: true });
 
         for (const project of projects) {
@@ -722,7 +722,7 @@ async function migrateClaudeCode() {
         }
       }
 
-      const memoryDir = path.join(os.homedir(), '.natureco', 'memory');
+      const memoryDir = path.join(os.homedir(), '.nskuld', 'memory');
       fs.mkdirSync(memoryDir, { recursive: true });
       fs.writeFileSync(path.join(memoryDir, 'universal-provider.json'), JSON.stringify(memory, null, 2));
       console.log(chalk.green(L('  ✅ Claude MEMORY.md migrate edildi', '  ✅ Claude MEMORY.md migrated')));
@@ -778,7 +778,7 @@ async function migrateHermes() {
   if (fs.existsSync(hermesSessions)) {
     try {
       const sessions = fs.readdirSync(hermesSessions).filter(f => f.endsWith('.json'));
-      const ncSessionsDir = path.join(os.homedir(), '.natureco', 'sessions');
+      const ncSessionsDir = path.join(os.homedir(), '.nskuld', 'sessions');
       fs.mkdirSync(ncSessionsDir, { recursive: true });
 
       for (const session of sessions) {
@@ -803,7 +803,7 @@ async function migrateHermes() {
   if (fs.existsSync(hermesMemory)) {
     try {
       const memData = JSON.parse(fs.readFileSync(hermesMemory, 'utf-8'));
-      const ncMemoryDir = path.join(os.homedir(), '.natureco', 'memory');
+      const ncMemoryDir = path.join(os.homedir(), '.nskuld', 'memory');
       fs.mkdirSync(ncMemoryDir, { recursive: true });
 
       const ncMem = {

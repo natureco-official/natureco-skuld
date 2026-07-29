@@ -19,7 +19,7 @@ const os = require('os');
 const BASE_URL = 'https://api.browser-use.com/api/v3';
 
 function loadConfig() {
-  try { return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.natureco', 'config.json'), 'utf8')); } catch { return {}; }
+  try { return JSON.parse(fs.readFileSync(path.join(os.homedir(), '.nskuld', 'config.json'), 'utf8')); } catch { return {}; }
 }
 
 function getApiKey() {

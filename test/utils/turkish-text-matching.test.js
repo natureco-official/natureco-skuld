@@ -18,7 +18,7 @@ describe('capital-İ matching across user-facing subsystems', () => {
   });
 
   it('memory_search finds a capitalized İstanbul fact with lowercase istanbul', async () => {
-    const memoryDir = path.join(tempHome, '.natureco', 'memory');
+    const memoryDir = path.join(tempHome, '.nskuld', 'memory');
     fs.mkdirSync(memoryDir, { recursive: true });
     fs.writeFileSync(
       path.join(memoryDir, 'default.json'),
@@ -35,7 +35,7 @@ describe('capital-İ matching across user-facing subsystems', () => {
   });
 
   it('logs CLI finds capitalized İstanbul content with lowercase istanbul', () => {
-    const naturecoDir = path.join(tempHome, '.natureco');
+    const naturecoDir = path.join(tempHome, '.nskuld');
     fs.mkdirSync(naturecoDir, { recursive: true });
     fs.writeFileSync(path.join(naturecoDir, 'natureco.log'), '[info] İstanbul bağlantısı hazır\n', 'utf8');
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -51,7 +51,7 @@ describe('capital-İ matching across user-facing subsystems', () => {
   });
 
   it('REPL identity merge matches capitalized İstanbul against lowercase username', () => {
-    const memoryDir = path.join(tempHome, '.natureco', 'memory');
+    const memoryDir = path.join(tempHome, '.nskuld', 'memory');
     fs.mkdirSync(memoryDir, { recursive: true });
     fs.writeFileSync(
       path.join(memoryDir, 'default.json'),
@@ -82,7 +82,7 @@ describe('capital-İ matching across user-facing subsystems', () => {
   });
 
   it('skills autoload matches capitalized GİT COMMIT against lowercase keyword', async () => {
-    const skillDir = path.join(tempHome, '.natureco', 'skills', 'git-commit');
+    const skillDir = path.join(tempHome, '.nskuld', 'skills', 'git-commit');
     fs.mkdirSync(skillDir, { recursive: true });
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), '# Git Commit\n', 'utf8');
 
