@@ -316,3 +316,57 @@ describe("Codex denetim bulguları — regresyon", () => {
     assert.match(String(r.error), /onaylamadı/i);
   });
 });
+
+describe("execution-gateway — ağ izin sınıfı", () => {
+  it("ağ isteği onaysız YAPILMAZ", async () => {
+    const kok = await workspaceKur();
+    const gw = new ExecutionGateway({ workspace: kok, onay: otomatikRet });
+    await assert.rejects(() => gw.ag({ url: "https://example.com" }), /onaylanmadı/);
+  });
+
+  it("onay metni HEDEF ADRESİ gösterir", async () => {
+    // Tehdit modelinin tamamı buna bağlı (ADR-0002 T2): kullanıcı nereye
+    // gidildiğini görmeden onay veremez.
+    const kok = await workspaceKur();
+    const istekler: OnayIstegi[] = [];
+    const gw = new ExecutionGateway({
+      workspace: kok,
+      onay: async (i) => {
+        istekler.push(i);
+        return "ret";
+      },
+    });
+    await assert.rejects(() => gw.ag({ url: "https://kotu.example/topla", yontem: "POST" }));
+    const i = istekler[0]!;
+    assert.equal(i.sinif, "ag");
+    assert.match(i.komut, /https:\/\/kotu\.example\/topla/);
+    assert.equal(i.hedef, "kotu.example");
+    // Veri gönderen yöntem ayrıca işaretlenmeli.
+    assert.match(i.gerekce, /POST/);
+    assert.match(i.gerekce, /GÖNDERİYOR/);
+  });
+
+  it("yerel ve şifresiz hedefleri ayrıca işaretler", async () => {
+    // 169.254.169.254 bulut metadata ucu — SSRF'in klasik hedefi ve
+    // "sadece localhost" masum görünür.
+    const kok = await workspaceKur();
+    const gorulen: string[] = [];
+    const gw = new ExecutionGateway({
+      workspace: kok,
+      onay: async (i) => {
+        gorulen.push(i.gerekce);
+        return "ret";
+      },
+    });
+    await assert.rejects(() => gw.ag({ url: "http://169.254.169.254/latest/meta-data" }));
+    assert.match(gorulen[0]!, /ŞİFRESİZ/);
+    assert.match(gorulen[0]!, /YEREL\/ÖZEL/);
+  });
+
+  it("http/https dışındaki protokolleri reddeder", async () => {
+    const kok = await workspaceKur();
+    const gw = new ExecutionGateway({ workspace: kok, onay: async () => "izin" });
+    await assert.rejects(() => gw.ag({ url: "file:///etc/passwd" }), /desteklenmeyen protokol/);
+    await assert.rejects(() => gw.ag({ url: "gopher://x/1" }), /desteklenmeyen protokol/);
+  });
+});

@@ -114,6 +114,17 @@ export class ExecutionGateway {
   }
 
   /**
+   * Ağ isteği — `ag` izin sınıfı. Onay HER ZAMAN sorulur ve onay metni hedef
+   * adresi gösterir.
+   */
+  async ag(istek: AgIstegi): Promise<AgSonucu> {
+    return await agIstegi(this.#onay, this.#workspace, istek, {
+      zamanAsimiMs: this.#zamanAsimi,
+      ciktiSiniri: this.#ciktiSiniri,
+    });
+  }
+
+  /**
    * Kabuk üzerinden çalıştırır. `calistir()`'dan farklı bir yetenek:
    * argümanlar ayrıştırılmaz ve onay HER ZAMAN sorulur.
    */
@@ -566,4 +577,98 @@ export class McpStdioIstemcisi {
     await this.#surec?.kapat();
     this.#surec = undefined;
   }
+}
+
+// ── Ağ izin sınıfı ────────────────────────────────────────────────────────
+
+export interface AgIstegi {
+  readonly url: string;
+  readonly yontem?: string;
+  /** Neden isteniyor — onay metnine girer. */
+  readonly amac?: string;
+}
+
+/** Yerel/özel ağ hedefi mi? SSRF için ayrı gerekçe üretilir. */
+function ozelAdres(host: string): boolean {
+  const h = host.toLowerCase();
+  if (h === "localhost" || h === "::1" || h.endsWith(".localhost")) return true;
+  if (/^127\./.test(h) || /^10\./.test(h) || /^192\.168\./.test(h)) return true;
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(h)) return true;
+  if (/^169\.254\./.test(h)) return true; // bulut metadata uçları
+  if (h.endsWith(".internal") || h.endsWith(".local")) return true;
+  return false;
+}
+
+/**
+ * Ağ erişimi kapısı.
+ *
+ * ADR-0002'de `ag` ayrı bir izin sınıfı olarak tanımlıydı ama UYGULANMAMIŞTI:
+ * `web-fetch`, `browser` ve `http_request` doğrudan `fetch()` çağırıyordu.
+ * Bu, T2'nin (prompt injection ile veri sızdırma) açık kapısıydı — model
+ * "şu dosyayı şu adrese gönder" dediğinde duracak hiçbir şey yoktu.
+ *
+ * Tasarım kararları:
+ *
+ *  - Onay metni **hedef adresi gösterir**. Tehdit modelinin tamamı buna
+ *    bağlı: kullanıcı nereye gittiğini görmeden onay veremez.
+ *  - `http:` ayrıca işaretlenir; düz metin taşıma ayrı bir risktir.
+ *  - Yerel/özel adresler ayrıca işaretlenir. `169.254.169.254` gibi bulut
+ *    metadata uçları SSRF'in klasik hedefi ve "sadece localhost" masum
+ *    görünür.
+ *  - Gövde boyutu ve zaman aşımı sınırlı; yanıt gövdesi sır maskesinden
+ *    geçirilir — uzak uç kimlik bilgisi yansıtabilir.
+ */
+export interface AgSonucu {
+  readonly durum: number;
+  readonly govde: string;
+  readonly kesildi: boolean;
+  readonly sureMs: number;
+}
+
+export async function agIstegi(
+  onay: OnayIsteyici,
+  cwd: string,
+  istek: AgIstegi,
+  ayar: { zamanAsimiMs: number; ciktiSiniri: number },
+): Promise<AgSonucu> {
+  let url: URL;
+  try {
+    url = new URL(istek.url);
+  } catch {
+    throw kullaniciHatasi(`geçersiz URL: ${istek.url}`);
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw politikaReddi(`desteklenmeyen protokol: ${url.protocol}`, { url: istek.url });
+  }
+
+  const isaretler: string[] = [];
+  if (url.protocol === "http:") isaretler.push("ŞİFRESİZ http");
+  if (ozelAdres(url.hostname)) isaretler.push("YEREL/ÖZEL ağ hedefi");
+
+  const yontem = (istek.yontem ?? "GET").toUpperCase();
+  if (yontem !== "GET" && yontem !== "HEAD") isaretler.push(`${yontem} — veri GÖNDERİYOR`);
+
+  const karar = await onay({
+    sinif: "ag",
+    // Onayda TAM adres görünür. Kısaltmak, kullanıcının neyi onayladığını
+    // bilmemesi demek.
+    komut: `${yontem} ${url.href}`,
+    cwd,
+    gerekce: [istek.amac ?? "ağ erişimi", ...isaretler].join(" · "),
+    hedef: url.host,
+  });
+  if (karar !== "izin") {
+    throw politikaReddi("ağ erişimi onaylanmadı", { url: url.href, yontem });
+  }
+
+  const basladi = Date.now();
+  const yanit = await fetch(url.href, {
+    method: yontem,
+    signal: AbortSignal.timeout(ayar.zamanAsimiMs),
+    redirect: "manual", // yönlendirme yeni bir hedeftir; sessizce izlenmez
+  });
+
+  const ham = await yanit.text();
+  const { metin, kesildi } = ciktiyiSinirla(sirlariMaskele(ham), ayar.ciktiSiniri);
+  return { durum: yanit.status, govde: metin, kesildi, sureMs: Date.now() - basladi };
 }
