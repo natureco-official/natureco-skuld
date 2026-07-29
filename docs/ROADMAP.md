@@ -47,17 +47,19 @@ ilk maddesi bu.
 
 ## Sıra
 
-### S1 — Kapıyı gerçekten devreye al
+### S1 — Kapıyı gerçekten devreye al ✅ (29.07.2026)
 
-1. `src/tools/bash.js` ve `shell_command.js` → `execution-gateway` üzerinden.
-2. Kalan çağrı noktalarını tek tek geçir; her biri ayrı commit, her commit
-   sonrası tam test.
-3. Sınır lint'inin kapsamını `packages/` → `src/` + `bin/` olarak genişlet.
-   Kapsam genişlemesi **en sona**: önce sıfır ihlal, sonra kural.
-4. **Ağ izin sınıfı** (`ag`): `web-fetch`, `browser`, `http_request` bu sınıfa
-   bağlanır; onay metni **hedef adresi gösterir**. ADR-0002'de T2 (prompt
-   injection ile veri sızdırma) tam bu yoldan gerçekleşir ve şu an duracak
-   bir şey yok.
+1. ✅ `bash.js`, `shell_command.js`, `git.js`, `code_execution.js` kapıdan.
+2. ⊘ **Kalan 59 dosya kasten geçirilmedi.** Tek tek okundu: macOS araçları
+   betiği stdin'den, veriyi `argv`'den geçiriyor (enjeksiyon yok),
+   `cron_create` zaten onay istiyor, `delegate_task` alt sürece kendi
+   CLI'mızı açıyor. Ölçülebilir kazanç yok, risk büyük. Gerekçe:
+   [`CODEX-DENETIM.md` → S1 kapanışı](CODEX-DENETIM.md).
+3. ✅ Sınır lint'i `src/` + `bin/`'i tarıyor — ama **cırcır mandalı** olarak:
+   envanter dondu, liste yalnızca kısalabilir. "Önce sıfır ihlal, sonra
+   kural" yerine "kural bugün, ihlal büyüyemez".
+4. ✅ Ağ izin sınıfı bağlandı; onay metni hedefi, gövde boyutunu ve kimlik
+   başlıklarının adlarını gösteriyor.
 
 ### S2 — Farklılaştırıcıları döngüye bağla ✅ (29.07.2026)
 
@@ -66,7 +68,11 @@ ilk maddesi bu.
 - **Verðandi kapsülü** → pasif kalır; geri açma koşulu ölçümde
   (`benchmarks/RAPOR-2026-07-29.md`).
 
-### S3 — Yetenek eşitliği denetimi
+### S3 — Yetenek eşitliği denetimi ✅ (29.07.2026)
+
+`npm run yetenekler` → `scripts/yetenek-denetimi.mjs`, 8/8 yeşil. Her kontrol
+bir ETKİYE bakıyor: plan modu gerçekten yazmayı reddediyor mu, worktree
+gerçekten açılıyor mu (geçici depoda), RECALL modele gerçekten ulaşıyor mu.
 
 Envanter "var" diyor; "çalışıyor" demiyor. Her yetenek için uçtan uca bir
 kanıt koşumu: alt ajan gerçekten alt ajan başlatıyor mu, worktree gerçekten
@@ -88,21 +94,23 @@ Kırpma hedefi artık "minimal araç" değil, **"Claude Code'un yapmadığı ve
 kodlama döngüsüne hizmet etmeyen yüzeyler"**. Bu, listeyi ciddi biçimde
 kısaltıyor.
 
-| Parti | Komutlar | Gerekçe |
-|---|---|---|
-| 1 ✅ | `discord` `slack` `telegram` `whatsapp` `signal` `imessage` `sms` `irc` `mattermost` `message` `voice` | Kodlama ajanının mesajlaşma köprüsü yok; dış etkili eylemler izin sınırını gereksiz genişletiyor |
-| 2 | `medium` `naturehub` `seo` `wiki` `open-prose` | Yayıncılık; kodlama döngüsüne değmiyor |
-| 3 | `clawbot` `crestodian` `vydra` `clickclack` `xp` | Bot kişilikleri |
-| 4 | `bonjour` `dns` `proxy` `admin-rpc` `qr` | Ağ/küme yönetimi |
+Dört parti de bitti: **102 → 75 komut kaydı**, `--help` açılışı %16 daha
+hızlı (üç turda ölçüldü).
+
+> **Komut listesi burada TUTULMUYOR.** Tek kaynak
+> [`KOMUT-KIRPMA.md`](KOMUT-KIRPMA.md).
+>
+> Bu not bir üslup tercihi değil, bir hatanın karşılığı: aynı liste iki
+> dosyada duruyordu, ayrıştılar, ve ben `gateway` `node` `nodes`'u burada
+> kayıtlı bir kararın tersine sildim (`13b41e5` ile geri alındı). İki kopya
+> "ayrışır mı" diye sorulacak bir şey değil; ne zaman ayrışacağı sorulur.
 
 **Kalanlar** — ilk sınıflandırmada yanlışlıkla çıkarılacaklar listesindeydiler:
 `dashboard` `workboard` `browser` `web-fetch` `cron` `hooks` `webhooks`
-`daemon`. Hepsi kodlama döngüsüne hizmet ediyor; gerekçeleri
-[`KOMUT-KIRPMA.md`](KOMUT-KIRPMA.md) içinde.
+`daemon`. Hepsi kodlama döngüsüne hizmet ediyor.
 
-`bots`, `channels`, `team`, `directory`, `onboard`, `gateway`, `node`, `nodes`
-kırpma listesinden **çıkarıldı**: alt ajan yönetimi ve çok makineli çalışma
-hedefe dahil; önce ne yaptıklarına bakılacak, sonra karar verilecek.
+`channels`, `team`, `directory`, `onboard`, `gateway`, `node`, `nodes` kırpma
+listesinde **değil**: alt ajan yönetimi ve çok makineli çalışma hedefe dahil.
 
 ### S5 — Kimlik ve ekosistem
 
