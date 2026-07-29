@@ -12,6 +12,13 @@
  *
  * Bu kuralın belgede değil burada durmasının sebebi: belge kayar, kontrol
  * kaymaz. Kaydığında da sessizce değil, kırmızıyla kayar.
+ *
+ * NE YAPMADIĞI: bu bir kaçış önleyici değil. `createRequire`, dize
+ * birleştirme ya da `module.constructor._load` ile import gizlenebilir ve bu
+ * kontrol göremez. Tehdit modeli bu değil — kastî kaçış zaten kod
+ * incelemesinin işi. Buradaki tehdit KAYMA: birinin acelesi olduğunda
+ * `require("child_process")` yazıp devam etmesi. Bugün depoda gizlenmiş tek
+ * bir kullanım yok, arandı.
  */
 import { readFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
@@ -21,6 +28,21 @@ import { fileURLToPath } from "node:url";
 const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PAKETLER = path.join(KOK, "packages");
 const IZINLI_PAKET = "execution-gateway";
+
+/**
+ * Fork'tan devralınan taraf: `src/` ve `bin/` altında 59 dosya hâlâ doğrudan
+ * `child_process` kullanıyor. Hepsini bugün kapıya almak, çalışan 1150 testi
+ * riske atan büyük bir değişiklik olurdu — ve ölçüldüğünde çoğunun kapıdan
+ * kazanacağı bir şey de yok: macOS araçları betiği stdin'den, veriyi
+ * `argv`'den geçiriyor (enjeksiyon yok), `cron_create` zaten onay istiyor.
+ *
+ * O yüzden burada envanter bir CIRCIR MANDALI: liste yalnızca kısalabilir.
+ * Yeni bir dosya `child_process` import ederse lint kırılır; envanterdeki bir
+ * dosya kapıya alınırsa lint "listeden çıkar" der. İkinci kural olmadan liste
+ * çürür — düzeltilen dosyalar muafiyet listesinde kalır ve muafiyet
+ * kalıcılaşır.
+ */
+const ENVANTER_YOLU = path.join(KOK, "docs", "kapi-envanteri.json");
 
 // import/require biçimlerinin hepsi: statik, dinamik, require, node: önekli.
 const YASAK = [
@@ -75,6 +97,40 @@ for await (const dosya of dosyalar(PAKETLER)) {
   }
 }
 
+// ── Devralınan taraf: cırcır mandalı ──────────────────────────────────────
+const envanter = JSON.parse(readFileSync(ENVANTER_YOLU, "utf8"));
+const beklenen = new Set(envanter.kalan);
+const bulunan = new Set();
+
+for (const kokAd of ["src", "bin"]) {
+  for await (const dosya of dosyalar(path.join(KOK, kokAd))) {
+    taranan++;
+    const goreli = path.relative(KOK, dosya).split(path.sep).join("/");
+    const metin = readFileSync(dosya, "utf8");
+    const kod = metin
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .split(/\r?\n/)
+      .filter((s) => !/^\s*(\/\/|\*)/.test(s))
+      .join("\n");
+    if (YASAK.some((desen) => desen.test(kod))) bulunan.add(goreli);
+  }
+}
+
+for (const yeni of [...bulunan].filter((d) => !beklenen.has(d)).sort()) {
+  ihlal++;
+  console.log(`  ✗ ${yeni}`);
+  console.log("      YENİ doğrudan child_process kullanımı. execution-gateway'i çağırın.");
+}
+
+const duzelen = [...beklenen].filter((d) => !bulunan.has(d)).sort();
+for (const d of duzelen) {
+  ihlal++;
+  console.log(`  ✗ ${d}`);
+  console.log("      Artık child_process kullanmıyor — docs/kapi-envanteri.json içinden ÇIKARIN.");
+  console.log("      (Muafiyet listesi temizlenmezse muafiyet kalıcılaşır.)");
+}
+
 console.log(`Kapı sınırı: ${taranan} dosya tarandı, ${ihlal} ihlal.`);
-if (ihlal === 0) console.log("Tüm çalıştırma yolları execution-gateway üzerinden.");
+console.log(`Devralınan envanter: ${bulunan.size} dosya (dondurulma: ${envanter.dondurulma}). Liste yalnızca kısalabilir.`);
+if (ihlal === 0) console.log("packages/ tamamen kapı üzerinden; devralınan taraf büyümüyor.");
 process.exitCode = ihlal === 0 ? 0 : 1;

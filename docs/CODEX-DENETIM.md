@@ -22,6 +22,9 @@ noktasında 1127 test geçiyordu ve hâlâ geçiyor. Üstüne dört paket eklend
 Bugün bu **doğru değil** ve bunu saklamıyoruz: `src/` altında hâlâ 58 dosya
 `child_process` import ediyor. S1'in işi bunları tek tek geçirmek.
 
+> **Güncelleme (29.07.2026):** Kalanlar tek tek okundu ve iddia daraltıldı.
+> Ayrıntı aşağıda, "S1 kapanışı" bölümünde.
+
 Şimdiye kadar geçirilenler:
 
 | Dosya | Kazandığı | Korunanı |
@@ -149,7 +152,40 @@ Kalan `child_process` çağrılarını geçirirken çıktı, ölçülerek doğru
 hedefleyip özel anahtarın satırlarını döndürüyordu. Yol politikası okuma
 tarafında beyaz liste gibi çalışıyordu. Ayrıntı: `c8eda0e`.
 
+## S1 kapanışı — "58 dosya geçirilecek" iddiası daraltıldı
+
+Kalan 22 araç dosyası tek tek okundu. Beklenen bulgu çıkmadı ve bunu
+uydurmuyoruz:
+
+- **macOS araçları** (`mac_notify`, `notes_add`, `calendar_add`,
+  `reminder_add`, `mac_alarm`, `google_meet`) betiği `osascript -` ile
+  stdin'den, kullanıcı verisini `argv` üzerinden geçiriyor. AppleScript
+  enjeksiyonu yok; zaten doğru desen.
+- **`cron_create`** kalıcılık kuruyor ama v5.43'te sertleştirilmiş:
+  `isDangerousCommand` + `checkCommand` onayı.
+- **`delegate_task` / `async_delegation`** alt sürece `{ ...process.env }`
+  geçiriyor. `code_execution`'da bu bir kusurdu, burada değil: çocuk süreç
+  **bizim kendi CLI'mız**, modelin yazdığı kod değil, ve model çağırabilmek
+  için anahtarlara ihtiyacı var. Aynı kodun iki bağlamda farklı anlama
+  gelmesi, kuralı körlemesine uygulamamanın nedeni.
+- **`grep_search`** gerçek bir açık çıkardı — ama sorun `child_process`
+  değil, yol politikasıydı. `c8eda0e`.
+
+Yani 59 dosyayı mekanik olarak kapıya almak, 1150 testi riske atan büyük bir
+değişiklik karşılığında ölçülebilir bir güvenlik kazancı vermiyor. Bunun
+yerine sınır lint'i **cırcır mandalına** çevrildi: envanter dondu, liste
+yalnızca kısalabilir. Yeni bir dosya `child_process` eklerse kırılır;
+envanterdeki bir dosya kapıya alınıp listeden çıkarılmazsa da kırılır —
+ikincisi olmadan muafiyet listesi çürür ve muafiyet kalıcılaşır.
+
+Her iki yön de tetiklenerek doğrulandı, iddiaya bırakılmadı.
+
 ## Denetlenecek
+
+0. **Cırcır mandalı gerçekten sıkı mı?** `scripts/gateway-boundary-check.mjs`.
+   Yorum ayıklama basit: `/* */` ve satır başındaki `//`. `child_process`
+   import'unu lint'e görünmez kılan bir yazım var mı? (Dize birleştirme,
+   `createRequire`, `process.binding`, `module.constructor._load`…)
 
 1. **Kod çalıştırma yeteneği gerçekten kapalı mı?**
    `src/tools/code_execution.js`. Model `onayli` bayrağını geçirebilir mi?
