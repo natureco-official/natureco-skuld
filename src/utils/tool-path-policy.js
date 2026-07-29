@@ -42,9 +42,26 @@ const YOL_ALANLARI = [
   'input', 'inputPath', 'input_path', 'source', 'src',
 ];
 
+/**
+ * ÇIKTI anlamı taşıyan alan adları — bunlara yazılır.
+ *
+ * Codex kapanış turu 4: yazma/okuma sınıflandırması araç ADIYLA yapılıyordu
+ * (`write_file`, `edit_file`, `structural_patch`). Bu yüzden
+ * `macos_screenshot({ outputPath: "/etc/hosts" })` OKUMA desenleriyle
+ * değerlendirilip izin alıyor, sonra araç o yola yazıyordu.
+ *
+ * Bir yolun yazma yolu olduğunu aracın adı değil, ARGÜMANIN adı söyler.
+ */
+const CIKTI_ALANLARI = new Set([
+  'outputPath', 'output_path', 'output', 'dest', 'destination', 'target',
+  'savePath', 'save_path', 'file', 'imagePath', 'image_path',
+  'audioPath', 'audio_path', 'videoPath', 'video_path',
+]);
+
 /** Bir yol, bu araç için hassas mı? */
-function hassasMi(cozulmus, toolName) {
-  const write = toolName === 'write_file' || toolName === 'edit_file' || toolName === 'structural_patch';
+function hassasMi(cozulmus, toolName, alanAdi) {
+  const yazanArac = toolName === 'write_file' || toolName === 'edit_file' || toolName === 'structural_patch';
+  const write = yazanArac || (alanAdi != null && CIKTI_ALANLARI.has(alanAdi));
   const patterns = write ? SENSITIVE_WRITE : SENSITIVE_READ;
   // Desenlerin çoğu `.ssh/` gibi ayıraçla bitiyor, çünkü dosya yolları için
   // yazıldılar. Argüman DİZİNİN kendisi olduğunda (`.../.ssh`) sondaki ayıraç
@@ -84,20 +101,22 @@ function assessToolPath(toolName, args = {}) {
   // masum `path` üzerinden geçiyor, araç sonra hassas `audioPath`ı okuyup
   // gönderiyordu. Bir alan denetlenip diğerinin serbest kalması, denetimi
   // saldırganın alan seçimine bırakmak demek.
-  const yollar = YOL_ALANLARI.map((ad) => args[ad]).filter(
-    (v) => typeof v === 'string' && v.trim(),
-  );
+  const yollar = YOL_ALANLARI
+    .map((ad) => ({ ad, deger: args[ad] }))
+    .filter(({ deger }) => typeof deger === 'string' && deger.trim());
   if (yollar.length === 0) return { allowed: true };
   // Herhangi biri hassassa çağrı reddedilir; ilk hassas olanı bildirilir.
-  const targetPath = expandPath(
-    yollar.find((y) => hassasMi(expandPath(y), toolName)) || yollar[0],
-  );
+  // Alan ADI da geçiyor: `outputPath` yazma, `path` okuma anlamına geliyor ve
+  // yazma listesi daha geniş.
+  const hassas = yollar.find(({ ad, deger }) => hassasMi(expandPath(deger), toolName, ad));
+  const secilen = hassas || yollar[0];
+  const targetPath = expandPath(secilen.deger);
   // Okuma listesi ARTIK beyaz liste değil. Eskiden yalnızca `read_file`
   // denetleniyordu, yani `read_file` `~/.ssh/id_rsa`'da engellenirken
   // `grep_search` aynı içeriği döndürüyordu (doğrulandı). Hangi aracın
   // hassas yolu okuyabileceğini tek tek saymak, sayılmayanı serbest bırakır;
   // varsayılan kapalı olmalı.
-  if (hassasMi(targetPath, toolName)) {
+  if (hassasMi(targetPath, toolName, secilen.ad)) {
     return {
       allowed: false,
       path: targetPath,

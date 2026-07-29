@@ -163,7 +163,7 @@ const DOGRULAMA_SAYILMAZ = /^\s*(echo|printf|true|:|ls|dir|pwd|cd|cat|type|whoam
 // Sürüm/yardım sorguları da doğrulama değil: `npm --version` sıfır döner ve
 // hiçbir şey kanıtlamaz (Codex doğrulama turu). Kara liste komut ADIYLA
 // eşleşiyordu, bu ise ARGÜMANLA eşleşiyor.
-const SORGU_ARGUMANI = /(^|\s)(--version|-v|--help|-h|--dry-run|--list)(\s|$)/i;
+const SORGU_ARGUMANI = /(^|\s)(--?version|-v|--?help|-h|--dry-run|--list|-V)(\s|$)/i;
 
 // Argümansız sürüm/bilgi ALT KOMUTLARI. `npm version` tirelenmiş desene
 // takılmıyordu ama yalnızca sürüm basıyor (Codex kapanış turu). Kara listenin

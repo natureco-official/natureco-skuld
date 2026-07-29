@@ -136,6 +136,34 @@ function kodSatirlari(metin) {
   return cikti;
 }
 
+/**
+ * Bir dosyada yasak import var mı — ve emin miyiz?
+ *
+ * Codex kapanış turu 4 gösterdi ki durum makinesi de yeterli değil: regex
+ * literali (`/[/*]/`) blok yorum başlatıyor gibi görünüyor ve arkasındaki
+ * gerçek import siliniyor. Regex literalini doğru ayrıştırmak, `/`'ın bölme
+ * mi literal başlangıcı mı olduğunu bilmeyi gerektiriyor — bu, JavaScript
+ * ayrıştırıcısının en can sıkıcı belirsizliği.
+ *
+ * Daha fazla sözdizimi yazmak yerine HATA YÖNÜ çevrildi. Ham metin de
+ * kontrol ediliyor:
+ *
+ *   ham eşleşiyor + kod eşleşiyor  → ihlal (kesin)
+ *   ham eşleşiyor + kod eşleşmiyor → İNCELEME gerekli (belirsiz, yine kırar)
+ *   ham eşleşmiyor                 → temiz
+ *
+ * Böylece tarayıcının her kör noktası sessiz geçiş değil gürültülü uyarı
+ * üretiyor. Bedeli: yorumda gerçekten `require("child_process")` yazan bir
+ * dosya inceleme ister. Taranan dizinlerde böyle bir dosya yok, arandı — ve
+ * olsaydı da yorumu yeniden yazmak, kaçırılmış bir importtan iyidir.
+ */
+function ihlalDurumu(metin) {
+  const hamVar = YASAK.some((desen) => desen.test(metin));
+  if (!hamVar) return "temiz";
+  const kodVar = YASAK.some((desen) => desen.test(kodSatirlari(metin)));
+  return kodVar ? "ihlal" : "inceleme";
+}
+
 let ihlal = 0;
 
 async function* dosyalar(dizin) {
@@ -161,15 +189,16 @@ for await (const dosya of dosyalar(PAKETLER)) {
   if (paket === IZINLI_PAKET) continue;
 
   const metin = readFileSync(dosya, "utf8");
-  const kod = kodSatirlari(metin);
-
-  for (const desen of YASAK) {
-    if (desen.test(kod)) {
-      ihlal++;
-      console.log(`  ✗ ${goreli}`);
+  const durum = ihlalDurumu(metin);
+  if (durum !== "temiz") {
+    ihlal++;
+    console.log(`  ✗ ${goreli}`);
+    if (durum === "ihlal") {
       console.log(`      child_process yalnızca packages/${IZINLI_PAKET}/ içinden import edilebilir.`);
-      console.log(`      Komut çalıştırmak için execution-gateway'i çağırın.`);
-      break;
+      console.log("      Komut çalıştırmak için execution-gateway'i çağırın.");
+    } else {
+      console.log("      İNCELEME: yasak import ham metinde var ama dize/yorum bağlamında görünüyor.");
+      console.log("      Tarayıcının emin olamadığı durum sessiz geçmemeli — elle bakın.");
     }
   }
 }
@@ -184,8 +213,7 @@ for (const kokAd of ["src", "bin"]) {
     taranan++;
     const goreli = path.relative(KOK, dosya).split(path.sep).join("/");
     const metin = readFileSync(dosya, "utf8");
-    const kod = kodSatirlari(metin);
-    if (YASAK.some((desen) => desen.test(kod))) bulunan.add(goreli);
+    if (ihlalDurumu(metin) !== "temiz") bulunan.add(goreli);
   }
 }
 

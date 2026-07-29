@@ -236,3 +236,56 @@ yorumlarını ve blok yorumlarını ayırt eden küçük bir durum makinesi kond
 Dört kaçış biçimi de sınandı; gerçek bir blok yorum yanlış alarm vermiyor.
 
 Testler: `test/security/codex-tur3.test.js` (24 test).
+
+---
+
+# Dördüncü tur — testlerin kendisi denetlendi (30.07.2026)
+
+Codex ikisini kapalı saydı (4, 9), altısında artık boşluk buldu. Hepsi
+ölçüldü, hepsi kapatıldı. Ama bu turun değeri ayrı bir yerde.
+
+| # | Artık boşluk | Düzeltme |
+|---|---|---|
+| 1 | Regex literali (`/[/*]/`) durum makinesini atlatıyor | Hata yönü çevrildi: ham metin de kontrol ediliyor |
+| 2 | `GIT_ASKPASS`, `SSH_ASKPASS`, `GIT_SSH_COMMAND` geçiyordu | Eklendi |
+| 3 | YAML `|-`, `>2-` gibi göstergeler ad bağlamını kaybediyordu | Gösterge deseni genişletildi |
+| 5 | **Yazma/okuma ayrımı araç ADIYLA yapılıyordu** | Argüman adı belirliyor: `outputPath` yazma |
+| 7 | `java -version` (tek tire) yakalanmıyordu | `--?version` |
+| 8 | **Beş test, düzeltme geri alınsa yeşil kalıyordu** | Mutasyon denemesiyle sınandı ve düzeltildi |
+
+## 8. madde: testlerin değeri iddiayla ölçülmez
+
+Codex beş testi tek tek gösterdi: B1 yalnızca `*gen` ölçüyordu, `* gen`
+değil; B2 yeni önekleri değil eskilerini; B3 YAML yerine JSON'u; B5 alanları
+tek tek verip asıl atlatmayı hiç tetiklemiyordu; B7 bir tur önce zaten
+yakalanan `npm --version`ı.
+
+Yani testler yeşildi, düzeltmeler doğruydu, **ve testler düzeltmeleri
+sabitlemiyordu.** Bir sonraki değişiklik onları sessizce geri alabilirdi.
+
+Bunu bir daha iddiaya bırakmamak için `scripts/mutasyon-denemesi.py` yazıldı
+(`npm run mutasyon`): her düzeltmeyi tek tek geri alıyor, testin kırıldığını
+doğruluyor, sonra dosyayı geri yüklüyor.
+
+İlk koşumda **üç mutasyon hayatta kaldı** — Codex'in söylediğinin ötesinde iki
+tanesi daha. Testler güçlendirildi; şimdi altısının altısı ölüyor.
+
+## 5. maddede yine mantık yanlıştı, kapsam değil
+
+Alan adı eklemek yetmiyordu: `hassasMi` yazma/okuma listesini araç ADINA göre
+seçiyordu, o yüzden `macos_screenshot({ outputPath: "/etc/hosts" })` okuma
+kurallarıyla değerlendirilip izin alıyor, sonra araç o yola yazıyordu. Bir
+yolun yazma yolu olduğunu aracın adı değil, argümanın adı söyler.
+
+## 1. maddede sözdizimi kovalamak bırakıldı
+
+Durum makinesi de yetmedi: regex literalindeki `/*` blok yorum başlatıyor gibi
+görünüyor. `/` işaretinin bölme mi literal başlangıcı mı olduğunu bilmek
+JavaScript ayrıştırıcısının en can sıkıcı belirsizliği ve bunu kovalamak
+bitmeyecekti.
+
+Yerine hata yönü çevrildi: ham metin de kontrol ediliyor ve tarayıcı ile ham
+metin ayrışırsa sonuç "temiz" değil **"inceleme gerekli"** oluyor — yine
+kırıyor. Artık tarayıcının her kör noktası sessiz geçiş değil gürültülü uyarı.
+
+Testler: `test/security/codex-tur3.test.js` (29 test) + `npm run mutasyon`.

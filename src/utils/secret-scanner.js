@@ -194,7 +194,7 @@ function masumMu(eslesme, tumMetin, konum) {
     const satirIci = tumMetin.slice(satirBasi, konum);
     if (/^\s*$/.test(satirIci)) {
       const oncekiler = tumMetin.slice(0, satirBasi).split(/\r?\n/).slice(-3);
-      if (oncekiler.some((s) => /(secret|token|key|password|passwd|auth|signature|hmac)['"`]?\s*[:=]\s*[>|]?\s*$/i.test(s))) {
+      if (oncekiler.some((s) => /(secret|token|key|password|passwd|auth|signature|hmac)['"`]?\s*[:=]\s*([>|][0-9]*[-+]?)?\s*$/i.test(s))) {
         return false;
       }
     }

@@ -228,10 +228,47 @@ describe('Codex doğrulama turu — artık boşluklar', () => {
     }
   });
 
+  it('B1: regex literali de lint\'i atlatamaz — ham metin kontrolü', () => {
+    // Durum makinesi bunu GÖREMİYOR: `/[/*]/` içindeki `/*` blok yorum
+    // başlatıyor gibi görünüyor ve arkasındaki gerçek import siliniyor.
+    // Yakalayan şey ham metin kontrolü, yani hata yönünün çevrilmesi.
+    //
+    // Mutasyon denemesinde ham kontrolü kaldırdığımda önceki B1 testi yeşil
+    // kalmıştı — çünkü `* gen()` biçimini durum makinesi zaten yakalıyor.
+    // Bu test o mutasyonu öldüren girdiyi kullanıyor.
+    const hedef = path.join(repoKok, 'src', 'utils', '__rx-denemesi.js');
+    fs.writeFileSync(hedef, [
+      'const r = /[/*]/;',
+      'const cp = require("node:child_process");',
+      'const e = "*/";',
+      'module.exports = { cp, r, e };',
+      '',
+    ].join('\n'));
+    try {
+      const sonuc = spawnSync(
+        process.execPath,
+        [path.join(repoKok, 'scripts', 'gateway-boundary-check.mjs')],
+        { cwd: repoKok, encoding: 'utf8', timeout: 60000 },
+      );
+      expect(sonuc.stdout).toContain('__rx-denemesi.js');
+      expect(sonuc.status).not.toBe(0);
+    } finally {
+      fs.rmSync(hedef, { force: true });
+    }
+  });
+
   it('B2: DOCKER_AUTH_CONFIG ve SSH_AUTH_SOCK süzülür', () => {
     // `SSH_AUTH_SOCK` sırrın kendisi değil ona ERİŞİM: soketi olan,
     // kullanıcının anahtarlarıyla imza attırabilir.
-    const t = ortamiTemizle({ DOCKER_AUTH_CONFIG: '{}', SSH_AUTH_SOCK: '/tmp/a' });
+    // Eski hâli yalnızca `DOCKER_AUTH_CONFIG`/`SSH_AUTH_SOCK` ölçüyordu; bu
+    // ikisi bir tur önceki desenle de yakalanıyordu, yani yeni önekler için
+    // yazılan düzeltmeyi sabitlemiyordu.
+    const t = ortamiTemizle({
+      DOCKER_AUTH_CONFIG: '{}', SSH_AUTH_SOCK: '/tmp/a',
+      KUBECONFIG: '/h/.kube/config', GOOGLE_APPLICATION_CREDENTIALS: '/h/gc.json',
+      VAULT_ADDR: 'https://v', GIT_ASKPASS: '/c/h.exe', SSH_ASKPASS: '/c/a',
+      GIT_SSH_COMMAND: 'ssh -i k', DOCKER_CONFIG: '/h/.docker',
+    });
     expect(Object.keys(t)).toEqual([]);
   });
 
@@ -247,11 +284,51 @@ describe('Codex doğrulama turu — artık boşluklar', () => {
     expect(maskText(j)).not.toContain('0123456789abcdef0123456789abcdef01234567');
   });
 
+  it('YAML blok skaleri — ad ÖNCEKİ satırda olsa da maskelenir', () => {
+    // Önceki test JSON'u ölçüyordu ve JSON bir tur önce zaten kapanmıştı;
+    // YAML blok göstergeleri için yazılan düzeltmeyi sabitlemiyordu.
+    for (const gosterge of ['|', '>', '|-', '>-', '|2', '>2-']) {
+      const y = `webhook_secret: ${gosterge}
+  0123456789abcdef0123456789abcdef01234567
+`;
+      expect(maskText(y), `gösterge: ${gosterge}`)
+        .not.toContain('0123456789abcdef0123456789abcdef01234567');
+    }
+  });
+
+  it('girintili git SHA hâlâ korunur', () => {
+    const y = ['commit', '  a94a8fe5ccb19ba61c4c0873d391e987982fbbd3', ''].join('\n');
+    expect(maskText(y)).toContain('a94a8fe5ccb19ba61c4c0873d391e987982fbbd3');
+  });
+
   it('B5: medya araçlarının yol adları ve çok parçalı .env kapsanır', () => {
     expect(assessToolPath('x', { imagePath: '~/.ssh/id_rsa' }).allowed).toBe(false);
     expect(assessToolPath('x', { audioPath: '~/.ssh/id_rsa' }).allowed).toBe(false);
     expect(assessToolPath('read_file', { path: '/p/.env.production.local' }).allowed).toBe(false);
     expect(assessToolPath('read_file', { path: '/p/.env.example' }).allowed).toBe(true);
+  });
+
+  it('B5: masum İLK alan, hassas İKİNCİ alanı gizleyemez', () => {
+    // Alanları tek tek vermek bu atlatmayı tetiklemiyordu — mutasyon
+    // denemesinde "yalnızca ilk alanı denetle" değişikliği testi kırmadan
+    // hayatta kaldı. Atlatmanın tamamı ikisinin AYNI çağrıda olmasında.
+    expect(
+      assessToolPath('speech_to_text', { path: 'README.md', audioPath: '~/.ssh/id_rsa' }).allowed,
+    ).toBe(false);
+    expect(
+      assessToolPath('x', { cwd: 'src', outputPath: '~/.aws/credentials' }).allowed,
+    ).toBe(false);
+  });
+
+  it('B5: ÇIKTI alanı yazma listesiyle değerlendirilir', () => {
+    // `/etc/hosts` yalnızca YAZMA listesinde. Yazma/okuma ayrımı araç ADIYLA
+    // yapıldığı sürece `macos_screenshot` okuma sayılıyor ve bu yola
+    // yazabiliyordu. Bir yolun yazma yolu olduğunu argümanın adı söyler.
+    expect(assessToolPath('macos_screenshot', { outputPath: '/etc/hosts' }).allowed).toBe(false);
+    expect(assessToolPath('x', { dest: '/etc/passwd' }).allowed).toBe(false);
+    // Okuma tarafı genişlemedi: aynı yol `path` ile okunabilir.
+    expect(assessToolPath('read_file', { path: '/etc/hosts' }).allowed).toBe(true);
+    expect(assessToolPath('macos_screenshot', { outputPath: '~/ss.png' }).allowed).toBe(true);
   });
 
   it('B6: gövde önizlemesi KÖPRÜ üzerinden onay metnine ulaşır', async () => {
@@ -319,8 +396,14 @@ describe('Codex doğrulama turu — artık boşluklar', () => {
         },
       }).then(() => yazilanlar);
     };
+    // `npm --version` bir tur önceki desenle de yakalanıyordu. Yeni
+    // düzeltmeyi sabitleyen girdiler tiresiz alt komut ve tek tireli biçim.
+    expect(await calistir('npm version')).toEqual([]);
+    expect(await calistir('java -version')).toEqual([]);
+    expect(await calistir('node info')).toEqual([]);
     expect(await calistir('npm --version')).toEqual([]);
     expect(await calistir('git status')).toEqual([]);
     expect(await calistir('pytest -q')).toHaveLength(1);
+    expect(await calistir('make check')).toHaveLength(1);
   });
 });
