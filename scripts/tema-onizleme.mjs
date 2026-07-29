@@ -40,6 +40,42 @@ function govde() {
   s.push("");
   s.push(T.durum("etkin", "src/auth/retry.ts düzenleniyor", "tur 4/12"));
   s.push("");
+  s.push(T.ayrac());
+  s.push("");
+  s.push(`  ${T.kalin(T.gumus(100, "DENEYSEL YÜZEY"))}`);
+  s.push("");
+  s.push("  " + T.gumus(500, "kabartma — harfler metale basılmış gibi"));
+  s.push(
+    T.kabartma(T.KELIME_ISARETI)
+      .split("\n")
+      .map((l) => "  " + l)
+      .join("\n"),
+  );
+  s.push("");
+  s.push("  " + T.gumus(500, "akan yüzey — çalışırken parıltı kayar, boştayken donar"));
+  for (const faz of [0, 0.33, 0.66]) {
+    s.push("  " + T.akanSatir("████████████████████████", faz));
+  }
+  s.push("");
+  s.push("  " + T.gumus(500, "braille grafik — tur başına token"));
+  s.push(
+    "  " +
+      T.grafik([2, 5, 3, 8, 6, 9, 4, 7, 9, 3, 6, 8]) +
+      T.soluk(T.gumus(600, "  8.4k toplam")),
+  );
+  s.push("");
+  s.push("  " + T.gumus(500, "yükseltilmiş seçim — kutu yok, gölge var"));
+  s.push(
+    T.secimListesi(
+      [
+        { etiket: "Yerel model (ollama)", not: "hiçbir şey makineden çıkmaz" },
+        { etiket: "MiniMax", not: "API anahtarı gerekir" },
+        { etiket: "Anthropic", not: "API anahtarı gerekir" },
+      ],
+      0,
+    ),
+  );
+  s.push("");
   return s.join("\n");
 }
 

@@ -359,3 +359,108 @@ function anaEkran({ surum, proje, bilesenler = [], ipucu } = {}) {
 
 module.exports.acilis = acilis;
 module.exports.anaEkran = anaEkran;
+
+// ── Deneysel yüzey ───────────────────────────────────────────────────────
+//
+// Buradaki dört şey terminal araçlarında nadir: kabartma, akan yüzey,
+// braille mikro-grafik ve yükseltilmiş seçim. Hepsi aynı fikre hizmet
+// ediyor — arayüz bir metin listesi değil, ışık alan bir YÜZEY gibi
+// davransın. Kutu çizmek yerine derinlik ima etmek.
+//
+// Hepsi renk yoksa düz metne düşer; hiçbiri bilgi taşımak için renge
+// güvenmez.
+
+/**
+ * Kabartma: harflerin üst kenarı açık, alt kenarı koyu.
+ *
+ * Yarım blok karakterlerde `▀` üst yarımı, `▄` alt yarımı doldurur. Üsttekini
+ * parlak, alttakini koyu tonlamak metale BASILMIŞ izlenimi verir; tek tonla
+ * çizilen aynı harfler düz bir çıkartma gibi durur.
+ */
+function kabartma(satirlar, ust = 100, govde = 300, alt = 600) {
+  if (!renkVar()) return satirlar.join('\n');
+  return satirlar
+    .map((satir) =>
+      [...satir]
+        .map((k) => {
+          if (k === '▀') return gumus(ust, k);
+          if (k === '▄') return gumus(alt, k);
+          if (k === '█') return gumus(govde, k);
+          return gumus(alt, k);
+        })
+        .join(''),
+    )
+    .join('\n');
+}
+
+/**
+ * Akan yüzey: gradyanın tepe noktası `faz` ile kayar.
+ *
+ * Spinner "bekliyorum" der; akan yüzey "çalışıyorum" der. Fark, ilkinin
+ * dikkat çekmesi ikincisinin ARKA PLANDA kalmasıdır — ajan uzun sürerken
+ * dönen bir çark yorucu, akan bir parıltı değil.
+ */
+function akanSatir(metin, faz) {
+  if (!renkVar() || !metin) return metin;
+  const g = [...metin];
+  let cikti = '';
+  for (let i = 0; i < g.length; i++) {
+    const yer = g.length === 1 ? 0 : i / (g.length - 1);
+    const uzaklik = Math.abs(((yer - faz + 1.5) % 1) - 0.5);
+    const parlaklik = Math.max(0, 1 - uzaklik * 4);
+    const ton = parlaklik > 0.66 ? 100 : parlaklik > 0.33 ? 300 : 600;
+    cikti += gumus(ton, g[i]);
+  }
+  return cikti;
+}
+
+/**
+ * Braille mikro-grafik: sekiz seviye, tek satır, sayı kadar yer kaplar.
+ *
+ * Terminalde grafik göstermenin en az yer kaplayan yolu. Token kullanımı ya
+ * da tur süreleri gibi bir dizi, cümleye gömülebilecek boyutta görünür.
+ */
+const BRAILLE = ['⣀', '⣄', '⣆', '⣇', '⣧', '⣷', '⣿', '⣿'];
+
+function grafik(degerler, ton = 300) {
+  if (!Array.isArray(degerler) || degerler.length === 0) return '';
+  if (!CAPS.unicode) {
+    // Unicode yoksa bilgi kaybolmasın: en yüksek değeri metin olarak ver.
+    return `[max ${Math.max(...degerler)}]`;
+  }
+  const enb = Math.max(...degerler, 1);
+  const s = degerler
+    .map((d) => BRAILLE[Math.min(7, Math.floor((d / enb) * 7))])
+    .join('');
+  return gumus(ton, s);
+}
+
+/**
+ * Yükseltilmiş seçim: seçili satır parlar ve ALTINA ince bir gölge düşer.
+ *
+ * Kutu çizmeden "bu öğe önde" demenin yolu. `>` işareti hâlâ var çünkü renk
+ * kapalıyken gölge de kaybolur ve seçim yalnızca renge bırakılamaz.
+ */
+function secimListesi(ogeler, secili = 0) {
+  const s = [];
+  ogeler.forEach((o, i) => {
+    const etiket = typeof o === 'string' ? o : o.etiket;
+    const not = typeof o === 'string' ? '' : o.not || '';
+    if (i === secili) {
+      const im = CAPS.unicode ? '▸' : '>';
+      s.push(`  ${vurgu(im)} ${kalin(gumus(100, etiket))}${not ? '  ' + gumus(400, not) : ''}`);
+      // Gölge: seçili satırın altına, etiket genişliğince koyu bir çizgi.
+      if (renkVar() && CAPS.unicode) {
+        s.push(`    ${gumus(700, '▔'.repeat(Math.min(etiket.length + (not ? not.length + 2 : 0), 60)))}`);
+      }
+    } else {
+      s.push(`    ${gumus(500, etiket)}${not ? '  ' + soluk(gumus(600, not)) : ''}`);
+    }
+  });
+  return s.join('\n');
+}
+
+module.exports.kabartma = kabartma;
+module.exports.akanSatir = akanSatir;
+module.exports.grafik = grafik;
+module.exports.secimListesi = secimListesi;
