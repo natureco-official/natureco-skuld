@@ -31,19 +31,17 @@ zaten fork'ta var ve **testleri de var**:
 **Sonuç: eksik olan yetenek değil.** İş sıfırdan inşa değil; doğrulama,
 bağlama ve ayıklama.
 
-## En büyük açık: kapı üründe yürürlükte değil
+## ~~En büyük açık: kapı üründe yürürlükte değil~~ → kapandı (29.07.2026)
 
-`packages/execution-gateway` yazıldı, 13 düşman testi geçiyor, sınır lint'i
-yeşil. Ama:
+Bu bölüm şunu diyordu: kapı yazıldı ama hiçbir yerden çağrılmıyor, sınır
+lint'i kimsenin uğramadığı bir köşeyi tarıyor, yani "tek güvenlik kapısı"
+bir ilke değil bir niyet.
 
-- Hiçbir yerden **kullanılmıyor** — `src/` ve `bin/` altında tek bir
-  `@skuld/*` import'u yok.
-- `src/tools/` altında **26 dosya doğrudan `child_process` çağırıyor**.
-- Sınır lint'i yalnızca `packages/` altını tarıyor; orası kimsenin çağırmadığı
-  bir köşe olduğu için kural fiilen hiçbir şeyi korumuyor.
+Bugün: kabuk, git ve kod çalıştırma yolları kapıdan geçiyor; ağ ayrı bir izin
+sınıfı; sınır lint'i `src/` + `bin/` tarıyor ve envanter büyüyemiyor.
 
-Yani "tek güvenlik kapısı" bugün bir ilke değil, bir niyet. Yol haritasının
-ilk maddesi bu.
+Kalan 59 dosya **kasten** geçirilmedi, unutulmadı — S1/2'deki gerekçe. İddiayı
+daraltmak, tutmadığı hâlde geniş bırakmaktan iyidir.
 
 ## Sıra
 
@@ -148,17 +146,19 @@ sır olmayan değişkenler geçer.
 
 ## Ölçüm
 
-| | Değer |
-|---|---|
-| Devralınan test | 1127 geçiyor / 3 atlanıyor |
-| Eklenen paket testi | 27 geçiyor |
-| Komut | 102 → 91 |
-| Araç | 92 |
-| `child_process` import eden dosya (`src/`) | **61 → 59** ← S1'in hedefi |
-| Bunlardan `src/tools/` altında | 26 → **24** |
-
-### S1 ilerlemesi
-
-| Tarih | Bağlanan | Kalan (`src/tools/`) |
+| | Fork alındığında | Bugün (29.07.2026) |
 |---|---|---|
-| 29.07 | `bash.js`, `shell_command.js` | 24 |
+| Devralınan test | 1127 geçiyor | **1150** geçiyor / 3 atlanıyor |
+| Paket testi | 0 | **42** geçiyor |
+| Yetenek denetimi | yok | **8/8** (`npm run yetenekler`) |
+| Komut kaydı | 102 | **75** |
+| Araç | 92 | 92 |
+| `--help` açılışı | 388 ms | **~325 ms** (%16, üç turda ölçüldü) |
+| Kapıdan geçen çalıştırma yolu | 0 | kabuk, git, kod çalıştırma |
+| Sınır lint kapsamı | `packages/` (4 dosya) | `packages/` + `src/` + `bin/` (330 dosya) |
+| Hayalet komut (yardımda var, kayıtta yok) | 2 | **0** |
+
+Fork noktasındaki 1127 testin tamamı hâlâ geçiyor. Eklenen 23 test yeni
+davranışın kanıtı; devralınan hiçbiri "artık geçerli değil" diye silinmedi —
+ikisi beklentisi ölçülerek çürütüldüğü için gerekçesiyle güncellendi
+(`list_dir` hassas yola erişebiliyordu, `nodes` kırpılmıştı).
