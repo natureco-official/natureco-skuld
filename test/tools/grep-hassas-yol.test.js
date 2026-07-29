@@ -44,9 +44,18 @@ describe('yol politikası — hassas okuma her araç için geçerli', () => {
     expect(assessToolPath('grep_search', { cwd: path.join(kok, '.ssh') }).allowed).toBe(false);
   });
 
+  it('`basePath` gibi araca özel yol adları da sayılır', () => {
+    // Anahtar adları fork boyunca tutarlı değil ve eksik bir ad, o aracın
+    // denetimden TAMAMEN muaf olması demek. `file_search` `basePath`
+    // kullanıyor ve tam olarak böyle kaçıyordu.
+    expect(assessToolPath('file_search', { basePath: path.join(kok, '.ssh') }).allowed).toBe(false);
+    expect(assessToolPath('file_search', { rootPath: path.join(kok, '.ssh') }).allowed).toBe(false);
+  });
+
   it('sıradan yollar etkilenmez', () => {
     expect(assessToolPath('grep_search', { path: 'src' }).allowed).toBe(true);
     expect(assessToolPath('read_file', { path: 'src/index.js' }).allowed).toBe(true);
+    expect(assessToolPath('file_search', { basePath: 'src' }).allowed).toBe(true);
   });
 });
 

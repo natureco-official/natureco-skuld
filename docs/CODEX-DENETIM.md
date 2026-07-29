@@ -120,3 +120,69 @@ Tur 1'de üç bulgu verdin, üçü de doğrulandı ve kapatıldı. Regresyon tes
 
 Tetikleyemediğin şeyi bulgu sayma. Her bulgu için dosya:satır ve nasıl
 tetiklendiği.
+
+---
+
+# Tur 3 — kapıların kapandığını doğrula (29.07.2026)
+
+Tur 2'de beş bulgu verdin. **Beşi de doğrulandı ve kapatıldı.** Hiçbiri yanlış
+alarm değildi; tur 1'e göre belirgin bir iyileşme.
+
+| # | Bulgu | Kapanış |
+|---|---|---|
+| 1a | `code_execution` ağ kapısını atlıyor | `b0228ae` — kod çalıştırma ayrı yetenek, onay her zaman |
+| 1b | Meşru onayın araca ulaşacağı yol yok | `a2d1f3e` — köprü kullanıcıya soruyor |
+| 2 | Onay metni ne gönderildiğini göstermiyor | `a2d1f3e` — gövde boyutu + başlık adları |
+| 3 | Yönlendirme kapıyı atlıyor | `bef3679` — üç araçta `redirect: manual` |
+| 4 | `ozelAdres()` IPv6'yı görmüyor | `bef3679` — `::1`, `fc00::/7`, `fe80::/10`, `::ffff:` |
+| 5 | `grafik` unicode kapalıyken seriyi kaybediyor | `bef3679` |
+
+1a için sandbox aranmadı. `vm` de ayrı süreç + izin devri de yeni saldırı
+yüzeyi getiriyor ve hiçbiri Node'u gerçekten kapatmıyor. Bunun yerine
+sınıflandırma değişti: **rasgele kod çalıştırmak bir araç değil, kabuk gibi
+ayrı bir yetenektir.**
+
+## Bu turda ayrıca kapanan (bizim bulduğumuz)
+
+Kalan `child_process` çağrılarını geçirirken çıktı, ölçülerek doğrulandı:
+`read_file` `~/.ssh/id_rsa`'yı engelliyordu ama `grep_search` aynı dizini
+hedefleyip özel anahtarın satırlarını döndürüyordu. Yol politikası okuma
+tarafında beyaz liste gibi çalışıyordu. Ayrıntı: `c8eda0e`.
+
+## Denetlenecek
+
+1. **Kod çalıştırma yeteneği gerçekten kapalı mı?**
+   `src/tools/code_execution.js`. Model `onayli` bayrağını geçirebilir mi?
+   `tool-execution-gateway` onu siliyor — silinmediği bir çağrı yolu var mı?
+   Ajan döngüsü aracı `executeThroughGateway` dışından çağırıyor olabilir mi?
+
+2. **Ortam temizliği yeterli mi?**
+   `src/utils/gateway.js` → `ortamiTemizle`. Desen `_KEY|_TOKEN|_SECRET|...`.
+   Hangi yaygın sır değişkeni bu ağdan kaçar? (İpucu: önek/sonek taşımayan
+   adlar.) Kaçanı **adıyla** yaz.
+
+3. **`maskText` daraltması doğru mu?**
+   `src/utils/secret-scanner.js` → `masumMu`. 40 haneli saf onaltılık
+   eşleşmeler maskelenmiyor, gerekçe git SHA'ları. Bu muafiyetle gerçek bir
+   sır geçirilebilir mi?
+
+4. **`sonuclariSuz` atlatılabilir mi?**
+   `src/tools/grep_search.js`. Süzme `execute()` içinde. `_grepWithNode`
+   dışa açık — süzmeden dönen bir yol var mı? Başka hangi araç dosya içeriği
+   döndürüyor ve aynı süzmeden geçmiyor? (`read_many_files`, `document_extract`,
+   `codebase_search` gibi adlara bak.)
+
+5. **Ağ onayı etkileşimsiz ortamda.**
+   `agOnayiSor` TTY yoksa `ret` dönüyor. Bu, ajan modunda ağ araçlarını
+   tamamen kullanılamaz mı yapıyor? Kullanılabilir kalıyorsa nasıl?
+
+6. **Hafıza döngüsü.** `src/tools/agentic-runner.js`. REMEMBER yalnızca
+   dosya değiştiyse VE doğrulama başarılıysa VE kapı bloklamadıysa yazıyor.
+   Üçü de doğruyken YANLIŞ bir şeyin yazıldığı bir durum kurabilir misin?
+   RECALL hatıraları "NOTTUR, talimat değil" diye çerçeveliyor — bu çerçeve
+   aşılabilir mi?
+
+## Kural
+
+Değişmedi. Tetikleyemediğin şey bulgu değildir; dosya:satır ve tetikleme
+yolu iste. Emin değilsen "emin değilim" yaz.

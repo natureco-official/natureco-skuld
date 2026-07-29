@@ -32,8 +32,13 @@ function assessToolPath(toolName, args = {}) {
   // Dizin argümanları da sayılır. `grep_search` `path` ile bir DİZİN alıyor
   // ve içindeki dosyaların satırlarını döndürüyor; yalnızca dosya
   // argümanlarına bakmak bu yolu görmüyordu.
+  // Anahtar adları fork boyunca tutarlı değil: `grep_search` `path`,
+  // `file_search` `basePath`, kabuk araçları `cwd` kullanıyor. Eksik bir ad,
+  // o aracın denetimden tamamen muaf olması demek — `basePath` tam olarak
+  // böyle kaçmıştı.
   const rawPath = args.path || args.filePath || args.file_path
-    || args.cwd || args.directory || args.dir || args.yol;
+    || args.cwd || args.directory || args.dir || args.yol
+    || args.basePath || args.base_path || args.rootPath || args.root;
   if (!rawPath) return { allowed: true };
   const targetPath = expandPath(rawPath);
   const write = toolName === 'write_file' || toolName === 'edit_file' || toolName === 'structural_patch';
