@@ -112,26 +112,64 @@ function gradyan(metin, baslangic = 200, bitis = 500) {
 }
 
 // ── Kelime işareti ───────────────────────────────────────────────────────
-// İnce çizgi harfler. natureco-cli'nin kalın blok ASCII'sinden bilinçli
-// olarak farklı: kalın bloklar "güçlü" değil "gürültülü" görünür.
-const KELIME_ISARETI = [
-  '┌─┐ ┬┌─ ┬ ┬ ┬   ┌┬┐',
-  '└─┐ ├┴┐ │ │ │    ││',
-  '└─┘ ┴ ┴ └─┘ ┴─┘ ─┴┘',
-];
-
-// Unicode yoksa kutu çizgileri kutu görünmez; düz ASCII'ye düş.
 //
-// String.raw kullanılıyor: bu harfler ters eğik çizgiyle dolu ve normal
-// dizede her biri iki kez kaçırılmak zorunda. İlk sürüm tam bu yüzden fazladan
-// bir `\` ile render oldu — kaçış sayısı gözle doğrulanabilir bir şey değil.
-const KELIME_ISARETI_ASCII = String.raw`
- ___  _  ___   _   ___
-/ __|| |/ / | | | |   \
-\__ \|   <| |_| | | |) |
-|___/|_|\_\\___/  |___/`
-  .split('\n')
-  .filter((s) => s.length > 0);
+// Yarım blok karakterler: düz metinden belirgin biçimde iri, blok ASCII'den
+// belirgin biçimde ince. natureco-cli'nin altı satırlık gölgeli logosuyla
+// karıştırılacak bir şey değil.
+//
+// Harfler ayrı ayrı tanımlanıp birleştirme kodla yapılıyor. Tek satır olarak
+// elle yazıldığında bir harfin bir karakter kayması gözle fark edilmiyor;
+// böyle hizalama bir iddia değil, üretim biçiminin sonucu.
+const HARFLER = {
+  S: ['█▀▀', '▀▀█', '▀▀▀'],
+  K: ['█▄▀', '█▀▄', '▀ ▀'],
+  U: ['█ █', '█ █', '▀▀▀'],
+  L: ['█  ', '█  ', '▀▀▀'],
+  D: ['█▀▄', '█ █', '▀▀ '],
+};
+
+function kelimeIsaretiUret(kelime = 'SKULD', bosluk = 2) {
+  const satirlar = ['', '', ''];
+  const harfler = [...kelime];
+  harfler.forEach((h, i) => {
+    const g = HARFLER[h];
+    if (!g) return;
+    for (let r = 0; r < 3; r++) {
+      satirlar[r] += g[r] + (i < harfler.length - 1 ? ' '.repeat(bosluk) : '');
+    }
+  });
+  return satirlar;
+}
+
+const KELIME_ISARETI = kelimeIsaretiUret();
+
+// Unicode yoksa yarım bloklar kutuya döner; düz ASCII'ye düş.
+//
+// Buradaki harfler de tek tek tanımlanıyor. Çok satırlı bir şablon olarak
+// yazıldığında ters eğik çizgilerin kaçışı iki kez bozuldu ve dosya
+// derlenmez hâle geldi; kaçış sayısı gözle doğrulanabilecek bir şey değil.
+const HARFLER_ASCII = {
+  S: [' __', '(__', '__)'],
+  K: ['| /', '|< ', '| \\'],
+  U: ['| |', '| |', '|_|'],
+  L: ['|  ', '|  ', '|__'],
+  D: [' _ ', '| |', '|_/'],
+};
+
+function kelimeIsaretiAsciiUret(kelime = 'SKULD', bosluk = 2) {
+  const satirlar = ['', '', ''];
+  const harfler = [...kelime];
+  harfler.forEach((h, i) => {
+    const g = HARFLER_ASCII[h];
+    if (!g) return;
+    for (let r = 0; r < 3; r++) {
+      satirlar[r] += g[r] + (i < harfler.length - 1 ? ' '.repeat(bosluk) : '');
+    }
+  });
+  return satirlar;
+}
+
+const KELIME_ISARETI_ASCII = kelimeIsaretiAsciiUret();
 
 /**
  * Hero ekranı.
@@ -141,7 +179,7 @@ const KELIME_ISARETI_ASCII = String.raw`
  * @param {string} [opt.altBaslik]
  * @param {boolean} [opt.kompakt] dar terminalde tek satıra düşer
  */
-function hero({ surum, altBaslik = 'ne olacaksa, doğrulanmış olarak', kompakt = true } = {}) {
+function hero({ surum, altBaslik = 'ne olacaksa, doğrulanmış olarak', kompakt = false } = {}) {
   const genislik = CAPS.width || 80;
   const satirlar = [];
 
@@ -149,7 +187,7 @@ function hero({ surum, altBaslik = 'ne olacaksa, doğrulanmış olarak', kompakt
   // görülecek bir şey için fazla yer kaplıyor. Harfler aralıklı: "S K U L D"
   // sıkışık hâlinden daha sakin okunuyor ve gradyanın yayılacağı yer açılıyor.
   // Üç satırlık hâl `kompakt: false` ile istenir.
-  if (kompakt || genislik < 46) {
+  if (kompakt || genislik < 30) {
     satirlar.push('');
     satirlar.push(
       `  ${kalin(gradyan('S K U L D', 100, 400))}${surum ? '   ' + soluk(gumus(600, surum)) : ''}`,

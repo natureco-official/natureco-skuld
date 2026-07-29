@@ -30,15 +30,9 @@ const init = require('../src/commands/init');
 const config = require('../src/commands/config');
 const ask = require('../src/commands/ask');
 const run = require('../src/commands/run');
-const signal = require('../src/commands/signal');
-const irc = require('../src/commands/irc');
-const mattermost = require('../src/commands/mattermost');
-const imessage = require('../src/commands/imessage');
-const sms = require('../src/commands/sms');
 const webhooks = require('../src/commands/webhooks');
 const bonjour = require('../src/commands/bonjour');
 const policy = require('../src/commands/policy');
-const voice = require('../src/commands/voice');
 const clickclack = require('../src/commands/clickclack');
 const adminRpc = require('../src/commands/admin-rpc');
 const ocPath = require('../src/commands/oc-path');
@@ -121,17 +115,7 @@ ${chalk.yellow('⚙️  Kurulum & Ayarlar')}
   ${chalk.cyan('completion')}    Shell completion (bash|zsh|fish)
 
 ${chalk.yellow('🔌 Entegrasyonlar')}
-  ${chalk.cyan('telegram')}      Telegram bağlantısı
-  ${chalk.cyan('whatsapp')}      WhatsApp bağlantısı
-  ${chalk.cyan('discord')}       Discord bağlantısı
-  ${chalk.cyan('slack')}         Slack bağlantısı
-  ${chalk.cyan('signal')}        Signal bağlantısı
-  ${chalk.cyan('irc')}           IRC bağlantısı
-  ${chalk.cyan('mattermost')}    Mattermost bağlantısı
-  ${chalk.cyan('imessage')}      iMessage bağlantısı
-  ${chalk.cyan('sms')}           SMS (Twilio) bağlantısı
   ${chalk.cyan('channels')}      Kanal yönetimi (list|status|add|remove|logs|login|logout|capabilities|resolve)
-  ${chalk.cyan('message')}       Cross-channel mesaj (send|broadcast|poll|react|read|edit|delete|search|pin|thread|sticker|role|moderation|event|timeout|kick|ban)
   ${chalk.cyan('gateway')}       WebSocket gateway (start|stop|status|call|usage-cost|probe|discover|install|uninstall|health|restart|diagnostics|run)
 
 ${chalk.yellow('💻 Geliştirici Araçları')}
@@ -167,7 +151,6 @@ ${chalk.yellow('🛰️  Ağ & Cihaz')}
   ${chalk.cyan('dns')}           Ağ keşfi — DNS (discover|resolve|setup)
   ${chalk.cyan('directory')}     Dizin sorgulama (self|peers|search|register|remove)
   ${chalk.cyan('policy')}        Workspace uyumluluk politikası
-  ${chalk.cyan('voice')}         Sesli sohbet yapılandırması
   ${chalk.cyan('clickclack')}    Bildirim/beep kanalı
   ${chalk.cyan('admin-rpc')}     HTTP admin RPC endpoint
   ${chalk.cyan('oc-path')}       nc:// URI path handler
@@ -416,60 +399,18 @@ program
   });
 
 program
-  .command('discord <action>')
-  .description('Discord integration (connect|disconnect|status)')
-  .action((action) => {
-    const discordCmd = require('../src/commands/discord');
-    discordCmd(action);
-  });
 
 program
-  .command('slack <action>')
-  .description('Slack integration (connect|disconnect|status)')
-  .action((action) => {
-    const slackCmd = require('../src/commands/slack');
-    slackCmd(action);
-  });
 
 program
-  .command('whatsapp <action> [number]')
-  .description('WhatsApp integration (connect|disconnect|status|allow)')
-  .action((action, number) => {
-    const whatsappCmd = require('../src/commands/whatsapp');
-    whatsappCmd(action, number);
-  });
 
 program
-  .command('telegram <action> [chatId]')
-  .description('Telegram integration (connect|disconnect|status|allow)')
-  .action((action, chatId) => {
-    const telegramCmd = require('../src/commands/telegram');
-    telegramCmd(action, chatId);
-  });
 
 program
-  .command('signal <action>')
-  .description('Signal integration (connect|disconnect|status)')
-  .action((action) => {
-    const signalCmd = require('../src/commands/signal');
-    signalCmd(action);
-  });
 
 program
-  .command('irc <action>')
-  .description('IRC integration (connect|disconnect|status)')
-  .action((action) => {
-    const ircCmd = require('../src/commands/irc');
-    ircCmd(action);
-  });
 
 program
-  .command('mattermost <action>')
-  .description('Mattermost integration (connect|disconnect|status)')
-  .action((action) => {
-    const mattermostCmd = require('../src/commands/mattermost');
-    mattermostCmd(action);
-  });
 
 // Matrix / Teams / Google Chat / Zalo share one connect/status/probe
 // implementation (src/utils/channel-setup.js) driven by a per-channel
@@ -489,20 +430,8 @@ for (const [name, label] of [
 }
 
 program
-  .command('imessage <action> [recipient] [message]')
-      .description('iMessage integration (connect|disconnect|status|probe|send)')
-      .action((action, recipient, message) => {
-        const imessageCmd = require('../src/commands/imessage');
-        imessageCmd(action, recipient, message);
-      });
 
 program
-  .command('sms <action>')
-  .description('SMS/Twilio integration (connect|disconnect|status)')
-  .action((action) => {
-    const smsCmd = require('../src/commands/sms');
-    smsCmd(action);
-  });
 
 program
   .command('webhooks <action>')
@@ -513,13 +442,6 @@ program
   });
 
 program
-  .command('message [action]')
-  .description('Unified cross-channel messaging (send|broadcast|poll|react|reactions|read|edit|delete|search|pin|unpin|pins|permissions|thread|emoji|sticker|role|channel|member|voice|event|timeout|kick|ban|moderation)')
-  .action((action) => {
-    const messageCmd = require('../src/commands/message');
-    const args = process.argv.slice(3);
-    messageCmd(args);
-  });
 
 program
   .command('dashboard [action]')
@@ -566,13 +488,6 @@ program
   });
 
 program
-  .command('voice [action]')
-  .description('Voice configuration (status|providers|set) — manage TTS voice settings')
-  .action((action) => {
-    const voiceCmd = require('../src/commands/voice');
-    const args = process.argv.slice(3);
-    voiceCmd(args);
-  });
 
 program
   .command('clickclack [action]')
