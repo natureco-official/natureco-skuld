@@ -42,7 +42,8 @@
     "tema:hepsi": "node scripts/tema-onizleme.mjs --hepsi",
     "yetenekler": "node scripts/yetenek-denetimi.mjs",
     "yardim": "node scripts/yardim-tutarlilik.mjs",
-    "mutasyon": "node scripts/mutasyon-denemesi.mjs"
+    "mutasyon": "node scripts/mutasyon-denemesi.mjs",
+    "yayin": "node scripts/yayin-onkontrol.mjs"
   },
   "keywords": [
     "natureco",

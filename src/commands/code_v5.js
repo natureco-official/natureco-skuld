@@ -34,6 +34,7 @@ const {
   stopMcpServers,
 } = require("../utils/api");
 const { loadMcpToolDefinitions } = require("../utils/mcp-tools");
+const { supportsNativeToolCalls } = require("../utils/provider-detect");
 const { getConfig } = require("../utils/config");
 const { loadToolDefinitions, executeTool, toOpenAIFormat } = require("../utils/tools");
 const { runPostHooks } = require("../utils/tool-hooks");
@@ -491,11 +492,32 @@ async function codeV5(targetPath, cliOptions = {}) {
     ? cliOptions.print.trim()
     : null;
   // Opt-in workflow pre-step (see the turn body for why it is no longer the default).
-  const useWorkflow = cliOptions.workflow === true || getConfig().codeWorkflow === true;
+
 
   if (cliOptions.list) { printSessionList(); return; }
 
   const config = getConfig();
+
+  // Sağlayıcı OpenAI biçimi `tool_calls` üretemiyorsa XML ajan yoluna
+  // GEÇMEK ZORUNLU — tercih değil.
+  //
+  // Bu, kurulu CLI ile canlı denendiğinde ortaya çıktı ve ürünü tamamen
+  // çalışmaz kılıyordu: yapılandırılmış sağlayıcı Gemini,
+  // `supportsNativeToolCalls` onun için `false` dönüyor, ve `code_v5` bunu hiç
+  // kontrol etmiyordu. Sonuç: `nskuld code -p "dosyayı düzenle"` modelin
+  // "düzenleyeceğim" demesiyle bitiyor, hiçbir araç çağrılmıyor, dosya
+  // değişmiyor ve **çıkış kodu 0** — yani başarı.
+  //
+  // `supportsNativeToolCalls`'ın kendi belgesi tasarımı zaten anlatıyor:
+  // "When it can, the agent loop talks to it directly. When it cannot,
+  // requests are routed through the workflow tool's XML agentic runner."
+  // Niyet vardı, bağlantı yoktu — S2 ile aynı sınıf hata.
+  const yerelAracCagrisi = supportsNativeToolCalls(
+    config.providerUrl, config.providerModel, getConfig(),
+  );
+  const useWorkflow = cliOptions.workflow === true
+    || getConfig().codeWorkflow === true
+    || !yerelAracCagrisi;
   if (!config.providerUrl || !config.providerApiKey) {
     // Exit non-zero: a script or CI job that pipes `natureco code -p …` must be
     // able to tell "not configured" from "ran successfully".
@@ -814,11 +836,51 @@ async function codeV5(targetPath, cliOptions = {}) {
     const notlar = await farklilastirici.hatirlatmaMetni(hafiza, headlessPrompt);
     if (notlar) messages.push({ role: 'user', content: notlar });
 
-    messages.push({ role: 'user', content: headlessPrompt });
     let finalText = '';
     let unresolved = true;
+    let xmlYoluKostu = false;
+
+    // ── Sağlayıcı yerel araç çağrısı üretemiyorsa XML yoluna geç ─────────
+    // `useWorkflow` yalnızca ETKİLEŞİMLİ yolda kontrol ediliyordu; headless
+    // yol onu hiç kullanmıyordu. Yani Gemini/Ollama/Groq ile `nskuld code -p`
+    // hiçbir araç çağıramıyor, model "yapacağım" diyip çıkıyor ve çıkış kodu
+    // 0 oluyordu. Canlı denemede üç denemenin üçünde de böyle oldu.
+    if (useWorkflow) {
+      process.stderr.write(L(
+        `Not: ${config.providerModel} yerel araç çağrısı üretmiyor — XML ajan yolu kullanılıyor.\n`,
+        `Note: ${config.providerModel} does not emit native tool calls — using the XML agent path.\n`,
+      ));
+      try {
+        const wf = await executeTool('workflow', {
+          action: 'run',
+          task: headlessPrompt,
+          conversationHistory: prepareConversationHistory(messages, {
+            maxMessages: tokenBudget.load().conversationInContext,
+            maxTokens: tokenBudget.load().workflowHistoryMaxTokens,
+          }),
+        }, toolDefs, {});
+
+        const sonuc = wf && (wf.result || wf);
+        const adimlar = (sonuc && sonuc.results) || [];
+        for (const r of adimlar) {
+          // Değişen dosyalar ve koşan komutlar tamamlanma kapısına ulaşmalı;
+          // yoksa kapı "hiçbir şey değişmedi" görür ve devreye girmez.
+          trackFileChanges(r.tool || r.name, r.args || {}, r.result || { success: r.status === 'done' });
+        }
+        if (sonuc && sonuc.reply) finalText = String(sonuc.reply);
+        unresolved = false;
+        xmlYoluKostu = true;
+      } catch (e) {
+        process.stderr.write(`${e && e.message ? e.message : String(e)}\n`);
+        unresolved = true;
+      }
+    }
+
+    messages.push({ role: 'user', content: headlessPrompt });
     try {
-      for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
+      // XML yolu koştuysa doğrudan döngü ATLANIR — ikisini birlikte koşmak
+      // aynı işi iki kez yapar ve dosyaları iki kez değiştirebilir.
+      for (let iter = 0; !xmlYoluKostu && iter < MAX_ITERATIONS; iter++) {
         compactIfNeeded(messages, { quiet: true });
         const { reply } = await streamAssistantReply(
           config.providerUrl, config.providerApiKey, config.providerModel,
