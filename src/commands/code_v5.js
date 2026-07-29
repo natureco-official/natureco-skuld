@@ -804,6 +804,16 @@ async function codeV5(targetPath, cliOptions = {}) {
   // presentation and the approval prompts are removed, so it is safe to run
   // from CI or a script.
   if (headlessPrompt) {
+    // ── RECALL — Urðr hafızası, VARSAYILAN yolda ─────────────────────────
+    // Hafıza `runAgentic`'e bağlanmıştı ama `code_v5` `runAgentic`'i hiç
+    // çağırmıyor (Codex plan denetimi, S2 = YANLIŞ). Yani hafıza ürünün
+    // kullanılan yolunda yoktu. Zincirin her halkası gösterilmeden "bağlandı"
+    // denemez.
+    const farklilastirici = require('../utils/farklilastiricilar');
+    const hafiza = await farklilastirici.hafizaAc({ projeKoku: cwd });
+    const notlar = await farklilastirici.hatirlatmaMetni(hafiza, headlessPrompt);
+    if (notlar) messages.push({ role: 'user', content: notlar });
+
     messages.push({ role: 'user', content: headlessPrompt });
     let finalText = '';
     let unresolved = true;
@@ -897,6 +907,44 @@ async function codeV5(targetPath, cliOptions = {}) {
               dryRun, interactive: false, quiet: true,
             });
           }
+        }
+      }
+
+      // ── KALİTE KAPISI + REMEMBER — VARSAYILAN yolda ─────────────────────
+      // İkisi de `runAgentic` içine bağlanmıştı ve varsayılan yol onu hiç
+      // çağırmıyordu. Sıra önemli: kapı BLOKLADIYSA hafızaya yazılmaz —
+      // engellenen işi "böyle yapıldı" diye kaydetmek sonraki oturumu kalıcı
+      // olarak yanıltır.
+      if (changedFiles.length > 0) {
+        let bloklandi = false;
+        try {
+          const kapi = await farklilastirici.kaliteKapisiAc({ projeKoku: cwd });
+          if (kapi) {
+            const rapor = await kapi.degerlendir(changedFiles, { taban: await kapi.tara(cwd) });
+            if (rapor && Array.isArray(rapor.bulgular)) {
+              for (const b of rapor.bulgular) {
+                const im = b.seviye === 'blok' ? '⛔' : '⚠';
+                process.stderr.write(`${im} ${b.baslik}${b.ayrinti ? ` — ${b.ayrinti}` : ''}\n`);
+              }
+            }
+            if (rapor && rapor.blokluyorMu) {
+              bloklandi = true;
+              unresolved = true;
+              process.stderr.write(L(
+                'Kalite kapısı BLOKLADI — değişiklikler gözden geçirilmeli.\n',
+                'Quality gate BLOCKED — the changes need review.\n',
+              ));
+            }
+          }
+        } catch { /* kapı düşerse görev düşmez, ama rapor da olmaz */ }
+
+        // REMEMBER — yalnızca doğrulanmış VE bloklanmamış iş kaydedilir.
+        if (hafiza && !bloklandi && !unresolved) {
+          try {
+            const karar = `${String(headlessPrompt).replace(/\s+/g, ' ').slice(0, 160)} `
+              + `— ${changedFiles.length} dosya değişti ve doğrulandı`;
+            await hafiza.hatirlat(karar, 'proje', 'skuld/code');
+          } catch { /* yazamazsa görev yine tamamlanmıştır */ }
         }
       }
 

@@ -73,7 +73,9 @@ describe('plain-Windows process portability', () => {
   windowsItWithEdgeTts('text_to_speech resolves py before the broken python3 alias and creates audio', async () => {
     const output = path.join(os.tmpdir(), `natureco-windows-tts-${process.pid}.mp3`);
     try {
-      const result = await textToSpeech._edgeTTS('Portability test', 'en-US-AriaNeural', output);
+      // `onayli: true` — geçici dizin workspace dışı ve `savePath` artık yazma
+      // sınırından geçiyor. Kararı veren taraf bu test.
+      const result = await textToSpeech._edgeTTS('Portability test', 'en-US-AriaNeural', output, true);
       expect(result.success).toBe(true);
       expect(result.interpreter).toBe('py');
       expect(fs.statSync(output).size).toBeGreaterThan(0);

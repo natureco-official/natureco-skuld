@@ -101,9 +101,13 @@ await dene('worktree', () => {
     const kapanis = wt.exit({ merge: false });
     if (kapanis.error) throw new Error(`exit() hata: ${kapanis.error}`);
 
-    return strateji === 'git-worktree'
-      ? 'gerçek git worktree açıldı, dosyalar yerinde, kapanış temiz'
-      : `AÇILDI ama kopyalama yedeğine düştü (strateji: ${strateji}) — git worktree çalışmıyor`;
+    // Codex plan denetimi: kopyalama yedeğine düşse bile satır yeşil
+    // kalıyordu, yani "worktree çalışıyor" yanlış olabiliyordu. Yedeğe düşmek
+    // izolasyonu kaybettirir — dosya sistemi kopyası dal geçmişi tutmaz.
+    if (strateji !== 'git-worktree') {
+      throw new Error(`kopyalama yedeğine düştü (strateji: ${strateji}) — gerçek git worktree açılamadı`);
+    }
+    return 'gerçek git worktree açıldı, dosyalar yerinde, kapanış temiz';
   } finally {
     process.chdir(eskiDizin);
     fs.rmSync(gecici, { recursive: true, force: true });
@@ -113,12 +117,36 @@ await dene('worktree', () => {
 // ── 3. Alt ajan ───────────────────────────────────────────────────────────
 // Ölçüt: araç sözleşmesi eksiksiz mi? Modelin çağırabilmesi için şema ve
 // execute gerekiyor.
-await dene('sub_agent', () => {
+await dene('sub_agent', async () => {
+  // Codex plan denetimi: bu kontrol yalnızca ad/şema/execute VARLIĞINA
+  // bakıyordu. Varlık, çalışmak değil — betiğin bütün amacı bu ayrımdı ve
+  // tam burada ihlal ediliyordu.
   const t = require('../src/tools/sub_agent.js');
   if (!t.name) throw new Error('name yok');
-  if (typeof t.execute !== 'function') throw new Error('execute yok');
   if (!t.inputSchema || !t.inputSchema.properties) throw new Error('inputSchema yok');
-  return `şema: ${Object.keys(t.inputSchema.properties).join(', ')}`;
+  if (typeof t.execute !== 'function') throw new Error('execute yok');
+
+  // Sağlayıcı yok: araç ÇALIŞTIRILIYOR ve düzgün bir hata döndürmesi
+  // bekleniyor. Çöken bir araçla yapılandırılmamış bir araç aynı şey değil.
+  const ham = await t.execute({ task: 'denetim: 2+2 kaç' });
+
+  // `sub_agent` JSON DİZESİ döndürüyor, diğer 91 aracın aksine. İlk yazışımda
+  // bunu "nesne döndürmedi" diye KIRIK saydım — yanlış alarmdı, araç
+  // çalışıyor ve devralınan bir test `JSON.parse(await execute(...))` yapıyor,
+  // yani dize dönüşü kayıtlı bir sözleşme. Çalışan bir şeyi kırık ilan etmek,
+  // bu betiğin güvenilirliğini bitirir.
+  let sonuc = ham;
+  if (typeof ham === 'string') {
+    try { sonuc = JSON.parse(ham); } catch { throw new Error('dize döndürdü ama JSON değil'); }
+  }
+  if (sonuc == null || typeof sonuc !== 'object') throw new Error('execute nesne/JSON döndürmedi');
+  if (sonuc.success !== true && !sonuc.error) {
+    throw new Error('başarısızlıkta `error` alanı yok — çağıran neyin yanlış gittiğini bilemez');
+  }
+  const tutarsizlik = typeof ham === 'string' ? ' (JSON dizesi döndürüyor — diğer araçlar nesne)' : '';
+  return sonuc.success === true
+    ? `gerçek alt ajan koştu, model: ${sonuc.model || '?'}${tutarsizlik}`
+    : `çağrılabilir, sağlayıcısız düzgün hata veriyor${tutarsizlik}`;
 });
 
 // ── 4. LSP istemcisi ──────────────────────────────────────────────────────
@@ -129,13 +157,29 @@ await dene('lsp-client', () => {
   if (typeof LspClient !== 'function') throw new Error('LspClient sınıf değil');
   const diller = Object.keys(DEFAULT_SERVERS || {});
   if (diller.length === 0) throw new Error('tanımlı LSP sunucusu yok');
-  return `tanımlı diller: ${diller.join(', ')}`;
+
+  // Codex plan denetimi: eski hâli yalnızca dil ADLARINI sayıyordu, yani
+  // hiçbir sunucu kurulu olmasa da yeşil kalıyordu. Sunucu yokluğu bir kusur
+  // değil (kullanıcının makinesine bağlı) ama BİLİNMESİ gerekiyor — "LSP
+  // çalışıyor" demek, çalışmadığında yanlış olur.
+  const kurulu = [];
+  for (const [dil, ayar] of Object.entries(DEFAULT_SERVERS)) {
+    const bin = Array.isArray(ayar) ? ayar[0] : (ayar && (ayar.command || ayar.bin || ayar.cmd));
+    if (!bin) continue;
+    try {
+      execFileSync(process.platform === 'win32' ? 'where' : 'which', [bin], { stdio: 'pipe' });
+      kurulu.push(dil);
+    } catch { /* kurulu değil */ }
+  }
+  return kurulu.length > 0
+    ? `${kurulu.length}/${diller.length} dil sunucusu bu makinede KURULU: ${kurulu.join(', ')}`
+    : `${diller.length} dil tanımlı ama bu makinede HİÇBİRİ kurulu değil — LSP yetenekleri çalışmaz`;
 });
 
 // ── 5. Hafıza döngüye bağlı mı ────────────────────────────────────────────
 // Bu, betiğin var olma nedeni. Hafıza paketi aylarca testliydi ve döngü onu
 // hiç çağırmıyordu.
-await dene('hafıza → ajan döngüsü', async () => {
+await dene('hafıza → runAgentic', async () => {
   const { runAgentic } = require('../src/tools/agentic-runner.js');
   const gorulen = [];
   await runAgentic({
@@ -160,7 +204,7 @@ await dene('hafıza → ajan döngüsü', async () => {
 });
 
 // ── 6. Kalite kapısı döngüye bağlı mı ─────────────────────────────────────
-await dene('kalite kapısı → ajan döngüsü', async () => {
+await dene('kalite kapısı → runAgentic', async () => {
   const { runAgentic } = require('../src/tools/agentic-runner.js');
   let cagrildi = false;
   const sonuc = await runAgentic({
@@ -260,6 +304,41 @@ await dene('tamamlanma kapısı → varsayılan yol', async () => {
     throw new Error('code_v5 kapıyı import ediyor ama kanitTopla çağırmıyor');
   }
   return 'kapı doğru karar veriyor ve varsayılan yol onu çağırıyor';
+});
+
+// ── 10. Farklılaştırıcılar VARSAYILAN yolda mı ────────────────────────────
+// Bu kontrol Codex plan denetiminin sonucu. Yukarıdaki iki satır
+// `runAgentic`'i ölçüyor ve YEŞİLDİ — ama varsayılan `nskuld code` yolu
+// `code_v5` ve `code_v5` içinde `runAgentic` SIFIR kez geçiyor. Yani hafıza ve
+// kalite kapısı ürünün kullanılan yolunda yoktu, iki yeşil satıra rağmen.
+//
+// Yanlış katmanı ölçmenin üçüncü tekrarı. Bu yüzden artık zincirin son halkası
+// ayrıca kontrol ediliyor.
+await dene('farklılaştırıcılar → VARSAYILAN yol', () => {
+  const kaynak = fs.readFileSync(new URL('../src/commands/code_v5.js', import.meta.url), 'utf8');
+
+  if (!kaynak.includes("require('../utils/farklilastiricilar')")) {
+    throw new Error('code_v5 farklılaştırıcı köprüsünü çağırmıyor');
+  }
+  if (!/farklilastirici\.hafizaAc\(/.test(kaynak)) throw new Error('RECALL yok: hafizaAc çağrılmıyor');
+  if (!/hatirlatmaMetni\(/.test(kaynak)) throw new Error('RECALL yok: hatıralar göreve eklenmiyor');
+  if (!/farklilastirici\.kaliteKapisiAc\(/.test(kaynak)) throw new Error('kalite kapısı çağrılmıyor');
+  if (!/hafiza\.hatirlat\(/.test(kaynak)) throw new Error('REMEMBER yok: hatirlat çağrılmıyor');
+
+  // Sıra: kapı BLOKLADIYSA hafızaya yazılmamalı. Engellenen işi "böyle
+  // yapıldı" diye kaydetmek sonraki oturumu kalıcı olarak yanıltır.
+  const bloklaKonum = kaynak.indexOf('bloklandi = true');
+  const yazKonum = kaynak.indexOf('hafiza.hatirlat(');
+  if (bloklaKonum === -1 || yazKonum === -1 || bloklaKonum > yazKonum) {
+    throw new Error('REMEMBER, blok kararından ÖNCE geliyor — engellenen iş kaydedilebilir');
+  }
+
+  // Köprü gerçekten yüklenebiliyor mu?
+  const kopru = require('../src/utils/farklilastiricilar.js');
+  for (const ad of ['hafizaAc', 'kaliteKapisiAc', 'hatirlatmaMetni']) {
+    if (typeof kopru[ad] !== 'function') throw new Error(`köprüde ${ad} yok`);
+  }
+  return 'RECALL + kalite kapısı + REMEMBER varsayılan yolda, blok kararı yazmadan önce';
 });
 
 // ── Rapor ─────────────────────────────────────────────────────────────────

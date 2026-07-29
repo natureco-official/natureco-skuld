@@ -1,5 +1,13 @@
 /**
- * Code Execution — Python/Node kodu sandbox'ta çalıştır (v4.9.0)
+ * Code Execution — Python/Node/Bash kodu ALT SÜREÇTE çalıştırır (v4.9.0)
+ *
+ * "sandbox" DEĞİL ve öyle demiyoruz. Codex plan denetimi bu açıklamanın
+ * yanıltıcı olduğunu söyledi ve haklıydı: kullanıcıya "sandbox'ta çalıştır"
+ * diye tanıtılırken gerçekte doğrudan makinede süreç açıyor. İzolasyon
+ * yanılsaması, izolasyon yokluğundan daha tehlikeli.
+ *
+ * Var olan koruma: her çağrıda onay (kod ekranda gösterilir) ve ortamdan sır
+ * süzme. Olmayan koruma: dosya sistemi ve ağ izolasyonu.
  *
  * Hermes'ın execute_code'una benzer.
  * Kullanıcı "Python ile X yap" derse çalıştırır.
@@ -103,7 +111,11 @@ async function runCode({ code, language = 'auto', timeoutMs = 30000, cwd = null 
 
 module.exports = {
   name: 'code_execution',
-  description: 'Python/Node/Bash kodu sandbox\'ta çalıştır. Windows\'ta bash yoksa PowerShell fallback kullanılır ve gerçek interpreter döndürülür.',
+  // "sandbox" kelimesi KASTEN çıkarıldı. Codex plan denetimi: araç
+  // kullanıcıya "sandbox'ta çalıştır" diye tanıtılırken gerçekte doğrudan
+  // makinede süreç açıyor. İzolasyon yanılsaması, izolasyon yokluğundan
+  // tehlikelidir — kullanıcı olmayan bir korumaya güvenir.
+  description: 'Python/Node/Bash kodu ALT SÜREÇTE çalıştır. Sandbox DEĞİL: dosya sistemi ve ağ erişimi vardır, bu yüzden her çağrıda onay istenir. Windows\'ta bash yoksa PowerShell fallback kullanılır ve gerçek interpreter döndürülür.',
   inputSchema: {
     type: 'object',
     properties: {

@@ -31,7 +31,7 @@ module.exports = {
 
       // Skip approval checks for safe commands
       if (isSafeCommand(command)) {
-        return await runCommand(command);
+        return await runCommand(command, params.cwd);
       }
 
       // Check command against approvals policy
@@ -64,7 +64,7 @@ module.exports = {
         };
       }
 
-      return await runCommand(approval.editedCommand || command);
+      return await runCommand(approval.editedCommand || command, params.cwd);
     } catch (error) {
       return {
         success: false,
@@ -75,7 +75,14 @@ module.exports = {
   }
 };
 
-async function runCommand(command) {
+/**
+ * @param {string} command
+ * @param {string} [cwd] çalışma dizini. Codex plan denetimi (S6): tamamlanma
+ *   kapısı `cwd` geçiriyordu ama bu parametre HİÇ YOKTU, yani doğrulama komutu
+ *   sürecin dizininde koşuyordu. Yanlış dizinde koşan bir test, koşmamış bir
+ *   testtir — ama yeşil görünür.
+ */
+async function runCommand(command, cwd) {
   let cmd = command;
   if (process.platform !== 'win32') {
     cmd = cmd.replace(/\/home(\/[^\s]*)?/g, (match, subpath) => {
@@ -89,7 +96,7 @@ async function runCommand(command) {
   // `kararVerildi: true` — izin kararı yukarıdaki approvals katmanında
   // verildi; kapının aynı komut için ikinci kez sorması kullanıcıya çift
   // istem gösterirdi ve ikinci istemi gören kimse ilkini okumaz.
-  const kapi = await kapiAc({ kararVerildi: true, zamanAsimiMs: 30000 });
+  const kapi = await kapiAc({ kararVerildi: true, zamanAsimiMs: 30000, ...(cwd ? { workspace: cwd } : {}) });
   const sonuc = await kapi.kabuk({ komut: cmd });
 
   if (sonuc.cikisKodu !== 0) {

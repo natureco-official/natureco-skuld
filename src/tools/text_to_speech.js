@@ -25,24 +25,32 @@ async def main():
 asyncio.run(main())
 `;
 
-async function speak({ text, provider = "auto", voice = "tr-TR", savePath = null }) {
+async function speak({ text, provider = "auto", voice = "tr-TR", savePath = null, onayli = false }) {
   if (!text) return { success: false, error: "text gerekli" };
 
   // Once dosyaya kaydet, sonra caldir
   if (provider === "auto" || provider === "edge") {
-    return await edgeTTS(text, voice, savePath);
+    return await edgeTTS(text, voice, savePath, onayli);
   }
   if (provider === "say") {
     return await macSay(text);
   }
   if (provider === "save") {
-    return await saveToFile(text, savePath);
+    return await saveToFile(text, savePath, onayli);
   }
   return { success: false, error: `Desteklenmeyen provider: ${provider}` };
 }
 
-async function edgeTTS(text, voice, savePath) {
+async function edgeTTS(text, voice, savePath, onayli) {
   const out = savePath || path.join(os.tmpdir(), `tts-${Date.now()}.mp3`);
+  // Yalnızca KULLANICININ verdiği yol sınırdan geçer. Varsayılan geçici dosya
+  // adı bizim ürettiğimiz bir yol; onu onaya sokmak her ses üretiminde soru
+  // sormak olurdu ve model onu seçmiyor.
+  if (savePath) {
+    const { yazmaSiniri } = require("../utils/gateway");
+    const sinir = await yazmaSiniri(savePath, { onayli: onayli === true, amac: "text_to_speech çıktısı" });
+    if (!sinir.izin) return { success: false, error: sinir.hata };
+  }
   const candidates = getInterpreterCandidates("python", EDGE_TTS_SCRIPT)
     .map(candidate => ({ ...candidate, args: [...candidate.args, text, voice, out] }));
 
@@ -77,8 +85,20 @@ async function macSay(text) {
   });
 }
 
-async function saveToFile(text, savePath) {
+async function saveToFile(text, savePath, onayli) {
   if (!savePath) return { success: false, error: "savePath gerekli" };
+  // Yazma sınırı. Codex plan denetimi (S5): "workspace dışına onaysız yazma
+  // engelli" iddiası YANLIŞTI — sınır yalnızca dört düzenleme aracına
+  // bağlanmıştı, oysa `savePath` model kontrollü ve bu araç doğrudan yazıyor.
+  // Yazma yüzeyi dört araçtan ibaret değil.
+  {
+    const { yazmaSiniri } = require("../utils/gateway");
+    const sinir = await yazmaSiniri(savePath, {
+      onayli: onayli === true,
+      amac: "text_to_speech savePath",
+    });
+    if (!sinir.izin) return { success: false, error: sinir.hata };
+  }
   try {
     fs.writeFileSync(savePath, text, "utf8");
     return { success: true, provider: "save", path: savePath, message: `Metin kaydedildi: ${savePath}` };

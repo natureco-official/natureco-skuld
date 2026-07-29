@@ -1,5 +1,5 @@
 {
-  "aciklama": "child_process import eden mevcut dosyalar. Bu liste YALNIZCA KISALABILIR. Yeni dosya eklenmesi kapı sınırı lintini kırar.",
+  "aciklama": "child_process import eden mevcut dosyalar. Bu liste YALNIZCA KISALABILIR. Yeni dosya eklenmesi kapi sinirini kirar.",
   "dondurulma": "2026-07-29",
   "gecirilenler": [
     "src/tools/bash.js",
@@ -67,5 +67,8 @@
     "src/utils/skills.js",
     "src/utils/tasks.js",
     "src/utils/worktree.js"
-  ]
+  ],
+  "not": "ONEMLI — iki liste AYNI SEYI olcmuyor. Bir dosya hem kapiya bagli olabilir hem dogrudan child_process kullanabilir; \"code_execution\" ve \"git.js\" tam olarak boyle. Onay ve politika kapidan geciyor ama surec baslatma hala kendi icinde. Bu yuzden ikisinde de gorunuyorlar ve bu bir celiski degil. Ama Codex plan denetiminde celiski GIBI okundu ve hakliydi: iki listenin ne olctugu yazili degildi, okuyanin cikarmasi bekleniyordu.",
+  "gecirilenler_anlami": "onay ve politika execution-gateway uzerinden",
+  "kalan_anlami": "child_process cagrisi hala dogrudan (surec baslatma kapiya alinmadi)"
 }
