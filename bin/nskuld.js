@@ -127,7 +127,6 @@ ${chalk.yellow('💻 Geliştirici Araçları')}
   ${chalk.cyan('sessions')}      Oturum yönetimi (list|show|cleanup|prune)
   ${chalk.cyan('ultrareview')}   Detaylı kod inceleme
   ${chalk.cyan('transcripts')}   Transcript yönetimi (list|show|path|delete)
-  ${chalk.cyan('wiki')}          Wiki vault (status|init|ingest|compile|lint|search|get|apply|doctor|bridge import|obsidian)
 
 ${chalk.yellow('📊 Yönetim & Sistem')}
   ${chalk.cyan('dashboard')}     Web kontrol paneli (open|status|url)
@@ -168,12 +167,10 @@ ${chalk.yellow('🔧 Altyapı')}
   ${chalk.cyan('sandbox')}       Sandbox container (list|recreate|explain)
   ${chalk.cyan('capability')}    Yetenek sorgulama (list|inspect)
   ${chalk.cyan('acp')}           ACP endpoint (status|info)
-  ${chalk.cyan('tui')}           Terminal UI (start|local|status)
   ${chalk.cyan('path')}          nc:// URI path yönetimi (resolve|find|set|validate|emit)
   ${chalk.cyan('clawbot')}       Legacy clawbot (qr)
 
 ${chalk.yellow('📦 Medya & İçerik')}
-  ${chalk.cyan('open-prose')}    Prose skills bundle
   ${chalk.cyan('vydra')}         Vydra medya sağlayıcı
   ${chalk.cyan('docs')}          Dokümantasyon arama
   ${chalk.cyan('browser')}       Browser automation (status|start|stop|tabs|open|close|navigate|screenshot|snapshot|click|type|press|resize|hover|drag|select|upload|fill|dialog|wait|evaluate|console|pdf|profiles|focus|reset-profile|create-profile|delete-profile)
@@ -538,13 +535,6 @@ program
     devicePair(args);
   });
 
-program
-  .command('open-prose [action]')
-  .description('OpenProse skills bundle (list|info)')
-  .action((action) => {
-    const args = process.argv.slice(3);
-    openProse(args);
-  });
 
 program
   .command('vydra [action]')
@@ -578,26 +568,8 @@ program
     cost(action ? [action, ...(params || [])] : ['today']);
   });
 
-program
-  .command('naturehub [action] [params...]')
-  .description('Nature Hub\'a içerik yayınla (post|list|trending|config)')
-  .action((action, params) => {
-    naturehub(action ? [action, ...(params || [])] : []);
-  });
 
-program
-  .command('medium [action] [params...]')
-  .description('Medium makale yayınla (draft|publish|list)')
-  .action((action, params) => {
-    medium(action ? [action, ...(params || [])] : []);
-  });
 
-program
-  .command('seo [action] [params...]')
-  .description('SEO analizi (audit|meta|speed)')
-  .action((action, params) => {
-    seo(action ? [action, ...(params || [])] : []);
-  });
 
 program
   .command('xp [action]')
@@ -907,12 +879,6 @@ program
     transcripts(args);
   });
 
-program
-  .command('wiki [action] [params...]')
-  .description('Wiki/knowledge base (status|init|ingest|compile|lint|search|get|apply|doctor|bridge import|unsafe-local import|obsidian)')
-  .action((action, params) => {
-    wiki([action, ...(params || [])]);
-  });
 
 program
   .command('browser [action] [params...]')

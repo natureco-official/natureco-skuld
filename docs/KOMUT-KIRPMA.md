@@ -47,9 +47,26 @@ yüklenmeme" koşuluyla plugin'e bırakıyor. Ayrıca her biri dış etkili eyle
 (mesaj gönderme) yapıyor ve coding oturumunun izin sınırında bulunmaları
 gereksiz risk.
 
-### Parti 2 — yayıncılık ve SEO (sıradaki)
+### Parti 2 — yayıncılık ve SEO ✅ (29.07.2026)
 
 `medium` `naturehub` `seo` `wiki` `open-prose`
+
+Kayıt sayısı 92 → 86. Gövdeler `src/commands/` altında duruyor (plugin'e
+taşınana kadar).
+
+**Bu parti bir şey öğretti:** komut kaydı silindi ama elle yazılmış yardım
+bloğu `wiki` ve `open-prose`'u tanıtmaya devam etti. Aynı bilgi iki yerde
+duruyordu ve biri güncellendi. Sorulacak soru "ayrışır mı" değil,
+"ayrıştığında öğrenir miyiz" — cevabı hayırdı.
+
+`scripts/yardim-tutarlilik.mjs` bunun için yazıldı ve **ilk çalıştırmasında
+benim eklemediğim bir hata buldu**: `tui` yardımda tanıtılıyordu,
+`nskuld tui` ise `unknown command` diyordu. Fork'tan devralınmış.
+
+Kontrol tek yönde kırıyor. Kayıtlı olup kürasyonlu özette olmayan 17 komut
+var ama bunlar hata değil: özel blok `addHelpText("after", …)` ile ekleniyor,
+commander'ın kendi listesi zaten hepsini gösteriyor. Bunu ölçmeden yazsaydım
+17 yanlış alarm üretirdim.
 
 ### Parti 3 — bot kişilikleri ve genel sohbet yüzeyleri
 

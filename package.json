@@ -35,10 +35,11 @@
     "test:cli": "vitest run",
     "test:paketler": "node scripts/run-tests.mjs",
     "typecheck": "tsc --build",
-    "kapilar": "node scripts/provenance-check.mjs && node scripts/gateway-boundary-check.mjs",
+    "kapilar": "node scripts/provenance-check.mjs && node scripts/gateway-boundary-check.mjs && npm run yardim",
     "tema": "node scripts/tema-onizleme.mjs",
     "tema:hepsi": "node scripts/tema-onizleme.mjs --hepsi",
-    "yetenekler": "node scripts/yetenek-denetimi.mjs"
+    "yetenekler": "node scripts/yetenek-denetimi.mjs",
+    "yardim": "node scripts/yardim-tutarlilik.mjs"
   },
   "keywords": [
     "natureco",
