@@ -29,14 +29,26 @@ function expandPath(value) {
 }
 
 function assessToolPath(toolName, args = {}) {
-  const rawPath = args.path || args.filePath || args.file_path;
+  // Dizin argümanları da sayılır. `grep_search` `path` ile bir DİZİN alıyor
+  // ve içindeki dosyaların satırlarını döndürüyor; yalnızca dosya
+  // argümanlarına bakmak bu yolu görmüyordu.
+  const rawPath = args.path || args.filePath || args.file_path
+    || args.cwd || args.directory || args.dir || args.yol;
   if (!rawPath) return { allowed: true };
   const targetPath = expandPath(rawPath);
   const write = toolName === 'write_file' || toolName === 'edit_file' || toolName === 'structural_patch';
-  const read = toolName === 'read_file';
-  if (!write && !read) return { allowed: true, path: targetPath };
+  // Okuma listesi ARTIK beyaz liste değil. Eskiden yalnızca `read_file`
+  // denetleniyordu, yani `read_file` `~/.ssh/id_rsa`'da engellenirken
+  // `grep_search` aynı içeriği döndürüyordu (doğrulandı). Hangi aracın
+  // hassas yolu okuyabileceğini tek tek saymak, sayılmayanı serbest bırakır;
+  // varsayılan kapalı olmalı.
   const patterns = write ? SENSITIVE_WRITE : SENSITIVE_READ;
-  if (patterns.some(pattern => pattern.test(targetPath))) {
+  // Desenlerin çoğu `.ssh/` gibi ayıraçla bitiyor, çünkü dosya yolları için
+  // yazıldılar. Argüman DİZİNİN kendisi olduğunda (`.../.ssh`) sondaki ayıraç
+  // yok ve hiçbiri eşleşmiyordu — yani tam olarak korunmak istenen dizini
+  // vermek denetimi atlatıyordu.
+  const adaylar = [targetPath, targetPath + path.sep];
+  if (patterns.some(pattern => adaylar.some(aday => pattern.test(aday)))) {
     return {
       allowed: false,
       path: targetPath,

@@ -8,6 +8,52 @@
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
+const { SENSITIVE_READ } = require('../utils/tool-path-policy');
+const { maskText } = require('../utils/secret-scanner');
+
+/**
+ * Arama sonuçlarını hassas dosya ve sır içeriğinden arındırır.
+ *
+ * `read_file` `~/.ssh/id_rsa`'yı politikayla ENGELLİYOR ama `grep_search`
+ * aynı içeriği döndürebiliyordu: yol politikası yalnızca `read_file`,
+ * `write_file`, `edit_file` ve `structural_patch` için çalışıyor, arama
+ * araçları kapsam dışıydı. Doğrulandı — `path: <dizin>/.ssh` ile özel
+ * anahtarın satırları sonuçlarda geldi.
+ *
+ * Yolu engellemek tek başına yetmez: `path: ~` verildiğinde ripgrep alt
+ * dizinlere kendi iner ve engellenen dosyaya oradan ulaşır. O yüzden süzme
+ * SONUÇTA yapılıyor — hangi kapıdan girildiğinden bağımsız olarak.
+ *
+ * İki katman:
+ *   1. Hassas dosyalardan gelen eşleşmeler tamamen düşürülür.
+ *   2. Kalan satırlarda bilinen anahtar biçimleri maskelenir; sır sıradan
+ *      bir dosyanın içinde de durabilir.
+ *
+ * Düşürülen sonuç SAYISI korunuyor: sessizce eksik sonuç vermek, aracın
+ * yalan söylemesidir. Model "burada bir şey vardı ama gösterilmedi"yi
+ * bilmeli.
+ */
+function sonuclariSuz(sonuc) {
+  if (!sonuc || !sonuc.success || !Array.isArray(sonuc.results)) return sonuc;
+
+  let gizlenen = 0;
+  const suzulmus = [];
+  for (const r of sonuc.results) {
+    const dosya = r && (r.file || r.path);
+    if (dosya && SENSITIVE_READ.some((desen) => desen.test(dosya))) {
+      gizlenen += 1;
+      continue;
+    }
+    suzulmus.push(typeof r.text === 'string' ? { ...r, text: maskText(r.text) } : r);
+  }
+
+  const cikti = { ...sonuc, results: suzulmus, count: suzulmus.length };
+  if (gizlenen > 0) {
+    cikti.gizlenenSonuc = gizlenen;
+    cikti.gizlemeNedeni = `${gizlenen} eşleşme hassas dosyalardan geldiği için gizlendi (güvenlik politikası)`;
+  }
+  return cikti;
+}
 
 /**
  * Dosya içinde pattern ara
@@ -192,7 +238,7 @@ module.exports = {
     required: ['pattern'],
   },
   async execute(params) {
-    return await grepSearch(params);
+    return sonuclariSuz(await grepSearch(params));
   },
 
   // v5.39: test icin — saf Node fallback'i rg'den bagimsiz dogrulamak icin

@@ -122,6 +122,44 @@ function redactSecret(secret) {
 }
 
 /**
+ * Bir metindeki bilinen secret'ları yerinde maskeler.
+ *
+ * `scanText` bulguları RAPORLAR; bu ise metni araca geri verilebilir hâle
+ * getirir. Arama araçları dosya içeriğini modele taşır ve model geçmişi
+ * günlüklere, hata raporlarına, sağlayıcıya gider — bir anahtarın oraya
+ * girmesi için `read_file` çağrılması gerekmiyor, `grep_search` yetiyor.
+ *
+ * Entropi sezgiseli BİLEREK kullanılmıyor: 40 karakterlik bir git SHA'sı da
+ * eşiği geçiyor ve her commit kimliğini maskelemek aracı kullanılamaz hâle
+ * getirirdi. Burada kesinlik, kapsamdan önce gelir.
+ */
+function maskText(text) {
+  if (typeof text !== 'string' || !text) return text;
+  let out = text;
+  for (const { regex } of SECRET_PATTERNS) {
+    const bayrak = regex.flags.includes('g') ? regex.flags : regex.flags + 'g';
+    out = out.replace(new RegExp(regex.source, bayrak), (m) => (masumMu(m) ? m : redactSecret(m)));
+  }
+  return out;
+}
+
+/**
+ * Eşleşme, biçimi gereği sır OLAMAYACAK bir şey mi?
+ *
+ * `AWS Secret Key` deseni `\b[A-Za-z0-9/+=]{40}\b` — ayırt edici bir öneki
+ * yok, yani 40 karakterlik her dize ona uyuyor. Tarayıcıda bu kabul
+ * edilebilir (insan bakar, eler); metni yerinde maskelerken değil: her git
+ * SHA'sı yıldızlanırsa arama aracı kullanılamaz hâle gelir.
+ *
+ * Deseni listeden çıkarmak kapsamı kaybettirirdi. Bunun yerine eşleşme
+ * daraltılıyor: 40 haneli saf onaltılık bir dize git nesne kimliğidir. Gerçek
+ * bir AWS anahtarının tesadüfen saf onaltılık çıkma olasılığı (16/64)^40.
+ */
+function masumMu(eslesme) {
+  return /^[0-9a-f]{40}$/i.test(eslesme);
+}
+
+/**
  * Bir dosyayı tara.
  */
 function scanFile(filePath, options = {}) {
@@ -200,5 +238,6 @@ module.exports = {
   quickScan,
   shannonEntropy,
   redactSecret,
+  maskText,
   SECRET_PATTERNS,
 };
