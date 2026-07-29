@@ -180,13 +180,56 @@ async function kodOnayiSor({ dil, kod, cwd }) {
  * Onaydan bağımsız ayrı bir kusur: kullanıcı kodu okuyup onaylasa bile
  * ortamın tamamının oraya gitmesi gerekmez.
  */
+const SIR_ANAHTARI =
+  /(_KEY|_TOKEN|_SECRET|_PASSWORD|_PASS|_CREDENTIAL|API_KEY|AUTH|_DSN|_WEBHOOK|_URI|_SALT|_SIGNING|SERVICE_ROLE|SESSION|COOKIE|PRIVATE)$|(_KEY|_TOKEN|_SECRET|_WEBHOOK|_DSN|CREDENTIAL)_|^(AWS_|GITHUB_TOKEN|OPENAI|ANTHROPIC|GEMINI|GROQ|MINIMAX|FIRECRAWL|SUPABASE|NPM_TOKEN|DATABASE_URL|REDIS_URL|MONGODB_URI|SENTRY_DSN)/i;
+
+/**
+ * Değerin kendisi sır gibi mi duruyor?
+ *
+ * Ada bakmak yetmiyor — ölçüldü: `DATABASE_URL`, `SLACK_WEBHOOK` ve
+ * `SENTRY_DSN` sonek desenlerinden geçiyordu, üçü de kimlik bilgisi taşıyor.
+ * Bir sırrı adından tanımaya çalışmak, onu adlandıran kişinin dikkatine
+ * güvenmektir.
+ */
+function degerSirMi(deger) {
+  if (typeof deger !== 'string' || deger.length < 8) return false;
+  // Bağlantı dizesinde gömülü kimlik: scheme://kullanici:parola@host
+  if (/^[a-z][a-z0-9+.-]*:\/\/[^/\s:@]+:[^/\s@]+@/i.test(deger)) return true;
+  // Bilinen anahtar biçimleri (sk-…, ghp_…, AKIA… vb.)
+  try {
+    const { SECRET_PATTERNS } = require('./secret-scanner');
+    for (const { regex } of SECRET_PATTERNS) {
+      regex.lastIndex = 0;
+      // 40 karakterlik jenerik desen burada da yanlış pozitif üretiyor;
+      // ortam değişkeni bir git SHA'sı da olabilir (CI'da sık).
+      if (regex.test(deger) && !/^[0-9a-f]{40}$/i.test(deger)) return true;
+    }
+  } catch { /* tarayıcı yoksa ada dayalı süzme yine çalışır */ }
+  return false;
+}
+
+/**
+ * Alt sürece geçecek ortamdan sır benzeri değişkenleri ayıklar.
+ *
+ * `code_execution` `{ ...process.env }` gönderiyordu; yani modelin yazdığı
+ * üç satırlık kod `process.env.GEMINI_API_KEY`'i okuyup basabiliyordu.
+ * Onaydan bağımsız ayrı bir kusur: kullanıcı kodu okuyup onaylasa bile
+ * ortamın tamamının oraya gitmesi gerekmez.
+ *
+ * İki ölçüt: ADI sır gibi duran değişkenler ve DEĞERİ sır gibi duran
+ * değişkenler. İkincisi olmadan `DATABASE_URL=postgres://admin:parola@…`
+ * geçiyordu.
+ */
 function ortamiTemizle(ortam) {
-  const SIR_ANAHTARI = /(_KEY|_TOKEN|_SECRET|_PASSWORD|_PASS|_CREDENTIAL|API_KEY|AUTH)$|^(AWS_|GITHUB_TOKEN|OPENAI|ANTHROPIC|GEMINI|GROQ|MINIMAX|FIRECRAWL|SUPABASE|NPM_TOKEN)/i;
   const temiz = {};
   for (const [k, v] of Object.entries(ortam)) {
-    if (!SIR_ANAHTARI.test(k)) temiz[k] = v;
+    if (SIR_ANAHTARI.test(k)) continue;
+    if (degerSirMi(v)) continue;
+    temiz[k] = v;
   }
   return temiz;
 }
 
-module.exports = { kapiAc, hataSiniflari, agOnayi, agOnayiSor, kodOnayiSor, ortamiTemizle };
+module.exports = {
+  kapiAc, hataSiniflari, agOnayi, agOnayiSor, kodOnayiSor, ortamiTemizle, degerSirMi,
+};

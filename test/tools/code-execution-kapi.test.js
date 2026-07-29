@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import codeExecution from '../../src/tools/code_execution.js';
 import { executeThroughGateway } from '../../src/utils/tool-execution-gateway.js';
+import { ortamiTemizle } from '../../src/utils/gateway.js';
 
 /**
  * `code_execution` ağ kapısını atlıyordu.
@@ -77,5 +78,38 @@ describe('code_execution — onay yeteneği', () => {
       onayli: true,
     });
     expect(sonuc.stdout).toBe('VAR');
+  });
+});
+
+describe('ortamiTemizle — sırrı adından tanımak yetmez', () => {
+  // Ölçüldü: ada dayalı sonek deseni `DATABASE_URL`, `SLACK_WEBHOOK` ve
+  // `SENTRY_DSN`'i geçiriyordu; üçü de kimlik bilgisi taşıyor. Bir sırrı
+  // adından tanımaya çalışmak, onu adlandıran kişinin dikkatine güvenmektir.
+  it('bağlantı dizesindeki gömülü parola değerden yakalanır', () => {
+    const t = ortamiTemizle({ DB: 'postgres://admin:s3cretP4ss@db.example.com:5432/prod' });
+    expect(t.DB).toBeUndefined();
+  });
+
+  it('bilinen anahtar biçimi taşıyan değer, adı masum olsa da silinir', () => {
+    const t = ortamiTemizle({ ZARARSIZ_AD: 'sk-ant-api03-AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLL' });
+    expect(t.ZARARSIZ_AD).toBeUndefined();
+  });
+
+  it('sonek taşımayan sır adları da kapsanır', () => {
+    const t = ortamiTemizle({
+      SUPABASE_SERVICE_ROLE: 'x'.repeat(40),
+      SENTRY_DSN: 'https://abc@o1.ingest.sentry.io/1',
+      SLACK_WEBHOOK: 'https://hooks.slack.com/services/T/B/XXXXXXXXXXXX',
+    });
+    expect(Object.keys(t)).toEqual([]);
+  });
+
+  it('sıradan değişkenler geçer — PATH gitmezse hiçbir şey çalışmaz', () => {
+    const t = ortamiTemizle({
+      PATH: '/usr/bin', HOME: '/home/x', LANG: 'tr_TR.UTF-8', NODE_ENV: 'production',
+      // CI'da sık: git SHA'sı 40 karakterlik jenerik desene uyuyor ama sır değil.
+      GIT_COMMIT: 'a94a8fe5ccb19ba61c4c0873d391e987982fbbd3',
+    });
+    expect(Object.keys(t).sort()).toEqual(['GIT_COMMIT', 'HOME', 'LANG', 'NODE_ENV', 'PATH']);
   });
 });
