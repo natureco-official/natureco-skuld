@@ -46,7 +46,15 @@ describe('plain-Windows process portability', () => {
   });
 
   windowsIt('shell_command runs through cmd.exe', async () => {
-    const result = await shellCommand._runShell({ command: 'echo WINDOWS_NATIVE_SHELL:%COMSPEC%' });
+    // `onayli: true` AÇIKÇA veriliyor. _runShell artık varsayılan olarak onay
+    // ister; eski hâli koşulsuz izin geçiyordu ve bu test, o arka kapıyı
+    // farkında olmadan kullanan çağrı yeriydi (Codex denetimi, 29.07.2026).
+    // Bayrağı burada yazmak zorunda olmak, atlamayı görünür kılıyor — amaç
+    // buydu.
+    const result = await shellCommand._runShell({
+      command: 'echo WINDOWS_NATIVE_SHELL:%COMSPEC%',
+      onayli: true,
+    });
     expect(result.success).toBe(true);
     expect(result.stdout).toMatch(/^WINDOWS_NATIVE_SHELL:.*cmd\.exe$/i);
   });
