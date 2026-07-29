@@ -30,6 +30,9 @@ yeniden yazmaya çevirir. Gövdeler plugin'e taşındıkça silinecek.
 | Yaşam döngüsü | `update` `uninstall` `backup` `reset` |
 | Yardım | `help` `commands` `completion` `docs` `lang` |
 | Terminal | `terminal` (Cupertino köprüsü) |
+| Ağ ve içerik | `web-fetch` `browser` |
+| Otomasyon | `cron` `hooks` `webhooks` `daemon` |
+| Görünürlük | `dashboard` `workboard` |
 
 ## Çıkarılanlar
 
@@ -52,22 +55,39 @@ gereksiz risk.
 
 `bots` `clawbot` `crestodian` `vydra` `clickclack` `xp` `commitments`
 
-### Parti 4 — otomasyon ve zamanlama
-
-`cron` `hooks` `webhooks` `daemon`
-
-### Parti 5 — ağ/küme yönetimi
+### Parti 4 — ağ/küme yönetimi
 
 `bonjour` `dns` `node` `nodes` `proxy` `gateway` `admin-rpc` `acp` `qr`
 `directory` `channels` `team` `onboard`
 
-### Parti 6 — panolar ve tarayıcı
+## Geri alınan karar — bunlar KALIYOR
 
-`dashboard` `workboard` `browser` `web-fetch`
+İlk sınıflandırmada `dashboard` `workboard` `browser` `web-fetch` `cron`
+`hooks` `webhooks` `daemon` çıkarılacaklar listesindeydi. Karar geri alındı;
+gerekçe fazla dardı: "coding-first", "yalnızca dosya düzenleme" demek değil.
 
-> `web-fetch` tartışmalı: bir kodlama ajanı belge okumak isteyebilir. Ama ağ
-> erişimi ayrı bir izin sınıfı (ADR-0002, T2) ve şu an o sınıf yok. Sınıf
-> gelene kadar çıkarılıyor; geri gelmesi bir karar, unutulmuş bir eksik değil.
+| Komut | Kodlama işine bağı |
+|---|---|
+| `hooks` | pre-commit kalite kapısı — CodeDNA zaten git hook kuruyor, bizim kapımız da oraya bağlanacak |
+| `web-fetch` | belge/RFC/issue okumak sıradan bir kodlama adımı |
+| `browser` | web uygulamasını gerçekten açıp test etmek |
+| `cron` `daemon` | zamanlanmış koşum, arka planda çalışma |
+| `webhooks` | CI ve depo olaylarıyla tetiklenme |
+| `dashboard` `workboard` | ajan koşumlarının ve görevlerin görünürlüğü |
+
+### Bunun getirdiği zorunlu iş
+
+`web-fetch` ve `browser` **ağ erişimi** demek ve ADR-0002'de ağ ayrı bir izin
+sınıfı olarak tanımlı — ama o sınıf henüz **yok**. Bu, komutu çıkarmanın
+gerekçesiydi; komut kaldığına göre eksik olan sınıfın kendisi.
+
+Yani sıraya yeni bir iş giriyor: `execution-gateway`'e `ag` izin sınıfı ve
+onay akışı. Prompt injection yoluyla veri sızdırma (T2) tam olarak bu yolla
+olur: model "şu dosyayı şu adrese gönder" der ve ağ izni yoksa duramaz.
+Onay metni hedef adresi göstermek zorunda.
+
+Bu iş yapılana kadar `web-fetch` ve `browser` mevcut hâlleriyle duruyor;
+"ağ izni var" diye sunulmuyorlar.
 
 ## Ölçüm
 
