@@ -1,6 +1,25 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * Yazma sınırı — workspace dışına onaysız yazılmaz.
+ *
+ * Codex tur 5'in "en büyük gerçek risk" dediği yer: hassas yol listesi bir
+ * kara listeydi ve Windows Startup dizini, `.bashrc`, uygulama ayarları
+ * hiçbirinde yoktu. Kara liste sayılmayanı serbest bırakır; sınır bırakmaz.
+ *
+ * `onayli` iç bayraktır — model argümanlarından `tool-execution-gateway`
+ * tarafından SİLİNİR, yani model kendi kendine workspace dışı yazma izni
+ * veremez.
+ */
+async function _siniriDogrula(hedefYol, params, amac) {
+  const { yazmaSiniri } = require('../utils/gateway');
+  return await yazmaSiniri(hedefYol, {
+    onayli: params && params.onayli === true,
+    amac,
+  });
+}
+
 module.exports = {
   name: 'write_file',
   description: 'Write content to a file',
@@ -34,6 +53,9 @@ module.exports = {
       if (!guard.allowed) {
         return { success: false, error: guard.error, reason: guard.reason, path: filePath };
       }
+
+      const sinir = await _siniriDogrula(filePath, params, 'write_file aracı');
+      if (!sinir.izin) return { success: false, error: sinir.hata, path: filePath };
 
       const dir = path.dirname(filePath);
 

@@ -131,6 +131,9 @@ describe('live audit pass 2 regressions', () => {
     const structuralPatch = require('../../src/tools/structural_patch');
 
     const applied = await structuralPatch.execute({
+      // Geçici dizin workspace dışı: yazma sınırı onay istiyor ve kararı veren
+      // taraf bu test. Model argümanlarından bu bayrak siliniyor.
+      onayli: true,
       action: 'apply', path: file, operations: [{ search: 'before', replace: 'after' }],
     });
     expect(applied).toMatchObject({ success: true, ok: true, id: expect.any(String) });

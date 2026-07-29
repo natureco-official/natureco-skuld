@@ -289,3 +289,60 @@ metin ayrışırsa sonuç "temiz" değil **"inceleme gerekli"** oluyor — yine
 kırıyor. Artık tarayıcının her kör noktası sessiz geçiş değil gürültülü uyarı.
 
 Testler: `test/security/codex-tur3.test.js` (29 test) + `npm run mutasyon`.
+
+---
+
+# Beşinci tur — yakınsama ve asıl risk (30.07.2026)
+
+Bu turda Codex'e iki şey soruldu: kapanış doğrulaması, ve **stratejik
+değerlendirme** — kalan boşluklar gerçek tehdit mi yoksa azalan getiri mi, ve
+kod tabanındaki en büyük gerçek risk ne.
+
+Cevap, dört turdur yaptığım işi yerinden oynattı.
+
+## Asıl risk: kovaladığım şeyler değildi
+
+> *"En büyük risk bu beş küçük boşluk değil: ajanın workspace dışında sır
+> listesine girmeyen dosyalara onaysız yazabilmesi."*
+
+Somut tetikleme, Windows Startup dizinine `.cmd` bırakmak. Doğrulandı —
+`write_file` workspace dışına onaysız yazıyordu ve dosya gerçekten oluştu.
+
+Dört tur boyunca hassas yol KARA LİSTESİNE desen ekledim: `.ssh`, `.aws`,
+`.env`, `imagePath`, `outputPath`… Her biri gerçek bir boşluktu ve her biri
+kapandı. Ama kara liste "neyi yasaklayacağını bilmek" ister ve Startup dizini,
+`.bashrc`, uygulama ayar dosyaları o listede yoktu — olamazdı da. Sınır ise
+"neyin İÇERİDE olduğunu bilmek" ister ve bu bilinebilir.
+
+Eksik olan desen değil, sınırdı. Kapının `yoluDogrula`sı en başından beri
+doğru şeyi yapıyordu (symlink `realpath` ile çözülüyor, var olmayan hedefin en
+yakın atası bulunuyor) — yazma araçları onu hiç çağırmıyordu.
+
+Şimdi dördü de çağırıyor: `write_file`, `edit_file`, `structural_patch`,
+`notebook_edit`. Workspace dışı yazma hedefi gösteren bir onay istiyor;
+etkileşimsiz ortamda reddediyor. `onayli` iç bayrak olarak model
+argümanlarından siliniyor.
+
+**13 devralınan test kırıldı ve kırılmaları doğruydu:** hepsi geçici dizine
+yazıyor, yani workspace dışına. Kararı veren taraf test olduğu için `onayli`
+geçiyorlar — `bash` ve `code_execution` için kurulmuş aynı desen.
+
+## Sabit yol ve kodlama
+
+Codex mutasyon betiğinde iki taşınabilirlik hatası buldu: sabit `C:\Projects`
+yolu ve Windows'ta `cp1254` çözme hatası. İkisi de düzeltildi; betik artık
+kendi konumundan depo kökünü türetiyor ve başka dizinden çalıştırılabiliyor.
+
+## Kabul edilen ve belgelenen sınırlar
+
+Codex'in "kabul edilip belgelenmeli" dediği iki şey:
+
+1. **Dize birleştirme / `createRequire` ile gizlenen `child_process`.** Sınır
+   lint'i kastî kaçışı değil KAYMAYI yakalar. Bu, betiğin başındaki yorumda
+   zaten yazılı.
+2. **Yol alanlarının ADLA sınıflandırılması.** Yeni bir araç `downloadPath` ya
+   da `to` gibi bir alan getirirse listeye eklenmesi gerekir. Doğru çözüm araç
+   şemasının giriş/çıkış yol semantiğini bildirmesi; bu, ayrı bir iş.
+
+Testler: `test/security/yazma-siniri.test.js` (8 test), `npm run mutasyon`
+(9/9 mutasyon ölüyor), CI'da koşuyor.

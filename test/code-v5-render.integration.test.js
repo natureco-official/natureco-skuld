@@ -66,7 +66,8 @@ describe('Rock C code_v5 rendering integration', () => {
   it('(h) renders real before/after diffs from actual edit_file and overwrite write_file I/O', async () => {
     const editPath = path.join(tempDir, 'edit.txt');
     fs.writeFileSync(editPath, 'alpha\nold\nomega\n', 'utf8');
-    const editArgs = { path: editPath, old_string: 'old', new_string: 'new' };
+    // Geçici dizin workspace dışı; yazma sınırı onay istiyor (bkz. yazmaSiniri).
+    const editArgs = { onayli: true, path: editPath, old_string: 'old', new_string: 'new' };
     const editBefore = captureFileSnapshot(editArgs);
     const editResult = await editFileTool.execute(editArgs);
     const editAfter = captureFileSnapshot(editArgs);
@@ -84,7 +85,7 @@ describe('Rock C code_v5 rendering integration', () => {
 
     const writePath = path.join(tempDir, 'write.txt');
     fs.writeFileSync(writePath, 'before\nkept\n', 'utf8');
-    const writeArgs = { path: writePath, content: 'after\nkept\n' };
+    const writeArgs = { onayli: true, path: writePath, content: 'after\nkept\n' };
     const writeBefore = captureFileSnapshot(writeArgs);
     const writeResult = await writeFileTool.execute(writeArgs);
     const writeAfter = captureFileSnapshot(writeArgs);

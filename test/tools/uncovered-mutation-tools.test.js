@@ -83,14 +83,14 @@ describe('previously uncovered persistent mutation tools', () => {
     const tool = require('../../src/tools/notebook_edit');
 
     expect(await tool.execute({ operation: 'read' })).toMatchObject({ success: false, error: expect.stringMatching(/filePath/) });
-    expect((await tool.execute({ filePath: notebook, operation: 'update', cellIndex: 0, newSource: '# After' })).success).toBe(true);
-    expect((await tool.execute({ filePath: notebook, operation: 'add', newSource: 'print(42)' })).success).toBe(true);
-    expect(await tool.execute({ filePath: notebook, operation: 'read' })).toMatchObject({ success: true, cells: 2 });
-    expect((await tool.execute({ filePath: notebook, operation: 'delete', cellIndex: 0 })).success).toBe(true);
+    expect((await tool.execute({ onayli: true, filePath: notebook, operation: 'update', cellIndex: 0, newSource: '# After' })).success).toBe(true);
+    expect((await tool.execute({ onayli: true, filePath: notebook, operation: 'add', newSource: 'print(42)' })).success).toBe(true);
+    expect(await tool.execute({ onayli: true, filePath: notebook, operation: 'read' })).toMatchObject({ success: true, cells: 2 });
+    expect((await tool.execute({ onayli: true, filePath: notebook, operation: 'delete', cellIndex: 0 })).success).toBe(true);
     const saved = JSON.parse(fs.readFileSync(notebook, 'utf8'));
     expect(saved.cells).toHaveLength(1);
     expect(saved.cells[0]).toMatchObject({ cell_type: 'code', source: ['print(42)'], outputs: [] });
-    expect(await tool.execute({ filePath: notebook, operation: 'delete', cellIndex: 9 })).toMatchObject({ success: false });
+    expect(await tool.execute({ onayli: true, filePath: notebook, operation: 'delete', cellIndex: 9 })).toMatchObject({ success: false });
   });
 
   it('skill_manage creates, patches, and deletes an isolated skill with validation', async () => {

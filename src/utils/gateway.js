@@ -281,6 +281,83 @@ function ortamiTemizle(ortam) {
   return temiz;
 }
 
+/**
+ * Yazma sınırı: hedef workspace içinde mi, değilse onaylandı mı?
+ *
+ * Codex tur 5 bunu "şu anki en büyük gerçek güvenlik riski" olarak işaret etti
+ * ve doğrulandı: `write_file` workspace DIŞINA onaysız yazabiliyordu. Hassas
+ * yol listesi bir KARA LİSTEYDİ ve kara listeler sayılmayanı serbest bırakır —
+ * Windows Startup dizini, `.bashrc`, uygulama ayar dosyaları hiçbirinde yoktu.
+ *
+ * Dört tur boyunca kara listeye desen ekledim. Eksik olan desen değil SINIRDI.
+ * Kara liste "neyi yasaklayacağını bilmek" ister; sınır "neyin içeride
+ * olduğunu bilmek" — ikincisi bilinebilir, birincisi bilinemez.
+ *
+ * `yoluDogrula` symlink'i `realpath` ile çözüyor ve var olmayan hedefin en
+ * yakın var olan atasını buluyor. İkisi de gerekli: henüz yazılmamış dosyanın
+ * kendisi çözülemez, ve symlink'li bir dizin sınırı taşıyabilir.
+ *
+ * @param {string} hedefYol
+ * @param {object} [opt]
+ * @param {boolean} [opt.onayli] iç çağıranlar için: karar zaten verildi
+ * @param {string}  [opt.workspace]
+ * @param {string}  [opt.amac] onay ekranında görünür
+ * @returns {Promise<{izin: boolean, cozulmus?: string, hata?: string}>}
+ */
+async function yazmaSiniri(hedefYol, opt = {}) {
+  const workspace = opt.workspace || process.cwd();
+  let kapi;
+  try {
+    kapi = await kapiAc({ workspace, kararVerildi: true });
+    const cozulmus = await kapi.yoluDogrula(hedefYol);
+    return { izin: true, cozulmus };
+  } catch (hata) {
+    // Kapı yüklenemediyse sınır uygulanamaz; sessizce izin vermek yerine
+    // reddetmek gerekir — uygulanamayan sınır, sınır değildir.
+    if (!kapi) {
+      return { izin: false, hata: `yazma sınırı uygulanamadı: ${hata && hata.message}` };
+    }
+    // Workspace dışı. Onay zaten verilmişse geç; yoksa kullanıcıya sor.
+    const mutlak = path.resolve(workspace, hedefYol);
+    if (opt.onayli === true) return { izin: true, cozulmus: mutlak };
+    const karar = await yazmaOnayiSor(mutlak, workspace, opt.amac);
+    if (karar === 'izin') return { izin: true, cozulmus: mutlak };
+    return {
+      izin: false,
+      hata: `workspace dışına yazma onaylanmadı: ${mutlak} (workspace: ${workspace})`,
+    };
+  }
+}
+
+/** Workspace dışı yazma için kullanıcıya sorar. */
+async function yazmaOnayiSor(hedef, workspace, amac) {
+  if (!process.stdin.isTTY || process.env.SKULD_AG_ONAYSIZ === '1') return 'ret';
+
+  const chalk = require('chalk');
+  const inquirer = require('inquirer');
+
+  console.log('');
+  console.log(chalk.yellow('  📝 Workspace DIŞINA yazma onayı isteniyor'));
+  console.log(chalk.gray(`  Workspace: ${workspace}`));
+  console.log(chalk.gray('  ─'.repeat(30)));
+  console.log(chalk.white('  ') + hedef);
+  if (amac) console.log(chalk.gray('  ') + amac);
+  console.log(chalk.gray('  ─'.repeat(30)));
+
+  process.stdin.resume();
+  const { karar } = await inquirer.prompt([{
+    type: 'list',
+    name: 'karar',
+    message: 'Bu dosya yazılsın mı?',
+    choices: [
+      { value: 'ret', name: 'Hayır' },
+      { value: 'izin', name: 'Evet, bir kez' },
+    ],
+  }]);
+  return karar;
+}
+
 module.exports = {
-  kapiAc, hataSiniflari, agOnayi, agOnayiSor, kodOnayiSor, ortamiTemizle, degerSirMi,
+  kapiAc, hataSiniflari, agOnayi, agOnayiSor, kodOnayiSor, ortamiTemizle,
+  degerSirMi, yazmaSiniri, yazmaOnayiSor,
 };

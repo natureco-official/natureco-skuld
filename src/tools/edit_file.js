@@ -35,9 +35,14 @@ function _expand(p) {
   return path.resolve(p);
 }
 
-async function editFile({ path: filePath, old_string, new_string, replace_all = false }) {
+async function editFile({ path: filePath, old_string, new_string, replace_all = false, onayli = false }) {
   if (!filePath || typeof filePath !== 'string') {
     return { success: false, error: 'path is required (absolute path or ~-prefixed)' };
+  }
+  {
+    const { yazmaSiniri } = require('../utils/gateway');
+    const sinir = await yazmaSiniri(_expand(filePath), { onayli: onayli === true, amac: 'edit_file aracı' });
+    if (!sinir.izin) return { success: false, error: sinir.hata, path: filePath };
   }
   if (typeof old_string !== 'string' || old_string.length === 0) {
     return { success: false, error: 'old_string is required and cannot be empty' };

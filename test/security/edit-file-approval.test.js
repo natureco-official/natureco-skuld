@@ -56,7 +56,7 @@ describe('1) needsConfirmation — edit_file onay kapsamında', () => {
 
 describe('2) kendi-kaynağını-düzenleme — varsayılan KAPALI, bayrakla açılır', () => {
   it('paket kökü altındaki dosyada edit_file bayraksız REDDEDİLİR', async () => {
-    const r = await editFile.execute({ path: SELF_FILE, old_string: 'eski', new_string: 'yeni' });
+    const r = await editFile.execute({ onayli: true, path: SELF_FILE, old_string: 'eski', new_string: 'yeni' });
     expect(r.success).toBe(false);
     expect(String(r.error)).toMatch(/NATURECO_ALLOW_SELF_EDIT|kaynak kod/i);
     // dosya DEĞİŞMEMİŞ olmalı
@@ -71,13 +71,13 @@ describe('2) kendi-kaynağını-düzenleme — varsayılan KAPALI, bayrakla aç�
 
   it('NATURECO_ALLOW_SELF_EDIT=1 ile bilinçli açılınca edit_file çalışır', async () => {
     process.env.NATURECO_ALLOW_SELF_EDIT = '1';
-    const r = await editFile.execute({ path: SELF_FILE, old_string: 'eski', new_string: 'yeni' });
+    const r = await editFile.execute({ onayli: true, path: SELF_FILE, old_string: 'eski', new_string: 'yeni' });
     expect(r.success).toBe(true);
     expect(fs.readFileSync(SELF_FILE, 'utf8')).toContain('yeni icerik');
   });
 
   it('paket DIŞI dosyalar bayraksız da serbesttir (normal işlev bozulmaz)', async () => {
-    const r = await editFile.execute({ path: OUT_FILE, old_string: 'eski', new_string: 'yeni' });
+    const r = await editFile.execute({ onayli: true, path: OUT_FILE, old_string: 'eski', new_string: 'yeni' });
     expect(r.success).toBe(true);
   });
 });
@@ -86,7 +86,7 @@ describe('3) kanal kaynaklı çağrı — bayrak açık olsa bile paket kaynağ�
   it('NATURECO_CHANNEL_ORIGIN=1 iken allowSelfEdit bayrağı YOK SAYILIR', async () => {
     process.env.NATURECO_CHANNEL_ORIGIN = '1';
     process.env.NATURECO_ALLOW_SELF_EDIT = '1'; // trusted+bayrak bile olsa
-    const e = await editFile.execute({ path: SELF_FILE, old_string: 'eski', new_string: 'yeni' });
+    const e = await editFile.execute({ onayli: true, path: SELF_FILE, old_string: 'eski', new_string: 'yeni' });
     const w = await writeFile.execute({ path: SELF_FILE, content: 'ezildi' });
     expect(e.success).toBe(false);
     expect(w.success).toBe(false);
@@ -95,7 +95,7 @@ describe('3) kanal kaynaklı çağrı — bayrak açık olsa bile paket kaynağ�
 
   it('kanal kaynağında paket DIŞI dosya yine düzenlenebilir (özellik korunur)', async () => {
     process.env.NATURECO_CHANNEL_ORIGIN = '1';
-    const r = await editFile.execute({ path: OUT_FILE, old_string: 'eski', new_string: 'yeni' });
+    const r = await editFile.execute({ onayli: true, path: OUT_FILE, old_string: 'eski', new_string: 'yeni' });
     expect(r.success).toBe(true);
   });
 

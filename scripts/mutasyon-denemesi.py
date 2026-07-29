@@ -6,7 +6,9 @@ bırakmamak için mutasyonlar burada duruyor ve tekrar çalıştırılabilir.
 """
 import io, subprocess, shutil, sys, os
 
-KOK = r'C:\Projects\natureco-skuld'
+# Depo kökü betiğin konumundan türetiliyor. Sabit yol yazmak, betiği yalnızca
+# tek bir makinede çalışır hâle getirirdi (Codex tur 5).
+KOK = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 MUTASYONLAR = [
     # (etiket, dosya, eski, yeni)
@@ -41,13 +43,33 @@ MUTASYONLAR = [
      'if (SORGU_ARGUMANI.test(komut)) continue;'),
 ]
 
+# Yazma sınırı mutasyonları ayrı test dosyasını hedefliyor.
+MUTASYONLAR_YAZMA = [
+    ('write_file sinir kontrolu kaldirildi',
+     os.path.join('src', 'tools', 'write_file.js'),
+     "const sinir = await _siniriDogrula(filePath, params, 'write_file aracı');",
+     'const sinir = { izin: true };'),
+
+    ('edit_file sinir kontrolu kaldirildi',
+     os.path.join('src', 'tools', 'edit_file.js'),
+     "const sinir = await yazmaSiniri(_expand(filePath), { onayli: onayli === true, amac: 'edit_file aracı' });",
+     'const sinir = { izin: true };'),
+
+    ('yazmaSiniri onay yerine izin veriyor',
+     os.path.join('src', 'utils', 'gateway.js'),
+     "const karar = await yazmaOnayiSor(mutlak, workspace, opt.amac);",
+     "const karar = 'izin';"),
+]
+
 TEST = 'test/security/codex-tur3.test.js'
+TEST_YAZMA = 'test/security/yazma-siniri.test.js'
 
 
-def kos():
+def kos(test=TEST):
     r = subprocess.run(
-        ['npx', 'vitest', 'run', TEST, '--reporter=dot'],
+        ['npx', 'vitest', 'run', test, '--reporter=dot'],
         cwd=KOK, capture_output=True, text=True, shell=True, timeout=900,
+        encoding='utf-8', errors='replace',
     )
     return r.returncode
 
@@ -59,7 +81,9 @@ if kos() != 0:
 print('yesil')
 
 hayatta_kalan = []
-for etiket, dosya, eski, yeni in MUTASYONLAR:
+for etiket, dosya, eski, yeni, test in (
+    [(*m, TEST) for m in MUTASYONLAR] + [(*m, TEST_YAZMA) for m in MUTASYONLAR_YAZMA]
+):
     yol = os.path.join(KOK, dosya)
     yedek = yol + '.mutbak'
     shutil.copyfile(yol, yedek)
@@ -69,7 +93,7 @@ for etiket, dosya, eski, yeni in MUTASYONLAR:
             print(f'  ATLANDI  {etiket} (desen bulunamadi)')
             continue
         io.open(yol, 'w', encoding='utf-8', newline='').write(s.replace(eski, yeni, 1))
-        kod = kos()
+        kod = kos(test)
         if kod == 0:
             print(f'  HAYATTA  {etiket}  <- TEST KIRILMADI')
             hayatta_kalan.append(etiket)
@@ -85,4 +109,4 @@ if hayatta_kalan:
     for h in hayatta_kalan:
         print('  -', h)
     sys.exit(1)
-print(f'{len(MUTASYONLAR)} mutasyonun hepsi oldu — testler duzeltmeleri gercekten sabitliyor.')
+print(f'{len(MUTASYONLAR) + len(MUTASYONLAR_YAZMA)} mutasyonun hepsi oldu — testler duzeltmeleri gercekten sabitliyor.')

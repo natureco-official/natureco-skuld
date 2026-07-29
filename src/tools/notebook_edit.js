@@ -88,6 +88,17 @@ module.exports = {
     required: ["filePath", "operation"],
   },
   async execute(params) {
+    // Sınır YALNIZCA yol verildiğinde uygulanıyor. Aksi hâlde "filePath
+    // gerekli" hatasının önüne geçip yanıltıcı bir sınır hatası veriyordu —
+    // doğru kontrol, yanlış sırada, yanlış cevap.
+    if (params && params.filePath) {
+      const { yazmaSiniri } = require('../utils/gateway');
+      const sinir = await yazmaSiniri(params.filePath, {
+        onayli: params.onayli === true,
+        amac: 'notebook_edit aracı',
+      });
+      if (!sinir.izin) return { success: false, error: sinir.hata };
+    }
     return await notebookEdit(params);
   },
 };

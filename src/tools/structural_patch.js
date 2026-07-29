@@ -20,6 +20,16 @@ module.exports = {
       return result.ok ? { success: true, ...result } : { success: false, ...result };
     }
     if (!params.path) return { success: false, error: 'path is required' };
+    // `preview` de sınırdan geçiyor: önizleme hedef dosyayı okur ve workspace
+    // dışı bir yolun içeriğini geri verir.
+    {
+      const { yazmaSiniri } = require('../utils/gateway');
+      const sinir = await yazmaSiniri(params.path, {
+        onayli: params.onayli === true,
+        amac: `structural_patch (${params.action || 'apply'})`,
+      });
+      if (!sinir.izin) return { success: false, error: sinir.hata, path: params.path };
+    }
     const result = params.action === 'preview'
       ? engine.preview(params.path, params.operations, { expectedHash: params.expectedHash, dryRun: true })
       : engine.apply(params.path, params.operations, { expectedHash: params.expectedHash, dryRun: params.dryRun });
