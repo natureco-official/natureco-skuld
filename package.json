@@ -35,7 +35,9 @@
     "test:cli": "vitest run",
     "test:paketler": "node scripts/run-tests.mjs",
     "typecheck": "tsc --build",
-    "kapilar": "node scripts/provenance-check.mjs && node scripts/gateway-boundary-check.mjs"
+    "kapilar": "node scripts/provenance-check.mjs && node scripts/gateway-boundary-check.mjs",
+    "tema": "node scripts/tema-onizleme.mjs",
+    "tema:hepsi": "node scripts/tema-onizleme.mjs --hepsi"
   },
   "keywords": [
     "natureco",
