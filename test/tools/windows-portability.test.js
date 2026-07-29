@@ -61,7 +61,9 @@ describe('plain-Windows process portability', () => {
 
   windowsIt('code_execution clearly reports its PowerShell fallback when bash is unavailable', async () => {
     process.env.PATH = path.join(process.env.SystemRoot, 'System32', 'WindowsPowerShell', 'v1.0');
-    const result = await codeExecution.execute({ code: "Write-Output 'WINDOWS_POWERSHELL_FALLBACK'", language: 'bash' });
+    // `onayli: true` — kod çalıştırma artık kabuk gibi bir yetenek ve onay
+    // ister. Bayrak iç çağıranlar içindir; model argümanlarından silinir.
+    const result = await codeExecution.execute({ code: "Write-Output 'WINDOWS_POWERSHELL_FALLBACK'", language: 'bash', onayli: true });
     expect(result.success).toBe(true);
     expect(result.stdout).toBe('WINDOWS_POWERSHELL_FALLBACK');
     expect(result.interpreter).toBe('powershell');

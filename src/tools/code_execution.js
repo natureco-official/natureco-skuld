@@ -62,7 +62,11 @@ async function runCode({ code, language = 'auto', timeoutMs = 30000, cwd = null 
   const spawnOnce = (candidate) => new Promise((resolve) => {
     let stdout = '', stderr = '', proc;
     try {
-      proc = spawn(candidate.bin, candidate.args, { cwd: cwd || os.homedir(), timeout: timeoutMs, env: { ...process.env, FORCE_COLOR: '0' } });
+      // Ortam TEMİZLENİR: `{ ...process.env }` modelin yazdığı koda her API
+      // anahtarını veriyordu. Onay ekranı kodu gösterse bile, ortamın
+      // tamamının alt sürece gitmesi için bir neden yok.
+      const ortam = { ...require('../utils/gateway').ortamiTemizle(process.env), FORCE_COLOR: '0' };
+      proc = spawn(candidate.bin, candidate.args, { cwd: cwd || process.cwd(), timeout: timeoutMs, env: ortam });
     } catch (e) { return resolve({ notFound: true, err: e.message }); }
     proc.stdout.on('data', d => stdout += d.toString());
     proc.stderr.on('data', d => stderr += d.toString());
@@ -111,6 +115,25 @@ module.exports = {
     required: ['code'],
   },
   async execute(params) {
+    // KOD ÇALIŞTIRMA AYRI BİR YETENEKTİR — kabuk gibi, onay her zaman sorulur.
+    //
+    // Bu araç ağ kapısını tamamen atlıyordu: `globalThis.fetch(...)` yazan üç
+    // satır, `http_request`'in geçtiği onaydan hiç geçmiyordu (Codex tur 2,
+    // bulgu 1a). Ağ kapısının değeri, yanında bu duvarın olmasına bağlı.
+    //
+    // `onayli` iç bayraktır; model argümanlarından `tool-execution-gateway`
+    // tarafından SİLİNİR, yani model kendi kendini onaylayamaz. İç çağıranlar
+    // (testler, kendi kodumuz) aracı doğrudan çağırdıkları için geçebilir.
+    if (params && params.onayli === true) return await runCode(params);
+
+    const karar = await require('../utils/gateway').kodOnayiSor({
+      dil: (params && params.language) || 'auto',
+      kod: (params && params.code) || '',
+      cwd: (params && params.cwd) || process.cwd(),
+    });
+    if (karar !== 'izin') {
+      return { success: false, error: 'kod çalıştırma onaylanmadı' };
+    }
     return await runCode(params);
   },
   _getInterpreterCandidates: getInterpreterCandidates,

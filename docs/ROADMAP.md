@@ -116,21 +116,27 @@ NatureCo SSO, Developer Portal, Cupertino köprüsü, imzalı plugin kurulumu.
 4. Eksik özellik dürüstçe bildirilir.
 5. Geri alınabilir değişiklikler.
 
-## Açık kalan kritik bulgu — `code_execution` ağ kapısını atlıyor
+## `code_execution` ağ kapısını atlıyordu ✅ (29.07.2026)
 
-Codex tur 2, birinci soruda şunu buldu ve **doğrulanmadı ama makul**:
-`code_execution` ajan modunda izinli ve Node kodunu kısıtsız çalıştırıyor.
-Model `globalThis.fetch(...)` yazarak ağ kapısına hiç uğramadan dışarı
-çıkabilir.
+Codex tur 2, birinci soru. Doğrulandı: `code_execution` ajan modunda izinliydi,
+Node kodunu kısıtsız çalıştırıyordu ve model `globalThis.fetch(...)` yazarak
+ağ kapısına hiç uğramadan dışarı çıkabiliyordu.
 
-Bu, ağ izin sınıfının değerini büyük ölçüde düşürüyor: kapı bir kapıysa,
-yanındaki duvarın da olması gerekir. Çözüm kolay değil — Node kodunu
-kısıtlamak ya ayrı bir süreç + izin devri ya da `vm` tabanlı bir sandbox
-gerektiriyor, ve ikisi de yeni saldırı yüzeyi getiriyor.
+Sandbox aramak yanlış soruydu. `vm` ya da ayrı süreç + izin devri, yeni
+saldırı yüzeyi getirir ve Node'da hiçbiri gerçekten kapatmaz. Doğru cevap
+sınıflandırmaydı: **rasgele kod çalıştırmak bir araç değil, kabuk gibi ayrı
+bir yetenektir.** Onay her zaman sorulur, beyaz liste uygulanmaz, kodun
+kendisi onay ekranında gösterilir — "ne yazdığını görmeden çalıştırma".
 
-**Şimdilik dürüst konum:** ağ kapısı `http_request`, `web_readability` ve
-`firecrawl` için gerçek; `code_execution` için YOK. Bu bir eksik değil,
-açık bir delik ve öyle yazıyor.
+Yanında ikinci bir kusur çıktı: alt sürece `{ ...process.env }` gidiyordu.
+Kullanıcı kodu okuyup onaylasa bile her API anahtarının oraya gitmesi için bir
+neden yok. Onaylamak "bu kodu çalıştır" demektir, "anahtarlarımı da al" demek
+değil. Ortam artık `ortamiTemizle()` ile süzülüyor; `PATH` geçiyor,
+`*_KEY`/`*_TOKEN`/`*_SECRET` geçmiyor.
+
+Testler: `test/tools/code-execution-kapi.test.js` (4 test) — onaysız
+çalışmaz, model `onayli` bayrağını gönderemez, onaylı kod sırları görmez,
+sır olmayan değişkenler geçer.
 
 ## Ölçüm
 

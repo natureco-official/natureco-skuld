@@ -129,4 +129,64 @@ async function agOnayi({
   return await kapi.agOnayla({ url, yontem, amac, govdeBayt, baslikAdlari });
 }
 
-module.exports = { kapiAc, hataSiniflari, agOnayi, agOnayiSor };
+/**
+ * Rasgele kod çalıştırma onayı.
+ *
+ * `code_execution` bir araç değil bir YETENEK: modelin yazdığı kod alt
+ * süreçte kısıtsız çalışır, dosya sistemine ve ağa doğrudan erişir. Codex
+ * (29.07.2026, tur 2, bulgu 1a) bunun ağ kapısını tamamen anlamsız
+ * kıldığını gösterdi — model `globalThis.fetch()` yazınca kapı hiç devreye
+ * girmiyordu. Kapının yanında duvar yoksa kapı süs olur.
+ *
+ * Bu yüzden kabuk gibi ele alınır: onay HER ZAMAN sorulur, beyaz liste
+ * uygulanmaz. "Ne yazdığını görmeden çalıştırma" kuralı burada da geçerli,
+ * o yüzden kodun kendisi onay ekranında gösterilir.
+ */
+async function kodOnayiSor({ dil, kod, cwd }) {
+  if (!process.stdin.isTTY || process.env.SKULD_AG_ONAYSIZ === '1') return 'ret';
+
+  const chalk = require('chalk');
+  const inquirer = require('inquirer');
+  const kirpik = kod.length > 1200
+    ? kod.slice(0, 1200) + String.fromCharCode(10) + '… (' + (kod.length - 1200) + ' karakter daha)'
+    : kod;
+
+  console.log('');
+  console.log(chalk.yellow(`  ⚡ Kod çalıştırma onayı — ${dil}`));
+  console.log(chalk.gray('  Bu kod kısıtsız çalışır: dosya sistemi ve ağ erişimi vardır.'));
+  console.log(chalk.gray(`  Dizin: ${cwd}`));
+  console.log(chalk.gray('  ─'.repeat(30)));
+  for (const satir of kirpik.split(/\r?\n/)) console.log(chalk.white('  ') + satir);
+  console.log(chalk.gray('  ─'.repeat(30)));
+
+  process.stdin.resume();
+  const { karar } = await inquirer.prompt([{
+    type: 'list',
+    name: 'karar',
+    message: 'Bu kod çalıştırılsın mı?',
+    choices: [
+      { value: 'ret', name: 'Hayır' },
+      { value: 'izin', name: 'Evet, bir kez' },
+    ],
+  }]);
+  return karar;
+}
+
+/**
+ * Alt sürece geçecek ortamdan sır benzeri değişkenleri ayıklar.
+ *
+ * `code_execution` `{ ...process.env }` gönderiyordu; yani modelin yazdığı
+ * üç satırlık kod `process.env.GEMINI_API_KEY`'i okuyup basabiliyordu.
+ * Onaydan bağımsız ayrı bir kusur: kullanıcı kodu okuyup onaylasa bile
+ * ortamın tamamının oraya gitmesi gerekmez.
+ */
+function ortamiTemizle(ortam) {
+  const SIR_ANAHTARI = /(_KEY|_TOKEN|_SECRET|_PASSWORD|_PASS|_CREDENTIAL|API_KEY|AUTH)$|^(AWS_|GITHUB_TOKEN|OPENAI|ANTHROPIC|GEMINI|GROQ|MINIMAX|FIRECRAWL|SUPABASE|NPM_TOKEN)/i;
+  const temiz = {};
+  for (const [k, v] of Object.entries(ortam)) {
+    if (!SIR_ANAHTARI.test(k)) temiz[k] = v;
+  }
+  return temiz;
+}
+
+module.exports = { kapiAc, hataSiniflari, agOnayi, agOnayiSor, kodOnayiSor, ortamiTemizle };
