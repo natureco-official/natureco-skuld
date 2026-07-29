@@ -46,6 +46,32 @@ module.exports = {
     }
     operation = String(operation || '').toLowerCase();
     const tok = tokenizeArgs(args);
+
+    // GÜVENLİK (Codex denetimi, 29.07.2026): beyaz listedeki `diff` bile
+    // kullanıcı argümanlarını Git'e aynen geçiriyordu ve Git'in `--output=`
+    // seçeneği WORKSPACE DIŞINA dosya yazıyor. Kanıtlandı: 4886 baytlık bir
+    // patch dosyası %TEMP% altında oluştu. Kapı yalnızca `cwd`'yi doğruluyor;
+    // git'in kendi argümanlarını doğrulamıyor ve doğrulayamaz.
+    //
+    // Bu yüzden dosyaya yazan git bayrakları alt komuttan bağımsız yasak.
+    const YAZAN_BAYRAKLAR = [
+      /^--output(=|$)/i,
+      /^-o$/i,
+      /^--output-indicator/i,
+      /^--to-file(=|$)/i,
+      /^--upload-pack(=|$)/i,     // uzak komut çalıştırma zemini
+      /^--exec(=|$)/i,
+      /^--receive-pack(=|$)/i,
+    ];
+    for (const t of tok) {
+      const kotu = YAZAN_BAYRAKLAR.find((r) => r.test(t));
+      if (kotu) {
+        return {
+          success: false,
+          error: `git argümanı engellendi: "${t}" — dosyaya yazan veya komut çalıştıran bayraklar yasak (workspace dışına yazma zemini)`,
+        };
+      }
+    }
     try {
       let gitArgs;
       switch (operation) {

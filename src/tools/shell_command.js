@@ -10,7 +10,7 @@ const { kapiAc } = require('../utils/gateway');
 const os = require('os');
 const { isSafeCommand, checkCommand, isDangerousCommand } = require('../utils/approvals');
 
-async function runShell({ command, cwd = null, timeoutMs = 10000 }) {
+async function runShell({ command, cwd = null, timeoutMs = 10000, onayli = false }) {
   if (!command) return { success: false, error: 'command gerekli' };
 
   // Çalışma kökü: istenen cwd, yoksa süreç dizini.
@@ -25,7 +25,13 @@ async function runShell({ command, cwd = null, timeoutMs = 10000 }) {
     // Kapı: workspace sınırı (verilen köke göre), symlink kaçış kontrolü,
     // çıktıda sır maskeleme, çıktı boyut sınırı, zaman aşımı.
     // Karar yukarıdaki approvals katmanında verildi.
-    const kapi = await kapiAc({ workspace: kok, kararVerildi: true, zamanAsimiMs: timeoutMs });
+    // GÜVENLİK (Codex denetimi, 29.07.2026): `_runShell` dışa açık ve eski
+    // hâlinde koşulsuz `kararVerildi: true` geçiyordu — yani onay akışını
+    // tamamen atlayan bir arka kapıydı. Artık karar ÇAĞIRANDAN gelmek
+    // zorunda; `execute()` kendi kontrollerinden sonra `onayli: true` verir.
+    // Varsayılan false: atlamak isteyen bunu çağrı yerinde YAZMAK zorunda,
+    // yani atlama görünür olur.
+    const kapi = await kapiAc({ workspace: kok, kararVerildi: onayli === true, zamanAsimiMs: timeoutMs });
     const sonuc = await kapi.kabuk({ komut: command });
 
     return {
@@ -75,10 +81,10 @@ module.exports = {
         return { success: false, error: 'Tehlikeli komut engellendi. Gözden geçirip manuel çalıştırın.' };
       }
       if (approval.editedCommand && approval.editedCommand !== command) {
-        return await runShell({ ...params, command: approval.editedCommand });
+        return await runShell({ ...params, command: approval.editedCommand, onayli: true });
       }
     }
-    return await runShell(params);
+    return await runShell({ ...params, onayli: true });
   },
   _runShell: runShell,
 };

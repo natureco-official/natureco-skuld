@@ -56,6 +56,16 @@ const SIR_DESENLERI: Array<[RegExp, string]> = [
   [/\bgsk_[A-Za-z0-9]{20,}/g, "gsk_***"],
   [/\bxox[baprs]-[A-Za-z0-9-]{10,}/g, "xox*-***"],
   [/\bghp_[A-Za-z0-9]{20,}/g, "ghp_***"],
+  // Codex denetimi (29.07.2026): aşağıdaki biçimler listede yoktu ve çıktıda
+  // değişmeden kalıyordu. `GITHUB_TOKEN=...` genel KEY kuralına takılıyordu
+  // ama `Authorization: Bearer github_pat_...` takılmıyordu — ve bir token en
+  // çok o ikinci biçimde görünür.
+  [/\bgithub_pat_[A-Za-z0-9_]{20,}/g, "github_pat_***"],
+  [/\bgho_[A-Za-z0-9]{20,}/g, "gho_***"],
+  [/\bglpat-[A-Za-z0-9_-]{15,}/g, "glpat-***"],
+  [/\bnpm_[A-Za-z0-9]{30,}/g, "npm_***"],
+  [/\bAKIA[0-9A-Z]{16}/g, "AKIA***"],
+  [/\bdop_v1_[a-f0-9]{60,}/g, "dop_v1_***"],
   [/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g, "eyJ***.***"],
   [/\bAIza[A-Za-z0-9_-]{30,}/g, "AIza***"],
   [/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g, "***PRIVATE KEY***"],

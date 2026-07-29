@@ -287,3 +287,32 @@ describe("execution-gateway — kabuk yeteneği", () => {
     );
   });
 });
+
+describe("Codex denetim bulguları — regresyon", () => {
+  it("git dosyaya yazan bayrakları REDDEDER", async () => {
+    // Kanıtlanmış kaçış: `git diff --output=<workspace dışı>` 4886 baytlık bir
+    // patch dosyasını %TEMP% altına yazdı. Kapı yalnızca cwd doğruluyor;
+    // git'in kendi argümanlarını doğrulayamaz, o yüzden filtre araçta.
+    const git = await import("../../src/tools/git.js");
+    const arac = (git as { default?: unknown }).default ?? git;
+    const calistir = (arac as { execute: (p: unknown) => Promise<{ success: boolean; error?: string }> }).execute;
+
+    for (const bayrak of ["--output=/tmp/x.patch", "-o", "--upload-pack=evil"]) {
+      const r = await calistir({ operation: "diff", args: `${bayrak} HEAD` });
+      assert.equal(r.success, false, `${bayrak} geçti`);
+      assert.match(String(r.error), /engellendi/i);
+    }
+  });
+
+  it("shell_command._runShell onaysız çalışmaz", async () => {
+    // Eski hâli koşulsuz `kararVerildi: true` geçiyordu: dışa açık bir
+    // fonksiyon üzerinden onay akışının tamamı atlanabiliyordu.
+    const mod = await import("../../src/tools/shell_command.js");
+    const arac = (mod as { default?: unknown }).default ?? mod;
+    const runShell = (arac as { _runShell: (p: unknown) => Promise<{ success: boolean; error?: string }> })._runShell;
+
+    const r = await runShell({ command: "echo arkakapi" });
+    assert.equal(r.success, false, "onaysız çalıştı");
+    assert.match(String(r.error), /onaylamadı/i);
+  });
+});
