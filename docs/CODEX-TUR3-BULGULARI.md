@@ -145,3 +145,48 @@ Aynı uzunluktalarsa onay ekranında ikisi için de yalnızca aynı hedef, yönt
 Depoda değişiklik yapılmadı.
 tokens used
 149.132
+
+---
+
+# Doğrulama turu — Codex düzeltmeleri de denetledi (29.07.2026)
+
+Düzeltmeler yazıldıktan sonra Codex ikinci kez çalıştırıldı: *"her bulgunun
+gerçekten kapandığını doğrula, kapanmadıysa söyle."*
+
+**Yedisinin yedisinde de artık boşluk buldu.** Hepsi ölçülerek doğrulandı ve
+kapatıldı:
+
+| # | Artık boşluk | Düzeltme |
+|---|---|---|
+| 1 | `*gen() {…}` generator metodu satır başı `*` sanılıp siliniyordu | `*` yalnızca ardından boşluk/`/`/satır sonu gelirse yorum sayılıyor |
+| 2 | `DOCKER_AUTH_CONFIG`, `SSH_AUTH_SOCK` geçiyordu | `AUTH_CONFIG`/`AUTH_SOCK` eklendi (`AUTHOR` geçmeye devam ediyor) |
+| 3 | `{"webhook_secret": "<40hex>"}` bağlam kontrolünü atlatıyordu | Ad ile `:` arasındaki tırnak desene eklendi |
+| 4 | `sirUyarisi` modele hiç ulaşmıyordu | `buildFeedback` uyarıyı çıktının başına koyuyor |
+| 5 | `imagePath`/`audioPath` ve `.env.production.local` kapsam dışıydı | Adlar eklendi; `.env` deseni çok parçalı soneki kabul ediyor |
+| 6 | **Köprü `govdeOnizleme` alanını sessizce düşürüyordu** | İstek alan alan sayılmıyor, olduğu gibi geçiyor |
+| 7 | `npm --version` doğrulama sayılıyordu | Argüman deseni: `--version`, `--help`, `--dry-run`, `--list` |
+
+## 6. madde bu turun asıl dersi
+
+`govdeOnizleme` araca eklenmişti, TS tarafı okuyordu, testi de vardı — ve onay
+ekranına **hiç ulaşmıyordu**. CJS köprüsü alanları elle sayıyordu ve listede
+olmayan alan sessizce düşüyordu.
+
+Testim TS fonksiyonunu **doğrudan** çağırdığı için köprüyü hiç görmedi.
+Yeşildi ve yanıltıyordu. Yanlış katmanı ölçen bir test, hiç test olmamasından
+kötüdür: yokluk belirsizlik yaratır, yanlış test kesinlik yaratır.
+
+Düzeltme tek alan eklemek değil, sınıfı kapatmak oldu: köprü artık isteği
+olduğu gibi geçiriyor. Elle tutulan alan listesi, her yeni alanda aynı hatayı
+davet eder.
+
+Yeni test bilerek **köprü üzerinden** gidiyor.
+
+## Kalan dürüst sınır
+
+`dogrulamaBul` hâlâ anlamsal doğruluk kanıtı DEĞİL. Komutun göreve ilgili
+olduğunu kanıtlayamıyoruz; yalnızca "hiçbir şey çalıştırmadan doğrulandı
+demek" kapatıldı. Kaydedilen metin artık hangi komutun koştuğunu yazıyor ki
+sonraki oturum kendi kararını verebilsin. Kara liste de tanımı gereği eksik.
+
+Testler: `test/security/codex-tur3.test.js` (22 test).

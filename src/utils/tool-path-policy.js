@@ -13,7 +13,10 @@ const SENSITIVE_READ = [
   // `.env.example`, `.env.sample`, `.env.template` KASTEN dışarıda: onlar
   // yer tutucu içerir, paylaşılmak için vardır ve ajanın onları okuyabilmesi
   // gerekir — projeyi kurmanın normal yolu bu.
-  /(^|[\\/])\.env(?!\.(example|sample|template|dist|defaults?)\b)(\.[a-z0-9-]*)?$/i,
+  // `(\.[a-z0-9-]+)*` — çok parçalı sonek. Tek parça beklerken
+  // `.env.production.local` eşleşmiyordu (Codex doğrulama turu) ve bu, çerçeve
+  // araçlarının ürettiği en yaygın adlardan biri.
+  /(^|[\\/])\.env(?!\.(example|sample|template|dist|defaults?)\b)(\.[a-z0-9-]+)*$/i,
 ];
 const SENSITIVE_WRITE = [
   ...SENSITIVE_READ,
@@ -50,7 +53,10 @@ function assessToolPath(toolName, args = {}) {
     || args.cwd || args.directory || args.dir || args.yol
     || args.basePath || args.base_path || args.rootPath || args.root
     || args.file || args.outputPath || args.output_path || args.output
-    || args.dest || args.destination || args.target;
+    || args.dest || args.destination || args.target
+    // Medya araçlarının kendi adlandırmaları (Codex doğrulama turu).
+    || args.imagePath || args.image_path || args.audioPath || args.audio_path
+    || args.videoPath || args.savePath || args.save_path;
   if (!rawPath) return { allowed: true };
   const targetPath = expandPath(rawPath);
   const write = toolName === 'write_file' || toolName === 'edit_file' || toolName === 'structural_patch';

@@ -176,7 +176,10 @@ function masumMu(eslesme, tumMetin, konum) {
   if (typeof tumMetin === 'string' && typeof konum === 'number') {
     const satirBasi = tumMetin.lastIndexOf('\n', konum) + 1;
     const oncesi = tumMetin.slice(satirBasi, konum);
-    if (/(secret|token|key|password|passwd|auth|signature|hmac)\s*[:=]\s*['"`]?\s*$/i.test(oncesi)) {
+    // `['"\`]?` ADIN SONUNDA da gerekli: JSON'da anahtar tırnaklıdır ve
+    // `{"webhook_secret": "…"}` biçimi bağlam kontrolünü atlatıyordu
+    // (Codex doğrulama turu). Yapılandırma dosyalarının en yaygın biçimi bu.
+    if (/(secret|token|key|password|passwd|auth|signature|hmac)['"`]?\s*[:=]\s*['"`]?\s*$/i.test(oncesi)) {
       return false; // sır adıyla atanmış — SHA değil
     }
   }

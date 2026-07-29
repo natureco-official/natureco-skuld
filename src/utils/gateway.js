@@ -118,15 +118,23 @@ async function agOnayiSor(istek) {
  * `govdeBayt` ve `baslikAdlari` onay metnine girer: nereye gidildiği kadar
  * ne gittiği de kararın parçası.
  */
-async function agOnayi({
-  url, yontem, amac, workspace, kararVerildi = false, govdeBayt, baslikAdlari,
-}) {
+async function agOnayi(istek = {}) {
+  const { workspace, kararVerildi = false, ...agIstegi } = istek;
   const { ExecutionGateway } = await modul();
   const kapi = new ExecutionGateway({
     workspace: workspace || process.cwd(),
     onay: kararVerildi ? async () => 'izin' : agOnayiSor,
   });
-  return await kapi.agOnayla({ url, yontem, amac, govdeBayt, baslikAdlari });
+  // İstek OLDUĞU GİBİ geçiyor, alan alan sayılmıyor.
+  //
+  // Codex doğrulama turu: `govdeOnizleme`yi araca eklemiştim ama burada
+  // listeye yazmayı unutunca köprü alanı sessizce düşürdü — düzeltme onay
+  // ekranına hiç ulaşmadı. Kendi testim TS fonksiyonunu doğrudan çağırdığı
+  // için köprüyü hiç görmedi; yanlış katmanı ölçmüştüm.
+  //
+  // Elle tutulan alan listesi, her yeni alanda aynı hatayı davet eder.
+  // `workspace` ve `kararVerildi` köprüye ait; gerisi kapının.
+  return await kapi.agOnayla(agIstegi);
 }
 
 /**
@@ -197,7 +205,11 @@ const SIR_ANAHTARI =
  * alışkanlığına göre adlanır, bizim desenimize göre değil.
  */
 const SIR_PARCASI =
-  /(PASSWORD|PASSWD|PASSFILE|SECRET|TOKEN|APIKEY|CREDENTIAL|PRIVATEKEY)/i;
+  // `AUTH` ve `_SOCK` doğrulama turunda eklendi: `DOCKER_AUTH_CONFIG` kayıt
+  // defteri kimliklerini taşıyor, `SSH_AUTH_SOCK` ise sırrın kendisi değil
+  // ama ona ERİŞİM — soketi olan, kullanıcının SSH anahtarlarıyla imza
+  // attırabilir. Yetkiyi devretmek, anahtarı vermekle aynı kapıya çıkar.
+  /(PASSWORD|PASSWD|PASSFILE|SECRET|TOKEN|APIKEY|CREDENTIAL|PRIVATEKEY|AUTH_CONFIG|AUTH_SOCK|_AUTH$|^AUTH_)/i;
 
 const SIR_ONEKI =
   /^(AWS_|GITHUB_TOKEN|OPENAI|ANTHROPIC|GEMINI|GROQ|MINIMAX|FIRECRAWL|SUPABASE|NPM_TOKEN|DATABASE_URL|REDIS_URL|MONGODB_URI|SENTRY_DSN|PG|MYSQL_PWD|REDISCLI_AUTH)/i;

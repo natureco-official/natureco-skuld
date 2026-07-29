@@ -79,9 +79,13 @@ const KAYNAK_UZANTI = new Set([".ts", ".mts", ".js", ".mjs", ".cjs"]);
  * sessizdir; gürültülü taraf doğru taraftır.
  */
 function kodSatirlari(metin) {
+  // `*` yalnızca ARDINDAN boşluk/satır sonu/`/` gelirse yorum sürdürmesidir.
+  // Düz `/^\s*\*/` fazla genişti (Codex doğrulama turu): `*gen() { … }` gibi
+  // geçerli bir generator metodu da satır başında `*` ile başlıyor ve tamamen
+  // siliniyordu — içindeki import'la birlikte.
   return metin
     .split(/\r?\n/)
-    .filter((s) => !/^\s*(\/\/|\*)/.test(s))
+    .filter((s) => !/^\s*(\/\/|\*(\s|\/|$))/.test(s))
     .join("\n");
 }
 

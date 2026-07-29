@@ -185,3 +185,110 @@ describe('Codex tur 3 — bulgu 7: doğrulama sayılan ilgisiz komut', () => {
     expect(await kos(['npm test'], { degisiklikOnce: false })).toEqual([]);
   });
 });
+
+/**
+ * Codex DOĞRULAMA turu — yedi düzeltmenin yedisinde de artık boşluk buldu.
+ *
+ * Bu turun asıl dersi 6. maddedeydi: `govdeOnizleme` araca eklenmişti ama
+ * CJS köprüsü alanı elle sayıyordu ve sessizce düşürüyordu. Testim TS
+ * fonksiyonunu DOĞRUDAN çağırdığı için köprüyü hiç görmedi — düzeltme
+ * onay ekranına hiç ulaşmadan "kanıtlanmış" sayılmıştı. Yanlış katmanı
+ * ölçen bir test, hiç test olmamasından daha kötüdür: yeşil yanıltır.
+ */
+describe('Codex doğrulama turu — artık boşluklar', () => {
+  it('B1: satır başındaki generator metodu lint tarafından silinmez', () => {
+    // `/^\s*\*/` fazla genişti: `*gen() { … }` geçerli sözdizimi ve
+    // içindeki import'la birlikte tamamen atılıyordu.
+    const hedef = path.join(repoKok, 'src', 'utils', '__gen-denemesi.js');
+    fs.writeFileSync(hedef, [
+      'const o = {',
+      '  *gen() { const { spawn } = require("node:child_process"); return spawn; },',
+      '};',
+      'module.exports = o;',
+      '',
+    ].join('\n'));
+    try {
+      const sonuc = spawnSync(
+        process.execPath,
+        [path.join(repoKok, 'scripts', 'gateway-boundary-check.mjs')],
+        { cwd: repoKok, encoding: 'utf8', timeout: 60000 },
+      );
+      expect(sonuc.stdout).toContain('__gen-denemesi.js');
+    } finally {
+      fs.rmSync(hedef, { force: true });
+    }
+  });
+
+  it('B2: DOCKER_AUTH_CONFIG ve SSH_AUTH_SOCK süzülür', () => {
+    // `SSH_AUTH_SOCK` sırrın kendisi değil ona ERİŞİM: soketi olan,
+    // kullanıcının anahtarlarıyla imza attırabilir.
+    const t = ortamiTemizle({ DOCKER_AUTH_CONFIG: '{}', SSH_AUTH_SOCK: '/tmp/a' });
+    expect(Object.keys(t)).toEqual([]);
+  });
+
+  it('B2: AUTHOR gibi masum adlar süzülmez', () => {
+    expect(Object.keys(ortamiTemizle({ AUTHOR: 'timur', PGHOST: 'db' })).sort())
+      .toEqual(['AUTHOR', 'PGHOST']);
+  });
+
+  it('B3: JSON biçimindeki tırnaklı anahtar bağlam kontrolünü atlatamaz', () => {
+    // Yapılandırma dosyalarının en yaygın biçimi; ad ile `:` arasında tırnak
+    // olduğu için desen eşleşmiyordu.
+    const j = '{"webhook_secret": "0123456789abcdef0123456789abcdef01234567"}';
+    expect(maskText(j)).not.toContain('0123456789abcdef0123456789abcdef01234567');
+  });
+
+  it('B5: medya araçlarının yol adları ve çok parçalı .env kapsanır', () => {
+    expect(assessToolPath('x', { imagePath: '~/.ssh/id_rsa' }).allowed).toBe(false);
+    expect(assessToolPath('x', { audioPath: '~/.ssh/id_rsa' }).allowed).toBe(false);
+    expect(assessToolPath('read_file', { path: '/p/.env.production.local' }).allowed).toBe(false);
+    expect(assessToolPath('read_file', { path: '/p/.env.example' }).allowed).toBe(true);
+  });
+
+  it('B6: gövde önizlemesi KÖPRÜ üzerinden onay metnine ulaşır', async () => {
+    // Bu testin varlık sebebi: önceki test TS fonksiyonunu doğrudan
+    // çağırıyordu ve köprünün alanı düşürdüğünü göremiyordu.
+    const { pathToFileURL } = await import('node:url');
+    const modul = await import(
+      pathToFileURL(path.join(repoKok, 'packages/execution-gateway/dist/index.js')).href
+    );
+    let gorulen = null;
+    const kapi = new modul.ExecutionGateway({
+      workspace: repoKok,
+      onay: async (i) => { gorulen = i; return 'ret'; },
+    });
+    await expect(
+      kapi.agOnayla({
+        url: 'https://x.test/u', yontem: 'POST', govdeBayt: 16, govdeOnizleme: 'prod-db-password',
+      }),
+    ).rejects.toThrow();
+    expect(gorulen.gerekce).toContain('prod-db-password');
+  });
+
+  it('B7: `npm --version` doğrulama sayılmaz, `pytest -q` sayılır', async () => {
+    // Kara liste komut ADIYLA eşleşiyordu; sürüm sorgusu ARGÜMANLA yakalanıyor.
+    const bosArac = { execute: async () => ({ success: true }) };
+    const calistir = (komut) => {
+      const yazilanlar = [];
+      const adimlar = [
+        { content: '', toolCalls: [{ function: { name: 'write_file', arguments: { files: [{ path: 'src/x.js', content: 'x' }] } } }] },
+        { content: '', toolCalls: [{ function: { name: 'bash', arguments: { command: komut } } }] },
+        { content: 'bitti', toolCalls: [] },
+      ];
+      let i = 0;
+      return runAgentic({
+        callModel: async () => adimlar[Math.min(i++, 2)],
+        systemPrompt: 'test', task: 'düzelt', loadTool: () => bosArac,
+        allowed: ['write_file', 'bash'],
+        hafiza: {
+          bagliMi: true,
+          hatirla: async () => ({ hatiralar: [], aramaSuresiMs: 0 }),
+          hatirlat: async (k) => { yazilanlar.push(k); return true; },
+        },
+      }).then(() => yazilanlar);
+    };
+    expect(await calistir('npm --version')).toEqual([]);
+    expect(await calistir('git status')).toEqual([]);
+    expect(await calistir('pytest -q')).toHaveLength(1);
+  });
+});

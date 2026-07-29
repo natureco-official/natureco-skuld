@@ -158,7 +158,12 @@ function agentExecAllowed(command, opts) {
  * kapatılıyor, ve kaydedilen metin artık hangi komutun çalıştığını yazıyor
  * ki sonraki oturum kendi kararını verebilsin.
  */
-const DOGRULAMA_SAYILMAZ = /^\s*(echo|printf|true|:|ls|dir|pwd|cd|cat|type|whoami|date|sleep|clear)\b/i;
+const DOGRULAMA_SAYILMAZ = /^\s*(echo|printf|true|:|ls|dir|pwd|cd|cat|type|whoami|date|sleep|clear|which|where|env|export|git\s+(status|log|diff|branch))\b/i;
+
+// Sürüm/yardım sorguları da doğrulama değil: `npm --version` sıfır döner ve
+// hiçbir şey kanıtlamaz (Codex doğrulama turu). Kara liste komut ADIYLA
+// eşleşiyordu, bu ise ARGÜMANLA eşleşiyor.
+const SORGU_ARGUMANI = /(^|\s)(--version|-v|--help|-h|--dry-run|--list)(\s|$)/i;
 
 function dogrulamaBul(kayitlar) {
   const sonDegisiklik = kayitlar.reduce(
@@ -171,7 +176,7 @@ function dogrulamaBul(kayitlar) {
     if (r.status === 'error') continue;
     if (!/^(bash|shell_command|code_execution)$/.test(r.tool)) continue;
     const komut = (r.args && (r.args.command || r.args.cmd || r.args.code)) || '';
-    if (!komut || DOGRULAMA_SAYILMAZ.test(komut)) continue;
+    if (!komut || DOGRULAMA_SAYILMAZ.test(komut) || SORGU_ARGUMANI.test(komut)) continue;
     return { kayit: r, komut: String(komut).replace(/\s+/g, ' ').slice(0, 80) };
   }
   return null;
@@ -327,7 +332,12 @@ function buildFeedback(norm, res) {
     for (const k of Object.keys(res)) if (!['success', 'error'].includes(k)) meta[k] = res[k];
     if (Object.keys(meta).length) body = JSON.stringify(meta).slice(0, 1500);
   }
-  const head = `${norm} OK` + (res.path ? ` (${res.path})` : (res.status ? ` (HTTP ${res.status})` : ''));
+  // `read_file` sır uyarısı modele ULAŞMALI. Codex doğrulama turu: uyarı
+  // alanı ekleniyordu ama buildFeedback `content`i alıp dönüyordu, yani
+  // uyarıyı yalnızca aracı doğrudan çağıran görüyordu — döngüdeki model
+  // görmüyordu. Uyarı görülmüyorsa uyarı değildir.
+  const uyari = res.sirUyarisi ? `⚠ ${res.sirUyarisi}\n` : '';
+  const head = uyari + `${norm} OK` + (res.path ? ` (${res.path})` : (res.status ? ` (HTTP ${res.status})` : ''));
   return body ? `${head}:\n${body}` : head;
 }
 
