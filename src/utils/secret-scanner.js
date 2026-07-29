@@ -182,6 +182,22 @@ function masumMu(eslesme, tumMetin, konum) {
     if (/(secret|token|key|password|passwd|auth|signature|hmac)['"`]?\s*[:=]\s*['"`]?\s*$/i.test(oncesi)) {
       return false; // sır adıyla atanmış — SHA değil
     }
+
+    // YAML blok skaleri ve TOML çok satırlı değer: ad ÖNCEKİ satırda kalıyor
+    // ve aynı satıra bakan kontrol onu göremiyordu (Codex kapanış turu).
+    //
+    //     webhook_secret: >
+    //       0123456789abcdef…
+    //
+    // Bu yüzden değer satırı girintili ve tek başınaysa, önceki iki satırda
+    // blok göstergeli bir sır adı aranıyor.
+    const satirIci = tumMetin.slice(satirBasi, konum);
+    if (/^\s*$/.test(satirIci)) {
+      const oncekiler = tumMetin.slice(0, satirBasi).split(/\r?\n/).slice(-3);
+      if (oncekiler.some((s) => /(secret|token|key|password|passwd|auth|signature|hmac)['"`]?\s*[:=]\s*[>|]?\s*$/i.test(s))) {
+        return false;
+      }
+    }
   }
   return true;
 }

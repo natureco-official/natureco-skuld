@@ -41,7 +41,10 @@ async function executeThroughGateway(options) {
     // Bir onay bayrağı, onaylanacak şeyi üreten tarafın erişebildiği bir yer
     // olamaz. Model tarafından gelen her şey burada kesiliyor; iç çağıranlar
     // (testler, kendi kodumuz) aracı doğrudan çağırdıkları için etkilenmez.
-    const ONAY_BAYRAKLARI = ['agOnayli', 'onayli', 'kararVerildi', 'approved'];
+    // `onay` da burada: kapı köprüsü onay makamını parametre olarak kabul
+    // ediyor, yani modelin kendi karar vericisini geçirmesi kendi kendini
+    // onaylamasıyla aynı şey olurdu.
+    const ONAY_BAYRAKLARI = ['agOnayli', 'onayli', 'kararVerildi', 'approved', 'onay'];
     // `args` yukarıda `const` ile çözülüyor, yeniden atanamaz; temizlenmiş
     // kopya ayrı değişkende tutulur ve bundan sonrası onu kullanır.
     let temizArgs = args;

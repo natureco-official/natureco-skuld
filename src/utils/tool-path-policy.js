@@ -26,6 +26,34 @@ const SENSITIVE_WRITE = [
   /(^|[\\/])etc[\\/](passwd|shadow|sudoers|hosts|crontab|ssh)/i,
 ];
 
+/**
+ * Denetlenecek argüman adları.
+ *
+ * Fork boyunca tutarlı değiller: `path`, `basePath`, `cwd`, `outputPath`,
+ * `audioPath`… Eksik bir ad, o aracın denetimden TAMAMEN muaf olması demek.
+ */
+const YOL_ALANLARI = [
+  'path', 'filePath', 'file_path', 'cwd', 'directory', 'dir', 'yol',
+  'basePath', 'base_path', 'rootPath', 'root',
+  'file', 'outputPath', 'output_path', 'output',
+  'dest', 'destination', 'target',
+  'imagePath', 'image_path', 'audioPath', 'audio_path',
+  'videoPath', 'video_path', 'savePath', 'save_path',
+  'input', 'inputPath', 'input_path', 'source', 'src',
+];
+
+/** Bir yol, bu araç için hassas mı? */
+function hassasMi(cozulmus, toolName) {
+  const write = toolName === 'write_file' || toolName === 'edit_file' || toolName === 'structural_patch';
+  const patterns = write ? SENSITIVE_WRITE : SENSITIVE_READ;
+  // Desenlerin çoğu `.ssh/` gibi ayıraçla bitiyor, çünkü dosya yolları için
+  // yazıldılar. Argüman DİZİNİN kendisi olduğunda (`.../.ssh`) sondaki ayıraç
+  // yok ve hiçbiri eşleşmiyordu — yani tam olarak korunmak istenen dizini
+  // vermek denetimi atlatıyordu.
+  const adaylar = [cozulmus, cozulmus + path.sep];
+  return patterns.some((desen) => adaylar.some((aday) => desen.test(aday)));
+}
+
 function expandPath(value) {
   if (typeof value !== 'string' || !value.trim()) return value;
   const trimmed = value.trim();
@@ -49,29 +77,27 @@ function assessToolPath(toolName, args = {}) {
   // `macos_screenshot({outputPath:"…"})` politikayı tamamen atlıyordu — üstelik
   // bunlar YAZMA yolları, yani hassas bir dosyanın üzerine ekran görüntüsü
   // yazılabiliyordu.
-  const rawPath = args.path || args.filePath || args.file_path
-    || args.cwd || args.directory || args.dir || args.yol
-    || args.basePath || args.base_path || args.rootPath || args.root
-    || args.file || args.outputPath || args.output_path || args.output
-    || args.dest || args.destination || args.target
-    // Medya araçlarının kendi adlandırmaları (Codex doğrulama turu).
-    || args.imagePath || args.image_path || args.audioPath || args.audio_path
-    || args.videoPath || args.savePath || args.save_path;
-  if (!rawPath) return { allowed: true };
-  const targetPath = expandPath(rawPath);
-  const write = toolName === 'write_file' || toolName === 'edit_file' || toolName === 'structural_patch';
+  // TÜM yol alanları denetlenir, ilki değil.
+  //
+  // Codex kapanış turu: `||` zinciri ilk DOLU alanda duruyordu, yani
+  // `speech_to_text({ path: "README.md", audioPath: "~/.ssh/id_rsa" })`
+  // masum `path` üzerinden geçiyor, araç sonra hassas `audioPath`ı okuyup
+  // gönderiyordu. Bir alan denetlenip diğerinin serbest kalması, denetimi
+  // saldırganın alan seçimine bırakmak demek.
+  const yollar = YOL_ALANLARI.map((ad) => args[ad]).filter(
+    (v) => typeof v === 'string' && v.trim(),
+  );
+  if (yollar.length === 0) return { allowed: true };
+  // Herhangi biri hassassa çağrı reddedilir; ilk hassas olanı bildirilir.
+  const targetPath = expandPath(
+    yollar.find((y) => hassasMi(expandPath(y), toolName)) || yollar[0],
+  );
   // Okuma listesi ARTIK beyaz liste değil. Eskiden yalnızca `read_file`
   // denetleniyordu, yani `read_file` `~/.ssh/id_rsa`'da engellenirken
   // `grep_search` aynı içeriği döndürüyordu (doğrulandı). Hangi aracın
   // hassas yolu okuyabileceğini tek tek saymak, sayılmayanı serbest bırakır;
   // varsayılan kapalı olmalı.
-  const patterns = write ? SENSITIVE_WRITE : SENSITIVE_READ;
-  // Desenlerin çoğu `.ssh/` gibi ayıraçla bitiyor, çünkü dosya yolları için
-  // yazıldılar. Argüman DİZİNİN kendisi olduğunda (`.../.ssh`) sondaki ayıraç
-  // yok ve hiçbiri eşleşmiyordu — yani tam olarak korunmak istenen dizini
-  // vermek denetimi atlatıyordu.
-  const adaylar = [targetPath, targetPath + path.sep];
-  if (patterns.some(pattern => adaylar.some(aday => pattern.test(aday)))) {
+  if (hassasMi(targetPath, toolName)) {
     return {
       allowed: false,
       path: targetPath,

@@ -119,11 +119,19 @@ async function agOnayiSor(istek) {
  * ne gittiği de kararın parçası.
  */
 async function agOnayi(istek = {}) {
-  const { workspace, kararVerildi = false, ...agIstegi } = istek;
+  // `onay` gerçek bir parametre: kendi onay yüzeyi olan çağıranlar (fork'un
+  // approvals katmanı, testler) kendi karar vericisini geçebilir. Varsayılan
+  // etkileşimli sorudur.
+  //
+  // Modelden gelemez: araçlar bu nesneyi alan alan KENDİLERİ kuruyor, model
+  // argümanlarını buraya yaymıyorlar. Yine de `onay`
+  // `tool-execution-gateway`'in temizlediği bayraklara eklendi — onay
+  // makamını seçme yetkisi, onaylanacak şeyi üretenin eline geçemez.
+  const { workspace, kararVerildi = false, onay, ...agIstegi } = istek;
   const { ExecutionGateway } = await modul();
   const kapi = new ExecutionGateway({
     workspace: workspace || process.cwd(),
-    onay: kararVerildi ? async () => 'izin' : agOnayiSor,
+    onay: onay || (kararVerildi ? async () => 'izin' : agOnayiSor),
   });
   // İstek OLDUĞU GİBİ geçiyor, alan alan sayılmıyor.
   //
@@ -212,7 +220,10 @@ const SIR_PARCASI =
   /(PASSWORD|PASSWD|PASSFILE|SECRET|TOKEN|APIKEY|CREDENTIAL|PRIVATEKEY|AUTH_CONFIG|AUTH_SOCK|_AUTH$|^AUTH_)/i;
 
 const SIR_ONEKI =
-  /^(AWS_|GITHUB_TOKEN|OPENAI|ANTHROPIC|GEMINI|GROQ|MINIMAX|FIRECRAWL|SUPABASE|NPM_TOKEN|DATABASE_URL|REDIS_URL|MONGODB_URI|SENTRY_DSN|PG|MYSQL_PWD|REDISCLI_AUTH)/i;
+  // `KUBECONFIG` ve akrabaları Codex kapanış turunda eklendi: değer bir yol
+  // ama işaret ettiği dosya küme kimlik bilgilerini taşıyor. Sırra giden yolu
+  // vermek, sırrı vermektir — `SSH_AUTH_SOCK` ile aynı gerekçe.
+  /^(AWS_|GITHUB_TOKEN|OPENAI|ANTHROPIC|GEMINI|GROQ|MINIMAX|FIRECRAWL|SUPABASE|NPM_TOKEN|DATABASE_URL|REDIS_URL|MONGODB_URI|SENTRY_DSN|PG|MYSQL_PWD|REDISCLI_AUTH|KUBECONFIG|DOCKER_CONFIG|GOOGLE_APPLICATION_CREDENTIALS|AZURE_|GH_TOKEN|GITLAB_|VAULT_|CLOUDSDK_)/i;
 
 const SIR_ORTASI = /(_KEY|_TOKEN|_SECRET|_WEBHOOK|_DSN|CREDENTIAL)_/i;
 

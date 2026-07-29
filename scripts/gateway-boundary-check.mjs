@@ -79,14 +79,61 @@ const KAYNAK_UZANTI = new Set([".ts", ".mts", ".js", ".mjs", ".cjs"]);
  * sessizdir; gürültülü taraf doğru taraftır.
  */
 function kodSatirlari(metin) {
-  // `*` yalnızca ARDINDAN boşluk/satır sonu/`/` gelirse yorum sürdürmesidir.
-  // Düz `/^\s*\*/` fazla genişti (Codex doğrulama turu): `*gen() { … }` gibi
-  // geçerli bir generator metodu da satır başında `*` ile başlıyor ve tamamen
-  // siliniyordu — içindeki import'la birlikte.
-  return metin
-    .split(/\r?\n/)
-    .filter((s) => !/^\s*(\/\/|\*(\s|\/|$))/.test(s))
-    .join("\n");
+  // Satır başındaki `*` üzerine kurulu her sezgisel bir yerde kırılıyor.
+  // Codex bunu iki turda üst üste gösterdi: önce `*gen(){…}`, sonra bunu
+  // dışlayınca `* gen(){…}` — ikisi de geçerli generator sözdizimi ve ikisi de
+  // yorum satırı gibi görünüyor. Üçüncü bir istisna yazmak dördüncüsünü davet
+  // ederdi.
+  //
+  // Doğru araç küçük bir durum makinesi: dizeleri, satır yorumlarını ve blok
+  // yorumlarını ayırt eden tek geçişli bir tarayıcı. Kaçırdığı yer artık bir
+  // desen boşluğu değil, sözdiziminin kendisi.
+  let cikti = "";
+  let durum = "kod"; // kod | satirYorum | blokYorum | tekTirnak | ciftTirnak | sablon
+  let i = 0;
+
+  while (i < metin.length) {
+    const c = metin[i];
+    const sonraki = metin[i + 1];
+
+    switch (durum) {
+      case "kod":
+        if (c === "/" && sonraki === "/") { durum = "satirYorum"; i += 2; continue; }
+        if (c === "/" && sonraki === "*") { durum = "blokYorum"; i += 2; continue; }
+        if (c === "'") durum = "tekTirnak";
+        else if (c === '"') durum = "ciftTirnak";
+        else if (c === "`") durum = "sablon";
+        cikti += c;
+        i += 1;
+        continue;
+
+      case "satirYorum":
+        // Satır sonu koru: yasak desenler satır bazlı düşünülüyor.
+        if (c === "\n") { durum = "kod"; cikti += c; }
+        i += 1;
+        continue;
+
+      case "blokYorum":
+        if (c === "*" && sonraki === "/") { durum = "kod"; i += 2; continue; }
+        if (c === "\n") cikti += c;
+        i += 1;
+        continue;
+
+      // Dize içinde kaçış karakteri atlanır: `"\\""` dizeyi bitirmez.
+      case "tekTirnak":
+      case "ciftTirnak":
+      case "sablon": {
+        const kapanis = durum === "tekTirnak" ? "'" : durum === "ciftTirnak" ? '"' : "`";
+        if (c === "\\") { cikti += c + (sonraki ?? ""); i += 2; continue; }
+        if (c === kapanis) durum = "kod";
+        cikti += c;
+        i += 1;
+        continue;
+      }
+    }
+  }
+
+  return cikti;
 }
 
 let ihlal = 0;

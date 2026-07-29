@@ -8,7 +8,7 @@ import { maskText } from '../../src/utils/secret-scanner.js';
 import { assessToolPath } from '../../src/utils/tool-path-policy.js';
 import readFile from '../../src/tools/read_file.js';
 import documentExtract from '../../src/tools/document_extract.js';
-import { runAgentic } from '../../src/tools/agentic-runner.js';
+import { runAgentic, buildFeedback } from '../../src/tools/agentic-runner.js';
 
 /**
  * Codex tur 3 — yedi bulgu, yedisi de tetiklenerek doğrulandı.
@@ -101,6 +101,15 @@ describe('Codex tur 3 — bulgu 4: içerik döndüren diğer araçlar', () => {
     // kullanılan varsayılan yol uyarısız kalmıştı.
     const r = await readFile.execute({ path: dosya, offset: 1, limit: 5 });
     expect(r.sirUyarisi).toContain('GitHub Token');
+  });
+
+  it('uyarı MODELE ulaşır — buildFeedback çıktısında', async () => {
+    // Codex kapanış turu: eski test yalnızca aracın döndürdüğü nesneyi
+    // ölçüyordu, yani `buildFeedback` düzeltmesi geri alınsa kırılmazdı.
+    // Uyarının modele ulaşması ise düzeltmenin BÜTÜN amacı.
+    const r = await readFile.execute({ path: dosya });
+    const geri = buildFeedback('read_file', r);
+    expect(geri).toContain('GitHub Token');
   });
 
   it('sırsız dosyada uyarı alanı hiç görünmez', async () => {
@@ -246,23 +255,46 @@ describe('Codex doğrulama turu — artık boşluklar', () => {
   });
 
   it('B6: gövde önizlemesi KÖPRÜ üzerinden onay metnine ulaşır', async () => {
-    // Bu testin varlık sebebi: önceki test TS fonksiyonunu doğrudan
-    // çağırıyordu ve köprünün alanı düşürdüğünü göremiyordu.
-    const { pathToFileURL } = await import('node:url');
-    const modul = await import(
-      pathToFileURL(path.join(repoKok, 'packages/execution-gateway/dist/index.js')).href
-    );
+    // Codex kapanış turu bu testin ÖNCEKİ hâlini bulgu saydı ve haklıydı:
+    // `dist/index.js`'teki ExecutionGateway'i doğrudan çağırıyordu, yani
+    // `src/utils/gateway.js` köprüsünü hiç görmüyordu. Köprü düzeltmesi geri
+    // alınsa test yeşil kalırdı — kanıtladığını sandığı şeyi kanıtlamıyordu.
+    //
+    // Yorumunda "köprüden geçiyor" yazıyordu. Yorum, koda bakmadan
+    // doğrulanamaz.
+    const { agOnayi } = await import('../../src/utils/gateway.js');
     let gorulen = null;
-    const kapi = new modul.ExecutionGateway({
-      workspace: repoKok,
-      onay: async (i) => { gorulen = i; return 'ret'; },
-    });
     await expect(
-      kapi.agOnayla({
-        url: 'https://x.test/u', yontem: 'POST', govdeBayt: 16, govdeOnizleme: 'prod-db-password',
+      agOnayi({
+        url: 'https://x.test/u',
+        yontem: 'POST',
+        govdeBayt: 16,
+        govdeOnizleme: 'prod-db-password',
+        workspace: repoKok,
+        onay: async (i) => { gorulen = i; return 'ret'; },
       }),
     ).rejects.toThrow();
+    expect(gorulen).not.toBeNull();
     expect(gorulen.gerekce).toContain('prod-db-password');
+  });
+
+  it('B6: model `onay` geçirerek kendi onay makamını seçemez', async () => {
+    const { executeThroughGateway } = await import('../../src/utils/tool-execution-gateway.js');
+    let gecen = null;
+    const sonuc = await executeThroughGateway({
+      toolName: 'sahte',
+      args: { x: 1, onay: async () => 'izin', agOnayli: true },
+      resolveTool: () => ({
+        name: 'sahte',
+        execute: async (a) => { gecen = a; return { success: true }; },
+      }),
+      normalizeSuccess: (r) => r,
+      normalizeError: (e) => ({ success: false, error: e }),
+    });
+    expect(sonuc.success).toBe(true);
+    expect(gecen.onay).toBeUndefined();
+    expect(gecen.agOnayli).toBeUndefined();
+    expect(gecen.x).toBe(1);
   });
 
   it('B7: `npm --version` doğrulama sayılmaz, `pytest -q` sayılır', async () => {

@@ -190,3 +190,49 @@ demek" kapatıldı. Kaydedilen metin artık hangi komutun koştuğunu yazıyor k
 sonraki oturum kendi kararını verebilsin. Kara liste de tanımı gereği eksik.
 
 Testler: `test/security/codex-tur3.test.js` (22 test).
+
+---
+
+# Kapanış turu — Codex üçüncü kez baktı (30.07.2026)
+
+İkinci turun düzeltmeleri de denetlendi. **İkisi kapandı (4, 6), altısında
+artık boşluk vardı.** Hepsi ölçüldü, hepsi kapatıldı.
+
+| # | Artık boşluk | Düzeltme |
+|---|---|---|
+| 1 | `* gen(){…}` (yıldızdan sonra BOŞLUK) hâlâ siliniyordu | Sezgisel bırakıldı; dize/yorum ayıran tek geçişli tarayıcı yazıldı |
+| 2 | `KUBECONFIG` geçiyordu | `KUBECONFIG`, `DOCKER_CONFIG`, `GOOGLE_APPLICATION_CREDENTIALS`, `VAULT_`, `AZURE_`, `GITLAB_`, `CLOUDSDK_` |
+| 3 | YAML blok skaleri ad bağlamını kaybediyordu | Değer satırı girintili ve tek başınaysa önceki üç satırda sır adı aranıyor |
+| 5 | **Yalnızca İLK dolu yol alanı denetleniyordu** | Tüm alanlar denetleniyor; herhangi biri hassassa ret |
+| 7 | `npm version` (tiresiz) doğrulama sayılıyordu | Alt komut deseni: `version`, `help`, `info`, `list`, `ls` |
+| 8 | **B4 ve B6 testleri düzeltme geri alınsa kırılmıyordu** | İkisi de gerçek yola bağlandı ve geri alma denemesiyle kanıtlandı |
+
+## 5. madde en ağırı
+
+`assessToolPath` yol alanlarını `||` zinciriyle okuyordu, yani **ilk dolu
+alanda duruyordu**. `speech_to_text({ path: "README.md", audioPath:
+"~/.ssh/id_rsa" })` masum `path` üzerinden geçiyor, araç sonra hassas
+`audioPath`ı okuyup gönderiyordu.
+
+Alan adlarını eklemek yetmiyordu — mantık yanlıştı. Bir alanı denetleyip
+diğerini serbest bırakmak, denetimi saldırganın alan seçimine bırakmaktır.
+
+## 8. madde en utandırıcısı
+
+B6 testinin yorumunda "bilerek köprü üzerinden gidiyor" yazıyordu. Gitmiyordu:
+`dist/index.js`'i doğrudan çağırıyordu ve köprü düzeltmesi geri alınsa yeşil
+kalıyordu. Yani bir tur önce "yanlış katmanı ölçen test" diye yazdığım hatayı,
+o hatayı düzelten testte tekrarladım.
+
+Yorum, koda bakmadan doğrulanamaz. Bu turdan sonra her iki test **geri alma
+denemesiyle** sınandı: düzeltmeler geri alındığında ikisi de kırılıyor,
+geri yüklendiğinde ikisi de geçiyor. Bir testin değerini ölçmenin tek yolu bu.
+
+## 1. maddede sezgisel terk edildi
+
+Satır başındaki `*` üzerine kurulu iki istisna üst üste kırıldı (`*gen`, sonra
+`* gen`). Üçüncüsünü yazmak dördüncüsünü davet ederdi. Yerine dizeleri, satır
+yorumlarını ve blok yorumlarını ayırt eden küçük bir durum makinesi kondu.
+Dört kaçış biçimi de sınandı; gerçek bir blok yorum yanlış alarm vermiyor.
+
+Testler: `test/security/codex-tur3.test.js` (24 test).

@@ -165,6 +165,12 @@ const DOGRULAMA_SAYILMAZ = /^\s*(echo|printf|true|:|ls|dir|pwd|cd|cat|type|whoam
 // eşleşiyordu, bu ise ARGÜMANLA eşleşiyor.
 const SORGU_ARGUMANI = /(^|\s)(--version|-v|--help|-h|--dry-run|--list)(\s|$)/i;
 
+// Argümansız sürüm/bilgi ALT KOMUTLARI. `npm version` tirelenmiş desene
+// takılmıyordu ama yalnızca sürüm basıyor (Codex kapanış turu). Kara listenin
+// tanımı gereği eksik olduğu kabul edilmiş bir sınır; bu yalnızca en yaygın
+// üçünü kapatıyor.
+const SORGU_ALTKOMUTU = /^\s*\S+\s+(version|--?v|help|info|list|ls)\s*$/i;
+
 function dogrulamaBul(kayitlar) {
   const sonDegisiklik = kayitlar.reduce(
     (enSon, r, i) =>
@@ -176,7 +182,9 @@ function dogrulamaBul(kayitlar) {
     if (r.status === 'error') continue;
     if (!/^(bash|shell_command|code_execution)$/.test(r.tool)) continue;
     const komut = (r.args && (r.args.command || r.args.cmd || r.args.code)) || '';
-    if (!komut || DOGRULAMA_SAYILMAZ.test(komut) || SORGU_ARGUMANI.test(komut)) continue;
+    if (!komut) continue;
+    if (DOGRULAMA_SAYILMAZ.test(komut)) continue;
+    if (SORGU_ARGUMANI.test(komut) || SORGU_ALTKOMUTU.test(komut)) continue;
     return { kayit: r, komut: String(komut).replace(/\s+/g, ' ').slice(0, 80) };
   }
   return null;
