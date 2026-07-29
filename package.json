@@ -37,7 +37,8 @@
     "typecheck": "tsc --build",
     "kapilar": "node scripts/provenance-check.mjs && node scripts/gateway-boundary-check.mjs",
     "tema": "node scripts/tema-onizleme.mjs",
-    "tema:hepsi": "node scripts/tema-onizleme.mjs --hepsi"
+    "tema:hepsi": "node scripts/tema-onizleme.mjs --hepsi",
+    "yetenekler": "node scripts/yetenek-denetimi.mjs"
   },
   "keywords": [
     "natureco",
