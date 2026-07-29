@@ -80,3 +80,7 @@ nc-restore/
 *.bak
 .codedna.db
 .natureco/
+
+# TypeScript derleme çıktısı ve artımlı derleme bilgisi
+packages/*/dist/
+*.tsbuildinfo

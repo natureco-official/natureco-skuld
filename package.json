@@ -19,7 +19,7 @@
     "DEPLOY_v2.0.0.md"
   ],
   "scripts": {
-    "test": "vitest run",
+    "test": "vitest run && node scripts/run-tests.mjs",
     "test:unit": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -31,7 +31,11 @@
     "smoke:context": "node scripts/e2e-context-smoke.js",
     "smoke:browser": "node scripts/e2e-browser-smoke.js",
     "postinstall": "node scripts/postinstall.js",
-    "prepublishOnly": "node --check bin/nskuld.js && eslint src/ bin/ test/ --quiet && vitest run"
+    "prepublishOnly": "node --check bin/nskuld.js && eslint src/ bin/ test/ --quiet && vitest run",
+    "test:cli": "vitest run",
+    "test:paketler": "node scripts/run-tests.mjs",
+    "typecheck": "tsc --build",
+    "kapilar": "node scripts/provenance-check.mjs && node scripts/gateway-boundary-check.mjs"
   },
   "keywords": [
     "natureco",
@@ -97,12 +101,17 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.1",
     "@vitest/coverage-v8": "^4.1.9",
     "eslint": "^10.6.0",
     "globals": "^17.8.0",
+    "typescript": "^5.9.3",
     "vitest": "^4.1.9"
   },
   "overrides": {
     "undici": "6.27.0"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
