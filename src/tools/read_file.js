@@ -35,6 +35,36 @@ function _formatNumbered(text, startLine) {
   return out;
 }
 
+/**
+ * Sır UYARISI — maskeleme DEĞİL (Codex tur 3, bulgu 4).
+ *
+ * `grep_search` ve `document_extract` içeriği maskeliyor; bu araç
+ * MASKELEYEMEZ. Sebebi ifşa riskini önemsememek değil, daha büyük bir riski
+ * önlemek: `read_file`ın çıktısı düzenleme akışında geri yazılır
+ * ("oku → değiştir → write_file"). Maskelenmiş içerik geri yazılırsa
+ * kullanıcının gerçek anahtarı `sk-a***LLLL` ile EZİLİR. Sessiz veri kaybı,
+ * sessiz ifşadan kötüdür ve geri alınamaz.
+ *
+ * Onun yerine içerik olduğu gibi dönüyor, yanına bir uyarı konuyor: model de
+ * kullanıcı da bu dosyanın kimlik bilgisi taşıdığını görüyor. Asıl savunma
+ * yol politikası (`.env`, `.ssh`, `.aws` engelli).
+ *
+ * Üç dönüş noktasının HEPSİNDE çağrılıyor. İlk yazışımda yalnızca sayfalama
+ * yolunu düzenlemiştim ve varsayılan yol — en çok kullanılanı — uyarısız
+ * kalmıştı.
+ */
+function sirUyarisi(icerik) {
+  try {
+    const { scanText } = require('../utils/secret-scanner');
+    const bulgular = scanText(icerik).filter((b) => b.severity !== 'low');
+    if (bulgular.length === 0) return {};
+    const tipler = [...new Set(bulgular.map((b) => b.type))].join(', ');
+    return { sirUyarisi: bulgular.length + ' olası kimlik bilgisi içeriyor (' + tipler + ') — dışarı göndermeyin' };
+  } catch {
+    return {};
+  }
+}
+
 async function readFile(params) {
   try {
     const { expandPath } = require('../utils/paths');
@@ -66,6 +96,7 @@ async function readFile(params) {
         success: true,
         path: filePath,
         content: preview,
+        ...sirUyarisi(preview),
         size: stats.size,
         truncated: true,
       };
@@ -79,6 +110,7 @@ async function readFile(params) {
         success: true,
         path: filePath,
         content: raw,
+        ...sirUyarisi(raw),
         size: stats.size,
         truncated: false,
       };
@@ -98,6 +130,7 @@ async function readFile(params) {
       success: true,
       path: filePath,
       content,
+      ...sirUyarisi(content),
       size: stats.size,
       truncated: end < totalLines,
       total_lines: totalLines,

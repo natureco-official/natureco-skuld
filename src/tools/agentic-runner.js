@@ -134,6 +134,49 @@ function agentExecAllowed(command, opts) {
  * Destekler: <invoke name><parameter name> (opsiyonel <minimax:tool_call> sarmali),
  * <skill>ad</skill> kisayolu, ve yan yana gelen native OpenAI tool_calls.
  */
+/**
+ * Kayıtlar içinde GERÇEK bir doğrulama var mı?
+ *
+ * Codex tur 3, bulgu 7: eski hâli "hatasız biten ilk bash/shell/code kaydı"nı
+ * doğrulama sayıyordu. `echo tamam` çıkış kodu sıfır verir, kayıt `done`
+ * olur ve hafızaya "dosya değişti ve doğrulandı" yazılırdı — hiçbir şey
+ * doğrulanmamışken. Yanlış bir başarı iddiası, sonraki oturumlara kalıcı
+ * proje gerçeği olarak taşınır; bu, hiç yazmamaktan kötü.
+ *
+ * İki ek koşul:
+ *
+ *  1. Komut, doğrulama YAPAN bir komut olmalı. `echo`, `ls`, `cd`, `cat`
+ *     çıktı üretir ama bir şey kanıtlamaz. Beyaz liste değil kara liste
+ *     kullanılıyor: bilinmeyen bir komut (`make check`, `./betik.sh`) muhtemel
+ *     bir doğrulamadır, `echo` ise kesinlikle değildir.
+ *
+ *  2. Doğrulama, SON dosya değişikliğinden SONRA çalışmış olmalı. Önce test
+ *     koşup sonra dosyayı bozmak da üç koşulu sağlıyordu.
+ *
+ * Bu hâlâ anlamsal doğruluk kanıtı değil — komutun göreve ilgili olduğunu
+ * kanıtlayamayız. Yalnızca "hiçbir şey çalıştırmadan doğrulandı demek"
+ * kapatılıyor, ve kaydedilen metin artık hangi komutun çalıştığını yazıyor
+ * ki sonraki oturum kendi kararını verebilsin.
+ */
+const DOGRULAMA_SAYILMAZ = /^\s*(echo|printf|true|:|ls|dir|pwd|cd|cat|type|whoami|date|sleep|clear)\b/i;
+
+function dogrulamaBul(kayitlar) {
+  const sonDegisiklik = kayitlar.reduce(
+    (enSon, r, i) =>
+      /^(write_file|edit_file|structural_patch|notebook_edit)$/.test(r.tool) ? i : enSon,
+    -1,
+  );
+  for (let i = kayitlar.length - 1; i > sonDegisiklik; i--) {
+    const r = kayitlar[i];
+    if (r.status === 'error') continue;
+    if (!/^(bash|shell_command|code_execution)$/.test(r.tool)) continue;
+    const komut = (r.args && (r.args.command || r.args.cmd || r.args.code)) || '';
+    if (!komut || DOGRULAMA_SAYILMAZ.test(komut)) continue;
+    return { kayit: r, komut: String(komut).replace(/\s+/g, ' ').slice(0, 80) };
+  }
+  return null;
+}
+
 function parseAgenticCalls(content, nativeToolCalls) {
   const calls = [];
   content = content || '';
@@ -561,16 +604,15 @@ async function runAgentic({ callModel, systemPrompt, historyMessages, task, tool
   }
 
   // ── REMEMBER ──────────────────────────────────────────────────────────
-  // Yalnızca (a) dosya değiştiyse, (b) bir doğrulama komutu başarılıysa ve
-  // (c) kalite kapısı BLOKLAMADIYSA yazılır. Engellenen ya da doğrulanmamış
-  // bir işi "böyle yapıldı" diye kaydetmek sonraki oturumu yanıltır.
+  // Yalnızca (a) dosya değiştiyse, (b) GERÇEK bir doğrulama komutu
+  // başarılıysa ve (c) kalite kapısı BLOKLAMADIYSA yazılır. Engellenen ya da
+  // doğrulanmamış bir işi "böyle yapıldı" diye kaydetmek sonraki oturumu
+  // yanıltır — üstelik kalıcı olarak.
   let yazilanKarar = null;
-  const dogrulama = allRecords.find(
-    (r) => r.status !== 'error' && /^(bash|shell_command|code_execution)$/.test(r.tool),
-  );
+  const dogrulama = dogrulamaBul(allRecords);
   if (hafiza && hafiza.bagliMi && degisen.length > 0 && dogrulama && !(kaliteRaporu && kaliteRaporu.blokluyorMu)) {
     try {
-      const karar = `${String(task).replace(/\s+/g, ' ').slice(0, 160)} — ${degisen.length} dosya değişti ve doğrulandı`;
+      const karar = `${String(task).replace(/\s+/g, ' ').slice(0, 160)} — ${degisen.length} dosya değişti, \`${dogrulama.komut}\` ile doğrulandı`;
       if (await hafiza.hatirlat(karar, 'proje', 'skuld/agentic-runner')) {
         yazilanKarar = karar;
         if (onEvent) onEvent({ type: 'hafiza-yazildi', karar });

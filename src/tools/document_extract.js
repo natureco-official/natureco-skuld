@@ -69,12 +69,22 @@ module.exports = {
         ? cleaned.slice(0, maxChars) + '...'
         : cleaned;
 
+      // Sır maskesi (Codex tur 3, bulgu 4). `grep_search` sonuçları
+      // süzülüyordu ama aynı içerik bu araçtan ham geçiyordu.
+      //
+      // Burada maskelemek GÜVENLİ, `read_file`'da değil: bu araç belgeden
+      // METİN ÇIKARIR, dosyayı geri yazma döngüsüne girmez. `read_file`'ın
+      // çıktısı ise düzenleme akışında geri yazılabilir ve maskelenmiş içerik
+      // geri yazılırsa kullanıcının sırrını YOK EDER — bilgi ifşasından daha
+      // kötü bir hata.
+      const { maskText } = require('../utils/secret-scanner');
+
       return {
         success: true,
         path: filePath,
         extension: ext,
         fileSize: stats.size,
-        content: truncated,
+        content: maskText(truncated),
         wordCount: cleaned.split(/\s+/).length,
         totalChars: cleaned.length,
         truncated: cleaned.length > maxChars,

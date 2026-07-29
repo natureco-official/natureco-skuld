@@ -9,6 +9,11 @@ const SENSITIVE_READ = [
   /gcloud[\\/].*(credential|token)/i, /(^|[\\/])\.npmrc$/i,
   /(^|[\\/])\.git-credentials$/i, /\.natureco[\\/]config\.json$/i,
   /(^|[\\/])\.netrc$/i,
+  // `.env` — en yaygın sır dosyası ve listede yoktu (Codex tur 3, bulgu 5).
+  // `.env.example`, `.env.sample`, `.env.template` KASTEN dışarıda: onlar
+  // yer tutucu içerir, paylaşılmak için vardır ve ajanın onları okuyabilmesi
+  // gerekir — projeyi kurmanın normal yolu bu.
+  /(^|[\\/])\.env(?!\.(example|sample|template|dist|defaults?)\b)(\.[a-z0-9-]*)?$/i,
 ];
 const SENSITIVE_WRITE = [
   ...SENSITIVE_READ,
@@ -36,9 +41,16 @@ function assessToolPath(toolName, args = {}) {
   // `file_search` `basePath`, kabuk araçları `cwd` kullanıyor. Eksik bir ad,
   // o aracın denetimden tamamen muaf olması demek — `basePath` tam olarak
   // böyle kaçmıştı.
+  // `file` ve `outputPath` Codex tur 3, bulgu 5 ile eklendi ve doğrulandı:
+  // `computer_use({action:"screenshot", file:"~/.ssh/authorized_keys"})` ve
+  // `macos_screenshot({outputPath:"…"})` politikayı tamamen atlıyordu — üstelik
+  // bunlar YAZMA yolları, yani hassas bir dosyanın üzerine ekran görüntüsü
+  // yazılabiliyordu.
   const rawPath = args.path || args.filePath || args.file_path
     || args.cwd || args.directory || args.dir || args.yol
-    || args.basePath || args.base_path || args.rootPath || args.root;
+    || args.basePath || args.base_path || args.rootPath || args.root
+    || args.file || args.outputPath || args.output_path || args.output
+    || args.dest || args.destination || args.target;
   if (!rawPath) return { allowed: true };
   const targetPath = expandPath(rawPath);
   const write = toolName === 'write_file' || toolName === 'edit_file' || toolName === 'structural_patch';

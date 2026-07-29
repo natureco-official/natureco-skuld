@@ -138,7 +138,14 @@ function maskText(text) {
   let out = text;
   for (const { regex } of SECRET_PATTERNS) {
     const bayrak = regex.flags.includes('g') ? regex.flags : regex.flags + 'g';
-    out = out.replace(new RegExp(regex.source, bayrak), (m) => (masumMu(m) ? m : redactSecret(m)));
+    out = out.replace(
+      new RegExp(regex.source, bayrak),
+      (m, ...rest) => {
+        const tumMetin = rest[rest.length - 1];
+        const konum = rest[rest.length - 2];
+        return masumMu(m, tumMetin, konum) ? m : redactSecret(m);
+      },
+    );
   }
   return out;
 }
@@ -155,8 +162,25 @@ function maskText(text) {
  * daraltılıyor: 40 haneli saf onaltılık bir dize git nesne kimliğidir. Gerçek
  * bir AWS anahtarının tesadüfen saf onaltılık çıkma olasılığı (16/64)^40.
  */
-function masumMu(eslesme) {
-  return /^[0-9a-f]{40}$/i.test(eslesme);
+function masumMu(eslesme, tumMetin, konum) {
+  if (!/^[0-9a-f]{40}$/i.test(eslesme)) return false;
+
+  // Codex tur 3, bulgu 3: muafiyet fazla genişti ve doğrulandı.
+  // `WEBHOOK_SECRET=0123456789abcdef0123456789abcdef01234567` maskelenmeden
+  // geçiyordu. Bir değerin git SHA'sına BENZEMESİ onun git SHA'sı olduğunu
+  // kanıtlamaz; 160 bitlik hex, HMAC ve webhook imzalama sırlarının da
+  // standart biçimi.
+  //
+  // Biçim ikisini ayırt edemiyor, ama BAĞLAM edebiliyor: SHA'lar bir
+  // atamanın sağ tarafında `SECRET=` diye durmaz.
+  if (typeof tumMetin === 'string' && typeof konum === 'number') {
+    const satirBasi = tumMetin.lastIndexOf('\n', konum) + 1;
+    const oncesi = tumMetin.slice(satirBasi, konum);
+    if (/(secret|token|key|password|passwd|auth|signature|hmac)\s*[:=]\s*['"`]?\s*$/i.test(oncesi)) {
+      return false; // sır adıyla atanmış — SHA değil
+    }
+  }
+  return true;
 }
 
 /**

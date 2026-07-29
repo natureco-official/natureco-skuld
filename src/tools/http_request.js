@@ -25,6 +25,10 @@ async function httpRequest({ url, method = 'GET', headers = {}, body = null, tim
       amac: 'http_request aracı',
       kararVerildi: agOnayli === true,
       govdeBayt: govde == null ? 0 : Buffer.byteLength(govde, 'utf8'),
+      // Önizleme MASKELİ gider: boyut tek başına `AAAA…` ile
+      // `prod-db-password`ü ayırt ettirmiyor, ama ham gövdeyi onay ekranına
+      // basmak da o ekranı sızıntının kendisi yapardı.
+      govdeOnizleme: govde == null ? undefined : require('../utils/secret-scanner').maskText(govde),
       baslikAdlari: Object.keys(headers || {}),
     });
   } catch (hata) {

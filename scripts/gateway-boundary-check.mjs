@@ -54,6 +54,37 @@ const YASAK = [
 
 const KAYNAK_UZANTI = new Set([".ts", ".mts", ".js", ".mjs", ".cjs"]);
 
+/**
+ * Yorumları ayıklar — ama blok yorum DESENİYLE DEĞİL.
+ *
+ * Codex tur 3, bulgu 1: eski hâli `/\/\*[\s\S]*?\*\//g` ile blok yorumları
+ * siliyordu ve bu regex dizeyle yorumu ayırt edemiyor. Şu üç satır lint'i
+ * tamamen kör ediyordu ve doğrulandı — "0 ihlal" dedi:
+ *
+ *     const baslangic = "/*";
+ *     const { spawn } = require("node:child_process");
+ *     const bitis = "*\/";
+ *
+ * İlk dizedeki `/*` ile son dizedeki `*\/` arası yorum sanılıp siliniyor,
+ * arada duran gerçek import'la birlikte. Bunu "kastî kaçış" diye elemiştim;
+ * değil — dizesinde `/*` geçen sıradan kod da aynı sonucu verir.
+ *
+ * Çözüm sözdizimi ayrıştırıcısı değil, daha dar bir tanım: yalnızca `//` ya
+ * da `*` ile BAŞLAYAN satırlar atılıyor. Bir satırın başındaki bu belirteç
+ * dize içinde olamaz.
+ *
+ * Bedeli: tek satırlık `/* … *\/` biçimindeki gerçek bir yorum artık
+ * ayıklanmıyor, yani içinde gerçek bir import yazımı geçerse yanlış alarm
+ * verir. Güvenlik lint'inde yanlış alarm gürültülüdür, kaçırılan ihlal
+ * sessizdir; gürültülü taraf doğru taraftır.
+ */
+function kodSatirlari(metin) {
+  return metin
+    .split(/\r?\n/)
+    .filter((s) => !/^\s*(\/\/|\*)/.test(s))
+    .join("\n");
+}
+
 let ihlal = 0;
 
 async function* dosyalar(dizin) {
@@ -79,12 +110,7 @@ for await (const dosya of dosyalar(PAKETLER)) {
   if (paket === IZINLI_PAKET) continue;
 
   const metin = readFileSync(dosya, "utf8");
-  // Yorum satırlarını çıkar: açıklamada geçen "child_process" ihlal değildir.
-  const kod = metin
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .split("\n")
-    .filter((s) => !/^\s*(\/\/|\*)/.test(s))
-    .join("\n");
+  const kod = kodSatirlari(metin);
 
   for (const desen of YASAK) {
     if (desen.test(kod)) {
@@ -107,11 +133,7 @@ for (const kokAd of ["src", "bin"]) {
     taranan++;
     const goreli = path.relative(KOK, dosya).split(path.sep).join("/");
     const metin = readFileSync(dosya, "utf8");
-    const kod = metin
-      .replace(/\/\*[\s\S]*?\*\//g, "")
-      .split(/\r?\n/)
-      .filter((s) => !/^\s*(\/\/|\*)/.test(s))
-      .join("\n");
+    const kod = kodSatirlari(metin);
     if (YASAK.some((desen) => desen.test(kod))) bulunan.add(goreli);
   }
 }

@@ -594,11 +594,30 @@ export interface AgIstegi {
   /** Gönderilecek gövdenin boyutu. Onay metninde gösterilir. */
   readonly govdeBayt?: number;
   /**
+   * Gövdenin MASKELENMİŞ önizlemesi.
+   *
+   * Codex tur 3, bulgu 6: boyut tek başına yetmiyor. "POST /upload · gövde
+   * 16 bayt" satırı `AAAAAAAAAAAAAAAA` için de `prod-db-password` için de
+   * aynı görünüyor, ve kullanıcının verdiği karar tam olarak bu ikisi
+   * arasındaki fark.
+   *
+   * Çağıran taraf bunu `sirlariMaskele`den geçirerek verir: onay ekranı
+   * sızıntıyı önlemek için var, oraya ham anahtar basmak ekranı sızıntının
+   * kendisi yapardı.
+   */
+  readonly govdeOnizleme?: string;
+  /**
    * Gönderilecek başlıkların ADLARI. DEĞERLERİ DEĞİL — `Authorization`
    * değerini onay ekranına basmak, sızıntıyı önlemek için var olan ekranın
    * kendisini sızıntıya çevirirdi.
    */
   readonly baslikAdlari?: readonly string[];
+}
+
+/** Tek satıra indirger ve kırpar — onay metni kaydırılamaz. */
+function kirp(metin: string, enFazla: number): string {
+  const tek = metin.replace(/\s+/g, " ").trim();
+  return tek.length > enFazla ? `${tek.slice(0, enFazla)}…` : tek;
 }
 
 /** İnsan okur biçimde boyut. Onay metninde "gövde 1.4 MB" gibi görünür. */
@@ -692,7 +711,10 @@ export async function agOnayi(
   // https://x.example/log" iki bayt da gönderebilir, deponun tamamını da;
   // ikisi arasındaki fark tam olarak kullanıcının karar verdiği şey.
   if (typeof istek.govdeBayt === "number" && istek.govdeBayt > 0) {
-    isaretler.push(`gövde ${boyutMetni(istek.govdeBayt)}`);
+    const onizleme = istek.govdeOnizleme
+      ? `: ${kirp(istek.govdeOnizleme, 160)}`
+      : "";
+    isaretler.push(`gövde ${boyutMetni(istek.govdeBayt)}${onizleme}`);
   }
   const adlar = (istek.baslikAdlari ?? []).map((b) => b.toLowerCase());
   const kimlikBasliklari = adlar.filter((b) =>

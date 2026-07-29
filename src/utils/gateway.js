@@ -181,7 +181,35 @@ async function kodOnayiSor({ dil, kod, cwd }) {
  * ortamın tamamının oraya gitmesi gerekmez.
  */
 const SIR_ANAHTARI =
-  /(_KEY|_TOKEN|_SECRET|_PASSWORD|_PASS|_CREDENTIAL|API_KEY|AUTH|_DSN|_WEBHOOK|_URI|_SALT|_SIGNING|SERVICE_ROLE|SESSION|COOKIE|PRIVATE)$|(_KEY|_TOKEN|_SECRET|_WEBHOOK|_DSN|CREDENTIAL)_|^(AWS_|GITHUB_TOKEN|OPENAI|ANTHROPIC|GEMINI|GROQ|MINIMAX|FIRECRAWL|SUPABASE|NPM_TOKEN|DATABASE_URL|REDIS_URL|MONGODB_URI|SENTRY_DSN)/i;
+  // Alt çizgiyle ayrılmış sonekler.
+  /(_KEY|_TOKEN|_SECRET|_PASSWORD|_PASS|_CREDENTIAL|API_KEY|AUTH|_DSN|_WEBHOOK|_URI|_SALT|_SIGNING|SERVICE_ROLE|SESSION|COOKIE|PRIVATE)$/i;
+
+/**
+ * Ayıraçsız yazılan kimlik değişkenleri.
+ *
+ * Codex tur 3, bulgu 2: `PGPASSWORD` süzgeçten geçiyordu ve doğrulandı.
+ * `_PASSWORD$` alt çizgi bekliyor, `PGPASSWORD` ise tek kelime. Aynı biçim
+ * `MYSQL_PWD`, `PGPASSFILE`, `REDISCLI_AUTH` gibi standart adlarda da var —
+ * yani araçların kendi belgelerinde önerdiği adlar tam olarak süzgecin
+ * göremediği adlar.
+ *
+ * Sonek listesine güvenmenin sınırı bu: sır, onu adlandıran aracın
+ * alışkanlığına göre adlanır, bizim desenimize göre değil.
+ */
+const SIR_PARCASI =
+  /(PASSWORD|PASSWD|PASSFILE|SECRET|TOKEN|APIKEY|CREDENTIAL|PRIVATEKEY)/i;
+
+const SIR_ONEKI =
+  /^(AWS_|GITHUB_TOKEN|OPENAI|ANTHROPIC|GEMINI|GROQ|MINIMAX|FIRECRAWL|SUPABASE|NPM_TOKEN|DATABASE_URL|REDIS_URL|MONGODB_URI|SENTRY_DSN|PG|MYSQL_PWD|REDISCLI_AUTH)/i;
+
+const SIR_ORTASI = /(_KEY|_TOKEN|_SECRET|_WEBHOOK|_DSN|CREDENTIAL)_/i;
+
+function anahtarSirMi(ad) {
+  // `PG` öneki geniş: `PGHOST` ve `PGPORT` sır değil, `PGPASSWORD` sır.
+  // Önek tek başına yetmiyor, parça kontrolüyle birlikte anlam kazanıyor.
+  if (/^PG/i.test(ad)) return SIR_PARCASI.test(ad);
+  return SIR_ANAHTARI.test(ad) || SIR_PARCASI.test(ad) || SIR_ONEKI.test(ad) || SIR_ORTASI.test(ad);
+}
 
 /**
  * Değerin kendisi sır gibi mi duruyor?
@@ -223,7 +251,7 @@ function degerSirMi(deger) {
 function ortamiTemizle(ortam) {
   const temiz = {};
   for (const [k, v] of Object.entries(ortam)) {
-    if (SIR_ANAHTARI.test(k)) continue;
+    if (anahtarSirMi(k)) continue;
     if (degerSirMi(v)) continue;
     temiz[k] = v;
   }
