@@ -222,3 +222,68 @@ async function realpathish(p: string): Promise<string> {
   const { realpath } = await import("node:fs/promises");
   return await realpath(p);
 }
+
+describe("execution-gateway — kabuk yeteneği", () => {
+  it("kabuk komutu onaysız ÇALIŞMAZ, onaysız listesi burada geçersizdir", async () => {
+    const kok = await workspaceKur();
+    // `node` onaysız listede olsa bile kabuk yolunda onay sorulmalı: kabuk
+    // komutunda hangi programların çalışacağı önceden bilinmez.
+    const gw = new ExecutionGateway({
+      workspace: kok,
+      onay: otomatikRet,
+      onaysizKomutlar: new Set(["node", "echo"]),
+    });
+    await assert.rejects(() => gw.kabuk({ komut: "echo merhaba" }), /onaylamadı/);
+  });
+
+  it("onay metni kabuk olduğunu SÖYLER", async () => {
+    const kok = await workspaceKur();
+    const istekler: OnayIstegi[] = [];
+    const gw = new ExecutionGateway({
+      workspace: kok,
+      onay: async (i) => {
+        istekler.push(i);
+        return "ret";
+      },
+    });
+    await assert.rejects(() => gw.kabuk({ komut: "cat /etc/passwd | head -1" }));
+
+    const istek = istekler[0]!;
+    assert.match(istek.gerekce, /KABUK/, "gerekçe kabuk olduğunu söylemeli");
+    // Komut kısaltılmadan gösterilmeli: kullanıcı neyi onayladığını bilmeli.
+    assert.equal(istek.komut, "cat /etc/passwd | head -1");
+  });
+
+  it("onaylanınca boru ve zincir GERÇEKTEN çalışır", async () => {
+    const kok = await workspaceKur();
+    const gw = new ExecutionGateway({ workspace: kok, onay: async () => "izin" });
+    const komut =
+      process.platform === "win32"
+        ? "echo bir && echo iki"
+        : "echo bir && echo iki";
+    const sonuc = await gw.kabuk({ komut });
+    assert.equal(sonuc.cikisKodu, 0);
+    // Kabuk yolunun varlık sebebi bu: `&&` bir program adı değil, kabuk
+    // sözdizimi. `calistir()` bunu reddeder ve reddetmeye devam etmeli.
+    assert.match(sonuc.stdout, /bir/);
+    assert.match(sonuc.stdout, /iki/);
+  });
+
+  it("kabuk çıktısındaki sırlar da maskelenir", async () => {
+    const kok = await workspaceKur();
+    const gw = new ExecutionGateway({ workspace: kok, onay: async () => "izin" });
+    const sonuc = await gw.kabuk({ komut: 'echo "token: ghp_CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"' });
+    assert.ok(!sonuc.stdout.includes("CCCCCCCCCC"), `sır kabuk çıktısında kaldı: ${sonuc.stdout}`);
+    assert.match(sonuc.stdout, /ghp_\*\*\*/);
+  });
+
+  it("yapılandırılmış yol kabuk sözdizimini REDDETMEYE devam eder", async () => {
+    // Kabuk ayrı bir yetenek olarak eklendi diye `calistir()` gevşememeli.
+    const kok = await workspaceKur();
+    const gw = new ExecutionGateway({ workspace: kok, onay: async () => "izin" });
+    await assert.rejects(
+      () => gw.calistir({ komut: "echo bir && echo iki", argumanlar: [] }),
+      /metakarakter/,
+    );
+  });
+});

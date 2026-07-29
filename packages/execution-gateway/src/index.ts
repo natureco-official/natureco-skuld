@@ -114,6 +114,17 @@ export class ExecutionGateway {
   }
 
   /**
+   * Kabuk üzerinden çalıştırır. `calistir()`'dan farklı bir yetenek:
+   * argümanlar ayrıştırılmaz ve onay HER ZAMAN sorulur.
+   */
+  async kabuk(istek: KabukIstegi): Promise<CalistirmaSonucu> {
+    return await kabukCalistir(this, this.#onay, istek, {
+      zamanAsimiMs: this.#zamanAsimi,
+      ciktiSiniri: this.#ciktiSiniri,
+    });
+  }
+
+  /**
    * Bir yolun workspace içinde kaldığını doğrular.
    *
    * `realpath` ŞART: yalnızca string karşılaştırması yapmak symlink kaçışını
@@ -272,6 +283,103 @@ export class ExecutionGateway {
 
 /** CI/non-interactive mod: hiçbir şeyi onaylamaz, sessizce geçmez. */
 export const otomatikRet: OnayIsteyici = async () => "ret";
+
+export interface KabukIstegi {
+  /** Kabuğa verilecek TAM komut dizesi (boru, yönlendirme içerebilir). */
+  readonly komut: string;
+  readonly cwd?: string;
+  readonly zamanAsimiMs?: number;
+}
+
+/**
+ * Kabuk üzerinden çalıştırma — AYRI ve daha yüksek riskli bir yetenek.
+ *
+ * `calistir()` kabuğu bilinçli olarak kapalı tutar ve bu sabittir: parametre
+ * yapılırsa "sadece bu çağrı için" açılır ve kapı kalmaz.
+ *
+ * Ama bir kodlama ajanının boru, yönlendirme ve `&&` zincirine gerçekten
+ * ihtiyacı var — Claude Code'un Bash aracı da gerçek kabuk çalıştırıyor.
+ * Doğru cevap `calistir()`'a bayrak eklemek değil, kabuğu AYRI bir yetenek
+ * olarak tanımlamak: burada argüman ayrıştırma yok, dolayısıyla enjeksiyon
+ * koruması da yok. Koruma tamamen ONAYDAN geliyor ve bu görünür olmalı.
+ *
+ * Bu yüzden:
+ *  - Onay HER ZAMAN sorulur; `onaysizKomutlar` burada geçerli DEĞİLDİR.
+ *    O liste "şu program güvenlidir" demek için var; kabuk komutunda hangi
+ *    programların çalışacağı önceden bilinmez.
+ *  - Onay metni komutun tamamını kısaltmadan gösterir.
+ *  - Gerekçe kabuk olduğunu söyler; kullanıcı neyi onayladığını bilmeli.
+ */
+export async function kabukCalistir(
+  gw: ExecutionGateway,
+  onay: OnayIsteyici,
+  istek: KabukIstegi,
+  ayar: { zamanAsimiMs: number; ciktiSiniri: number },
+): Promise<CalistirmaSonucu> {
+  const komut = (istek.komut ?? "").trim();
+  if (!komut) throw kullaniciHatasi("boş komut");
+
+  const cwd = istek.cwd ? await gw.yoluDogrula(istek.cwd) : gw.workspace;
+
+  const karar = await onay({
+    sinif: "calistir",
+    komut: sirlariMaskele(komut),
+    cwd,
+    gerekce: "KABUK üzerinden çalışıyor — argümanlar ayrıştırılmıyor",
+  });
+  if (karar !== "izin") {
+    throw politikaReddi("kullanıcı onaylamadı", { komut, kabuk: true });
+  }
+
+  const zamanAsimi = istek.zamanAsimiMs ?? ayar.zamanAsimiMs;
+  const basladi = Date.now();
+
+  return await new Promise<CalistirmaSonucu>((cozumle, reddet) => {
+    const cocuk = spawn(komut, {
+      cwd,
+      shell: true,
+      windowsHide: true,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+    let zamanAsimiOldu = false;
+
+    const sayac = setTimeout(() => {
+      zamanAsimiOldu = true;
+      cocuk.kill("SIGTERM");
+      setTimeout(() => cocuk.kill("SIGKILL"), 2000).unref();
+    }, zamanAsimi);
+
+    cocuk.stdout.on("data", (p) => (stdout += String(p)));
+    cocuk.stderr.on("data", (p) => (stderr += String(p)));
+    cocuk.on("error", (hata) => {
+      clearTimeout(sayac);
+      reddet(
+        kullaniciHatasi("kabuk komutu çalıştırılamadı", {
+          neden: (hata as NodeJS.ErrnoException).code ?? hata.message,
+        }),
+      );
+    });
+    cocuk.on("close", (kod) => {
+      clearTimeout(sayac);
+      // Maskeleme ve sınırlama burada da uygulanır: kabuk yolunun çıktısı,
+      // yapılandırılmış yolunkinden daha az korunmalı değil.
+      const o = ciktiyiSinirla(sirlariMaskele(stdout), ayar.ciktiSiniri);
+      const e = ciktiyiSinirla(sirlariMaskele(stderr), ayar.ciktiSiniri);
+      cozumle({
+        komut,
+        cikisKodu: kod,
+        stdout: o.metin,
+        stderr: e.metin,
+        sureMs: Date.now() - basladi,
+        kesildi: o.kesildi || e.kesildi,
+        zamanAsimi: zamanAsimiOldu,
+      });
+    });
+  });
+}
 
 /**
  * Uzun ömürlü süreç (MCP stdio sunucuları için).
