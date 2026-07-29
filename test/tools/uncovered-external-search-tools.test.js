@@ -91,7 +91,7 @@ describe('previously uncovered paid and external search boundaries', () => {
     vi.stubGlobal('fetch', untouched);
     const tool = require('../../src/tools/firecrawl');
 
-    expect(await tool.execute({ url: 'https://example.test/article' })).toMatchObject({ success: false, error: expect.stringMatching(/API key/) });
+    expect(await tool.execute({ url: 'https://example.test/article', agOnayli: true })).toMatchObject({ success: false, error: expect.stringMatching(/API key/) });
     expect(untouched).not.toHaveBeenCalled();
 
     const fetchMock = vi.fn(async () => jsonResponse({ data: {
@@ -99,7 +99,7 @@ describe('previously uncovered paid and external search boundaries', () => {
     } }));
     vi.stubGlobal('fetch', fetchMock);
     process.env.FIRECRAWL_API_KEY = 'test-firecrawl-key';
-    expect(await tool.execute({ url: 'https://example.test/article', formats: ['markdown', 'html'] })).toEqual({
+    expect(await tool.execute({ url: 'https://example.test/article', formats: ['markdown', 'html'], agOnayli: true })).toEqual({
       success: true,
       url: 'https://example.test/article',
       mode: 'scrape',

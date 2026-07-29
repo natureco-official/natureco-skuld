@@ -16,6 +16,17 @@ module.exports = {
     try {
       const maxChars = params.maxChars || 10000;
 
+      // AĞ İZİN SINIFI — hedef onaysız çağrılmaz (ADR-0002, T2).
+      // `params.agOnayli` — `arguments[0]` DEĞİL: bu bir metot kısayolu ve
+      // `arguments` beklenen nesneye çözülmüyordu, onay hep reddediliyordu.
+      await require('../utils/gateway').agOnayi({
+        // `params.url` — çıplak `url` DEĞİL. Otomatik eklemem bu satırı
+        // `url`'in çözüldüğü yerden önce koymuştu ve kapı params nesnesinin
+        // tamamını URL sanıp "geçersiz URL: [object Object]" diyordu.
+        url: params.url,
+        amac: 'web_readability aracı',
+        kararVerildi: (params && params.agOnayli) === true,
+      });
       const response = await fetch(params.url, {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NatureCo-CLI/2.0; +https://natureco.me)' },
         signal: AbortSignal.timeout(15000)

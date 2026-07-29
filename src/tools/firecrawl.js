@@ -15,6 +15,20 @@ module.exports = {
   },
 
   async execute(params) {
+    // AĞ İZİN SINIFI (ADR-0002, T2). Firecrawl sabit bir servis ucuna gider
+    // ama yine de veri GÖNDERİR ve hedef URL'i üçüncü tarafa taşır. Onay
+    // metni her iki adresi de gösterir: gidilen servis ve taranan hedef.
+    try {
+      await require('../utils/gateway').agOnayi({
+        url: 'https://api.firecrawl.dev/v1/scrape',
+        yontem: 'POST',
+        amac: `firecrawl — hedef: ${(params && params.url) || 'belirtilmemiş'}`,
+        kararVerildi: (params && params.agOnayli) === true,
+      });
+    } catch (hata) {
+      return { success: false, error: hata && hata.message ? hata.message : String(hata) };
+    }
+
     try {
       const config = getConfig();
       const apiKey = config.firecrawlApiKey || process.env.FIRECRAWL_API_KEY;

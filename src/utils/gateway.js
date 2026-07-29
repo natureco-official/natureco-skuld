@@ -69,4 +69,15 @@ async function hataSiniflari() {
   return m;
 }
 
-module.exports = { kapiAc, hataSiniflari };
+/**
+ * Ağ erişimi için onay alır. Onaysızsa fırlatır.
+ *
+ * Araçlar kendi `fetch`'lerini yapmaya devam eder; kapıya alınan şey istek
+ * değil KARARDIR — nereye gidiliyor ve kullanıcı gördü mü.
+ */
+async function agOnayi({ url, yontem, amac, workspace, kararVerildi = false }) {
+  const kapi = await kapiAc({ workspace, kararVerildi });
+  return await kapi.agOnayla({ url, yontem, amac });
+}
+
+module.exports = { kapiAc, hataSiniflari, agOnayi };

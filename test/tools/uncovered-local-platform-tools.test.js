@@ -81,7 +81,11 @@ describe('previously uncovered local network and platform tools', () => {
     });
     const tool = require('../../src/tools/web_readability');
 
-    const result = await tool.execute({ url: `${baseUrl}/article`, maxChars: 60 });
+    // `agOnayli: true` AÇIKÇA veriliyor: ağ izin sınıfı (ADR-0002, T2) artık
+    // her ağ çağrısında onay istiyor ve varsayılan reddetmek. Testin loopback
+    // sunucusuna gitmesi meşru, ama atlamanın çağrı yerinde YAZILI olması
+    // gerekiyor — gizli bir env anahtarı olsaydı bu satır sessizce geçerdi.
+    const result = await tool.execute({ url: `${baseUrl}/article`, maxChars: 60, agOnayli: true });
     expect(result).toMatchObject({
       success: true,
       url: `${baseUrl}/article`,
@@ -95,6 +99,6 @@ describe('previously uncovered local network and platform tools', () => {
     expect(result.content).toHaveLength(63);
     expect(result.content).toContain('This paragraph is deliberately long enough');
     expect(result.content).not.toContain('Hidden navigation');
-    expect(await tool.execute({ url: `${baseUrl}/binary` })).toEqual({ success: false, error: 'URL does not contain HTML content' });
+    expect(await tool.execute({ url: `${baseUrl}/binary`, agOnayli: true })).toEqual({ success: false, error: 'URL does not contain HTML content' });
   });
 });

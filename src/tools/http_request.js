@@ -4,8 +4,21 @@
  * Hermes'ın http_request'ine benzer. API çağrıları için.
  */
 
-async function httpRequest({ url, method = 'GET', headers = {}, body = null, timeoutMs = 30000 }) {
+const { agOnayi } = require('../utils/gateway');
+
+async function httpRequest({ url, method = 'GET', headers = {}, body = null, timeoutMs = 30000, agOnayli = false }) {
   if (!url) return { success: false, error: 'url gerekli' };
+
+  // AĞ İZİN SINIFI (ADR-0002, T2). Bu araç doğrudan `fetch()` çağırıyordu ve
+  // hiçbir onay yoktu: model "şu dosyayı şu adrese POST et" dediğinde duracak
+  // bir şey yoktu. Kapı hedefi doğrular, şifresiz/yerel/veri-gönderen
+  // durumları işaretler ve onaysız geçişi engeller. İsteğin kendisi burada
+  // kalıyor — başlık, gövde ve zaman aşımı mantığı bu aracın.
+  try {
+    await agOnayi({ url, yontem: method, amac: 'http_request aracı', kararVerildi: agOnayli === true });
+  } catch (hata) {
+    return { success: false, error: hata && hata.message ? hata.message : String(hata) };
+  }
 
   // fetch global olarak Node 18+'da var
   if (typeof fetch !== 'function') {

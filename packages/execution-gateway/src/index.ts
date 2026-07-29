@@ -117,6 +117,11 @@ export class ExecutionGateway {
    * Ağ isteği — `ag` izin sınıfı. Onay HER ZAMAN sorulur ve onay metni hedef
    * adresi gösterir.
    */
+  /** Yalnızca onay alır; isteği çağıran kendi yapar. */
+  async agOnayla(istek: AgIstegi): Promise<URL> {
+    return await agOnayi(this.#onay, this.#workspace, istek);
+  }
+
   async ag(istek: AgIstegi): Promise<AgSonucu> {
     return await agIstegi(this.#onay, this.#workspace, istek, {
       zamanAsimiMs: this.#zamanAsimi,
@@ -623,6 +628,51 @@ export interface AgSonucu {
   readonly govde: string;
   readonly kesildi: boolean;
   readonly sureMs: number;
+}
+
+/**
+ * Yalnızca ONAY — isteği kendisi yapmaz.
+ *
+ * `agIstegi()` hem onaylar hem çağırır, ama mevcut ağ araçlarının kendi
+ * başlık/gövde/akış mantığı var ve hepsini tek bir dar sarmalayıcıya sokmak
+ * davranışlarını bozardı. Gerçekten kapıya alınması gereken şey isteğin
+ * kendisi değil KARARIDIR: nereye gidiliyor ve kullanıcı bunu gördü mü.
+ *
+ * Bu yüzden araçlar `agOnayi()` çağırıp kendi fetch'lerini yapmaya devam
+ * ediyor. Kapı hedefi doğruluyor, işaretliyor ve onaysız geçişi engelliyor.
+ */
+export async function agOnayi(
+  onay: OnayIsteyici,
+  cwd: string,
+  istek: AgIstegi,
+): Promise<URL> {
+  let url: URL;
+  try {
+    url = new URL(istek.url);
+  } catch {
+    throw kullaniciHatasi(`geçersiz URL: ${istek.url}`);
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw politikaReddi(`desteklenmeyen protokol: ${url.protocol}`, { url: istek.url });
+  }
+
+  const isaretler: string[] = [];
+  if (url.protocol === "http:") isaretler.push("ŞİFRESİZ http");
+  if (ozelAdres(url.hostname)) isaretler.push("YEREL/ÖZEL ağ hedefi");
+  const yontem = (istek.yontem ?? "GET").toUpperCase();
+  if (yontem !== "GET" && yontem !== "HEAD") isaretler.push(`${yontem} — veri GÖNDERİYOR`);
+
+  const karar = await onay({
+    sinif: "ag",
+    komut: `${yontem} ${url.href}`,
+    cwd,
+    gerekce: [istek.amac ?? "ağ erişimi", ...isaretler].join(" · "),
+    hedef: url.host,
+  });
+  if (karar !== "izin") {
+    throw politikaReddi("ağ erişimi onaylanmadı", { url: url.href, yontem });
+  }
+  return url;
 }
 
 export async function agIstegi(
