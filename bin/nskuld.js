@@ -1068,6 +1068,7 @@ const fs = require('fs');
 const os = require('os');
 const brand = require('../src/utils/branding');
 const tui = require('../src/utils/tui');
+const tema = require('../src/utils/skuld-theme');
 tui.init();
 const { firstRunScreen } = brand;
 
@@ -1103,30 +1104,29 @@ async function handleNoArgs() {
   if (!hasCommand) {
     // Splash animasyonu (sadece TTY'de ve --no-splash yoksa)
     if (!noSplash && tui.CAPS.isTTY && !process.env.CI) {
-      await tui.splash({
-        title: 'NatureCo CLI',
-        version: packageJson.version,
-        subtitle: 'OpenClaw\'dan daha güvenli, daha hızlı, daha ucuz',
-        duration: 1200,
-      });
+      // Skuld'un kendi açılışı: gümüş parıltı. tui.splash NatureCo kimliğine
+      // (yeşil, blok ASCII) bağlıydı; fork'ta onu korumanın anlamı yok.
+      await tema.acilis({ surum: `v${packageJson.version}`, sure: 900 });
     }
 
     if (!skipFirstRun && needsFirstRun()) {
-      if (tui.CAPS.isTTY && !noSplash) {
-        console.log('\n' + tui.C.amber('  ⌥ İlk kurulum hoş geldin! Hızlıca ayarlayalım.\n'));
-      } else {
-        console.log(firstRunScreen());
-      }
+      // Tek giriş metni: TTY olsun olmasın aynı satır. İki ayrı karşılama
+      // metni tutmak, birinin diğerinden kopmasıyla sonuçlanır.
+      console.log(firstRunScreen());
       const setup = require('../src/commands/setup');
       await setup(['wizard']);
-      console.log('\n');
       const userName = require('os').userInfo().username;
-      console.log(tui.welcomeCard({
-        version: packageJson.version,
-        user: { name: userName },
-        status: tui.C.green('✓ Aktif'),
-        tips: brand.pickDailyTip(),
-      }));
+      console.log(
+        tema.anaEkran({
+          surum: `v${packageJson.version}`,
+          proje: process.cwd(),
+          bilesenler: [
+            { tur: 'ok', ad: 'kurulum', not: 'tamamlandı' },
+            { tur: 'bilgi', ad: 'kullanıcı', not: userName },
+          ],
+          ipucu: brand.pickDailyTip(),
+        }),
+      );
       return;
     }
     // Normal kullanım — welcome card
@@ -1140,12 +1140,24 @@ async function handleNoArgs() {
         loginStatus = 'needed';
       }
     } catch { loginStatus = 'unknown'; }
-    console.log('\n' + tui.welcomeCard({
-      version: packageJson.version,
-      user: { name: userName },
-      status: loginStatus === 'ok' ? tui.C.green('✓ Aktif') : tui.C.amber('⚠ API key gerekli'),
-      tips: brand.pickDailyTip(),
-    }));
+
+    // Ana ekran: kutu çizmiyor. Ağır çerçeve yerine hizalama ve boşluk.
+    // Bileşen satırları gerçek duruma bakar — "bağlı" yazıp bağlanmamış
+    // görünmek, bu üründe özellikle kaçındığımız şey.
+    const bilesenler = [
+      loginStatus === 'ok'
+        ? { tur: 'ok', ad: 'sağlayıcı', not: 'yapılandırıldı' }
+        : { tur: 'uyari', ad: 'sağlayıcı', not: 'API anahtarı gerekli — nskuld setup' },
+      { tur: 'bilgi', ad: 'kullanıcı', not: userName },
+    ];
+    console.log(
+      tema.anaEkran({
+        surum: `v${packageJson.version}`,
+        proje: process.cwd(),
+        bilesenler,
+        ipucu: brand.pickDailyTip(),
+      }),
+    );
     return;
   }
   // Global option'ları filtrele (--no-splash, --plain, --profile) ve parse et

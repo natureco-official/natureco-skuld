@@ -9,6 +9,7 @@ const { foldTr } = require('../utils/tr-text');
 const readline = require('readline');
 const inquirer = require('../utils/inquirer-wrapper');
 const brand = require('../utils/branding');
+const tema = require('../utils/skuld-theme');
 const { COLORS, FULL_LOGO } = brand;
 
 const BASE_DIR = path.join(os.homedir(), '.nskuld');
@@ -305,11 +306,16 @@ async function setup(params) {
 
 async function cmdWizard() {
   console.clear();
-  // Tam NatureCo logosu — brand kimliği
-  for (const line of FULL_LOGO) console.log(COLORS.primary(line));
+  // Kelime işareti tek yerden basılır. Önceki hâlde hem firstRunScreen hem
+  // burası basıyordu ve ikisi arka arkaya çalıştığında logo iki kez
+  // görünüyordu. `console.clear()` sonrası burası tek sahip.
+  console.log(tema.hero({ surum: '' }));
+  console.log(tema.kalin(tema.gumus(100, L('  Kurulum', '  Setup'))));
   console.log('');
-  console.log(COLORS.secondary.bold(L('  ⚡ Setup Wizard — 60 saniyede hazır', '  ⚡ Setup Wizard — ready in 60 seconds')));
-  console.log(COLORS.muted(L('  Provider seç, API key gir, hemen başla.\n', '  Pick a provider, enter an API key, start now.\n')));
+  console.log(
+    tema.gumus(400, L('  Sağlayıcı seçin ve anahtarınızı girin.', '  Pick a provider and enter your key.')),
+  );
+  console.log('');
 
   // Ensure directories
   if (!fs.existsSync(BASE_DIR)) fs.mkdirSync(BASE_DIR, { recursive: true });
@@ -338,6 +344,23 @@ async function cmdWizard() {
     ],
     pageSize: 14,
   }]);
+
+  // Etkileşimsiz bağlamda (boru, CI, TTY yok) inquirer seçim döndüremez ve
+  // `provider` undefined kalır; sonraki satır `preset.url` ile çöküyordu ve
+  // kullanıcı "Cannot read properties of undefined" görüyordu. İlk çalıştırma
+  // ekranında okunamayan bir yığın izi, kurulumun kendisinden daha kötü.
+  if (!provider || (provider !== 'custom' && !PROVIDER_PRESETS[provider])) {
+    console.log('');
+    console.log(tema.durum('hata', L('Sağlayıcı seçilemedi', 'No provider selected')));
+    console.log(
+      '  ' +
+        tema.gumus(500, L('Kurulum etkileşimli bir terminal gerektiriyor.', 'Setup needs an interactive terminal.')),
+    );
+    console.log('  ' + tema.gumus(500, L('Terminalde şunu çalıştırın:', 'Run this in a terminal:')));
+    console.log('  ' + tema.gumus(200, 'nskuld setup wizard'));
+    console.log('');
+    return;
+  }
 
   let providerUrl, providerModel;
   if (provider === 'custom') {

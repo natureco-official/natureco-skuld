@@ -1,133 +1,120 @@
 /**
- * NatureCo CLI — Branding & Splash
+ * Skuld — marka ve ekranlar.
  *
- * Tek kaynaktan tüm logo, banner ve renkleri yönetir.
- * Brand kimliğini koruyalım — her yerde aynı görünüm.
+ * Fork edilen natureco-cli'de bu dosya NatureCo kimliğini taşıyordu: yeşil
+ * palet, yaprak emojisi, tavşan maskotu, kalın blok ASCII logo ve NatureCo
+ * ürünlerine (seo, naturehub, cron) yönlendiren ipuçları. Skuld ayrı bir
+ * ürün, o yüzden içerik baştan yazıldı.
+ *
+ * İki şey bilinçli olarak KORUNDU:
+ *
+ *  1. Dışa aktarım şekli (`COLORS`, `pickDailyTip`, `banner`,
+ *     `firstRunScreen`, `gatewayScreen`…). Çağıranlar bu adlara bağlı;
+ *     yeniden adlandırmak görsel bir işi gereksizce kırıcı bir işe çevirirdi.
+ *  2. chalk kullanımı. `COLORS.primary.bold(...)` gibi zincirler var; düz
+ *     fonksiyona çevirmek onları sessizce bozardı.
+ *
+ * Renk DEĞERLERİ `skuld-theme`'den geliyor — iki ayrı palet tutmak, birinde
+ * yapılan değişikliğin diğerinde unutulması demektir.
  */
 
 const chalk = require('chalk');
-const os = require('os');
+const tema = require('./skuld-theme');
+
+/** Paletteki RGB'yi chalk'ın anlayacağı hex'e çevirir. */
+const hex = (rgb) => '#' + rgb.map((v) => v.toString(16).padStart(2, '0')).join('');
 
 const COLORS = {
-  primary: chalk.hex('#22c55e'),   // NatureCo yeşili
-  secondary: chalk.hex('#0ea5e9'), // gökyüzü mavisi
-  accent: chalk.hex('#f59e0b'),    // amber
-  muted: chalk.gray,
-  danger: chalk.red,
-  success: chalk.green,
+  primary: chalk.hex(hex(tema.GUMUS[200])), // ana metin — gümüş
+  secondary: chalk.hex(hex(tema.VURGU)), // tek vurgu — buz mavisi
+  accent: chalk.hex(hex(tema.GUMUS[100])), // en parlak — başlık
+  muted: chalk.hex(hex(tema.GUMUS[600])),
+  danger: chalk.hex('#fda4af'),
+  success: chalk.hex('#86efac'),
   bold: chalk.bold,
+  // `cyan` upstream'de KULLANILIYOR ama TANIMLI DEĞİLDİ: gatewayScreen
+  // çağrıldığı anda "COLORS.cyan is not a function" ile çöküyordu. Hiçbir
+  // yerden çağrılmadığı için fark edilmemiş. Tanımlanıyor.
+  cyan: chalk.hex(hex(tema.VURGU)),
 };
 
-const SMALL_LOGO = [
-  '  🌿  NatureCo',
-];
+const SMALL_LOGO = ['  SKULD'];
+const FULL_LOGO = tema.KELIME_ISARETI;
 
-const FULL_LOGO = [
-  '███╗   ██╗ █████╗ ████████╗██╗   ██╗██████╗ ███████╗ ██████╗  ██████╗ ',
-  '████╗  ██║██╔══██╗╚══██╔══╝██║   ██║██╔══██╗██╔════╝██╔════╝ ██╔═══██╗',
-  '██╔██╗ ██║███████║   ██║   ██║   ██║██████╔╝█████╗  ██║      ██║   ██║',
-  '██║╚██╗██║██╔══██║   ██║   ██║   ██║██╔══██╗██╔══╝  ██║      ██║   ██║',
-  '██║ ╚████║██║  ██║   ██║   ╚██████╔╝██║  ██║███████╗╚██████╗ ╚██████╔╝',
-  '╚═╝  ╚═══╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝ ╚═════╝  ╚═════╝ ',
-];
-
-const MASCOT = `         (\\_/)
-         (•_•)    Hoş geldin!
-         />🌿`;
-
-const MASCOT_COMPACT = '(\\_/) · (•_•) · />🌿';
-
+/**
+ * İpuçları yalnızca GERÇEKTEN VAR OLAN komutları gösterir.
+ *
+ * Fork'tan gelen liste NatureCo'nun seo/naturehub/cron yüzeylerini
+ * öneriyordu. Skuld coding-first; kapsam dışı bir komutu ipucu diye
+ * göstermek kullanıcıyı çalışmayan bir yola sokar.
+ */
 const TIPS = [
-  '🌱 natureco code  →  Edit & refactor any file in one command',
-  '💬 natureco chat "İchigo"  →  Talk to your default bot',
-  '📦 natureco skills install seo-audit  →  Add new capabilities',
-  '🔁 natureco cron add "0 9 * * *" "seo-check"  →  Schedule recurring jobs',
-  '🛡️  natureco doctor  →  Diagnose setup issues in seconds',
-  '🌍 natureco naturehub post "Hello world"  →  Publish to Nature Hub',
-  '🔍 natureco seo audit https://natureco.me  →  SEO insights, instantly',
-  '💰 natureco cost today  →  See today\'s AI spend',
+  'nskuld code "<görev>"    →  bir kodlama görevini uçtan uca çalıştır',
+  'nskuld doctor            →  ortamı ve bağlı bileşenleri kontrol et',
+  'SKULD_KORUMALI=src/core  →  bu yollara yazılırsa çalışma politikayla durur',
+  'nskuld --help            →  tüm komutlar ve çıkış kodları',
 ];
 
 function pickDailyTip() {
-  const day = Math.floor(Date.now() / 86400000);
-  return TIPS[day % TIPS.length];
+  const gun = Math.floor(Date.now() / 86400000);
+  return TIPS[gun % TIPS.length];
 }
 
-/**
- * Kompakt banner — her komut çıktısının üstünde kullanılabilir.
- */
+/** Kompakt başlık — komut çıktılarının üstünde. */
 function banner(opts = {}) {
-  const { version, subtitle, userName, botName } = opts;
-  const lines = [];
-  lines.push('');
-  lines.push(COLORS.primary.bold(SMALL_LOGO[0]));
-  if (version) {
-    const v = COLORS.muted(`v${version}`);
-    const subtitleLine = subtitle ? COLORS.secondary(` · ${subtitle}`) : '';
-    lines.push(`  ${v}${subtitleLine}`);
-  }
-  lines.push('');
-  return lines.join('\n');
+  const { version, subtitle } = opts;
+  const s = [''];
+  const surum = version ? `  ${tema.soluk(tema.gumus(600, `v${String(version).replace(/^v/, '')}`))}` : '';
+  s.push('  ' + tema.kalin(tema.gradyan('SKULD', 100, 400)) + surum);
+  if (subtitle) s.push('  ' + tema.gumus(500, subtitle));
+  s.push('');
+  return s.join('\n');
 }
 
-/**
- * Tam logo — sadece ilk açılışta ve --version gibi özel yerlerde.
- */
+/** Tam logo ekranı. */
 function fullLogo(opts = {}) {
-  const { version, tagline } = opts;
-  const lines = [];
-  for (const ln of FULL_LOGO) lines.push(COLORS.primary(ln));
-  lines.push('');
-  if (tagline) lines.push('  ' + COLORS.secondary(tagline));
-  if (version) lines.push('  ' + COLORS.muted(`v${version} · Node ${process.version.slice(1)} · ${os.platform()}`));
-  lines.push('');
-  return lines.join('\n');
+  const v = opts.version ? `v${String(opts.version).replace(/^v/, '')}` : '';
+  return tema.hero({ surum: v });
 }
 
 /**
- * Gateway ekranı — komut yoksa gösterilen ana ekran.
- */
-function gatewayScreen({ version, userName, botName, loginStatus }) {
-  const lines = [];
-  lines.push(COLORS.primary.bold('  🌿 NatureCo CLI'));
-  lines.push(COLORS.muted(`  v${version}  ·  OpenClaw\'dan daha güvenli, daha hızlı, daha ucuz`));
-  lines.push('');
-  lines.push('  ' + COLORS.muted('─'.repeat(64)));
-  lines.push(`  ${COLORS.muted('👤')}  Kullanıcı: ${userName ? COLORS.bold(userName) : COLORS.accent('(setup gerekli)')}`);
-  lines.push(`  ${COLORS.muted('🤖')}  Bot:      ${botName ? COLORS.bold(botName) : COLORS.accent('(setup gerekli)')}`);
-  lines.push(`  ${COLORS.muted('🔐')}  Giriş:    ${loginStatus === 'ok' ? COLORS.success('✓ aktif') : COLORS.danger('✗ gerekli')}`);
-  lines.push('  ' + COLORS.muted('─'.repeat(64)));
-  lines.push('');
-  lines.push('  ' + COLORS.muted(pickDailyTip()));
-  lines.push('');
-  lines.push(`  ${COLORS.secondary.bold('Hızlı başlangıç:')}`);
-  lines.push(`    ${COLORS.cyan('natureco chat')}              Bot ile sohbet`);
-  lines.push(`    ${COLORS.cyan('natureco code <file>')}        Code agent — dosya oku, düzenle`);
-  lines.push(`    ${COLORS.cyan('natureco ask "<soru>"')}      Tek soru sor`);
-  lines.push(`    ${COLORS.cyan('natureco doctor')}            Sistem teşhisi`);
-  lines.push(`    ${COLORS.cyan('natureco help')}              Tüm komutlar`);
-  lines.push('');
-  return lines.join('\n');
-}
-
-/**
- * İlk kurulum ekranı — setup çalıştırılırken gösterilir.
+ * İlk çalıştırma ekranı — setup sihirbazı çalışmadan HEMEN önce gösterilir.
+ *
+ * Kelime işaretini BASMAZ. Sihirbaz kendi başlığını basıyor ve ikisi arka
+ * arkaya çalıştığında logo iki kez çıkıyordu. TTY'de `console.clear()` bunu
+ * gizliyordu ama boruya ya da log dosyasına iki kez düşüyordu — gizlenen bir
+ * kusur, düzeltilmiş kusur değildir.
  */
 function firstRunScreen() {
-  const lines = [];
-  lines.push(COLORS.primary.bold(SMALL_LOGO[0]));
-  lines.push('');
-  lines.push(COLORS.secondary.bold('  İlk kurulum hoş geldin!'));
-  lines.push(COLORS.muted('  60 saniyede hazır olalım.\n'));
-  return lines.join('\n');
+  // Tek satır. Sihirbaz zaten "Sağlayıcı seçin ve anahtarınızı girin" diyor;
+  // aynı şeyi iki kez söylemek ekranı kalabalıklaştırır.
+  const s = [''];
+  s.push(
+    '  ' +
+      tema.gumus(500, 'İlk kurulum — yerel model seçerseniz ') +
+      tema.gumus(200, 'hiçbir şey makineden çıkmaz') +
+      tema.gumus(500, '.'),
+  );
+  s.push('');
+  return s.join('\n');
+}
+
+/** Gateway/servis ekranı. */
+function gatewayScreen(opts = {}) {
+  const s = [banner({ version: opts.version, subtitle: 'gateway' })];
+  if (opts.url) s.push(tema.alan('adres', opts.url));
+  if (opts.port) s.push(tema.alan('port', opts.port));
+  s.push('');
+  s.push('  ' + tema.soluk(tema.gumus(600, pickDailyTip())));
+  s.push('');
+  return s.join('\n');
 }
 
 module.exports = {
   COLORS,
   SMALL_LOGO,
   FULL_LOGO,
-  MASCOT,
-  MASCOT_COMPACT,
+  TIPS,
   pickDailyTip,
   banner,
   fullLogo,

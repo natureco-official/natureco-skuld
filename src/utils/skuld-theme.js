@@ -46,7 +46,19 @@ const DURUM = {
 };
 
 const renkVar = () => CAPS.color !== false;
-const gercekRenk = () => CAPS.trueColor === true;
+
+/**
+ * Varsayılan render 256 renk.
+ *
+ * Terminal 24-bit destekliyor olsa bile 256-renk gri rampası KULLANILIR.
+ * Sebep estetik: 24-bit gradyan her karakteri ayrı tonda boyuyor ve yakından
+ * bakınca gürültülü görünüyor; 24 kademeli gri rampa daha düz, daha dövülmüş
+ * bir metal hissi veriyor. Ayrıca çıktı çok daha kısa — her karakter için
+ * `38;2;r;g;b` yerine `38;5;n`.
+ *
+ * 24-bit isteyen `SKULD_TRUECOLOR=1` ile açar.
+ */
+const gercekRenk = () => CAPS.trueColor === true && process.env.SKULD_TRUECOLOR === '1';
 
 /** RGB → en yakın 256-renk gri (232..255) ya da renk küpü. */
 function rgbTo256(r, g, b) {
@@ -129,14 +141,19 @@ const KELIME_ISARETI_ASCII = String.raw`
  * @param {string} [opt.altBaslik]
  * @param {boolean} [opt.kompakt] dar terminalde tek satıra düşer
  */
-function hero({ surum, altBaslik = 'ne olacaksa, doğrulanmış olarak', kompakt = false } = {}) {
+function hero({ surum, altBaslik = 'ne olacaksa, doğrulanmış olarak', kompakt = true } = {}) {
   const genislik = CAPS.width || 80;
   const satirlar = [];
 
-  // Dar terminalde kelime işareti taşar; taşan bir logo şıklık değil hatadır.
+  // Kompakt VARSAYILAN. Üç satırlık çizgi logo etkileyici ama her komutta
+  // görülecek bir şey için fazla yer kaplıyor. Harfler aralıklı: "S K U L D"
+  // sıkışık hâlinden daha sakin okunuyor ve gradyanın yayılacağı yer açılıyor.
+  // Üç satırlık hâl `kompakt: false` ile istenir.
   if (kompakt || genislik < 46) {
     satirlar.push('');
-    satirlar.push(`  ${kalin(gradyan('SKULD', 100, 400))} ${soluk(gumus(600, surum))}`);
+    satirlar.push(
+      `  ${kalin(gradyan('S K U L D', 100, 400))}${surum ? '   ' + soluk(gumus(600, surum)) : ''}`,
+    );
     satirlar.push(`  ${gumus(500, altBaslik)}`);
     satirlar.push('');
     return satirlar.join('\n');
@@ -149,7 +166,9 @@ function hero({ surum, altBaslik = 'ne olacaksa, doğrulanmış olarak', kompakt
     satirlar.push('  ' + gradyan(isaret[i], 100 + i * 100, 400 + i * 100));
   }
   satirlar.push('');
-  satirlar.push(`  ${gumus(400, altBaslik)}  ${soluk(gumus(600, '·'))}  ${soluk(gumus(600, surum))}`);
+  // Sürüm boşsa ayraç da basılmaz: sarkan bir "·" özensiz görünür.
+  const kuyruk = surum ? `  ${soluk(gumus(600, '·'))}  ${soluk(gumus(600, surum))}` : '';
+  satirlar.push(`  ${gumus(400, altBaslik)}${kuyruk}`);
   satirlar.push('');
   return satirlar.join('\n');
 }
@@ -203,3 +222,102 @@ module.exports = {
   alan,
   KELIME_ISARETI,
 };
+
+// ── Ekranlar ─────────────────────────────────────────────────────────────
+
+/**
+ * Açılış animasyonu: kelime işaretinin üzerinden geçen gümüş parıltı.
+ *
+ * Kurallar:
+ *  - Yalnızca TTY'de ve renk varken oynar. Boru içinde ya da NO_COLOR ile
+ *    tek kare basar ve çıkar; animasyon kaçış kodları log dosyasına düşmez.
+ *  - İmleç gizlenir ve HER durumda geri açılır (Ctrl+C dahil). Gizli imleç
+ *    bırakan bir animasyon, kullanıcının terminalini bozar.
+ *  - Toplam süre kısa: açılış ekranı gösteri değil, karşılama.
+ */
+async function acilis({ surum, sure = 900 } = {}) {
+  const canli = CAPS.isTTY && renkVar() && !process.env.CI;
+  if (!canli) {
+    process.stdout.write(hero({ surum }) + '\n');
+    return;
+  }
+
+  const isaret = CAPS.unicode ? KELIME_ISARETI : KELIME_ISARETI_ASCII;
+  const kare = 12;
+  const bekle = Math.max(20, Math.floor(sure / kare));
+  let imlecGizli = false;
+
+  const imleciAc = () => {
+    if (imlecGizli) {
+      process.stdout.write('\x1b[?25h');
+      imlecGizli = false;
+    }
+  };
+  // Ctrl+C animasyonun ortasında gelirse imleç gizli kalmasın.
+  process.once('SIGINT', () => {
+    imleciAc();
+    process.exit(130);
+  });
+
+  try {
+    process.stdout.write('\x1b[?25l');
+    imlecGizli = true;
+    process.stdout.write('\n');
+
+    for (let k = 0; k <= kare; k++) {
+      const t = k / kare;
+      const satirlar = isaret.map((satir, i) => {
+        const gorunur = [...satir];
+        let cikti = '';
+        for (let x = 0; x < gorunur.length; x++) {
+          const yer = gorunur.length === 1 ? 0 : x / (gorunur.length - 1);
+          // Parıltı: t konumunun etrafındaki dar bant parlar.
+          const uzaklik = Math.abs(yer - t);
+          const parla = Math.max(0, 1 - uzaklik * 6);
+          const taban = 250 + i * 90;
+          const ton = Math.round(taban - parla * 150);
+          const en = ton <= 150 ? 100 : ton <= 250 ? 200 : ton <= 350 ? 300 : ton <= 450 ? 400 : 500;
+          cikti += gumus(en, gorunur[x]);
+        }
+        return '  ' + cikti;
+      });
+      if (k > 0) process.stdout.write(`\x1b[${isaret.length}A`);
+      process.stdout.write(satirlar.join('\n') + '\n');
+      await new Promise((r) => setTimeout(r, bekle));
+    }
+
+    process.stdout.write('\n  ' + gumus(400, 'ne olacaksa, doğrulanmış olarak'));
+    process.stdout.write('  ' + soluk(gumus(600, '·')) + '  ' + soluk(gumus(600, surum)) + '\n\n');
+  } finally {
+    imleciAc();
+  }
+}
+
+/**
+ * Ana ekran. Kutu çizmiyor: ağır çerçeve yerine hizalama ve boşluk.
+ *
+ * @param {object} opt
+ * @param {string} opt.surum
+ * @param {string} opt.proje
+ * @param {Array<{tur:string, ad:string, not?:string}>} opt.bilesenler
+ * @param {string} [opt.ipucu]
+ */
+function anaEkran({ surum, proje, bilesenler = [], ipucu } = {}) {
+  const s = [];
+  s.push('');
+  s.push(`  ${kalin(gradyan('SKULD', 100, 400))}  ${soluk(gumus(600, surum))}`);
+  s.push(`  ${gumus(500, proje)}`);
+  s.push('');
+  if (bilesenler.length) {
+    for (const b of bilesenler) s.push(durum(b.tur, b.ad, b.not));
+    s.push('');
+  }
+  if (ipucu) {
+    s.push(`  ${soluk(gumus(600, ipucu))}`);
+    s.push('');
+  }
+  return s.join('\n');
+}
+
+module.exports.acilis = acilis;
+module.exports.anaEkran = anaEkran;
