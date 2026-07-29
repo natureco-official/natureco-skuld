@@ -39,8 +39,28 @@ jobs:
       - name: JavaScript and lint checks
         run: npm run lint:errors-only
 
+      # `tsc --build` hem tip kontrolü yapar hem `packages/*/dist` üretir.
+      # SIRA ÖNEMLİ: `src/utils/gateway.js` kapıyı `dist`ten yüklüyor, yani
+      # derleme olmadan paket testleri `ERR_MODULE_NOT_FOUND` ile düşer.
+      # Yerelde `dist` zaten duruyordu ve bu bağımlılık görünmüyordu; temiz
+      # checkout'ta görünür — CI'ın işi tam olarak bu.
+      - name: Typecheck and build packages
+        run: npm run typecheck
+
       - name: Unit and regression tests
         run: npm test -- --reporter=dot
+
+      # Skuld'a özgü değişmezler. Bunlar CI'da koşmazsa yalnızca birinin
+      # elle çalıştırmayı hatırladığı zaman koşarlar — yani bir süre sonra
+      # hiç koşmazlar.
+      - name: Package tests (gateway, memory, quality gate)
+        run: npm run test:paketler
+
+      - name: Boundary, provenance and help-text gates
+        run: npm run kapilar
+
+      - name: Capability audit
+        run: npm run yetenekler
 
       - name: CLI smoke test
         run: npm run smoke

@@ -230,9 +230,14 @@ function help() {
 
   // Links
   console.log('\n' + tui.styled('  🔗 ' + L('Kaynaklar', 'Resources'), { color: tui.PALETTE.secondary, bold: true }));
-  console.log('   ' + tui.C.muted(L('Döküman  ', 'Docs     ')) + tui.C.brand('https://natureco.me/cli'));
+  // Bağlantılar `package.json`dan türetiliyor, elle yazılmıyor. Fork'tan
+  // devralınan hâli `npmjs.com/package/natureco-cli`ye gidiyordu: nskuld
+  // kullanıcısını başka bir paketin sayfasına yolluyordu. Sabit yazılan bir
+  // URL, yeniden markalamada sessizce yanlış kalan ilk şeydir.
+  const paket = require('../../package.json');
+  console.log('   ' + tui.C.muted(L('Depo     ', 'Repo     ')) + tui.C.brand(paket.homepage));
   console.log('   ' + tui.C.muted('SDK      ') + tui.C.brand('https://natureco.me/developer'));
-  console.log('   ' + tui.C.muted('npm      ') + tui.C.brand('https://npmjs.com/package/natureco-cli'));
+  console.log('   ' + tui.C.muted('npm      ') + tui.C.brand(`https://npmjs.com/package/${paket.name}`));
   console.log('');
 }
 

@@ -67,13 +67,13 @@
     "email": "hello@natureco.me",
     "url": "https://natureco.me"
   },
-  "homepage": "https://natureco.me/cli",
+  "homepage": "https://github.com/natureco-official/natureco-skuld",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/natureco-official/natureco-cli.git"
+    "url": "git+https://github.com/natureco-official/natureco-skuld.git"
   },
   "bugs": {
-    "url": "https://github.com/natureco-official/natureco-cli/issues"
+    "url": "https://github.com/natureco-official/natureco-skuld/issues"
   },
   "license": "MIT",
   "engines": {
