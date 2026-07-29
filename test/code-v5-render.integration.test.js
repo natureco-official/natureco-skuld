@@ -44,8 +44,10 @@ describe('Rock C code_v5 rendering integration', () => {
   it('(g) renders all three assistant reply branches while preserving byte-identical raw history', () => {
     const source = fs.readFileSync(path.resolve('src/commands/code_v5.js'), 'utf8');
     expect(source.match(/writeFinishedReply\(fullReply\)/g) || []).toHaveLength(1);
-    // Two interactive branches + the headless `-p` loop.
-    expect(source.match(/await streamAssistantReply\(/g) || []).toHaveLength(3);
+    // İki etkileşimli dal + headless `-p` döngüsü + headless onarım döngüsü.
+    // Dördüncüsü tamamlanma kapısıyla geldi: doğrulama başarısız olursa hata
+    // çıktısı modele geri verilip düzeltme isteniyor.
+    expect(source.match(/await streamAssistantReply\(/g) || []).toHaveLength(4);
 
     for (const branch of ['workflow-passthrough', 'workflow-summary', 'normal-agent']) {
       const raw = `# ${branch}\n\n**bold** \`code\`\nraw-byte:\u00a0end`;

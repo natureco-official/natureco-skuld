@@ -547,7 +547,11 @@ async function codeV5(targetPath, cliOptions = {}) {
 
   // File tracking for summary + snapshots
   function trackFileChanges(toolName, args, result, snapshots = {}) {
-    if (toolName === 'write_file' || toolName === 'edit_file') {
+    // `structural_patch` ve `notebook_edit` de dosya DEĞİŞTİRİYOR ama
+    // sayılmıyorlardı: yalnızca bu ikisiyle çalışan bir tur "hiçbir şey
+    // değişmedi" görünüyor ve tamamlanma kapısı devreye girmiyordu.
+    if (toolName === 'write_file' || toolName === 'edit_file'
+        || toolName === 'structural_patch' || toolName === 'notebook_edit') {
       const fp = args.filePath || args.path;
       if (fp && result && result.success !== false) {
         filesChanged++;
@@ -563,7 +567,14 @@ async function codeV5(targetPath, cliOptions = {}) {
         } catch { /* history is best-effort; never fail the tool call over it */ }
       }
     }
-    if (toolName === 'bash' || toolName === 'shell_command') commandsRun++;
+    if (toolName === 'bash' || toolName === 'shell_command') {
+      commandsRun++;
+      // Komutun KENDİSİ kaydediliyor, yalnızca sayısı değil. Tamamlanma
+      // kapısı "model bu turda gerçekten bir doğrulama koştu mu" diye soruyor
+      // ve buna cevap vermek için komut metni gerekiyor.
+      const komut = args && (args.command || args.cmd);
+      if (komut && result && result.success !== false) modelKomutlari.push(String(komut));
+    }
   }
 
   function processToolCallsWithTracking(reply, config, toolDefs, messages, options) {
@@ -783,6 +794,9 @@ async function codeV5(targetPath, cliOptions = {}) {
   let filesChanged = 0, commandsRun = 0;
   let lastChangedFile = null;
   const changedFiles = [];
+  // Modelin bu oturumda çalıştırdığı kabuk komutları. Tamamlanma kapısı
+  // bunlara bakıp zaten koşulmuş bir doğrulamayı ikinci kez koşmuyor.
+  const modelKomutlari = [];
   const startTime = Date.now();
 
   // ── Headless one-shot (`-p "task"`) ───────────────────────────────────────
@@ -812,6 +826,80 @@ async function codeV5(targetPath, cliOptions = {}) {
           quiet: true,
         });
       }
+      // ── TAMAMLANMA KAPISI ────────────────────────────────────────────────
+      // Buraya kadar "model araç çağırmayı bıraktı" = "görev bitti" sayılıyordu.
+      // Yani model dosyayı değiştirip "yaptım" diyebiliyordu; test, lint ya da
+      // build çalıştırmak zorunlu değildi (Codex tur 5, ürün hedefi açısından
+      // en kritik eksik).
+      //
+      // Kapı yalnızca dosya DEĞİŞTİYSE devreye giriyor: salt okuma görevleri
+      // bedel ödemez. Başarısız doğrulama modele geri veriliyor ve sınırlı
+      // sayıda onarım turu tanınıyor — sınırsız olsa döngü hiç bitmeyebilir.
+      if (!unresolved && changedFiles.length > 0) {
+        const kapi = require('../utils/tamamlanma-kapisi');
+        const kabukCalistir = async (komut) => {
+          try {
+            const bash = require('../tools/bash');
+            const r = await bash.execute({ command: komut, cwd, onayli: true });
+            return {
+              ok: r && r.success !== false && (r.exitCode == null || r.exitCode === 0),
+              cikti: [r && r.stdout, r && r.stderr, r && r.output, r && r.error]
+                .filter(Boolean).join('\n'),
+            };
+          } catch (e) {
+            return { ok: false, cikti: e && e.message ? e.message : String(e) };
+          }
+        };
+
+        const EN_FAZLA_ONARIM = 2;
+        for (let onarim = 0; onarim <= EN_FAZLA_ONARIM; onarim++) {
+          const karar = await kapi.kanitTopla({
+            degisenDosyalar: changedFiles,
+            projeIndeksi: projectCtx,
+            zatenCalisanlar: modelKomutlari,
+            calistir: kabukCalistir,
+          });
+          if (karar.tamam) {
+            process.stderr.write(L(`Doğrulama: ${karar.gerekce}\n`, `Verification: ${karar.gerekce}\n`));
+            break;
+          }
+          // Onarılacak bir çıktı yoksa (ör. doğrulama komutu hiç yok) modele
+          // geri verilecek bir şey de yok; durum dürüstçe bildirilip çıkılıyor.
+          if (!karar.onarimIcin || onarim === EN_FAZLA_ONARIM) {
+            unresolved = true;
+            process.stderr.write(L(
+              `Doğrulama BAŞARISIZ: ${karar.gerekce}\n`,
+              `Verification FAILED: ${karar.gerekce}\n`,
+            ));
+            break;
+          }
+          // Onarım turu: hata çıktısı modele veri olarak veriliyor.
+          messages.push({
+            role: 'user',
+            content: `${karar.gerekce}\n\nDoğrulama çıktısı:\n${karar.onarimIcin}\n\n`
+              + 'Bu hatayı düzelt. Düzeltemiyorsan neyi düzeltemediğini açıkça söyle.',
+          });
+          // `modelKomutlari` sıfırlanıyor: önceki turun komutları bu turun
+          // kanıtı sayılmamalı — değişiklik onlardan SONRA yapıldı.
+          modelKomutlari.length = 0;
+          for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
+            compactIfNeeded(messages, { quiet: true });
+            const { reply } = await streamAssistantReply(
+              config.providerUrl, config.providerApiKey, config.providerModel,
+              messages, toolDefs, { stream: false, quiet: true, exposedTools: exposedTools() },
+            );
+            if (reply?.content) finalText = reply.content;
+            if (!reply?.tool_calls?.length) {
+              if (reply?.content) messages.push({ role: 'assistant', content: reply.content });
+              break;
+            }
+            await processToolCalls(reply, config, toolDefs, messages, trackFileChanges, {
+              dryRun, interactive: false, quiet: true,
+            });
+          }
+        }
+      }
+
       process.stdout.write((finalText || L('(yanıt yok)', '(no answer)')) + '\n');
       if (unresolved) {
         process.stderr.write(L(

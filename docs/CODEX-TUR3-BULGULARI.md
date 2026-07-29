@@ -346,3 +346,55 @@ Codex'in "kabul edilip belgelenmeli" dediği iki şey:
 
 Testler: `test/security/yazma-siniri.test.js` (8 test), `npm run mutasyon`
 (9/9 mutasyon ölüyor), CI'da koşuyor.
+
+## Ürün hedefi: tamamlanma kapısı (30.07.2026)
+
+Codex'e "ürün hedefine göre en kritik eksik ne" diye sorulduğunda güvenlik
+dışı bir cevap verdi ve doğrulandı:
+
+> *"En kritik eksik, varsayılan kodlama akışında zorunlu, kanıta dayalı
+> tamamlanma kapısı olmaması."*
+
+`code_v5` — varsayılan `nskuld code` yolu — model araç çağırmayı bıraktığı
+anda `unresolved = false` yapıp BAŞARIYLA bitiyordu. Yani model dosyayı
+değiştirip "yaptım" diyebiliyordu; test, lint ya da build çalıştırmak zorunlu
+değildi.
+
+`agentic-runner`'daki doğrulama sezgiseli bunu korumuyordu: yalnızca hafızaya
+yazmayı kapatıyordu. **Kanıt kuralı vardı ama kullanıcının fiilen kullandığı
+yolda yoktu — yani yoktu.**
+
+### Ne yapıldı
+
+`src/utils/tamamlanma-kapisi.js` — ayrı modül, çünkü kapı TEK olmalı ve her
+yürütme yüzeyi aynı kapıdan geçmeli. `code_v5` içine gömmek onu bir yüzeye
+bağlardı.
+
+1. Dosya değişmediyse kapı yok — salt okuma görevleri bedel ödemez.
+2. Değiştiyse projeye uygun komut seçilir: **test > typecheck > build > lint**.
+   Sıra kasıtlı ve hangisinin kullanıldığı bildiriliyor — test davranışı
+   kanıtlar, lint yalnızca biçimi. Zayıf kanıtı güçlü gibi sunmamak gerekiyor.
+3. Model bu turda zaten gerçek bir doğrulama koştuysa yeniden koşulmaz.
+   `echo tamam` gerçek doğrulama sayılmaz (aynı kara liste).
+4. Başarısızsa çıktı modele geri verilir ve **en fazla 2 onarım turu** tanınır.
+   Sınırsız olsa döngü hiç bitmeyebilir.
+5. Doğrulama komutu hiç tespit edilemezse **sessizce başarılı SAYILMAZ**;
+   "DOĞRULANMADI" diye bildirilir. Sessizce tamam demek, kapının hiç
+   olmamasıyla aynı şey.
+
+Yol boyunca bulunan ek kusur: `trackFileChanges` yalnızca `write_file` ve
+`edit_file`'ı sayıyordu. `structural_patch` ve `notebook_edit` ile çalışan bir
+tur "hiçbir şey değişmedi" görünüyor ve kapı hiç devreye girmiyordu.
+
+### Ne YAPMADIĞI
+
+Komutun göreve **ilgili** olduğunu kanıtlamıyor. `npm test` geçtiyse depo
+yeşildir; istenen davranışın gerçekten eklendiğini göstermez. Bunu iddia
+etmemek önemli — ölçtüğünden fazlasını söyleyen bir kapı yanlış güven verir.
+
+Etkileşimli yol henüz bağlı değil; headless (`-p`) yol bağlı. Etkileşimli
+kullanıcı zaten her turu görüyor, headless olan ise görmüyor — riskin büyük
+olduğu yer orası.
+
+Testler: `test/security/tamamlanma-kapisi.test.js` (13 test),
+`npm run yetenekler` (9/9), `npm run mutasyon` (11/11).

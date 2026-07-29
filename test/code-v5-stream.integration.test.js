@@ -16,9 +16,19 @@ afterEach(() => {
 describe('code_v5 live provider branches', () => {
   it('(g) both real provider-call sites use the writer and change output before completion', async () => {
     const source = fs.readFileSync(path.resolve('src/commands/code_v5.js'), 'utf8');
-    // Three call sites: the two interactive branches exercised below, plus the
-    // headless `-p` loop, which deliberately runs with the live writer off.
-    expect(source.match(/await streamAssistantReply\(/g)).toHaveLength(3);
+    // Dört çağrı noktası: aşağıda sınanan iki etkileşimli dal, headless `-p`
+    // döngüsü, ve headless ONARIM döngüsü — son ikisi canlı yazıcıyı kasten
+    // kapalı çalıştırıyor.
+    //
+    // Onarım döngüsü tamamlanma kapısıyla geldi: doğrulama başarısız olursa
+    // hata çıktısı modele geri verilip düzeltme isteniyor. Sayı üçten dörde
+    // çıktı; korunan değişmez sayı değil, her çağrının aynı yazıcıdan
+    // geçmesi.
+    const cagriNoktalari = source.match(/await streamAssistantReply\(/g);
+    expect(cagriNoktalari).toHaveLength(4);
+    // Hiçbir çağrı noktası `streamAssistantReply`'ı atlayıp doğrudan `fetch`
+    // ile sağlayıcıya gitmiyor: tek yazıcı ilkesi bu satırla korunuyor.
+    expect(source).not.toMatch(/await fetch\(\s*config\.providerUrl/);
 
     for (const branch of ['workflow-summary', 'normal-agent']) {
       let release;

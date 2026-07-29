@@ -52,7 +52,7 @@ const MUTASYONLAR = [
   {
     etiket: "maskText: YAML blok göstergesi kaldırıldı",
     dosya: "src/utils/secret-scanner.js",
-    eski: "([>|][0-9]*[-+]?)?",
+    eski: "([>|](?:[0-9]*[-+]?|[-+]?[0-9]*))?",
     yeni: "[>|]?",
     test: TUR3,
   },
@@ -90,6 +90,20 @@ const MUTASYONLAR = [
     eski: "const sinir = await yazmaSiniri(_expand(filePath), { onayli: onayli === true, amac: 'edit_file aracı' });",
     yeni: "const sinir = { izin: true };",
     test: YAZMA,
+  },
+  {
+    etiket: "tamamlanma kapısı: kanıt yokken sessizce TAMAM",
+    dosya: "src/utils/tamamlanma-kapisi.js",
+    eski: "  const enFazla = opt.enFazlaKomut != null ? opt.enFazlaKomut : 1;",
+    yeni: "  return { tamam: true, kanit: null, gerekce: 'mutasyon' };\n  const enFazla = opt.enFazlaKomut != null ? opt.enFazlaKomut : 1;",
+    test: "test/security/tamamlanma-kapisi.test.js",
+  },
+  {
+    etiket: "tamamlanma kapısı: kanıt olmayan komut kanıt sayılıyor",
+    dosya: "src/utils/tamamlanma-kapisi.js",
+    eski: "  const zaten = (opt.zatenCalisanlar || []).find((k) => kanitSayilir(k));",
+    yeni: "  const zaten = (opt.zatenCalisanlar || [])[0];",
+    test: "test/security/tamamlanma-kapisi.test.js",
   },
   {
     etiket: "yazma sınırı: onay yerine koşulsuz izin",

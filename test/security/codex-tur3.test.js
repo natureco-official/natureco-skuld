@@ -287,7 +287,7 @@ describe('Codex doğrulama turu — artık boşluklar', () => {
   it('YAML blok skaleri — ad ÖNCEKİ satırda olsa da maskelenir', () => {
     // Önceki test JSON'u ölçüyordu ve JSON bir tur önce zaten kapanmıştı;
     // YAML blok göstergeleri için yazılan düzeltmeyi sabitlemiyordu.
-    for (const gosterge of ['|', '>', '|-', '>-', '|2', '>2-']) {
+    for (const gosterge of ['|', '>', '|-', '>-', '|2', '>2-', '|-2', '|+2', '>-2']) {
       const y = `webhook_secret: ${gosterge}
   0123456789abcdef0123456789abcdef01234567
 `;

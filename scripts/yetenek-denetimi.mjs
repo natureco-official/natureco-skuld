@@ -224,6 +224,44 @@ await dene('hassas yol sınırı', () => {
   return 'dört araç da engellendi, sıradan yol serbest';
 });
 
+// ── 9. Tamamlanma kapısı varsayılan yolda mı ──────────────────────────────
+// Kapı `agentic-runner`'da vardı ama kullanıcının fiilen kullandığı
+// `code_v5` yolunda YOKTU — yani yoktu. Bu kontrol iki şeye bakıyor: modül
+// doğru karar veriyor mu, ve varsayılan yol onu gerçekten çağırıyor mu.
+await dene('tamamlanma kapısı → varsayılan yol', async () => {
+  const kapi = require('../src/utils/tamamlanma-kapisi.js');
+
+  const degismedi = await kapi.kanitTopla({
+    degisenDosyalar: [], projeIndeksi: {}, calistir: async () => ({ ok: true }),
+  });
+  if (!degismedi.tamam) throw new Error('değişiklik yokken kapı boşuna engelliyor');
+
+  const kanitsiz = await kapi.kanitTopla({
+    degisenDosyalar: ['src/x.js'],
+    projeIndeksi: { type: 'bilinmeyen' },
+    calistir: async () => ({ ok: true }),
+  });
+  if (kanitsiz.tamam) throw new Error('doğrulama komutu yokken sessizce TAMAM dedi');
+
+  const basarisiz = await kapi.kanitTopla({
+    degisenDosyalar: ['src/x.js'],
+    projeIndeksi: { packageJson: { scripts: { test: 'vitest' } } },
+    calistir: async () => ({ ok: false, cikti: 'FAIL' }),
+  });
+  if (basarisiz.tamam) throw new Error('doğrulama başarısızken TAMAM dedi');
+
+  // Varsayılan yol kapıyı gerçekten çağırıyor mu? Modülün doğru olması,
+  // çağrıldığı anlamına gelmiyor — bu betiğin var olma sebebi tam olarak bu.
+  const kaynak = fs.readFileSync(new URL('../src/commands/code_v5.js', import.meta.url), 'utf8');
+  if (!kaynak.includes("require('../utils/tamamlanma-kapisi')")) {
+    throw new Error('code_v5 tamamlanma kapısını ÇAĞIRMIYOR');
+  }
+  if (!/kapi\.kanitTopla\(/.test(kaynak)) {
+    throw new Error('code_v5 kapıyı import ediyor ama kanitTopla çağırmıyor');
+  }
+  return 'kapı doğru karar veriyor ve varsayılan yol onu çağırıyor';
+});
+
 // ── Rapor ─────────────────────────────────────────────────────────────────
 const kirik = sonuclar.filter((s) => s.durum === 'KIRIK');
 const genislik = Math.max(...sonuclar.map((s) => s.yetenek.length));
