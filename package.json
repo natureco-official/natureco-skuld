@@ -16,7 +16,9 @@
     "AUDIT.md",
     "SECURITY_AUDIT_SUMMARY.md",
     "THIRD_PARTY_NOTICES.md",
-    "DEPLOY_v2.0.0.md"
+    "DEPLOY_v2.0.0.md",
+    "packages/*/package.json",
+    "packages/*/dist/**"
   ],
   "scripts": {
     "test": "vitest run && node scripts/run-tests.mjs",
@@ -31,10 +33,10 @@
     "smoke:context": "node scripts/e2e-context-smoke.js",
     "smoke:browser": "node scripts/e2e-browser-smoke.js",
     "postinstall": "node scripts/postinstall.js",
-    "prepublishOnly": "node --check bin/nskuld.js && eslint src/ bin/ test/ --quiet && vitest run",
+    "prepublishOnly": "npm run typecheck && npm run kapilar && npm run yetenekler && node scripts/yayin-onkontrol.mjs",
     "test:cli": "vitest run",
     "test:paketler": "node scripts/run-tests.mjs",
-    "typecheck": "tsc --build",
+    "typecheck": "tsc --build && node scripts/dist-yollari-duzelt.mjs",
     "kapilar": "node scripts/provenance-check.mjs && node scripts/gateway-boundary-check.mjs && npm run yardim",
     "tema": "node scripts/tema-onizleme.mjs",
     "tema:hepsi": "node scripts/tema-onizleme.mjs --hepsi",

@@ -37,7 +37,7 @@ eklenmeyen görünmez.
 | S5 | Yazma sınırı | ✅ | 4 düzenleme aracı + `text_to_speech` |
 | S6 | Tamamlanma kapısı | ⚠ kısmi | headless bağlı, etkileşimli DEĞİL |
 | S7 | Codex denetimi | ✅ | 6 tur; son turda **planın kendisi** denetlendi |
-| S8 | Depo + yayın | ❌ | **kullanıcıda** — depo yok, yayın yapılmadı |
+| S8 | Depo + yayın | ⚠ hazır | paket **çalışır durumda doğrulandı**; depo oluşturma ve yayın kullanıcı onayı bekliyor |
 | S9 | Verðandi kapsülü | ⏸ pasif | tasarruf yarı kanıtlandı, ölçüm tekrarı bekliyor |
 | S10 | Kimlik/ekosistem (SSO, portal) | ❌ | başlanmadı |
 
@@ -195,7 +195,41 @@ güven verir.
 | `npm publish` | yapılmadı | kullanıcı kararı |
 
 Depo oluşturmak ve yayınlamak **dışa dönük ve geri alınması zor** eylemler.
-Onay olmadan yapılmadı.
+Onay olmadan yapılmadı. `gh` ve `npm` oturumları açık, yani onay geldiğinde
+engel yok.
+
+### Yayın hazırlığında bulunan İKİ ciddi kusur
+
+Yayınlamadan önce paketi açıp çalıştırmak, ikisini de ortaya çıkardı. İkisi de
+"depoda çalışıyor, pakette çalışmıyor" sınıfında ve 1200 test hiçbirini
+göremezdi:
+
+1. **`packages/` yayına hiç girmiyordu.** `.gitignore` `dist/`'i dışlıyor ve
+   `.npmignore` yokken npm onu devralıyordu. Köprü kapıyı
+   `packages/execution-gateway/dist`ten yüklüyor — yani yayınlanan `nskuld`
+   kapıyı açamaz, `yazmaSiniri` "sınır uygulanamadı" der ve **hiçbir dosya
+   yazamaz.** Ürün tamamen çalışmaz hâlde yayınlanacaktı.
+
+   `files` listesine `packages/*/dist` yazmak da yetmedi; npm sondaki `/**`
+   olmadan dizini almıyor. Doğru desen `packages/*/dist/**`.
+
+2. **Paketlenen dist kendi kendine yeterli değildi.** Derlenmiş kapı
+   `@skuld/shared`'ı çıplak isimle import ediyor ve bu yalnızca workspace
+   symlink'iyle çözülüyor; paketler `private: true` ve sürümleri `0.0.0`, yani
+   npm'den de çözülemezler. Dosyaları paketlemek yetmedi, içlerindeki yolların
+   da taşınabilir olması gerekti.
+
+   `scripts/dist-yollari-duzelt.mjs` derleme sonrası çıplak isimleri göreli
+   yola çeviriyor.
+
+Ayrıca `git remote origin` hâlâ **fork kaynağını** (`natureco-cli`)
+gösteriyordu: bir `git push`, Skuld'un 396 commit'ini o depoya yazardı.
+Skuld'un kendi adresine çevrildi.
+
+`scripts/yayin-onkontrol.mjs` (`prepublishOnly` içinde) paketi açıp zorunlu
+dosyaları arıyor, `--version`ı paketten çalıştırıyor ve **kapının paket içinden
+yüklenebildiğini** doğruluyor. `files` listesine bakmak yetmez — liste doğru
+görünüp yol yanlış olabilir.
 
 ---
 

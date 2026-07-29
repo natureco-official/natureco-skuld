@@ -1,0 +1,19 @@
+# Bu dosyanın VAR OLMA sebebi: `.gitignore` içinde `dist/` ve
+# `packages/*/dist/` var (derleme çıktısı depoya girmemeli — doğrusu bu). Ama
+# `.npmignore` yokken npm `.gitignore`'ı kullanıyor ve aynı kurallar YAYINDAN
+# da çıkarıyordu.
+#
+# Sonuç ölçüldü: yayınlanan paket `packages/execution-gateway/dist` içermiyordu.
+# Köprü kapıyı oradan yüklüyor, yani yayınlanan `nskuld` kapıyı açamaz,
+# `yazmaSiniri` "sınır uygulanamadı" der ve **hiçbir dosya yazamaz**. Depoda
+# 1200 test yeşilken ürün yayında tamamen çalışmaz olacaktı.
+#
+# `package.json` → `files` bir BEYAZ LİSTE; ne yayınlanacağını o belirliyor.
+# Bu dosyanın işi yalnızca `.gitignore`'ın devralınmasını engellemek.
+# `scripts/yayin-onkontrol.mjs` paketi açıp gerçekten çalıştığını doğruluyor —
+# liste doğru görünüp yol yanlış olabilir.
+
+# Derleme ara dosyaları: `dist` gerekli, `.tsbuildinfo` değil.
+*.tsbuildinfo
+packages/*/src/
+packages/*/tsconfig*.json
