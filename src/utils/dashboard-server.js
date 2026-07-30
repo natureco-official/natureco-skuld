@@ -72,7 +72,7 @@ const HTML_PAGE = `<!DOCTYPE html>
   * { box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
          background: #0f172a; color: #e2e8f0; margin: 0; padding: 0; }
-  header { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  header { background: linear-gradient(135deg, #7dd3fc 0%, #38bdf8 100%);
            padding: 24px 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
   header h1 { margin: 0; font-size: 28px; color: white; }
   header .subtitle { color: rgba(255,255,255,0.85); margin-top: 4px; font-size: 14px; }
@@ -83,20 +83,20 @@ const HTML_PAGE = `<!DOCTYPE html>
   .metric { font-size: 32px; font-weight: 700; color: #f1f5f9; margin: 4px 0; }
   .metric-label { font-size: 12px; color: #64748b; }
   .bar { height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin: 4px 0; }
-  .bar-fill { height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a); }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, #7dd3fc, #38bdf8); }
   .bar-fill.warn { background: linear-gradient(90deg, #f59e0b, #d97706); }
   .bar-fill.danger { background: linear-gradient(90deg, #ef4444, #dc2626); }
   table { width: 100%; border-collapse: collapse; margin-top: 12px; }
   th, td { text-align: left; padding: 8px; border-bottom: 1px solid #334155; font-size: 13px; }
   th { color: #94a3b8; font-weight: 600; }
   .pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-  .pill-green { background: #064e3b; color: #6ee7b7; }
+  .pill-green { background: #0c4a6e; color: #7dd3fc; }
   .pill-red { background: #7f1d1d; color: #fca5a5; }
   .pill-yellow { background: #78350f; color: #fcd34d; }
   .pill-blue { background: #1e3a8a; color: #93c5fd; }
   .footer { text-align: center; color: #64748b; padding: 32px; font-size: 12px; }
   pre { background: #0f172a; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
-  code { color: #6ee7b7; }
+  code { color: #7dd3fc; }
   .empty { color: #64748b; font-style: italic; }
 </style>
 </head>
@@ -163,7 +163,7 @@ const HTML_PAGE = `<!DOCTYPE html>
   </div>
 </main>
 <div class="footer">
-  NatureCo Skuld Dashboard · port ${PORT} · <a href="/api" style="color:#22c55e">/api</a> tam JSON için
+  NatureCo Skuld Dashboard · port ${PORT} · <a href="/api" style="color:#7dd3fc">/api</a> tam JSON için
 </div>
 <script>
 async function load() {

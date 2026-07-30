@@ -1,83 +1,70 @@
-# Contributing to NatureCo CLI
+# Contributing to Skuld
 
-Thank you for your interest in contributing! 🎉
+Thank you for helping improve Skuld. Focused bug fixes, tests, documentation corrections, provider compatibility updates, and terminal-quality improvements are welcome.
 
-## How to Contribute
+## Before opening an issue
 
-### Reporting Bugs
+Search the [issue tracker](https://github.com/natureco-official/natureco-skuld/issues) first. Include:
 
-- Check the [issue tracker](https://github.com/natureco-official/natureco-cli/issues) first
-- Use the bug report template
-- Include reproduction steps, expected vs actual behavior
-- Mention your OS, Node.js version, CLI version
+- operating system and terminal;
+- `node --version` and `nskuld --version`;
+- provider and model name, with credentials removed;
+- exact reproduction steps;
+- expected and actual behavior;
+- the smallest relevant redacted log excerpt.
 
-### Suggesting Features
+Report vulnerabilities privately according to [SECURITY.md](SECURITY.md).
 
-- Open an issue with the `enhancement` label
-- Describe the use case
-- Explain why this would be useful
-
-### Pull Requests
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Make your changes
-4. Run tests: `npm test`
-5. Run lint: `npm run lint`
-6. Commit: `git commit -m "feat: add my feature"`
-7. Push: `git push origin feature/my-feature`
-8. Open a Pull Request
-
-## Commit Convention
-
-We use [Conventional Commits](https://www.conventionalcommits.org/):
-
-- `feat:` New feature
-- `fix:` Bug fix
-- `docs:` Documentation
-- `chore:` Maintenance
-- `refactor:` Code refactor
-- `test:` Tests
-- `style:` Code style
-
-## Development Setup
+## Development setup
 
 ```bash
-# Clone
-git clone https://github.com/natureco-official/natureco-cli.git
-cd cli
-
-# Install dependencies
+git clone https://github.com/natureco-official/natureco-skuld.git
+cd natureco-skuld
 npm install
-
-# Run tests
-npm test
-
-# Run linter
-npm run lint
-
-# Link for local development
 npm link
-natureco --version
+nskuld --version
 ```
 
-## Code Style
+Node.js 18 or newer is required.
 
-- JavaScript Standard Style
-- Use ES modules (`import`/`export`)
-- Async/await preferred over callbacks
-- JSDoc comments for public APIs
+## Pull requests
 
-## Testing
+1. Fork the repository and create a focused branch.
+2. Preserve unrelated user or upstream changes.
+3. Add a regression test for bug fixes and executable evidence for new tools.
+4. Keep the generated CLI help, README, provider catalogue, and implementation consistent.
+5. Run the release-relevant checks.
 
-- We use [Vitest](https://vitest.dev/)
-- All new features need tests
-- PRs without tests may be delayed
+```bash
+npm test
+npm run lint
+npm run typecheck
+npm run prepublishOnly
+```
+
+For terminal changes, also verify full-screen, minimal, `NO_COLOR`, 256-color, Unicode-disabled, Windows PowerShell, and redirected-output behavior where applicable.
+
+## Code and test expectations
+
+- Prefer small, explicit modules and structured results.
+- Route process and network effects through the existing security gateways.
+- Never let model-supplied arguments bypass human approval.
+- Use temporary workspaces for mutation tests; do not touch real user state.
+- External-provider tests must not spend money or send messages. Intercept the provider boundary unless a dedicated opt-in live test is being run.
+- A tool is not considered complete because its schema loads; its execution path needs a real or safely isolated smoke test.
+- Do not commit credentials, `.nskuld` user state, coverage output, package tarballs, or private transcripts.
+
+## Commit style
+
+Conventional Commit prefixes are encouraged:
+
+- `feat:` new behavior;
+- `fix:` bug fix;
+- `test:` test coverage or verification;
+- `docs:` documentation;
+- `refactor:` behavior-preserving structure;
+- `chore:` maintenance.
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under MIT.
-
-## Code of Conduct
-
-Be respectful. Be inclusive. Help others. Have fun. 🌿
+By contributing, you agree that your contribution is licensed under the [MIT License](LICENSE).

@@ -11,7 +11,15 @@ const { renderToolCall } = requireCjs('../src/utils/tool-card.js');
 const writeFileTool = requireCjs('../src/tools/write_file.js');
 const editFileTool = requireCjs('../src/tools/edit_file.js');
 
-const { captureFileSnapshot, displayAssistantReply, resolveMaxToolRounds } = codeV5._presentation;
+const {
+  captureFileSnapshot,
+  createScrollbackArchive,
+  displayAssistantReply,
+  isEmptyAssistantReply,
+  resolveMaxToolRounds,
+  resolveMaxOutputTokens,
+  isMaxTokensRejection,
+} = codeV5._presentation;
 const plain = value => tui.stripAnsi(value);
 let saved;
 let tempDir;
@@ -121,5 +129,74 @@ describe('Rock C code_v5 rendering integration', () => {
     expect(resolveMaxToolRounds({ codeMaxToolRounds: 25_000 }, {})).toBe(25_000);
     expect(resolveMaxToolRounds({ code: { maxToolRounds: 50_000 } }, {})).toBe(50_000);
     expect(resolveMaxToolRounds({}, { SKULD_CODE_MAX_TOOL_ROUNDS: '0' })).toBe(Infinity);
+  });
+
+  // Sohbet için ölçülmüş 2048 token'lık efor bütçesi kodlama ajanında bir
+  // `write_file` çağrısının argümanını kesiyordu; kesik çağrı geçmişe girince
+  // sağlayıcı boş gövde dönmeye başlıyor ve oturum ölüyordu. Tavan, efor
+  // seviyesinden bağımsız olarak bir dosyayı yazmaya yetmeli.
+  it('gives the coding agent an output budget a whole file fits in', () => {
+    expect(resolveMaxOutputTokens({ maxTokens: 2048 }, {}, {})).toBe(16_384);
+    expect(resolveMaxOutputTokens({ maxTokens: 1024 }, {}, {})).toBe(16_384);
+    // Daha yüksek bir efor tavanı asla küçültülmez.
+    expect(resolveMaxOutputTokens({ maxTokens: 32_000 }, {}, {})).toBe(32_000);
+    // Açık ayar her şeyi geçersiz kılar; env ayardan önce gelir.
+    expect(resolveMaxOutputTokens({ maxTokens: 2048 }, { codeMaxOutputTokens: 4096 }, {})).toBe(4096);
+    expect(resolveMaxOutputTokens({ maxTokens: 2048 }, { code: { maxOutputTokens: 8192 } }, {})).toBe(8192);
+    expect(resolveMaxOutputTokens(
+      { maxTokens: 2048 },
+      { codeMaxOutputTokens: 4096 },
+      { SKULD_CODE_MAX_OUTPUT_TOKENS: '9000' },
+    )).toBe(9000);
+    // Anlamsız değerler yok sayılır, varsayılan korunur.
+    expect(resolveMaxOutputTokens({ maxTokens: 2048 }, { codeMaxOutputTokens: 'abc' }, {})).toBe(16_384);
+    expect(resolveMaxOutputTokens({ maxTokens: 2048 }, { codeMaxOutputTokens: -1 }, {})).toBe(16_384);
+  });
+
+  it('recognises a provider refusing the requested output ceiling', () => {
+    expect(isMaxTokensRejection(new Error(
+      'Anthropic API error: 400 - max_tokens: 16384 > 8192, which is the maximum allowed',
+    ))).toBe(true);
+    expect(isMaxTokensRejection(new Error(
+      'Provider API error: 400 - {"error":{"message":"invalid max_tokens: must be <= 4096"}}',
+    ))).toBe(true);
+    // Uzun oturumun asıl riski: tavan modele değil, kalan bağlama sığmıyor.
+    // Çare aynı olduğu için aynı kapıdan geçmeli.
+    expect(isMaxTokensRejection(new Error(
+      "Provider API error: 400 - This model's maximum context length is 32768 tokens, "
+      + 'however you requested 40960 tokens (24576 in the messages, 16384 in the completion)',
+    ))).toBe(true);
+    // Alakasız hatalar bütçeyi düşürmemeli — model geri düşüş zinciri devreye
+    // girmeli.
+    expect(isMaxTokensRejection(new Error('Provider API error: 429 - rate limit'))).toBe(false);
+    expect(isMaxTokensRejection(new Error('fetch failed'))).toBe(false);
+    expect(isMaxTokensRejection(undefined)).toBe(false);
+  });
+
+  it('does not treat an empty provider reply as a completed answer', () => {
+    expect(isEmptyAssistantReply({ content: '', tool_calls: [] })).toBe(true);
+    expect(isEmptyAssistantReply({ content: '   ' })).toBe(true);
+    expect(isEmptyAssistantReply({ content: 'done' })).toBe(false);
+    expect(isEmptyAssistantReply({ content: '', tool_calls: [{ id: 'call-1' }] })).toBe(false);
+  });
+
+  it('labels rejected tool arguments as failed in visual scrollback', () => {
+    const archive = createScrollbackArchive({
+      formatTool: (name, status) => `${name}:${status}`,
+    });
+    const messages = [
+      {
+        role: 'assistant',
+        content: 'I will edit it.',
+        tool_calls: [{ id: 'call-1', function: { name: 'write_file', arguments: '{' } }],
+      },
+      {
+        role: 'tool',
+        tool_call_id: 'call-1',
+        content: 'ERROR: Tool arguments are not valid JSON',
+      },
+    ];
+
+    expect(archive.sync(messages)).toContain('write_file:error');
   });
 });

@@ -68,18 +68,15 @@ export interface KapiAyarlari {
 
 /** CodeDNA çalıştırılabilirini arar; bulunamazsa null. */
 export function codednaBul(): string | null {
-  const adaylar = [
-    process.env["CODEDNA_PATH"],
-    process.platform === "win32" ? "codedna.exe" : "codedna",
-  ].filter(Boolean) as string[];
-  for (const aday of adaylar) {
-    if (path.isAbsolute(aday) && existsSync(aday)) return aday;
+  const configured = process.env["CODEDNA_PATH"];
+  if (configured) {
+    return path.isAbsolute(configured) && existsSync(configured) ? configured : null;
   }
-  // PATH üzerinden bulunma ihtimali için adı döndürmüyoruz: gateway
-  // `shell:false` ile çalıştığı için PATH çözümlemesi Node'a kalıyor ve
-  // bulunamazsa anlaşılır hata veriyor. Mutlak yol yoksa null demek,
-  // "kurulu değil" varsayıp ajanı çalıştırmaya devam etmek anlamına gelir.
-  return null;
+
+  // `spawn(..., { shell:false })` safely resolves executable names through PATH.
+  // Requiring an absolute path made every normal `pip install codedna`
+  // installation look unavailable.
+  return process.platform === "win32" ? "codedna.exe" : "codedna";
 }
 
 export class KaliteKapisi {
@@ -101,11 +98,11 @@ export class KaliteKapisi {
    * Bu kapının BLOKLAYAN tek parçası olmasının sebebi: sonucu bir ölçüm değil,
    * bir olgu. "Bu dosyaya dokunuldu mu" sorusunun yanlış pozitifi yoktur.
    */
-  korumaliIhlali(degisenDosyalar: readonly string[]): KapiBulgusu[] {
+  korumaliIhlali(degisenDosyalar: readonly string[], ekKorumali: readonly string[] = []): KapiBulgusu[] {
     const bulgular: KapiBulgusu[] = [];
     for (const dosya of degisenDosyalar) {
       const normal = dosya.replace(/\\/g, "/");
-      for (const korumali of this.#korumali) {
+      for (const korumali of [...this.#korumali, ...ekKorumali]) {
         const k = korumali.replace(/\\/g, "/").replace(/\/+$/, "");
         if (normal === k || normal.startsWith(k + "/")) {
           bulgular.push({
@@ -118,6 +115,29 @@ export class KaliteKapisi {
       }
     }
     return bulgular;
+  }
+
+  /** CodeDNA'nın kendi veritabanındaki aktif korumalı yolları okur. */
+  async korumaliYollariOku(projeKoku: string): Promise<string[]> {
+    if (!this.#codedna) return [];
+    try {
+      const sonuc = await this.#gw.calistir({
+        komut: this.#codedna,
+        argumanlar: ["export", "--repo", projeKoku, "--format", "json"],
+        zamanAsimiMs: this.#zamanAsimi,
+      });
+      if (sonuc.cikisKodu !== 0) return [];
+      const ilk = sonuc.stdout.indexOf("{");
+      if (ilk < 0) return [];
+      const ham = JSON.parse(sonuc.stdout.slice(ilk)) as {
+        protected_modules?: Array<{ file_path?: string; is_active?: number | boolean }>;
+      };
+      return (ham.protected_modules ?? [])
+        .filter(item => item.file_path && item.is_active !== 0 && item.is_active !== false)
+        .map(item => path.relative(projeKoku, String(item.file_path)).replace(/\\/g, "/"));
+    } catch {
+      return [];
+    }
   }
 
   /** `codedna scan --json` çağırır. Çalışmazsa null döner; hata fırlatmaz. */
@@ -173,7 +193,8 @@ export class KaliteKapisi {
     degisenDosyalar: readonly string[],
     taban: TaramaSonucu | null,
   ): Promise<KapiRaporu> {
-    const bulgular: KapiBulgusu[] = [...this.korumaliIhlali(degisenDosyalar)];
+    const codednaKorumali = await this.korumaliYollariOku(projeKoku);
+    const bulgular: KapiBulgusu[] = [...this.korumaliIhlali(degisenDosyalar, codednaKorumali)];
 
     if (!this.#codedna) {
       return {

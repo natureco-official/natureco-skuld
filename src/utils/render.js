@@ -16,10 +16,10 @@ const DEFAULT_MAX_INPUT_BYTES = 256 * 1024;
 const DEFAULT_MAX_OUTPUT_BYTES = 256 * 1024;
 const DEFAULT_MAX_COLUMNS = 120;
 const PALETTE_256 = {
-  primary: 41,
+  primary: 117,
   secondary: 39,
   accent: 214,
-  success: 36,
+  success: 117,
   danger: 196,
   muted: 244,
   bgAlt: 236,
@@ -44,6 +44,24 @@ function sanitize(value) {
     .replace(/\r\n?/g, '\n')
     .replace(CONTROL_SEQUENCE_RE, '')
     .replace(CONTROL_CHARACTER_RE, '');
+}
+
+function decodeHtmlEntities(value) {
+  const named = { quot: '"', apos: "'", amp: '&', lt: '<', gt: '>', nbsp: ' ' };
+  return String(value)
+    .replace(/&#x([0-9a-f]+);/gi, (match, hex) => {
+      const point = Number.parseInt(hex, 16);
+      try { return Number.isFinite(point) ? String.fromCodePoint(point) : match; } catch { return match; }
+    })
+    .replace(/&#(\d+);/g, (match, decimal) => {
+      const point = Number.parseInt(decimal, 10);
+      try { return Number.isFinite(point) ? String.fromCodePoint(point) : match; } catch { return match; }
+    })
+    .replace(/&(quot|apos|amp|lt|gt|nbsp);/gi, (match, name) => named[name.toLowerCase()] ?? match);
+}
+
+function sanitizeProse(value) {
+  return decodeHtmlEntities(sanitize(value));
 }
 
 function positiveInt(value, fallback) {
@@ -201,18 +219,18 @@ function capOutput(value, opts = {}) {
 
 function inlineFallback(token) {
   if (token == null) return '';
-  if (typeof token === 'string') return sanitize(token);
-  return sanitize(token.raw ?? token.text ?? '');
+  if (typeof token === 'string') return sanitizeProse(token);
+  return sanitizeProse(token.raw ?? token.text ?? '');
 }
 
 function renderInline(tokens) {
-  if (!Array.isArray(tokens)) return sanitize(tokens ?? '');
+  if (!Array.isArray(tokens)) return sanitizeProse(tokens ?? '');
   return tokens.map(token => {
     try {
       switch (token.type) {
         case 'text':
         case 'escape':
-          return token.tokens ? renderInline(token.tokens) : sanitize(token.text);
+          return token.tokens ? renderInline(token.tokens) : sanitizeProse(token.text);
         case 'strong':
           return styled(renderInline(token.tokens), { bold: true });
         case 'em':
@@ -220,7 +238,7 @@ function renderInline(tokens) {
         case 'del':
           return styled(renderInline(token.tokens), { dim: true });
         case 'codespan':
-          return styled(sanitize(token.text), {
+          return styled(sanitizeProse(token.text), {
             color: paletteColor('accent'),
             bg: paletteColor('bgAlt'),
           });
@@ -232,7 +250,7 @@ function renderInline(tokens) {
           return `${label}${C.dim(` (${sanitize(token.href)})`)}`;
         }
         case 'image':
-          return `${sanitize(token.text || token.href)}${C.dim(` (${sanitize(token.href)})`)}`;
+          return `${sanitizeProse(token.text || token.href)}${C.dim(` (${sanitize(token.href)})`)}`;
         case 'br':
           return '\n';
         default:
@@ -245,7 +263,7 @@ function renderInline(tokens) {
 }
 
 function plainToken(token) {
-  return sanitize(token?.raw ?? token?.text ?? '');
+  return sanitizeProse(token?.raw ?? token?.text ?? '');
 }
 
 function renderList(token, opts, depth) {

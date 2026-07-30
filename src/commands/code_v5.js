@@ -21,6 +21,7 @@ const chalk = require("chalk");
 const { getLang: _gl } = require("../utils/i18n");
 const L = (tr, en) => (_gl() === "en" ? en : tr);
 const tui = require("../utils/tui");
+const tema = require("../utils/skuld-theme");
 const {
   canUseInputBox,
   promptInput,
@@ -29,13 +30,13 @@ const {
 const { renderMarkdown } = require("../utils/render");
 const { createPresentationWriter, createStreamWriter } = require("../utils/stream-render");
 const { renderToolCall } = require("../utils/tool-card");
+const { createCodeScreen } = require("../utils/code-screen");
 const {
   streamProviderCompletion,
   stopMcpServers,
 } = require("../utils/api");
 const { loadMcpToolDefinitions } = require("../utils/mcp-tools");
 const { supportsNativeToolCalls } = require("../utils/provider-detect");
-const tema = require("../utils/skuld-theme");
 const { getConfig, saveConfig } = require("../utils/config");
 const { discoverProviderModels, resolveModelSelection } = require('./models');
 const { loadToolDefinitions, executeTool, toOpenAIFormat } = require("../utils/tools");
@@ -60,9 +61,11 @@ const { saveSession, loadLastSession, listSessions, loadCommandSession } = requi
 const { selectTools, buildCatalog, buildCatalogNames, createEnableToolsTool } = require("../utils/tool-profile");
 const { AgentCore } = require("../utils/agent-core");
 const { prepareConversationHistory } = require("../utils/conversation-context");
+const { getSkuldPaths } = require('../utils/skuld-paths');
 const tokenBudget = require("../utils/token-budget");
 
 const DEFAULT_MAX_TOOL_ROUNDS = 10_000;
+const EMPTY_REPLY_RETRY_LIMIT = 2;
 const MAX_TRANSCRIPT_CARDS = 200;
 const MAX_TRANSCRIPT_BYTES = 4 * 1024 * 1024;
 
@@ -76,6 +79,63 @@ function resolveMaxToolRounds(config = {}, env = process.env) {
   if (!Number.isFinite(parsed) || parsed < 0) return DEFAULT_MAX_TOOL_ROUNDS;
   if (parsed === 0) return Infinity;
   return Math.max(1, Math.floor(parsed));
+}
+
+function createScrollbackArchive(options = {}) {
+  const entries = [];
+  const seen = new WeakSet();
+  const formatUser = options.formatUser || (content => `YOU  ${content}`);
+  const formatAssistant = options.formatAssistant || (content => `SKULD  ${content}`);
+  const formatTool = options.formatTool || ((name, status) =>
+    `◆ ${name}  ${status === 'error' ? 'failed' : status === 'pending' ? 'pending' : 'ran'}`);
+
+  const sync = messages => {
+    const toolResults = new Map();
+    for (const message of messages || []) {
+      if (message?.role === 'tool' && message.tool_call_id) {
+        const content = String(message.content || '');
+        toolResults.set(message.tool_call_id, /^\s*ERROR:/i.test(content) ? 'error' : 'success');
+      }
+    }
+    for (const message of messages || []) {
+      if (!message || typeof message !== 'object' || seen.has(message)) continue;
+      seen.add(message);
+      if (message.role === 'system' || message.role === 'tool') continue;
+      if (message.role === 'user') {
+        const content = String(message.content || '');
+        if (!/^\s*\[(?:RECALL|MEMORY|HAFIZA)\b/i.test(content)) entries.push(formatUser(content));
+        continue;
+      }
+      if (message.role === 'assistant') {
+        if (message.content) entries.push(formatAssistant(String(message.content)));
+        for (const call of message.tool_calls || []) {
+          entries.push(formatTool(
+            call.function?.name || 'tool',
+            toolResults.get(call.id) || 'pending',
+          ));
+        }
+      }
+    }
+    return entries.join('\n\n');
+  };
+
+  return { sync, entries };
+}
+
+function isEmptyAssistantReply(reply) {
+  return !reply?.tool_calls?.length && !String(reply?.content || '').trim();
+}
+
+function writeQualityReport(report, write = value => process.stderr.write(value)) {
+  if (!report) return false;
+  for (const finding of report.bulgular || []) {
+    const icon = finding.seviye === 'blok' ? '⛔' : finding.seviye === 'uyari' ? '⚠' : 'ℹ';
+    write(`${icon} ${finding.baslik}${finding.ayrinti ? ` — ${finding.ayrinti}` : ''}\n`);
+  }
+  if (!report.codednaCalisti && report.codednaYokNedeni) {
+    write(`${L('CodeDNA atlandı', 'CodeDNA skipped')}: ${report.codednaYokNedeni}\n`);
+  }
+  return report.blokluyorMu === true;
 }
 
 const agentCore = new AgentCore({ maxIterations: DEFAULT_MAX_TOOL_ROUNDS });
@@ -129,30 +189,67 @@ function createCodeInputSession({
   prompt = promptInput,
   getTranscript,
   slashCommands = [],
+  screen,
+  getScrollback,
 } = {}) {
   const boxed = canUseInputBox({ stdin, stdout, env });
   const history = [];
   const transport = boxed ? getKeypressTransport(stdin) : null;
   const rl = boxed ? null : readlineModule.createInterface({ input: stdin, output: stdout });
   let closed = false;
+  const lineQueue = [];
+  const lineWaiters = [];
+  const queuedLines = Boolean(rl && typeof rl.on === 'function');
+  if (queuedLines) {
+    rl.on('line', line => {
+      const resolve = lineWaiters.shift();
+      if (resolve) resolve(line);
+      else lineQueue.push(line);
+    });
+    rl.on('close', () => {
+      closed = true;
+      while (lineWaiters.length) lineWaiters.shift()('');
+    });
+  }
 
   return {
     boxed,
     rl,
-    async read() {
+    async read(options = {}) {
       if (!boxed) {
-        return new Promise(resolve => rl.question("", resolve));
+        if (!queuedLines) {
+          return new Promise(resolve => rl.question(options.question || "", resolve));
+        }
+        if (options.question) stdout.write(options.question);
+        if (lineQueue.length) return lineQueue.shift();
+        if (closed) return '';
+        return new Promise(resolve => lineWaiters.push(resolve));
       }
+      screen?.anchorInput?.();
       const value = await prompt({
         stdin,
         stdout,
         env,
         history,
-        placeholder: L('Bir mesaj yazın…', 'Type a message…'),
+        placeholder: options.placeholder || L('Bir mesaj yazın…', 'Type a message…'),
         getTranscript,
         slashCommands,
+        transcriptUsesAlternateScreen: !screen?.active,
+        onTranscriptClose: () => {
+          if (!screen?.active) return;
+          screen.clearBody();
+          screen.redraw();
+        },
+        mouseScroll: Boolean(screen?.active && screen?.mouseCapture),
+        transcriptMouse: screen ? Boolean(screen.mouseCapture) : true,
+        onViewportScroll: delta => screen?.scrollViewport(delta, getScrollback?.()),
+        onViewportReturn: () => screen?.returnToComposer(getScrollback?.()),
+        fixedBottomRow: () => screen?.active ? screen.composerBottom() : undefined,
+        onFrameLayout: rows => screen?.setComposerRows(rows),
       });
-      stdout.write("  " + tui.styled("You  ", { color: tui.PALETTE.primary, bold: true }) + value + "\n");
+      if (options.echo !== false) {
+        stdout.write("  " + tui.styled("You  ", { color: tui.PALETTE.primary, bold: true }) + value + "\n");
+      }
       return value;
     },
     close() {
@@ -164,8 +261,61 @@ function createCodeInputSession({
   };
 }
 
+/**
+ * Bir turda modele verilen ÇIKTI bütçesi.
+ *
+ * Efor seviyeleri sohbet için ölçeklenmişti: `medium` = 2048 token. Kodlama
+ * ajanında bu bütçe bir aracın ARGÜMANLARINI da kapsıyor ve `write_file`
+ * çağrısının argümanı dosyanın tamamıdır. Ölçüldü (MiniMax-M2.5 ve M2.7, aynı
+ * sonuç): 100 satırlık bir HTML dosyası yazdırıldığında çağrı ~6 KB'de
+ * `finish_reason: "length"` ile kesiliyor, argüman yarım JSON kalıyor ve
+ * ardından gelen her istek BOŞ GÖVDE dönüyor — ekranda "Model boş yanıt
+ * verdi". Yani kesilme yalnızca o turu değil, oturumun tamamını bitiriyordu.
+ *
+ * `max_tokens` bir tavandır, harcama değil: üretilmeyen token ücretlendirilmez.
+ * Bu yüzden tavan efor seviyesinden bağımsız olarak bir dosyayı yazmaya
+ * yetecek kadar yüksek tutulur; efor seviyesi sıcaklığı, araç genişliğini ve
+ * tur sayısını belirlemeye devam eder.
+ */
+const DEFAULT_CODE_MAX_OUTPUT_TOKENS = 16_384;
+
+function resolveMaxOutputTokens(effortCfg, config = {}, env = process.env) {
+  const raw = env.SKULD_CODE_MAX_OUTPUT_TOKENS
+    ?? config.codeMaxOutputTokens
+    ?? config.code?.maxOutputTokens;
+  if (raw !== undefined && raw !== null && raw !== '') {
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed) && parsed > 0) return Math.floor(parsed);
+  }
+  return Math.max(effortCfg.maxTokens || 0, DEFAULT_CODE_MAX_OUTPUT_TOKENS);
+}
+
+/**
+ * Sağlayıcı, istediğimiz çıktı tavanını reddediyor mu?
+ *
+ * İki ayrı gerekçe, tek çare: (1) tavan modelin çıktı sınırından yüksek,
+ * (2) girdi + tavan modelin bağlam penceresini aşıyor. İkisinde de doğru
+ * hamle aynı: daha küçük bir tavanla bir kez daha denemek. Bunları ayırmanın
+ * bir faydası yok, o yüzden tek kapı.
+ *
+ * Metne bakmak kırılgan görünür ama alternatifi her sağlayıcı için model →
+ * çıktı sınırı tablosu tutmak ve o tablo her yeni modelde eskiyor. Yanlış
+ * pozitifin bedeli tek bir küçük bütçeli yeniden deneme; yanlış negatifin
+ * bedeli turun tamamen ölmesi.
+ */
+function isMaxTokensRejection(error) {
+  const message = String(error?.message || '');
+  const konu = /max_?tokens|max output|output limit|context length|context window/i.test(message);
+  if (!konu) return false;
+  return /exceed|too (large|high|big|many)|greater than|at most|maximum|invalid|must be|however you requested/i
+    .test(message);
+}
+
 async function sendMessageWithTools(providerUrl, providerKey, model, messages, toolDefs, options = {}) {
-  const effortLevel = getEffortLevel();
+  const runtimeConfig = getConfig();
+  // `getEffortLevel()` argümansız çağrılıyordu, yani `cfg = {}` ile her zaman
+  // `medium` dönüyordu: belgelenen `effort` ayarının hiçbir etkisi yoktu.
+  const effortLevel = getEffortLevel(runtimeConfig);
   const effortCfg = getEffortConfig(effortLevel);
   const fallbackChain = getFallbackChain();
   const selectedModel = fallbackChain.current || model;
@@ -179,17 +329,29 @@ async function sendMessageWithTools(providerUrl, providerKey, model, messages, t
     model: selectedModel,
   };
 
+  const maxTokens = options.maxTokens ?? resolveMaxOutputTokens(effortCfg, runtimeConfig);
   try {
     return await streamProviderCompletion(providerConfig, messages, tools, {
       signal: options.signal,
       onEvent: options.onEvent,
       model: selectedModel,
       temperature: effortCfg.temperature,
-      maxTokens: effortCfg.maxTokens,
+      maxTokens,
       responseFormat,
     });
   } catch (error) {
     if (isAbortError(error, options.signal)) throw error;
+    // Kodlama tavanı, modelin kendi çıktı sınırından yüksek olabilir (eski
+    // Anthropic modellerinde 4096/8192 gibi). Sağlayıcı bunu açıkça söylüyor;
+    // model tablosu tutup eskitmek yerine söylediğini dinleyip bir kez
+    // efor bütçesiyle tekrar deniyoruz. Modeli değiştirmiyoruz: sorun modelde
+    // değil, istediğimiz tavanda.
+    if (isMaxTokensRejection(error) && maxTokens > effortCfg.maxTokens) {
+      return sendMessageWithTools(providerUrl, providerKey, model, messages, toolDefs, {
+        ...options,
+        maxTokens: effortCfg.maxTokens,
+      });
+    }
     const fallback = fallbackChain.recordError(selectedModel, error);
     if (fallback.fallback) {
       console.log(tui.C.yellow(`\n  ⚠ ${selectedModel} ${L('başarısız', 'failed')} → ${fallback.nextModel} ${L('deneniyor...', 'trying...')}\n`));
@@ -228,13 +390,18 @@ function askLine(question) {
   });
 }
 
+let activeCodeInputReader = null;
+
 /**
  * Yes/no confirmation. Defaults to NO: these prompts guard destructive tool
  * calls, so a bare Enter (or a stray newline pasted into the terminal) must
  * never be read as approval.
  */
 async function confirm(prompt) {
-  const answer = await askLine(chalk.yellow("\n  ⚠ " + prompt + " "));
+  const question = "\n  ⚠ " + prompt + " ";
+  const answer = activeCodeInputReader
+    ? await activeCodeInputReader({ question: chalk.yellow(question), placeholder: question.trim(), echo: false })
+    : await askLine(chalk.yellow(question));
   return /^(y|yes|e|evet)$/i.test(answer);
 }
 
@@ -250,7 +417,10 @@ const PERMISSION_ANSWERS = {
  * as a refusal and no answer could ever grant beyond the session.
  */
 async function askPermission(prompt) {
-  const answer = await askLine(chalk.yellow("\n  ⚠ " + prompt + " "));
+  const question = "\n  ⚠ " + prompt + " ";
+  const answer = activeCodeInputReader
+    ? await activeCodeInputReader({ question: chalk.yellow(question), placeholder: question.trim(), echo: false })
+    : await askLine(chalk.yellow(question));
   const normalized = answer.toLowerCase().replace(/[ıİ]/g, 'i');
   return PERMISSION_ANSWERS[normalized] || 'no';
 }
@@ -573,6 +743,7 @@ async function codeV5(targetPath, cliOptions = {}) {
   }
 
   const cwd = targetPath ? path.resolve(targetPath) : process.cwd();
+  const skuldPaths = getSkuldPaths();
   // Tools resolve relative paths against process.cwd(), so without this
   // `--dir <project>` only changed what was indexed and displayed while every
   // write still landed in whatever directory the shell happened to be in.
@@ -594,15 +765,18 @@ async function codeV5(targetPath, cliOptions = {}) {
   let projectCtx = indexProject(cwd);
   const projectMemory = loadProjectMemory(cwd);
   const toolDefs = loadToolDefinitions();
+  const builtinToolCount = toolDefs.length;
 
   // MCP servers, if any are configured. They were previously reachable only
   // from chat/repl; the coding agent never saw them.
   const mcp = await loadMcpToolDefinitions();
   const builtinNames = new Set(toolDefs.map(t => t.name));
+  let addedMcpToolCount = 0;
   for (const tool of mcp.tools) {
     if (builtinNames.has(tool.name)) continue;
     toolDefs.push(tool);
     builtinNames.add(tool.name);
+    addedMcpToolCount++;
   }
 
   // Inject virtual tools
@@ -758,45 +932,70 @@ async function codeV5(targetPath, cliOptions = {}) {
   ));
   const exposedTools = () => selectTools(toolDefs, { profile: toolProfile, enabled: sessionEnabledTools }).exposed;
   const toolCatalog = () => buildCatalog(selectTools(toolDefs, { profile: toolProfile, enabled: sessionEnabledTools }).hidden);
+  const agentToolCount = toolDefs.length - builtinToolCount - addedMcpToolCount;
+  const codeScreen = headlessPrompt ? null : createCodeScreen({
+    input: process.stdin,
+    output: process.stdout,
+    env: process.env,
+    lang: _gl(),
+    mode: cliOptions.minimal ? 'minimal' : (cliOptions.fullscreen ? 'fullscreen' : undefined),
+    // Tekerlekle kaydırma, terminalin sürükleyerek seçme davranışını
+    // uygulamaya devrederek çalışır (seçim Shift ile yapılır). Bu takası
+    // istemeyen `codeMouseScroll: false` diyip doğal seçime döner; kaydırma
+    // PgUp/PgDn ile sürer.
+    mouseCapture: config.codeMouseScroll !== false && cliOptions.mouse !== false,
+    project: cwd,
+    branch: projectCtx?.gitBranch,
+    changes: projectCtx?.gitStatus?.length,
+    model: config.providerModel,
+    tools: String(toolDefs.length),
+    version: require('../../package.json').version,
+  });
+  codeScreen?.enter();
 
   if (!headlessPrompt) {
-  // ── Kodlama ekranı başlığı ─────────────────────────────────────────────
-  //
-  // Devralınan hâli natureco-cli'nin kartıydı: `⚡ NatureCo Code Agent v5`
-  // ve yanında `Claude Code alternative`. İki sorun vardı. Birincisi kimlik:
-  // kullanıcı Skuld çalıştırıp başka bir ürünün adını görüyordu. İkincisi
-  // hizalama: başlık satırı kutu genişliğinden uzun olduğu için sağ kenar
-  // dışa taşıyordu — sabit `padEnd` ile çizilen kutular içerik uzayınca
-  // sessizce bozulur.
-  //
-  // Skuld'un kimliği kutu ÇİZMİYOR. Hizalama ve boşlukla derinlik ima
-  // ediliyor; ayrım ilk bakışta görünmeli. Kutu olmadığı için içerik uzasa
-  // da bozulacak bir kenar yok.
-  const satirlar = [
-    ['proje', cwd],
-    ['model', config.providerModel || '—'],
-    ['araç', String(toolDefs.length)],
-  ];
-  if (mcp.servers.length > 0) {
-    satirlar.push(['mcp', `${mcp.servers.join(', ')} (${mcp.tools.length})`]);
-  }
-
-  console.log('');
-  // Kelime işareti YALNIZCA açılış animasyonu çalışmadıysa basılıyor.
-  // İkisi birlikte iki hero demek ve kullanıcı bunu bildirdi.
-  if (!cliOptions.acilisYapildi) {
-    for (const satir of tema.KELIME_ISARETI) console.log('  ' + tema.gradyan(satir, 200, 500));
+  if (codeScreen?.active) {
+    console.log("\n  " + tui.C.brand(L('Skuld hazır', 'Skuld ready')) + tui.C.muted(
+      `  ·  ${projectCtx.type.toUpperCase()}  ·  ${projectCtx.files.length} ${L('dosya', 'files')}  ·  /help`,
+    ));
+    for (const error of mcp.errors) console.log("  " + tui.C.yellow(`⚠ MCP: ${error}`));
+    if (dryRun) console.log("  " + tui.C.yellow(L(
+      '⚠ DRY RUN — yazma ve komut araçları reddedilecek.',
+      '⚠ DRY RUN — writing and command tools will be refused.',
+    )));
+    console.log("");
+  } else {
+  // NatureCo Code is the reference product. Skuld keeps the same rich boxed
+  // information architecture and interaction language under its own brand.
+  const fit = (value, width = 47) => {
+    const text = String(value ?? '—');
+    return (text.length > width ? text.slice(0, Math.max(1, width - 1)) + '…' : text).padEnd(width);
+  };
+  console.log("");
+  if (!cliOptions.acilisYapildi || codeScreen?.active) {
+    for (const line of tema.KELIME_ISARETI) console.log('  ' + tema.gradyan(line, 200, 500));
     console.log('');
   }
-  console.log('  ' + tema.soluk(tema.gumus(500, L(
-    `v${require('../../package.json').version} · kodlama ekranı · çıkmak için /exit`,
-    `v${require('../../package.json').version} · coding screen · /exit to leave`,
-  ))));
-  console.log('');
-  for (const [ad, deger] of satirlar) {
-    console.log('    ' + tema.soluk(tema.gumus(600, ad.padEnd(7))) + tema.gumus(200, deger));
+  console.log(tui.styled("  ╭" + "─".repeat(58) + "╮", { color: tui.PALETTE.primary }));
+  const titleLead = "  ⚡ ";
+  const titleText = "Skuld Code Agent v5";
+  const titleSuffix = "    NatureCo Code engine";
+  const titlePadding = " ".repeat(Math.max(0, 58 - tui.stringWidth(titleLead + titleText + titleSuffix)));
+  console.log(
+    tui.styled("  │", { color: tui.PALETTE.primary })
+    + titleLead + tui.styled(titleText, { color: tui.PALETTE.primary, bold: true })
+    + tui.C.muted(titleSuffix) + titlePadding
+    + tui.styled("│", { color: tui.PALETTE.primary }),
+  );
+  console.log(tui.styled("  │", { color: tui.PALETTE.primary }) + tui.C.muted(L("  Proje:  ", "  Project: ")) + tui.styled(fit(cwd), { color: tui.PALETTE.text }) + tui.styled(" │", { color: tui.PALETTE.primary }));
+  console.log(tui.styled("  │", { color: tui.PALETTE.primary }) + tui.C.muted("  Model:  ") + tui.styled(fit(config.providerModel), { color: tui.PALETTE.text }) + tui.styled(" │", { color: tui.PALETTE.primary }));
+  const toolCountLabel = `${toolDefs.length} (${builtinToolCount} ${L('yerleşik', 'built-in')} + ${agentToolCount} ${L('ajan', 'agent')})`;
+  console.log(tui.styled("  │", { color: tui.PALETTE.primary }) + tui.C.muted(L("  Araç:   ", "  Tools:  ")) + tui.styled(fit(toolCountLabel), { color: tui.PALETTE.success, bold: true }) + tui.styled(" │", { color: tui.PALETTE.primary }));
+  if (mcp.servers.length > 0) {
+    const label = `${mcp.servers.join(", ")} (${mcp.tools.length})`;
+    console.log(tui.styled("  │", { color: tui.PALETTE.primary }) + tui.C.muted("  MCP:    ") + tui.styled(fit(label), { color: tui.PALETTE.text }) + tui.styled(" │", { color: tui.PALETTE.primary }));
   }
-  console.log('');
+  console.log(tui.styled("  ╰" + "─".repeat(58) + "╯", { color: tui.PALETTE.primary }));
   for (const error of mcp.errors) {
     console.log("  " + tui.C.yellow(`⚠ MCP: ${error}`));
   }
@@ -832,6 +1031,7 @@ async function codeV5(targetPath, cliOptions = {}) {
   console.log("\n  " + tui.C.muted(L("Komutlar: /help ile tam liste", "Commands: /help for the full list")));
   console.log("");
   }
+  }
 
   // Three-tier system prompt (Hermes-style)
   const skillsIndexBlock = buildSkillIndex();
@@ -848,7 +1048,7 @@ async function codeV5(targetPath, cliOptions = {}) {
   } catch { /* no tree yet — memory_tree/memory_search still available */ }
 
   const promptOpts = {
-    botName: 'Code Agent',
+    botName: 'Skuld',
     userName: cfg.userName || L('kullanıcı', 'user'),
     skillsIndexBlock,
     projectRules,
@@ -865,6 +1065,20 @@ async function codeV5(targetPath, cliOptions = {}) {
     buildIndexPrompt(projectCtx),
     projectMemory ? `\nProject memory:\n${tokenBudget.trimProjectMemory(projectMemory)}` : '',
     catalogBlock ? `\n${catalogBlock}` : '',
+    `\nSkuld runtime: systemRoot=${skuldPaths.systemRoot}; installedPackage=${skuldPaths.packageInstallRoot}; runtimeSource=${skuldPaths.packageRoot}; entry=${skuldPaths.entryPath}; config=${skuldPaths.configPath}; logs=${skuldPaths.logsDir}. `
+      + L('Kendi sistem dosyaların sorulursa tahmin etme; skuld_system aracını kullan.', 'If asked about your own system files, do not guess; use the skuld_system tool.'),
+    `\n${L(
+      'Kullanıcı bir GitHub depo bağlantısını kurmanı isterse git aracının clone işlemini kullan; ardından depodaki AGENTS.md/README ve paket bildirimlerini oku, belgelenmiş kurulum adımlarını çalıştır ve gerçek bir doğrulama yapmadan başarı iddia etme.',
+      'When the user asks you to install a GitHub repository, use the git tool clone operation; then read AGENTS.md/README and package manifests, run the documented setup steps, and do not claim success without a real verification.',
+    )}`,
+    `\n${L(
+      'Depo incelemelerinde proje talimatlarını ve gerçek uygulamayı oku; tarihî plan/issue maddelerini güncel bulgu gibi sunmadan önce kod ve testlerle doğrula. "Detaylı" inceleme istenirse yalnız dosya listesiyle yetinme.',
+      'For repository reviews, read project instructions and actual implementation; verify historical plan/issue items against code and tests before presenting them as current findings. A "detailed" review must go beyond listing files.',
+    )}`,
+    `\n${L(
+      'Son Türkçe yanıtı göndermeden önce yazım ve dilbilgisi denetimi yap; yarım/bozuk kelime bırakma ve Türkçe bağlamda "agent" yerine "ajan" kullan.',
+      'Proofread the final response for spelling and grammar before sending; do not leave truncated or malformed words.',
+    )}`,
   ].join('\n');
 
   let messages = [{ role: "system", content: systemPrompt }];
@@ -876,7 +1090,7 @@ async function codeV5(targetPath, cliOptions = {}) {
   }
   if (!headlessPrompt) {
     if (restored) {
-      console.log("  " + tui.C.hex('#7dd3fc')(
+      console.log("  " + tui.C.green(
         `↺ ${L('oturum geri yüklendi', 'session restored')}: ${restored.id} (${messages.length - 1} ${L('mesaj', 'messages')})`,
       ));
     } else if (cliOptions.continue || cliOptions.resume) {
@@ -893,6 +1107,17 @@ async function codeV5(targetPath, cliOptions = {}) {
   // bunlara bakıp zaten koşulmuş bir doğrulamayı ikinci kez koşmuyor.
   const modelKomutlari = [];
   const startTime = Date.now();
+  const refreshCodeScreenContext = (activity) => {
+    if (!codeScreen) return;
+    const budget = tokenBudget.load();
+    const limit = Math.max(1, (budget.maxContextTokens || 0) - (budget.reservedTokens || 0));
+    const used = tokenBudget.estimateMessageTokens(messages);
+    codeScreen.update({
+      context: `${Math.min(100, Math.round((used / limit) * 100))}%`,
+      ...(activity ? { activity } : {}),
+    });
+  };
+  refreshCodeScreenContext(L('HAZIR', 'READY'));
 
   // ── Headless one-shot (`-p "task"`) ───────────────────────────────────────
   // Same tools, same gate, same compaction as the interactive loop — only the
@@ -906,11 +1131,26 @@ async function codeV5(targetPath, cliOptions = {}) {
     // denemez.
     const farklilastirici = require('../utils/farklilastiricilar');
     const hafiza = await farklilastirici.hafizaAc({ projeKoku: cwd });
+    const kaliteKapisi = await farklilastirici.kaliteKapisiAc({ projeKoku: cwd });
+    const kaliteTabaniSozu = kaliteKapisi
+      ? kaliteKapisi.tara(cwd).catch(() => null)
+      : Promise.resolve(null);
     const notlar = await farklilastirici.hatirlatmaMetni(hafiza, headlessPrompt);
     if (notlar) messages.push({ role: 'user', content: notlar });
 
     let finalText = '';
     let unresolved = true;
+    // `unresolved` üç ayrı nedenle işaretleniyor — tur sınırı, doğrulama
+    // kapısı, kalite kapısı — ama çıkıştaki uyarı hepsini "tur sınırına
+    // ulaşıldı" diye bildiriyordu. Görev aslında bitmiş, yalnızca projede
+    // çalıştırılacak bir test/lint komutu bulunamamışken kullanıcıya turların
+    // tükendiğini söylemek düpedüz yanlış bilgi. Neden, işaretiyle birlikte
+    // taşınır. Varsayılan tur sınırıdır: döngü temiz bir yanıtla bittiğinde
+    // `unresolved` zaten `false` oluyor.
+    let tamamlanmamaNedeni = L(
+      `${maxToolRounds} araç turu sınırına ulaşıldı`,
+      `reached the ${maxToolRounds}-tool-round limit`,
+    );
     let xmlYoluKostu = false;
 
     // ── Sağlayıcı yerel araç çağrısı üretemiyorsa XML yoluna geç ─────────
@@ -944,8 +1184,10 @@ async function codeV5(targetPath, cliOptions = {}) {
         unresolved = false;
         xmlYoluKostu = true;
       } catch (e) {
-        process.stderr.write(`${e && e.message ? e.message : String(e)}\n`);
+        const mesaj = e && e.message ? e.message : String(e);
+        process.stderr.write(`${mesaj}\n`);
         unresolved = true;
+        tamamlanmamaNedeni = L(`XML ajan yolu hata verdi: ${mesaj}`, `the XML agent path failed: ${mesaj}`);
       }
     }
 
@@ -1012,6 +1254,9 @@ async function codeV5(targetPath, cliOptions = {}) {
           // geri verilecek bir şey de yok; durum dürüstçe bildirilip çıkılıyor.
           if (!karar.onarimIcin || onarim === EN_FAZLA_ONARIM) {
             unresolved = true;
+            // `gerekce` zaten tam bir cümle; başına bir açıklama daha eklemek
+            // aynı şeyi iki kez söylemek oluyordu.
+            tamamlanmamaNedeni = karar.gerekce;
             process.stderr.write(L(
               `Doğrulama BAŞARISIZ: ${karar.gerekce}\n`,
               `Verification FAILED: ${karar.gerekce}\n`,
@@ -1053,18 +1298,15 @@ async function codeV5(targetPath, cliOptions = {}) {
       if (changedFiles.length > 0) {
         let bloklandi = false;
         try {
-          const kapi = await farklilastirici.kaliteKapisiAc({ projeKoku: cwd });
-          if (kapi) {
-            const rapor = await kapi.degerlendir(changedFiles, { taban: await kapi.tara(cwd) });
-            if (rapor && Array.isArray(rapor.bulgular)) {
-              for (const b of rapor.bulgular) {
-                const im = b.seviye === 'blok' ? '⛔' : '⚠';
-                process.stderr.write(`${im} ${b.baslik}${b.ayrinti ? ` — ${b.ayrinti}` : ''}\n`);
-              }
-            }
-            if (rapor && rapor.blokluyorMu) {
+          if (kaliteKapisi) {
+            const rapor = await kaliteKapisi.degerlendir(cwd, changedFiles, await kaliteTabaniSozu);
+            if (writeQualityReport(rapor)) {
               bloklandi = true;
               unresolved = true;
+              tamamlanmamaNedeni = L(
+                'kalite kapısı değişikliği blokladı',
+                'the quality gate blocked the change',
+              );
               process.stderr.write(L(
                 'Kalite kapısı BLOKLADI — değişiklikler gözden geçirilmeli.\n',
                 'Quality gate BLOCKED — the changes need review.\n',
@@ -1086,8 +1328,8 @@ async function codeV5(targetPath, cliOptions = {}) {
       process.stdout.write((finalText || L('(yanıt yok)', '(no answer)')) + '\n');
       if (unresolved) {
         process.stderr.write(L(
-          `Uyarı: ${maxToolRounds} tur sonunda görev tamamlanmadı.\n`,
-          `Warning: the task did not finish within ${maxToolRounds} rounds.\n`,
+          `Uyarı: görev tamamlanmış sayılmadı — ${tamamlanmamaNedeni}.\n`,
+          `Warning: the task was not counted as finished — ${tamamlanmamaNedeni}.\n`,
         ));
       }
     } catch (error) {
@@ -1097,6 +1339,7 @@ async function codeV5(targetPath, cliOptions = {}) {
       if (mcp.servers.length > 0) {
         try { stopMcpServers(); } catch { /* best effort on shutdown */ }
       }
+      try { await hafiza?.kapat?.(); } catch { /* best effort */ }
       // Persist here too, so `code -p …` then `code -c` continues the thread.
       persistSession({ quiet: true });
     }
@@ -1104,10 +1347,37 @@ async function codeV5(targetPath, cliOptions = {}) {
     return;
   }
 
+  const farklilastirici = require('../utils/farklilastiricilar');
+  const interactiveHafiza = await farklilastirici.hafizaAc({ projeKoku: cwd });
+  const interactiveQuality = await farklilastirici.kaliteKapisiAc({ projeKoku: cwd });
+
   // Input loop
   const slashCommands = [];
+  // Visual history must outlive provider-context compaction. The model message
+  // list is routinely trimmed/repaired to fit a context window; using it as
+  // the screen's scrollback made already-rendered conversation disappear.
+  const scrollbackArchive = createScrollbackArchive({
+    formatUser: content => `${tui.C.brand('YOU')}  ${content}`,
+    formatAssistant: content => `${tui.C.sky('SKULD')}  ${content}`,
+    formatTool: (name, status) => {
+      const label = status === 'error'
+        ? tui.styled(L('başarısız', 'failed'), { color: tui.PALETTE.danger })
+        : status === 'pending'
+          ? tui.C.muted(L('bekliyor', 'pending'))
+          : tui.C.muted(L('çalıştırıldı', 'ran'));
+      return `${tui.C.brand('◆')} ${name}  ${label}`;
+    },
+  });
+  const syncScrollbackArchive = () => scrollbackArchive.sync(messages);
+  const buildScrollbackTranscript = () => {
+    return syncScrollbackArchive();
+  };
+  // Seed restored sessions before their provider context can be compacted.
+  syncScrollbackArchive();
   const inputSession = createCodeInputSession({
     slashCommands,
+    screen: codeScreen,
+    getScrollback: buildScrollbackTranscript,
     getTranscript: ({ expanded = false, toggleLine } = {}) => {
       let cursor = 0;
       if (Number.isInteger(toggleLine) && toggleLine >= 0) {
@@ -1126,10 +1396,15 @@ async function codeV5(targetPath, cliOptions = {}) {
         .join('\n\n');
     },
   });
+  activeCodeInputReader = options => inputSession.read(options);
   const { rl } = inputSession;
   const writePlainPrompt = (prefix = '') => {
+    // The spacing belongs to both renderers. Previously boxed mode skipped the
+    // prefix together with the plain "You" label, so the next composer border
+    // was drawn directly after the final response character.
+    if (prefix) process.stdout.write(prefix);
     if (!inputSession.boxed) {
-      process.stdout.write(prefix + tui.styled("You  ", { color: tui.PALETTE.primary, bold: true }));
+      process.stdout.write(tui.styled("You  ", { color: tui.PALETTE.primary, bold: true }));
     }
   };
   writePlainPrompt("\n  ");
@@ -1137,10 +1412,13 @@ async function codeV5(targetPath, cliOptions = {}) {
   const SLASH_HELP = [
     ['/help', L('Bu yardım', 'This help')],
     ['/clear', L('Ekranı temizle', 'Clear the screen')],
+    ['/fullscreen', L('Tam ekran uygulama görünümü', 'Fullscreen application view')],
+    ['/minimal', L('Terminal scrollback görünümü', 'Terminal scrollback view')],
     ['/compact', L('Konuşma bağlamını şimdi sıkıştır', 'Compact the conversation context now')],
     ['/context', L('Bağlam kullanımını göster', 'Show context usage')],
     ['/tools', L('Yüklü araçları listele', 'List loaded tools')],
-    ['/model [model|no]', L('Modeli listele veya değiştir', 'List or change model')],
+    ['/system', L('Skuld kurulum ve sistem yollarını göster', 'Show Skuld installation and system paths')],
+    ['/model [model|no]', L('Modelleri listele veya aktif modeli değiştir', 'List models or switch the active model')],
     ['/undo [dosya]', L('Son dosya değişikliğini geri al', 'Undo the last file change')],
     ['/retry', L('Son isteği tekrar çalıştır', 'Re-run the last request')],
     ['/run <komut>', L('Komutu çalıştır, çıktısını bağlama ekle', 'Run a command and add its output to context')],
@@ -1170,7 +1448,7 @@ async function codeV5(targetPath, cliOptions = {}) {
     console.log("\n  " + tui.C.muted(`▶ ${command}`));
     try {
       const output = execSync(command, { cwd, timeout: 120000, stdio: 'pipe' }).toString();
-      console.log("  " + tui.C.hex('#7dd3fc')(L('✓ Başarılı', '✓ Success')));
+      console.log("  " + tui.C.green(L('✓ Başarılı', '✓ Success')));
       if (output.trim()) console.log(tui.C.muted("  " + output.trim().split('\n').slice(0, 40).join('\n  ')));
       return { ok: true, output };
     } catch (error) {
@@ -1214,10 +1492,28 @@ async function codeV5(targetPath, cliOptions = {}) {
         }
         return true;
       case 'clear':
-        console.clear();
+        if (codeScreen) codeScreen.clearBody();
+        else console.clear();
+        return true;
+      case 'fullscreen':
+        if (!codeScreen?.setMode('fullscreen')) {
+          console.log("\n  " + tui.C.yellow(L(
+            'Terminal boyutu tam ekran modu için yetersiz.',
+            'The terminal is too small for fullscreen mode.',
+          )));
+        }
+        return true;
+      case 'minimal':
+        codeScreen?.setMode('minimal');
+        console.log("\n  " + tui.C.muted(L(
+          'Minimal terminal görünümü etkin. /fullscreen ile geri dönebilirsiniz.',
+          'Minimal terminal view enabled. Use /fullscreen to return.',
+        )));
         return true;
       case 'compact': {
+        syncScrollbackArchive();
         const result = compactIfNeeded(messages, { force: true });
+        refreshCodeScreenContext();
         if (!result) console.log("\n  " + tui.C.muted(L('Sıkıştırılacak bir şey yok.', 'Nothing to compact.')));
         return true;
       }
@@ -1236,34 +1532,66 @@ async function codeV5(targetPath, cliOptions = {}) {
         console.log("  " + tui.C.text(names.join(', ')));
         return true;
       }
+      case 'system': {
+        const info = getSkuldPaths();
+        console.log("\n  " + tui.styled(L('Skuld sistem yolları', 'Skuld system paths'), { color: tui.PALETTE.primary, bold: true }));
+        const installLabel = {
+          'development-link': L('geliştirme bağlantısı', 'development link'),
+          'global-npm': L('global npm paketi', 'global npm package'),
+          'local-package': L('yerel paket', 'local package'),
+        }[info.installType] || info.installType;
+        const rows = [
+          [L('Sistem kökü', 'System root'), info.systemRoot],
+          [L('Yapılandırma', 'Config'), info.configPath],
+          [L('Loglar', 'Logs'), info.logsDir],
+          [L('Kurulum türü', 'Install type'), installLabel],
+          [L('Uygulama paketi', 'Installed package'), info.packageInstallRoot],
+          [L('Giriş dosyası', 'Entry file'), info.entryPath],
+          [L('Araçlar', 'Tools'), info.toolsDir],
+          ['Skills', info.skillsDir],
+          ...(info.installType === 'development-link'
+            ? [[L('Geliştirme kaynağı', 'Development source'), info.packageRoot]]
+            : []),
+          [L('Aktif proje', 'Current project'), info.currentProject],
+        ];
+        for (const [label, value] of rows) console.log(`    ${tui.C.muted(label.padEnd(16))} ${tui.C.text(value)}`);
+        return true;
+      }
       case 'model': {
-        const discovered = await discoverProviderModels(config, { timeout: 5000 });
-        if (discovered.warning) {
-          console.log("\n  " + tui.C.yellow(L('Canlı model listesi alınamadı; yerel katalog kullanılıyor.', 'Live model list unavailable; using the local catalogue.')));
-        }
-        if (!discovered.models.length) {
-          console.log("\n  " + tui.C.yellow(L('Bu sağlayıcı için model bulunamadı.', 'No models found for this provider.')));
-          return true;
-        }
-        let selection = arg ? resolveModelSelection(arg, discovered.models) : null;
-        if (!arg) {
-          console.log("\n  " + tui.C.muted(L('Kullanılabilir modeller', 'Available models') + ` (${discovered.source}):`));
-          discovered.models.forEach((entry, index) => {
-            const active = entry.id === config.providerModel ? ` ${L('← aktif', '← active')}` : '';
-            console.log("  " + tui.C.text(`${String(index + 1).padStart(2)}. ${entry.id}`) + tui.C.hex('#7dd3fc')(active));
+        let selected;
+        if (arg && !/^\d+$/.test(arg)) {
+          selected = resolveModelSelection(arg, []);
+        } else {
+          console.log("\n  " + tui.C.muted(L('Sağlayıcı modelleri taranıyor...', 'Scanning provider models...')));
+          const discovery = await discoverProviderModels(config, { timeout: 5000 });
+          const available = discovery.models;
+          if (!available.length) {
+            console.log("  " + tui.C.yellow(L('Bu sağlayıcı için model bulunamadı. `/model <model-id>` kullanabilirsiniz.', 'No models found for this provider. You can use `/model <model-id>`.')));
+            return true;
+          }
+          console.log("\n  " + tui.styled(L('Kullanılabilir modeller', 'Available models'), { color: tui.PALETTE.primary, bold: true }));
+          available.forEach((model, index) => {
+            const active = model.id === config.providerModel ? tui.C.green(L(' ← aktif', ' ← active')) : '';
+            const label = model.label && model.label !== model.id ? tui.C.muted(` — ${model.label}`) : '';
+            console.log(`    ${tui.C.amber(String(index + 1).padStart(3) + '.')} ${tui.C.text(model.id)}${label}${active}`);
           });
-          const answer = await askLine("\n  " + L('Model numarası veya kimliği (boş=iptal): ', 'Model number or ID (empty=cancel): '));
-          if (!answer) return true;
-          selection = resolveModelSelection(answer, discovered.models);
+          if (discovery.warning) {
+            console.log("\n  " + tui.C.muted(L('Canlı liste alınamadı; güncel yerleşik katalog gösterildi.', 'Live list unavailable; showing the current built-in catalog.')));
+          }
+          const promptText = L('Model numarası veya ID (iptal için boş)', 'Model number or ID (blank to cancel)');
+          const choice = arg || await inputSession.read({
+            placeholder: promptText,
+            question: `\n  ${promptText}: `,
+            echo: false,
+          });
+          selected = resolveModelSelection(choice, available);
         }
-        if (!selection) {
-          console.log("  " + tui.C.red(L('Geçersiz model seçimi.', 'Invalid model selection.')));
-          return true;
-        }
-        config.providerModel = selection.id;
+        if (!selected) return true;
+        config.providerModel = selected.id;
         saveConfig(config);
-        messages.push({ role: 'system', content: `[Model changed to ${selection.id}]` });
-        console.log("  " + tui.C.hex('#7dd3fc')('✓ ') + tui.C.text(selection.id));
+        codeScreen?.update({ model: selected.id });
+        messages.push({ role: 'system', content: `[Active model changed to ${selected.id}]` });
+        console.log("\n  " + tui.C.green(`✓ ${L('Model değiştirildi', 'Model switched')}: ${selected.id}`));
         return true;
       }
       case 'undo': {
@@ -1281,7 +1609,7 @@ async function codeV5(targetPath, cliOptions = {}) {
         const restored = fh.restore(target, history[0].timestamp);
         console.log("  " + (restored.error
           ? tui.C.red(restored.error)
-          : tui.C.hex('#7dd3fc')(`✓ ${L('geri alındı', 'restored')}: ${target}`)));
+          : tui.C.green(`✓ ${L('geri alındı', 'restored')}: ${target}`)));
         return true;
       }
       case 'retry':
@@ -1338,7 +1666,7 @@ async function codeV5(targetPath, cliOptions = {}) {
         }
         try {
           execFileSync('git', ['commit', '-m', message], { cwd, stdio: 'pipe' });
-          console.log("  " + tui.C.hex('#7dd3fc')(L('✓ Commit yapıldı.', '✓ Committed.')));
+          console.log("  " + tui.C.green(L('✓ Commit yapıldı.', '✓ Committed.')));
         } catch (error) {
           console.log("  " + tui.C.red(`${L('Commit başarısız', 'Commit failed')}: ${error.message}`));
         }
@@ -1346,8 +1674,12 @@ async function codeV5(targetPath, cliOptions = {}) {
       }
       case 'index': {
         projectCtx = indexProject(cwd);
+        codeScreen?.update({
+          branch: projectCtx?.gitBranch,
+          changes: projectCtx?.gitStatus?.length,
+        });
         messages[0] = { role: 'system', content: messages[0].content.replace(/Project information:[\s\S]*?(?=\n\n|$)/, buildIndexPrompt(projectCtx)) };
-        console.log("\n  " + tui.C.hex('#7dd3fc')(`✓ ${projectCtx.files.length} ${L('dosya indekslendi', 'files indexed')} (${projectCtx.type})`));
+        console.log("\n  " + tui.C.green(`✓ ${projectCtx.files.length} ${L('dosya indekslendi', 'files indexed')} (${projectCtx.type})`));
         return true;
       }
       case 'memory': {
@@ -1372,7 +1704,7 @@ async function codeV5(targetPath, cliOptions = {}) {
           if (pm.enter()) console.log(tui.C.cyan(L('\n  📋 Plan modu aktif.\n', '\n  📋 Plan mode active.\n')));
           else console.log(tui.C.yellow(L('  Zaten plan modunda.', '  Already in plan mode.')));
         } else if (arg === "approve") {
-          if (pm.inReview()) { pm.approve(); console.log(tui.C.hex('#7dd3fc')(L('  ✓ Plan onaylandı.\n', '  ✓ Plan approved.\n'))); }
+          if (pm.inReview()) { pm.approve(); console.log(tui.C.green(L('  ✓ Plan onaylandı.\n', '  ✓ Plan approved.\n'))); }
           else console.log(tui.C.yellow(L('  Onay bekleyen plan yok.', '  No plan awaiting approval.')));
         } else if (arg === "reject") {
           if (pm.inReview()) { pm.reject(); console.log(tui.C.amber(L('  ⨯ Plan reddedildi.\n', '  ⨯ Plan rejected.\n'))); }
@@ -1408,7 +1740,17 @@ async function codeV5(targetPath, cliOptions = {}) {
         return;
       }
       if (input.startsWith("/")) {
-        const outcome = await handleSlash(input);
+        let outcome;
+        try {
+          outcome = await handleSlash(input);
+        } catch (error) {
+          // A local slash command is a convenience surface, not a reason to
+          // tear down the PTY. Provider discovery, git, tests and plugins can
+          // all fail independently; report the failure and keep the session.
+          console.log("\n  " + tui.C.red(L('Komut başarısız: ', 'Command failed: ') + error.message));
+          writePlainPrompt("\n  ");
+          continue;
+        }
         if (outcome === 'exit') return;
         if (outcome === 'send' && lastUserMessage) {
           input = lastUserMessage;
@@ -1418,7 +1760,14 @@ async function codeV5(targetPath, cliOptions = {}) {
         }
       }
       lastUserMessage = input;
+      const turnChangedStart = changedFiles.length;
+      const turnCommandStart = modelKomutlari.length;
+      const qualityBaseline = interactiveQuality
+        ? interactiveQuality.tara(cwd).catch(() => null)
+        : Promise.resolve(null);
+      const recalledNote = await farklilastirici.hatirlatmaMetni(interactiveHafiza, input);
 
+      refreshCodeScreenContext(L('ÇALIŞIYOR', 'WORKING'));
       const turnState = await runInterruptibleTurn({
         rl,
         presentationOptions: {
@@ -1430,7 +1779,9 @@ async function codeV5(targetPath, cliOptions = {}) {
       // Loop-detection counters are per user turn, matching the chat/repl path.
       // Without this the singleton kept counting across the whole session.
       agentCore.startRequest();
+      syncScrollbackArchive();
       compactIfNeeded(messages, { presentation });
+      if (recalledNote) messages.push({ role: 'user', content: recalledNote });
 
       // The workflow pre-step used to run before EVERY message: one model call
       // to classify the request as simple/complex, then either a second chat
@@ -1540,8 +1891,10 @@ async function codeV5(targetPath, cliOptions = {}) {
         presentation.writeCommitted("\n  " + tui.styled("AI   ", { color: tui.PALETTE.secondary, bold: true }));
         let iter = 0;
         let hitIterationCap = false;
+        let consecutiveEmptyReplies = 0;
         while (iter < maxToolRounds) {
           iter++;
+          syncScrollbackArchive();
           compactIfNeeded(messages, { presentation });
           try {
             const reply = await runTransactionalRound(messages, async signal => {
@@ -1565,9 +1918,40 @@ async function codeV5(targetPath, cliOptions = {}) {
             }, { signal: turnSignal });
 
             if (reply.tool_calls && reply.tool_calls.length > 0) {
+              consecutiveEmptyReplies = 0;
               if (iter >= maxToolRounds) { hitIterationCap = true; break; }
               presentation.writeCommitted("\n  " + tui.styled("AI   ", { color: tui.PALETTE.secondary, bold: true }));
               continue;
+            }
+            if (isEmptyAssistantReply(reply)) {
+              consecutiveEmptyReplies++;
+              if (consecutiveEmptyReplies <= EMPTY_REPLY_RETRY_LIMIT) {
+                // Aynı geçmişi ikinci kez göndermek aynı boşluğu üretir.
+                // Modelin çıktı sınırında tükendiği durumda (`finish_reason:
+                // "length"`, düşünme adımı bütçeyi bitirmişse içerik hiç
+                // gelmez) tek işe yarayan şey ondan daha küçük bir adım
+                // istemektir — yeniden denemeye bunu ekliyoruz.
+                if (reply?.finish_reason === 'length') {
+                  messages.push({
+                    role: 'system',
+                    content: `[${L(
+                      'Önceki yanıtın çıktı sınırında tükendi ve hiçbir şey üretemedi. Daha kısa bir adım at: tek bir küçük araç çağrısı yap.',
+                      'Your previous response ran out of output budget and produced nothing. Take a shorter step: make a single small tool call.',
+                    )}]`,
+                  });
+                }
+                presentation.writeCommitted("\n  " + tui.C.yellow(L(
+                  'Model boş yanıt verdi; görev otomatik sürdürülüyor…',
+                  'The model returned an empty reply; continuing automatically…',
+                )) + "\n  " + tui.styled("AI   ", { color: tui.PALETTE.secondary, bold: true }));
+                continue;
+              }
+              const warning = L(
+                'Model araç sonucundan sonra yanıt üretmedi. Görev tamamlanmadı; /retry ile yeniden deneyin.',
+                'The model produced no reply after the tool result. The task is incomplete; use /retry to try again.',
+              );
+              presentation.writeCommitted("\n  " + tui.C.red(`✗ ${warning}`) + "\n");
+              messages.push({ role: 'system', content: `[Previous turn incomplete: ${warning}]` });
             }
             break;
           } catch (e) {
@@ -1595,8 +1979,32 @@ async function codeV5(targetPath, cliOptions = {}) {
         totalIn += Math.ceil(input.length / 4);
       }
 
+      const turnFiles = [...new Set(changedFiles.slice(turnChangedStart))];
+      if (turnFiles.length > 0 && interactiveQuality) {
+        try {
+          const report = await interactiveQuality.degerlendir(cwd, turnFiles, await qualityBaseline);
+          const blocked = writeQualityReport(report, value => presentation.writeCommitted(`  ${value}`));
+          if (blocked) {
+            messages.push({
+              role: 'system',
+              content: '[Quality gate blocked the latest changes. Do not claim completion until the protected-module finding is resolved or explicitly approved.]',
+            });
+          } else {
+            const verificationRan = modelKomutlari.slice(turnCommandStart)
+              .some(command => /(?:^|\s)(?:test|lint|typecheck|check|build|pytest|vitest|jest|cargo\s+test)(?:\s|$)/i.test(command));
+            if (verificationRan && interactiveHafiza) {
+              const decision = `${input.replace(/\s+/g, ' ').slice(0, 160)} — ${turnFiles.length} dosya değişti ve doğrulandı`;
+              await interactiveHafiza.hatirlat(decision, 'proje', 'skuld/code');
+            }
+          }
+        } catch (error) {
+          presentation.writeCommitted(`  ${tui.C.yellow(L('Kalite kapısı çalıştırılamadı', 'Quality gate could not run'))}: ${error.message}\n`);
+        }
+      }
+
         },
       });
+      refreshCodeScreenContext(L('HAZIR', 'READY'));
       if (turnState.exited) return;
 
       // Her tamamlanan/kesilen turu hemen kaydet; uzun oturumda terminal veya
@@ -1609,12 +2017,15 @@ async function codeV5(targetPath, cliOptions = {}) {
   try {
     await ask();
   } finally {
+    activeCodeInputReader = null;
     inputSession.close();
+    codeScreen?.dispose();
     // MCP servers are child processes; leaving them running would outlive the
     // session and hold the terminal open.
     if (mcp.servers.length > 0) {
       try { stopMcpServers(); } catch { /* best effort on shutdown */ }
     }
+    try { await interactiveHafiza?.kapat?.(); } catch { /* best effort */ }
     persistSession();
   }
 
@@ -1679,25 +2090,61 @@ async function processToolCalls(reply, config, toolDefs, messages, onToolResult,
 
   const refusals = new Map();
   const runnable = [];
+  // Çıktı sınırında kesilmiş çağrılar. Bunlar REDDEDİLMİŞ çağrı değil —
+  // model onları tamamlayamadı — ve reddedilmiş çağrılardan farklı olarak
+  // transkripte hiç girmemeleri gerekir (aşağıdaki nedene bakın).
+  const kesikCagrilar = [];
+  const duyurulanCagrilar = [];
   for (const tc of reply.tool_calls) {
     let args;
     try {
       args = JSON.parse(tc.function.arguments || "{}");
     } catch (error) {
-      refusals.set(tc.id, `${L('Araç argümanları geçerli JSON değil', 'Tool arguments are not valid JSON')}: ${error.message}`);
+      kesikCagrilar.push({ name: tc.function?.name || '?', reason: error.message });
       continue;
     }
+    duyurulanCagrilar.push(tc);
     const refusal = await screenToolCall(tc.function.name, args);
     if (refusal) refusals.set(tc.id, refusal);
     else runnable.push({ name: tc.function.name, args, id: tc.id });
   }
 
-  // The assistant turn is recorded before anything runs, and every announced
-  // call gets exactly one answer below — including refused ones. Dropping a
-  // refused call instead left the transcript identical to the one that
-  // produced it, so the model re-issued the same call and the user was
-  // re-prompted every iteration until the loop cap.
-  messages.push({ role: "assistant", content: reply.content || null, tool_calls: reply.tool_calls });
+  // Yarım JSON içeren bir araç çağrısı transkripte ASLA yazılmaz.
+  //
+  // Kesilen çağrıyı "argümanlar geçerli JSON değil" hatasıyla kaydetmek makul
+  // görünüyor — model hatayı görür, düzeltir. Sağlayıcı tarafında öyle
+  // olmuyor: bozuk `tool_calls` bir kez geçmişe girdiğinde MiniMax sonraki
+  // HER isteğe HTTP 200 + tamamen boş gövde dönüyor (canlı ölçüldü). Ekranda
+  // "Model boş yanıt verdi" çıkıyor, `/retry` de aynı geçmişi gönderdiği için
+  // hiçbir zaman düzelmiyor: oturum kalıcı olarak ölüyor.
+  //
+  // Bu yüzden kesik çağrı geçmişe hiç girmez; modele bunun yerine aşağıda
+  // (araç sonuçlarından SONRA, sıra bozulmasın diye) düz metin bir not
+  // gönderilir. Sağlam çağrılar normal yolundan işlenmeye devam eder.
+  //
+  // Sağlam olan her çağrı, reddedilenler dahil, aşağıda tam olarak bir yanıt
+  // alır. Reddedilen çağrıyı düşürmek transkripti onu üreten haliyle aynı
+  // bırakıyor, model aynı çağrıyı yeniden veriyor ve kullanıcı tur sınırına
+  // kadar tekrar tekrar onay sorusuyla karşılaşıyordu.
+  if (duyurulanCagrilar.length > 0) {
+    messages.push({ role: "assistant", content: reply.content || null, tool_calls: duyurulanCagrilar });
+  } else {
+    messages.push({
+      role: "assistant",
+      content: reply.content || L('(araç çağrısı çıktı sınırında kesildi)', '(tool call was cut off at the output limit)'),
+    });
+  }
+
+  if (kesikCagrilar.length > 0) {
+    const isimler = kesikCagrilar.map(item => item.name).join(', ');
+    const line = "\n  " + tui.C.yellow(L(
+      `⚠ Araç çağrısı çıktı sınırında kesildi (${isimler}) — çalıştırılmadı, modelden daha küçük bir adım isteniyor.`,
+      `⚠ A tool call was cut off at the output limit (${isimler}) — it did not run; the model is being asked for a smaller step.`,
+    )) + "\n";
+    if (options.presentation) options.presentation.writeCommitted(line);
+    else if (options.quiet) process.stderr.write(line);
+    else process.stdout.write(line);
+  }
 
   const answers = new Map();
   for (const [id, reason] of refusals) answers.set(id, "ERROR: " + reason);
@@ -1769,13 +2216,26 @@ async function processToolCalls(reply, config, toolDefs, messages, onToolResult,
     // Answer in the order the model announced the calls. Providers reject a
     // transcript where a tool_call has no matching result, so anything that
     // never ran (interrupt, crash) is still answered before we unwind.
-    for (const tc of reply.tool_calls) {
+    for (const tc of duyurulanCagrilar) {
       messages.push({
         role: "tool",
         tool_call_id: tc.id,
         content: answers.has(tc.id)
           ? answers.get(tc.id)
           : "ERROR: " + L('Araç çalıştırılmadı (tur kesildi).', 'Tool did not run (turn was interrupted).'),
+      });
+    }
+    // Not, araç sonuçlarından SONRA gelir: `assistant(tool_calls)` ile
+    // `tool` mesajları arasına bir şey girerse sağlayıcılar transkripti
+    // reddediyor.
+    if (kesikCagrilar.length > 0) {
+      const isimler = kesikCagrilar.map(item => item.name).join(', ');
+      messages.push({
+        role: "system",
+        content: `[${L(
+          `Önceki ${isimler} çağrın çıktı sınırında kesildi ve ÇALIŞTIRILMADI. Aynı çağrıyı aynı boyutta tekrarlama. Bir dosyanın tamamını tek seferde yazmak yerine edit_file ile küçük, hedefli değişiklikler yap ya da işi birkaç çağrıya böl.`,
+          `Your previous ${isimler} call was cut off at the output limit and DID NOT RUN. Do not repeat the same call at the same size. Instead of writing a whole file in one go, make small targeted changes with edit_file, or split the work across several calls.`,
+        )}]`,
       });
     }
   }
@@ -1786,8 +2246,8 @@ function printSummary(files, cmds, msgs, startTime) {
   const min = Math.floor(elapsed / 60);
   const sec = elapsed % 60;
   console.log("\n  " + tui.styled(L("─── Session Özeti ───", "─── Session Summary ───"), { color: tui.PALETTE.primary, bold: true }));
-  console.log("  " + tui.C.hex('#7dd3fc')("  ✓ " + files + L(" dosya değiştirildi", " files changed")));
-  console.log("  " + tui.C.hex('#7dd3fc')("  ✓ " + cmds + L(" komut çalıştırıldı", " commands run")));
+  console.log("  " + tui.C.green("  ✓ " + files + L(" dosya değiştirildi", " files changed")));
+  console.log("  " + tui.C.green("  ✓ " + cmds + L(" komut çalıştırıldı", " commands run")));
   console.log("  " + tui.C.amber("  ✓ " + msgs + L(" mesaj değişimi", " message exchanges")));
   console.log("  " + tui.C.muted("  ⏱  " + min + L("dk ", "min ") + sec + L("sn", "s")));
   console.log("");
@@ -1807,4 +2267,8 @@ module.exports._presentation = {
   assessRisk,
   compactIfNeeded,
   resolveMaxToolRounds,
+  resolveMaxOutputTokens,
+  isMaxTokensRejection,
+  createScrollbackArchive,
+  isEmptyAssistantReply,
 };

@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { after, describe, it } from "node:test";
 import { ExecutionGateway } from "../../packages/execution-gateway/src/index.ts";
-import { KaliteKapisi } from "../../packages/quality-gate/src/index.ts";
+import { codednaBul, KaliteKapisi } from "../../packages/quality-gate/src/index.ts";
 
 /**
  * Kalite kapısının iki sinyali farklı güvenilirlikte ve testler bu ayrımı
@@ -38,6 +38,17 @@ function kapiKur(kok: string, korumali: string[], codedna: string | null = null)
 }
 
 describe("kalite kapısı", () => {
+  it("normal PATH kurulumunu CodeDNA adayı olarak kabul eder", () => {
+    const onceki = process.env.CODEDNA_PATH;
+    delete process.env.CODEDNA_PATH;
+    try {
+      assert.equal(codednaBul(), process.platform === "win32" ? "codedna.exe" : "codedna");
+    } finally {
+      if (onceki === undefined) delete process.env.CODEDNA_PATH;
+      else process.env.CODEDNA_PATH = onceki;
+    }
+  });
+
   it("korumalı yola yazılırsa BLOKLAR", async () => {
     const kok = await projeKur();
     const kapi = kapiKur(kok, ["src/cekirdek"]);

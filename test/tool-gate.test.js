@@ -75,6 +75,8 @@ describe('assessRisk is shared by every surface', () => {
   it('returns the same verdict regardless of caller', () => {
     expect(assessRisk('bash', { command: 'git push --force origin main' }).requiresApproval).toBe(true);
     expect(assessRisk('bash', { command: 'git status' }).requiresApproval).toBe(false);
+    expect(assessRisk('git', { operation: 'clone', url: 'https://github.com/a/b' }))
+      .toMatchObject({ requiresApproval: true, level: 'medium' });
   });
 });
 

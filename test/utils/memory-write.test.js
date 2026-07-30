@@ -108,6 +108,22 @@ describe('enforceFactLimit', () => {
 });
 
 describe('addMemory end-to-end', () => {
+  it('stores several related facts through one batched tool execution', async () => {
+    const result = await mod.execute({
+      action: 'add',
+      username: 'batch-user',
+      facts: ['project path is C:\\Projects\\urdr-main', 'project is an MCP memory server'],
+    });
+    expect(result).toMatchObject({ success: true, batched: true, added: 2, totalFacts: 2 });
+    expect(mod._internals.loadMemory('batch-user').facts.map(f => f.value)).toEqual([
+      'project path is C:\\Projects\\urdr-main',
+      'project is an MCP memory server',
+    ]);
+    expect(result.engine).toBe('urdr');
+    const urdrRoot = path.join(tmpHome, '.nskuld', 'memory', 'tree', 'batch-user', '1-kisisel.md');
+    expect(fs.readFileSync(urdrRoot, 'utf8')).toContain('project is an MCP memory server');
+  });
+
   it('writes the file, dedups duplicates, and bumps score on repeat', () => {
     mod._internals.addMemory({ username: 'u1', fact: 'sevdiği renk kırmızı' });
     mod._internals.addMemory({ username: 'u1', fact: 'sevdiği renk kırmızı' });

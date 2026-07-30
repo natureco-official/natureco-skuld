@@ -218,6 +218,45 @@ function showMemory({ username }) {
   };
 }
 
+function urdrRoute(category) {
+  const normalized = foldTr(category || 'general');
+  if (normalized === 'work' || normalized === 'project' || normalized === 'technical') {
+    return { root: '2-teknik', branch: 'Projeler' };
+  }
+  if (normalized === 'preference' || normalized === 'hobby') {
+    return { root: '1-kisisel', branch: 'Tercihler' };
+  }
+  if (normalized === 'decision' || normalized === 'constraint' || normalized === 'rule') {
+    return { root: '3-kararlar', branch: normalized === 'decision' ? 'Kararlar' : 'Kurallar & Kısıtlar' };
+  }
+  return { root: '1-kisisel', branch: 'Kimlik' };
+}
+
+async function persistFactToUrdr(username, fact, category) {
+  const memoryTree = require('./memory_tree');
+  const route = urdrRoute(category);
+  const result = await memoryTree._internal.append(username, route.root, route.branch, fact);
+  if (!result?.success) throw new Error(result?.error || 'Urðr kaydı doğrulanamadı');
+  return result;
+}
+
+async function addWithUrdr(params) {
+  const result = addMemory(params);
+  if (!result.success || !params.fact) return result;
+  try {
+    const urdr = await persistFactToUrdr(result.username, params.fact, params.category);
+    return { ...result, engine: 'urdr', urdr: { root: urdr.root, branch: urdr.branch, deduped: Boolean(urdr.deduped) } };
+  } catch (error) {
+    return {
+      ...result,
+      success: false,
+      verified: false,
+      legacySaved: true,
+      error: `JSON uyumluluk kaydı yazıldı ancak birincil Urðr kaydı başarısız: ${error.message}`,
+    };
+  }
+}
+
 module.exports = {
   // Exposed for tests / advanced consumers — not part of the tool schema.
   _internals: {
@@ -232,12 +271,13 @@ module.exports = {
     getMemoryFile,
   },
   name: "memory_write",
-  description: "Memory'ye yeni fact/bilgi kaydet veya bot ismini/nickname'i degistir. Kalici, REPL'in extractMemoryFromMessage ozelligi.",
+  description: "Memory'ye kalici bilgi kaydet veya bot ismini/nickname'i degistir. Bir istekte birden fazla ilişkili bilgi varsa AYNI turda tekrar tekrar çağırma; facts dizisiyle TEK çağrıda kaydet.",
   inputSchema: {
     type: "object",
     properties: {
       username: { type: "string", description: "Kullanici adi (ornek: 'ahmet' veya 'default')" },
       fact: { type: "string", description: 'Yeni fact (ornek: "Kullanici kahve seviyor", "Istanbul\'da yasiyor")' },
+      facts: { type: "array", items: { type: "string" }, maxItems: 10, description: "Birlikte kaydedilecek ilişkili bilgiler; çoklu kayıt için ayrı tool çağrıları yerine bunu kullan" },
       score: { type: "number", description: "Onem derecesi 1-10 (default 5)" },
       category: { type: "string", description: "Kategori: personal, preference, work, hobby, fact (default general)" },
       source: { type: "string", description: "Bilginin kaynağı (user, tool, import, inference)" },
@@ -255,6 +295,17 @@ module.exports = {
     const action = params.action || "add";
     if (action === "clear") return clearMemory(params);
     if (action === "show") return showMemory(params);
-    return addMemory(params);
+    const facts = Array.isArray(params.facts)
+      ? params.facts.map(value => String(value || '').trim()).filter(Boolean).slice(0, 10)
+      : [];
+    if (facts.length > 0) {
+      let result;
+      for (const fact of facts) {
+        result = await addWithUrdr({ ...params, facts: undefined, fact });
+        if (!result.success) return { ...result, added: facts.indexOf(fact), batched: true };
+      }
+      return { ...result, added: facts.length, batched: true };
+    }
+    return addWithUrdr(params);
   },
 };

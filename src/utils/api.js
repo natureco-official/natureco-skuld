@@ -1489,12 +1489,18 @@ async function streamOpenAICompletion(providerConfig, messages, tools, options =
 
   let content = '';
   let usage;
+  // Kesilmeyi çağıranın görebilmesi için `finish_reason` taşınır. `length`,
+  // modelin çıktı sınırına çarptığı anlamına gelir: araç çağrısının
+  // argümanları yarım JSON kalmış olabilir ve o hâliyle geçmişe yazılırsa
+  // konuşma kalıcı olarak bozulur (bkz. code_v5 processToolCalls).
+  let finishReason = null;
   const toolCallBuffer = [];
   await consumeSse(response, parsed => {
     if (parsed.usage) {
       usage = parsed.usage;
       emitStreamEvent(options.onEvent, { type: 'usage', usage, ...usage });
     }
+    if (parsed.choices?.[0]?.finish_reason) finishReason = parsed.choices[0].finish_reason;
     const delta = parsed.choices?.[0]?.delta;
     if (!delta) return;
     if (Array.isArray(delta.tool_calls)) {
@@ -1517,6 +1523,7 @@ async function streamOpenAICompletion(providerConfig, messages, tools, options =
     content: content || (toolCalls.length > 0 ? null : ''),
     ...(toolCalls.length > 0 ? { tool_calls: toolCalls } : {}),
     ...(usage ? { usage } : {}),
+    ...(finishReason ? { finish_reason: finishReason } : {}),
   };
 }
 

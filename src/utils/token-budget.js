@@ -72,20 +72,90 @@ const PRESETS = {
 };
 
 let _cached = null;
+let _cachedModel = null;
 
-function load() {
-  if (_cached) return _cached;
+/**
+ * Çıktı için ayrılan pay.
+ *
+ * Bağlam penceresi girdi + çıktının TOPLAMI için geçerli, o yüzden pencerenin
+ * tamamını girdiye vermek modelin cevap verecek yeri kalmaması demek. Kodlama
+ * ajanının çıktı tavanı 16.384 (bkz. code_v5 `resolveMaxOutputTokens`); üstüne
+ * tahmin hatası payı bırakılıyor, çünkü `estimateMessageTokens` karakter
+ * sayısına dayalı bir YAKLAŞIKLIK ve gerçek tokenizasyon bundan sapabilir.
+ */
+const OUTPUT_RESERVE = 16_384;
+const ESTIMATE_SLACK = 8_192;
+
+/**
+ * Bütçeyi aktif modelin gerçek penceresine göre büyüt.
+ *
+ * Kullanıcı `maxContextTokens`ı bütçe dosyasında ELLE yazmışsa ona dokunulmaz
+ * — açık bir tercih, tahminimizle ezilmemeli.
+ */
+function applyModelWindow(budget, explicitKeys = new Set(), model = activeModel()) {
+  if (explicitKeys.has('maxContextTokens')) return budget;
+  // Pencere sağlayıcıdan sağlayıcıya, hatta aynı sağlayıcıda modelden modele
+  // değişiyor ve hepsini bilmemiz mümkün değil. Sıra: kullanıcının yazdığı
+  // değer > bildiğimiz modeller > profil. Böylece katalogda hiç olmayan bir
+  // sağlayıcı da tek satır ayarla doğru bütçeye kavuşuyor.
+  const window = configuredWindow() || require('./model-catalog').contextWindowFor(model);
+  if (!window) return budget;
+  // `maxContextTokens` pencerenin tamamı eksi tahmin payı; çıktı payı ondan
+  // AYRI olarak `reservedTokens`ta duruyor ve tüketiciler ikisini çıkararak
+  // kullanılabilir girdiyi buluyor. Çıktı payını burada da düşmek onu iki kez
+  // saymak olurdu.
+  const usable = window - ESTIMATE_SLACK;
+  // Profil zaten daha genişse küçültme: bu bir taban, tavan değil.
+  if (!(usable > (budget.maxContextTokens || 0))) return budget;
+  budget.maxContextTokens = usable;
+  if (!explicitKeys.has('reservedTokens')) budget.reservedTokens = OUTPUT_RESERVE;
+  budget.modelContextWindow = window;
+  budget.model = model;
+  return budget;
+}
+
+function activeModel() {
+  try { return require('./config').getConfig()?.providerModel || null; } catch { return null; }
+}
+
+/**
+ * `contextWindow` ayarı — bilmediğimiz her sağlayıcı/model için kaçış yolu.
+ *
+ * `nskuld config set contextWindow 128000` diyen kullanıcı, katalogda hiç
+ * bulunmayan bir modelle de doğru bütçeye kavuşur. Katalogdaki tahminimizi de
+ * ezer: modelin penceresini kullanıcı bizden iyi bilir.
+ */
+function configuredWindow() {
+  let raw;
+  try { raw = require('./config').getConfig()?.contextWindow; } catch { return null; }
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+  return Math.floor(parsed);
+}
+
+/**
+ * @param {{model?: string|null}} [options] Aktif model yerine geçer. Üretimde
+ *   kullanılmaz; testin gerçek kullanıcı yapılandırmasına bağlı kalmaması için
+ *   var — modül düzeyinde çözülen yolları yeniden yüklemeye çalışmak kırılgan.
+ */
+function load(options = {}) {
+  // Önbellek modele bağlı: `/model` ile model değişince bütçe de değişmeli,
+  // yoksa oturum boyunca eski pencerede kalınır.
+  const model = options.model !== undefined ? options.model : activeModel();
+  if (_cached && _cachedModel === model) return _cached;
   try {
     if (fs.existsSync(BUDGET_FILE)) {
       const data = JSON.parse(fs.readFileSync(BUDGET_FILE, 'utf8'));
       const preset = data.preset || 'balanced';
       const base = { ...PRESETS[preset] || PRESETS.balanced, ...data };
       base.preset = preset;
-      _cached = base;
-      return base;
+      _cached = applyModelWindow(base, new Set(Object.keys(data)), model);
+      _cachedModel = model;
+      return _cached;
     }
   } catch {}
-  _cached = { preset: 'balanced', ...PRESETS.balanced };
+  _cached = applyModelWindow({ preset: 'balanced', ...PRESETS.balanced }, new Set(), model);
+  _cachedModel = model;
   return _cached;
 }
 
@@ -94,6 +164,7 @@ function save(budget) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(BUDGET_FILE, JSON.stringify(budget, null, 2));
   _cached = null;
+  _cachedModel = null;
 }
 
 function setPreset(name) {
@@ -187,8 +258,7 @@ function repairToolPairing(messages) {
   return repaired;
 }
 
-function trimMessages(messages) {
-  const budget = load();
+function trimMessages(messages, budget = load()) {
   if (!messages || messages.length === 0) return messages;
 
   const nonSystem = messages.filter(m => m.role !== 'system');
@@ -248,8 +318,7 @@ function importanceScore(msg) {
 
 // Smart trim: keep system messages + highest-scoring messages up to budget
 // But always keep the last `tailTurns` turns
-function smartTrim(messages) {
-  const budget = load();
+function smartTrim(messages, budget = load()) {
   if (!messages || messages.length === 0) return messages;
 
   const systemMsgs = messages.filter(m => m.role === 'system');

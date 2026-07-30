@@ -3,6 +3,8 @@
 // Kapının eklediği farklı: workspace sınırı, çıktıda sır maskeleme, çıktı
 // boyut sınırı ve zaman aşımı — dördü de burada yoktu.
 const { kapiAc } = require('../utils/gateway');
+const fs = require('fs');
+const path = require('path');
 
 // v5.38 GUVENLIK: args'i shell'e sokmadan token'lara ayir. execFileSync shell:false ile
 // calisir; boylece ";", "&&", "|", "$()", backtick gibi metakarakterler ISLEM GORMEZ —
@@ -18,22 +20,24 @@ function tokenizeArgs(s) {
 
 module.exports = {
   name: 'git',
-  description: 'Git operations: status, diff, log, branch list, commit',
+  description: 'Git operations including cloning a GitHub repository into the current workspace, status, diff, log, branches and commit.',
   inputSchema: {
     type: 'object',
     properties: {
       operation: {
         type: 'string',
-        enum: ['status', 'diff', 'log', 'branches', 'add', 'commit'],
+        enum: ['clone', 'status', 'diff', 'log', 'branches', 'add', 'commit'],
         description: 'Git operation to perform'
       },
       args: { type: 'string', description: 'Additional arguments' },
-      message: { type: 'string', description: 'Commit message (for commit operation)' }
+      message: { type: 'string', description: 'Commit message (for commit operation)' },
+      url: { type: 'string', description: 'HTTPS GitHub repository URL (for clone)' },
+      destination: { type: 'string', description: 'Workspace-relative destination directory (for clone; defaults to repository name)' },
     },
     required: ['operation']
   },
 
-  async execute({ operation, args = '', message = '', command = '', cwd: userCwd = '' }) {
+  async execute({ operation, args = '', message = '', command = '', cwd: userCwd = '', url = '', destination = '' }) {
     // v5.6.22: Git repo otomatik bul - this baglami kayboldugu icin module-level helper kullan
     // v5.38: ajan bir cwd verdiyse ve orada .git varsa onu kullan; yoksa oradan yukari tara.
     const cwd = findGitRepo(userCwd);
@@ -46,6 +50,10 @@ module.exports = {
     }
     operation = String(operation || '').toLowerCase();
     const tok = tokenizeArgs(args);
+
+    if (operation === 'clone') {
+      return cloneGitHubRepository({ url: url || tok[0], destination, cwd: userCwd });
+    }
 
     // GÜVENLİK (Codex denetimi, 29.07.2026): beyaz listedeki `diff` bile
     // kullanıcı argümanlarını Git'e aynen geçiriyordu ve Git'in `--output=`
@@ -233,3 +241,63 @@ function findGitRepo(startDir = '') {
 
   return seed;
 }
+
+async function cloneGitHubRepository({ url, destination, cwd, gatewayFactory = kapiAc }) {
+  let parsed;
+  try { parsed = new URL(String(url || '')); } catch {
+    return { success: false, error: 'Geçerli bir HTTPS GitHub depo URL\'si gerekli.' };
+  }
+  const parts = parsed.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+  if (parsed.protocol !== 'https:' || parsed.hostname.toLowerCase() !== 'github.com' || parts.length !== 2) {
+    return { success: false, error: 'Yalnızca https://github.com/<sahip>/<depo> biçimindeki depo bağlantıları desteklenir.' };
+  }
+  const owner = parts[0];
+  const repository = parts[1].replace(/\.git$/i, '');
+  if (!/^[A-Za-z0-9_.-]+$/.test(owner) || !/^[A-Za-z0-9_.-]+$/.test(repository)) {
+    return { success: false, error: 'GitHub sahibi veya depo adı güvenli değil.' };
+  }
+
+  const workspace = path.resolve(cwd || process.cwd());
+  const relativeDestination = String(destination || repository).trim();
+  if (!relativeDestination || path.isAbsolute(relativeDestination)) {
+    return { success: false, error: 'Hedef dizin çalışma alanına göreli olmalıdır.' };
+  }
+  const target = path.resolve(workspace, relativeDestination);
+  const relative = path.relative(workspace, target);
+  if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) {
+    return { success: false, error: 'Hedef dizin çalışma alanının içinde ve yeni bir alt dizin olmalıdır.' };
+  }
+  if (fs.existsSync(target)) {
+    return { success: false, error: `Hedef zaten var; üzerine yazılmadı: ${target}` };
+  }
+
+  try {
+    const gateway = await gatewayFactory({ workspace, kararVerildi: true, zamanAsimiMs: 180000 });
+    const result = await gateway.calistir({
+      komut: 'git',
+      argumanlar: ['clone', '--depth', '1', `https://github.com/${owner}/${repository}.git`, target],
+      cwd: workspace,
+    });
+    if (result.cikisKodu !== 0) {
+      return {
+        success: false,
+        error: (result.stderr || `git clone exit ${result.cikisKodu}`).trim(),
+        ...(result.zamanAsimi ? { timedOut: true } : {}),
+      };
+    }
+    const instructionFiles = ['AGENTS.md', 'README.md', 'README', 'package.json', 'pyproject.toml', 'Cargo.toml', 'go.mod']
+      .filter(name => fs.existsSync(path.join(target, name)));
+    return {
+      success: true,
+      repository: `${owner}/${repository}`,
+      path: target,
+      output: result.stdout.trim(),
+      instructionFiles,
+      nextStep: 'Önce AGENTS.md ve README dosyalarını oku; sonra belgelenmiş bağımlılık/kurulum komutlarını çalıştır ve doğrula.',
+    };
+  } catch (error) {
+    return { success: false, error: error?.message || String(error) };
+  }
+}
+
+module.exports._cloneGitHubRepository = cloneGitHubRepository;

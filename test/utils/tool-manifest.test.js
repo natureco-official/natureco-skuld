@@ -1,11 +1,13 @@
 const { loadToolManifest } = require('../../src/utils/tool-manifest');
+const { CODING_TOOL_NAMES } = require('../../src/utils/coding-surface');
 const fs = require('fs');
 const path = require('path');
 
 describe('single tool manifest', () => {
   test('contains executable tools with one schema shape', () => {
     const manifest = loadToolManifest({ refresh: true });
-    expect(manifest.size).toBe(91);
+    expect(manifest.size).toBe(CODING_TOOL_NAMES.size);
+    expect(new Set(manifest.keys())).toEqual(CODING_TOOL_NAMES);
     for (const [name, tool] of manifest) {
       expect(tool.name).toBe(name);
       expect(typeof tool.execute).toBe('function');
@@ -24,15 +26,15 @@ describe('single tool manifest', () => {
       expect(Object.hasOwn(mod, 'inputSchema'), file).toBe(true);
       expect(Object.hasOwn(mod, 'parameters'), file).toBe(false);
     }
-    expect(files).toHaveLength(92);
-    expect(executable).toHaveLength(91);
+    expect(files).toHaveLength(93);
+    expect(executable).toHaveLength(92);
   });
 
   test('workflow uses the manifest tool list and excludes internal helpers', () => {
     const manifest = loadToolManifest({ refresh: true });
     const names = require('../../src/tools/workflow')._internal.allToolNames();
     expect(names).toEqual(Array.from(manifest.keys()));
-    expect(names).toHaveLength(91);
+    expect(names).toHaveLength(CODING_TOOL_NAMES.size);
     expect(names).not.toContain('agentic-runner');
   });
 });

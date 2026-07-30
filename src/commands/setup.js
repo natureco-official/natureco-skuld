@@ -10,7 +10,7 @@ const readline = require('readline');
 const inquirer = require('../utils/inquirer-wrapper');
 const brand = require('../utils/branding');
 const tema = require('../utils/skuld-theme');
-const { applySetupCatalog } = require('../utils/model-catalog');
+const { applySetupCatalog, getSetupModelChoices } = require('../utils/model-catalog');
 const { findModelsEndpoint, fetchLiveModels } = require('./models');
 const { COLORS, FULL_LOGO } = brand;
 
@@ -383,48 +383,11 @@ async function cmdWizard() {
       type: 'list',
       name: 'modelId',
       message: `  ${L('Model sec', 'Select model')} (${preset.models.length} ${L('secenek', 'options')}):`,
-      choices: [
-        { name: '─────────────────────', disabled: true },
-        { name: L('🟢 GÜÇLÜ / REASONING (en iyi)', '🟢 POWERFUL / REASONING (best)'), disabled: true },
-        ...preset.models.filter(m => m.tier === 'flagship' || m.tier === 'reasoning').map(m => ({
-          name: `  ${m.label} (${m.cost})`,
-          value: m.id,
-        })),
-        { name: '─────────────────────', disabled: true },
-        { name: L('🟡 ORTA (dengeli)', '🟡 MID (balanced)'), disabled: true },
-        ...preset.models.filter(m => m.tier === 'balanced').map(m => ({
-          name: `  ${m.label} (${m.cost})`,
-          value: m.id,
-        })),
-        { name: '─────────────────────', disabled: true },
-        { name: L('🔵 HIZLI / UCUZ', '🔵 FAST / CHEAP'), disabled: true },
-        ...preset.models.filter(m => m.tier === 'fast').map(m => ({
-          name: `  ${m.label} (${m.cost})`,
-          value: m.id,
-        })),
-        { name: '─────────────────────', disabled: true },
-        { name: L('⚪ KLASİK (legacy)', '⚪ CLASSIC (legacy)'), disabled: true },
-        ...preset.models.filter(m => m.tier === 'classic').map(m => ({
-          name: `  ${m.label} (${m.cost})`,
-          value: m.id,
-        })),
-        { name: '─────────────────────', disabled: true },
-        { name: L('🔊 ÖZEL (audio/vision/embedding)', '🔊 SPECIAL (audio/vision/embedding)'), disabled: true },
-        ...preset.models.filter(m => ['audio', 'vision', 'embedding', 'custom'].includes(m.tier)).map(m => ({
-          name: `  ${m.label} (${m.cost})`,
-          value: m.id,
-        })),
-        { name: '─────────────────────', disabled: true },
-        { name: L('✏️  Custom model adı (ileri düzey)', '✏️  Custom model name (advanced)'), value: '__custom__' },
-      ],
+      choices: getSetupModelChoices(preset),
       pageSize: 20,
     }]);
 
-    if (modelId === '__custom__') {
-      providerModel = await rlQuestion(`  ${L('Model adı', 'Model name')}: `) || preset.default;
-    } else {
-      providerModel = modelId;
-    }
+    providerModel = modelId || preset.default;
     console.log(chalk.gray(`  URL:   ${providerUrl}`));
     console.log(chalk.gray(`  Model: ${providerModel}`));
   }
@@ -447,16 +410,10 @@ async function cmdWizard() {
       default: false,
     }]);
     if (reset.fresh) {
-      // Sifirla - tum eski kanallari temizle
-      delete cfg.telegramToken;
-      delete cfg.whatsappPhone;
-      delete cfg.discordToken;
-      delete cfg.slackToken;
-      delete cfg.signalBot;
-      delete cfg.mattermostBot;
-      delete cfg.smsTwilioSid;
-      delete cfg.webhooks;
-      console.log(chalk.hex('#7dd3fc')(L('  ✓ Eski ayarlar temizlendi', '  ✓ Old settings cleared')));
+      // Provider kurulumu yalnızca sağlayıcı kimlik bilgilerini yeniler.
+      // Telegram uzaktan erişimi ayrı bir yüzeydir; burada sessizce silinmez.
+      delete cfg.providerApiKey;
+      console.log(chalk.hex('#7dd3fc')(L('  ✓ Sağlayıcı ayarları yenilenecek', '  ✓ Provider settings will be refreshed')));
     }
   }
   const apiKey = await rlQuestion(`  API Key ${currentKey ? '(leave blank to keep current)' : ''}: `);
@@ -482,13 +439,13 @@ async function cmdWizard() {
     }
   }
 
-  // Step 3: Bot & User identity
+  // Step 3: Agent & User identity
   console.log('');
-  console.log(chalk.white(L('  Step 3: Bot & Kullanıcı', '  Step 3: Bot & User')));
+  console.log(chalk.white(L('  Step 3: Ajan & Kullanıcı', '  Step 3: Agent & User')));
   console.log(chalk.gray('  ─────────────────────────────────────────────'));
   const userName = await rlQuestion(`  ${L('Sizin adınız', 'Your name')}: `);
   if (userName) cfg.userName = userName;
-  const botName = await rlQuestion(`  ${L('Bot adı', 'Bot name')}: `);
+  const botName = await rlQuestion(`  ${L('Kodlama ajanının adı', 'Coding agent name')}: `);
   if (botName) cfg.botName = botName;
 
   // v5.6.7: Memory dosyasi yoksa olustur, varsa guncelle
@@ -511,40 +468,6 @@ async function cmdWizard() {
     }
   } catch (e) {
     console.log(chalk.gray(L('  ! Memory yazilamadi: ', '  ! Could not write memory: ') + e.message));
-  }
-
-  // Step 4: Kanal Entegrasyonları (isteğe bağlı, isteyen atlayabilir)
-  console.log('');
-  console.log(chalk.white(L('  Step 4: Kanal Entegrasyonları (opsiyonel)', '  Step 4: Channel Integrations (optional)')));
-  console.log(chalk.gray('  ─────────────────────────────────────────────'));
-  console.log(chalk.gray(L('  Telegram, WhatsApp, Discord, Slack bağlamak ister misiniz?', '  Connect Telegram, WhatsApp, Discord, Slack?')));
-  console.log(chalk.gray(L('  Atlamak için hepsini boş bırakın, sonra: natureco <kanal> connect\n', '  To skip, leave all blank, then: natureco <channel> connect\n')));
-
-  const integrations = [
-    { key: 'telegramToken',   name: 'Telegram',   hint: L('BotFather\'dan al (@BotFather → /newbot → token)', 'Get it from BotFather (@BotFather → /newbot → token)') },
-    { key: 'whatsappPhone',   name: 'WhatsApp',   hint: L('Telefon numaranızı girin (örn: +905422842631)', 'Enter your phone number (e.g. +905422842631)') },
-    { key: 'discordToken',    name: 'Discord',    hint: 'Discord bot token (Discord Developer Portal)' },
-    { key: 'slackToken',      name: 'Slack',      hint: 'Slack bot token (api.slack.com/apps)' },
-    { key: 'signalBotId',     name: 'Signal',     hint: L('Signal bot numarası veya ID', 'Signal bot number or ID') },
-    { key: 'ircBotId',        name: 'IRC',        hint: L('IRC bot kullanıcı adı (örn: NatureCoBot)', 'IRC bot username (e.g. NatureCoBot)') },
-    { key: 'mattermostBotId', name: 'Mattermost', hint: L('Mattermost bot kullanıcı adı', 'Mattermost bot username') },
-    { key: 'imessageBotId',   name: 'iMessage',   hint: L('iMessage bridge endpoint veya ad', 'iMessage bridge endpoint or name') },
-    { key: 'smsBotId',        name: 'SMS (Twilio)', hint: L('Twilio hesap SID veya bot ID', 'Twilio account SID or bot ID') },
-    { key: 'webhooks',        name: 'Webhooks',   hint: L('Webhook URL (veya boş bırakın, sonra: nskuld webhooks add)', 'Webhook URL (or leave blank, then: nskuld webhooks add)') },
-  ];
-
-  for (const integ of integrations) {
-    const current = cfg[integ.key] || '';
-    if (current) {
-      console.log(chalk.gray(`  ${integ.name}: ${L('zaten ayarlı, boş bırakırsanız korunur', 'already set, leave blank to keep')}`));
-    } else {
-      console.log(chalk.gray(`  ${integ.hint}`));
-    }
-    const val = await rlQuestion(`  ${integ.name} ${current ? L('(mevcut - boş bırakın)', '(current - leave blank)') : L('(boş = atla)', '(blank = skip)')}: `);
-    if (val) {
-      cfg[integ.key] = val;
-      console.log(chalk.hex('#7dd3fc')(`    ✓ ${integ.name} ${L('ayarlandı', 'set')}`));
-    }
   }
 
   // Save
@@ -572,6 +495,7 @@ async function cmdWizard() {
   for (const satir of y.izgara([
     ['nskuld', L('kodlama ekranını aç', 'open the coding screen')],
     ['nskuld code -p "…"', L('tek seferlik görev', 'one-shot task')],
+    ['nskuld remote setup', L('isteğe bağlı Telegram uzaktan kodlama', 'optional Telegram remote coding')],
     ['nskuld doctor', L('sistem sağlığı', 'system health')],
     ['nskuld help', L('tüm komutlar', 'all commands')],
   ])) console.log(y.sirtli(satir, 0.6));

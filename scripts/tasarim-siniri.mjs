@@ -38,7 +38,18 @@ const KUTU = /[╭╮╰╯┌┐└┘├┤┬┴┼╋╠╣╦╩╬]/u;
 const TARANAN = ["src/commands", "src/utils"];
 // `yuzey.js` ve `tui.js` kutu motorunun kendisi/karşıtı; ikisi de kod
 // örneği ve karşılaştırma için bu karakterleri içerebilir.
-const MUAF_DOSYA = new Set(["src/utils/yuzey.js", "src/utils/tui.js"]);
+const MUAF_DOSYA = new Set([
+  "src/utils/yuzey.js",
+  "src/utils/tui.js",
+  // Kodlama kahraman kartı ürün kimliğinin bilinçli parçasıdır. Kullanıcı bu
+  // yüzeyin NatureCo Code'daki kutulu/gösterişli karakterini özellikle korudu.
+  // Genel komut ekranları için kutu büyümesini engelleyen sınır aynen sürer.
+  "src/commands/code_v5.js",
+  // Kodlama ekranının tam ekran kabuğu da aynı ürün yüzeyinin parçası: sabit
+  // üst kimlik alanı ile alt durum şeridi Grok-tarzı uygulama çerçevesini
+  // oluşturuyor. Bu muafiyet genel komut ekranlarına yayılmaz.
+  "src/utils/code-screen.js",
+]);
 
 /** Yorumları ve dizeleri ayırt eden tek geçişli tarayıcı (sınır lint'iyle aynı fikir). */
 function kodSatirlari(metin) {

@@ -17,6 +17,58 @@ All notable changes to NatureCo CLI will be documented in this file.
 - Normal terminal mode leaves native mouse scrolling, selection and context-menu behavior intact.
 
 ### Fixed
+- **A truncated tool call could kill the whole session.** The coding agent asked every provider for
+  `max_tokens: 2048` — the effort level's chat-sized budget. In the agent that budget also has to
+  cover a tool call's *arguments*, and `write_file`'s argument is the entire file. Measured live
+  against MiniMax (M2.5 and M2.7 behave identically, so this was never a model-version problem):
+  writing a ~100-line HTML file cut the call off at ~6 KB with `finish_reason: "length"`, leaving
+  half a JSON document.
+
+  That malformed call was then written into the transcript with a "not valid JSON" tool result.
+  From that point on the provider answered **every** subsequent request with HTTP 200 and a
+  completely empty body, so the screen said the model produced nothing and `/retry` never helped —
+  it resent the same poisoned history. The session was unrecoverable.
+
+  Two changes: the coding agent's output ceiling now fits a whole file (`codeMaxOutputTokens`,
+  `SKULD_CODE_MAX_OUTPUT_TOKENS`; `max_tokens` is a ceiling, not a spend, so a higher one costs
+  nothing that is not generated), and a truncated call never reaches the transcript at all — the
+  model is told in plain text that the call did not run and to take a smaller step with
+  `edit_file`. Verified: the task that used to kill the session now completes, and even at 2048 the
+  agent recovers by switching to targeted edits instead of dying.
+- **A provider that refuses the requested output ceiling no longer fails the turn.** Whether the
+  ceiling exceeds the model's output limit or input + ceiling overflows its context window, the
+  request is retried once at the effort budget instead of falling straight through to the
+  model-fallback chain.
+- **The `effort` setting had no effect.** `getEffortLevel()` was called with no argument, so it
+  always resolved to `medium` no matter what was configured.
+- **Headless runs reported the wrong reason for an unfinished task.** `unresolved` is set by the
+  round cap, the verification gate and the quality gate, but the exit warning always blamed the
+  round cap — so a finished task in a project with no test command was reported as having run out
+  of 10,000 rounds. The warning now names the actual reason.
+- **Nothing scrolled in the fullscreen coding screen.** Terminal mouse reporting was disabled in
+  every view so the terminal would keep native selection and scrollback — correct for a normal
+  terminal view, but Skuld's fullscreen mode runs on the alternate screen, where the terminal has
+  no scrollback of its own. There was nothing to preserve and the wheel handler never received a
+  single event, so the code listening for it was dead and only PgUp/PgDn still worked. The same
+  applied inside the `Ctrl+O` transcript, whose entire navigation is card clicks and the wheel.
+  Reporting is now enabled exactly where the application owns the view — the alternate screen and
+  the transcript — and stays off in the normal terminal view. That trade is real: while the wheel
+  scrolls, click-drag belongs to the application, so text selection is **Shift+drag** (the standard
+  xterm escape hatch). The footer says so instead of claiming plain mouse selection, and
+  `codeMouseScroll: false` turns capture off entirely for anyone who would rather keep native
+  selection and scroll with PgUp/PgDn.
+- **The context budget ignored which model it was talking to.** `maxContextTokens` was a hand-set
+  16,384 regardless of provider, so with a 200k-window model the agent began trimming the
+  conversation at ~11.5k tokens — while 94% of the window sat empty. It forgot files it had already
+  read and read them again, and the `context %` readout measured that local number rather than the
+  model's capacity (a 8.2k-token session showed 57%; it is now 5%).
+
+  The budget is now derived per model, since the window differs by provider and by model within a
+  provider: the shipped MiniMax M2, Claude 5, Gemini 3 and DeepSeek families are known, and the
+  `contextWindow` setting covers anything else — including providers not in the catalogue. A model
+  we do not recognise keeps the preset budget rather than getting a guessed window, because too
+  small only means early trimming while too large means the provider rejects the request outright.
+  Input and output reserves are accounted separately so the two together always fit the window.
 - Half-open SSE streams now terminate on provider completion markers.
 - Connection and idle timeouts prevent an unresponsive provider from freezing a coding session.
 - File-edit cards render complete red/green diffs, including exact edit fallbacks when snapshots

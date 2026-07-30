@@ -15,11 +15,13 @@ const PROVIDERS = {
     ['claude-opus-5', 'Claude Opus 5', 'flagship', 'Complex agentic coding'],
     ['claude-sonnet-5', 'Claude Sonnet 5', 'balanced', 'Speed and intelligence balance'],
     ['claude-haiku-4-5', 'Claude Haiku 4.5', 'fast', 'Fast near-frontier model'],
+    ['claude-haiku-4-5-20251001', 'Claude Haiku 4.5 (pinned)', 'fast', 'Pinned API version'],
   ] },
   gemini: { name: 'Google Gemini', url: 'https://generativelanguage.googleapis.com/v1beta', default: 'gemini-3.5-flash', models: [
     ['gemini-3.6-flash', 'Gemini 3.6 Flash', 'flagship', 'Agentic multimodal coding'],
     ['gemini-3.5-flash', 'Gemini 3.5 Flash', 'flagship', 'Sustained agentic performance'],
     ['gemini-3.5-flash-lite', 'Gemini 3.5 Flash-Lite', 'fast', 'High throughput'],
+    ['gemini-3.1-flash-lite', 'Gemini 3.1 Flash-Lite', 'fast', 'Efficient stable model'],
     ['gemini-3.1-pro-preview', 'Gemini 3.1 Pro Preview', 'preview', 'Frontier preview'],
   ] },
   groq: { name: 'Groq', url: 'https://api.groq.com/openai/v1', default: 'openai/gpt-oss-120b', models: [
@@ -27,6 +29,7 @@ const PROVIDERS = {
     ['openai/gpt-oss-20b', 'GPT-OSS 20B', 'fast', 'Fast production model'],
     ['qwen/qwen3.6-27b', 'Qwen 3.6 27B', 'preview', 'Coding and reasoning'],
     ['groq/compound', 'Groq Compound', 'agentic', 'Agentic system'],
+    ['groq/compound-mini', 'Groq Compound Mini', 'fast', 'Fast agentic system'],
   ] },
   deepseek: { name: 'DeepSeek', url: 'https://api.deepseek.com/v1', default: 'deepseek-chat', models: [
     ['deepseek-chat', 'DeepSeek Chat', 'balanced', 'General tools'],
@@ -44,6 +47,7 @@ const PROVIDERS = {
     ['MiniMax-M2.5', 'MiniMax M2.5', 'balanced', 'Code and refactoring'],
     ['MiniMax-M2.5-highspeed', 'MiniMax M2.5 Highspeed', 'fast', 'Faster M2.5'],
     ['MiniMax-M2.1', 'MiniMax M2.1', 'legacy', 'Previous generation'],
+    ['MiniMax-M2.1-highspeed', 'MiniMax M2.1 Highspeed', 'legacy', 'Faster M2.1 inference'],
     ['MiniMax-M2', 'MiniMax M2', 'legacy', 'Legacy agent'],
   ] },
   openrouter: { name: 'OpenRouter', url: 'https://openrouter.ai/api/v1', default: 'openrouter/auto', models: [
@@ -61,6 +65,7 @@ const PROVIDERS = {
     ['command-a-03-2025', 'Command A', 'flagship', 'Enterprise agent'],
     ['command-r7b-12-2024', 'Command R7B', 'fast', 'Efficient retrieval'],
     ['command-r-plus-08-2024', 'Command R+', 'legacy', 'Pinned R+'],
+    ['command-r-08-2024', 'Command R', 'legacy', 'Pinned Command R'],
   ] },
   xai: { name: 'xAI (Grok)', url: 'https://api.x.ai/v1', default: 'grok-4.5', models: [
     ['grok-4.5', 'Grok 4.5', 'flagship', 'Code and agents'],
@@ -72,6 +77,7 @@ const PROVIDERS = {
     ['moonshotai/Kimi-K3', 'Kimi K3', 'flagship', 'Current Kimi flagship'],
     ['moonshotai/Kimi-K2.7-Code', 'Kimi K2.7 Code', 'coding', 'Coding model'],
     ['deepseek-ai/DeepSeek-V4-Pro', 'DeepSeek V4 Pro', 'reasoning', 'Reasoning model'],
+    ['openai/gpt-oss-120b', 'GPT-OSS 120B', 'balanced', 'Open-weight reasoning model'],
   ] },
   perplexity: { name: 'Perplexity', url: 'https://api.perplexity.ai', default: 'sonar-pro', models: [
     ['sonar-pro', 'Sonar Pro', 'flagship', 'Grounded search'],
@@ -106,6 +112,8 @@ const PROVIDERS = {
     ['glm-4.7', 'GLM 4.7', 'balanced', 'Agentic coding'],
     ['glm-4.7-flashx', 'GLM 4.7 FlashX', 'fast', 'Fast lightweight'],
     ['glm-4.7-flash', 'GLM 4.7 Flash', 'fast', 'Free lightweight'],
+    ['glm-4.6', 'GLM 4.6', 'legacy', 'Previous coding model'],
+    ['glm-4.5-flash', 'GLM 4.5 Flash', 'legacy', 'Free legacy model'],
   ] },
 };
 
@@ -154,6 +162,13 @@ function getSetupPresets(L = tr => tr) {
   return presets;
 }
 
+function getSetupModelChoices(preset) {
+  return (preset?.models || []).map(model => ({
+    name: String(model.label),
+    value: String(model.id),
+  }));
+}
+
 function applySetupCatalog(target, L) {
   const current = getSetupPresets(L);
   for (const key of Object.keys(target)) delete target[key];
@@ -161,4 +176,49 @@ function applySetupCatalog(target, L) {
   return target;
 }
 
-module.exports = { PROVIDERS, providerKeyFromUrl, getProviderModels, getSetupPresets, applySetupCatalog };
+/**
+ * Modelin gerçek bağlam penceresi (token).
+ *
+ * Bağlam bütçesi elle yazılmış 16.384'tü ve hangi modelle konuşulduğundan
+ * habersizdi. MiniMax-M2.7'nin penceresi ~200.000 olduğu için ajan, modelin
+ * %94'ü boşken konuşmayı budamaya başlıyordu: okuduğu dosyayı unutup yeniden
+ * okuyor, ekrandaki "bağlam %57" de kapasiteyi değil bu yerel sayıyı
+ * gösteriyordu.
+ *
+ * Model KİMLİĞİ üzerinden eşleşiyoruz, sağlayıcı URL'si üzerinden değil:
+ * aynı sağlayıcıda pencereler modelden modele değişiyor ve kullanıcı
+ * katalogda olmayan bir kimlik de yazabiliyor.
+ *
+ * Emin olmadığımız hiçbir model buraya YAZILMAZ. Bilinmeyen model `null`
+ * döner ve bütçe elle ayarlanmış profile geri düşer — fazla küçük bir
+ * pencere yalnızca erken budama demek, fazla büyüğü ise sağlayıcının isteği
+ * tamamen reddetmesi demek. İkisi arasında güvenli taraf bellidir.
+ */
+const CONTEXT_WINDOWS = [
+  // MiniMax M2 ailesinin tamamı 204.800.
+  [/^minimax-m2(\.\d+)?(-highspeed)?$/i, 204_800],
+  // Claude 5 ailesi ve Haiku 4.5.
+  [/^claude-(fable|opus|sonnet)-5/i, 200_000],
+  [/^claude-haiku-4-5/i, 200_000],
+  // Gemini 3.x — 1M girdi.
+  [/^gemini-3/i, 1_048_576],
+  // DeepSeek.
+  [/^deepseek-(chat|reasoner)$/i, 128_000],
+];
+
+function contextWindowFor(model) {
+  const id = String(model || '').trim();
+  if (!id) return null;
+  return CONTEXT_WINDOWS.find(([pattern]) => pattern.test(id))?.[1] || null;
+}
+
+module.exports = {
+  PROVIDERS,
+  providerKeyFromUrl,
+  getProviderModels,
+  getSetupPresets,
+  getSetupModelChoices,
+  applySetupCatalog,
+  contextWindowFor,
+  CONTEXT_WINDOWS,
+};

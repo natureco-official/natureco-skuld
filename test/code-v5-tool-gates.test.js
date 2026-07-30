@@ -126,16 +126,58 @@ describe('code_v5 tool gates answer every announced call', () => {
     expect(answer.content).toMatch(/DRY RUN/i);
   });
 
-  it('reports unparsable tool arguments back to the model instead of guessing {}', async () => {
+  // Yarım JSON'lu bir araç çağrısı, çıktı sınırında kesilmiş bir çağrıdır.
+  // Onu `tool_calls` olarak geçmişe yazıp hatayı araç sonucu olarak bildirmek
+  // konuşmayı KALICI olarak bozuyor: MiniMax bozuk `tool_calls` içeren bir
+  // geçmişe HTTP 200 + boş gövde dönüyor, ekranda "Model boş yanıt verdi"
+  // çıkıyor ve `/retry` aynı geçmişi gönderdiği için hiçbir zaman düzelmiyor.
+  // Bu yüzden kesik çağrı transkripte hiç girmez.
+  it('keeps a truncated tool call out of the transcript and tells the model to take a smaller step', async () => {
     const messages = [{ role: 'user', content: 'go' }];
     const reply = {
       content: null,
-      tool_calls: [{ id: 'c1', type: 'function', function: { name: 'read_file', arguments: '{not json' } }],
+      finish_reason: 'length',
+      tool_calls: [{ id: 'c1', type: 'function', function: { name: 'write_file', arguments: '{"content":"aaa' } }],
     };
 
     await processToolCalls(reply, {}, [], messages, null, {});
 
-    const answer = messages.find(m => m.role === 'tool' && m.tool_call_id === 'c1');
-    expect(answer.content).toMatch(/JSON/i);
+    // Bozuk çağrı ne asistan mesajında ne de bir araç yanıtında yer alır.
+    expect(messages.some(m => Array.isArray(m.tool_calls))).toBe(false);
+    expect(messages.some(m => m.role === 'tool')).toBe(false);
+    // Ama model sessiz bırakılmaz: ne olduğunu ve ne yapması gerektiğini görür.
+    const note = messages[messages.length - 1];
+    expect(note.role).toBe('system');
+    expect(note.content).toMatch(/write_file/);
+    expect(note.content).toMatch(/edit_file|küçük|small/i);
+  });
+
+  // Aynı turda hem sağlam hem kesik çağrı gelebilir. Sağlam olan çalışmalı ve
+  // yanıtlanmalı; sağlayıcılar yanıtsız `tool_call` içeren transkripti
+  // reddettiği için eşleşme birebir olmalı.
+  it('still runs the well-formed calls when a sibling call was truncated', async () => {
+    let okundu = false;
+    const tools = [{
+      name: 'read_file', description: 'read',
+      parameters: { type: 'object', properties: {} },
+      execute: async () => { okundu = true; return 'dosya icerigi'; },
+    }];
+    const messages = [{ role: 'user', content: 'go' }];
+    const reply = {
+      content: null,
+      finish_reason: 'length',
+      tool_calls: [
+        call('saglam', 'read_file', { filePath: 'a.txt' }),
+        { id: 'kesik', type: 'function', function: { name: 'write_file', arguments: '{"content":"aaa' } },
+      ],
+    };
+
+    await processToolCalls(reply, {}, tools, messages, null, {});
+
+    expect(okundu).toBe(true);
+    const assistant = messages.find(m => Array.isArray(m.tool_calls));
+    expect(assistant.tool_calls.map(t => t.id)).toEqual(['saglam']);
+    const toolAnswers = messages.filter(m => m.role === 'tool');
+    expect(toolAnswers.map(m => m.tool_call_id)).toEqual(['saglam']);
   });
 });

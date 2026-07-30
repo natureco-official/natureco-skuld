@@ -1,10 +1,11 @@
 const { loadToolManifest } = require('../../src/utils/tool-manifest');
+const { CODING_TOOL_NAMES } = require('../../src/utils/coding-surface');
 
 describe('status command tool count', () => {
   it('derives the tool count from the manifest, matching the real executable tool count', async () => {
     const status = require('../../src/commands/status');
     const manifestCount = loadToolManifest().size;
-    expect(manifestCount).toBe(91);
+    expect(manifestCount).toBe(CODING_TOOL_NAMES.size);
 
     const logs = [];
     const originalLog = console.log;

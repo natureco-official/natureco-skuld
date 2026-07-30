@@ -70,6 +70,57 @@ describe('token-budget', () => {
     });
   });
 
+  // Bütçe elle yazılmış 16.384'te sabitti ve hangi modelle konuşulduğuna
+  // bakmıyordu. MiniMax-M2.7'nin penceresi 204.800 olduğu için ajan, modelin
+  // %94'ü boşken konuşmayı budamaya başlıyor, okuduğu dosyayı unutup yeniden
+  // okuyordu; ekrandaki "bağlam %57" de kapasiteyi değil bu yerel sayıyı
+  // gösteriyordu.
+  describe('model-aware context budget', () => {
+    it('grows the budget to the active model window', () => {
+      const budget = mod.load({ model: 'MiniMax-M2.7' });
+      expect(budget.modelContextWindow).toBe(204_800);
+      // Pencere girdi + çıktının TOPLAMI için geçerli: ikisi birlikte
+      // pencereyi aşarsa sağlayıcı isteği tamamen reddeder.
+      expect(budget.maxContextTokens).toBeLessThanOrEqual(204_800);
+      expect(budget.maxContextTokens - budget.reservedTokens).toBeGreaterThan(150_000);
+      expect(budget.maxContextTokens).toBeGreaterThan(16_384);
+      // Çıktıya gerçekten yer kalmalı — kodlama ajanının tavanı 16.384.
+      expect(budget.reservedTokens).toBeGreaterThanOrEqual(16_384);
+    });
+
+    it('leaves the budget alone for a model it does not know', () => {
+      const budget = mod.load({ model: 'bilinmeyen-model-9' });
+      expect(budget.maxContextTokens).toBe(16_384);
+      expect(budget.modelContextWindow).toBeUndefined();
+    });
+
+    // Pencere sağlayıcıya ve modele göre değişiyor; hepsini bilemeyiz.
+    // Katalogda olmayan bir model de tek satır ayarla doğru bütçeye kavuşmalı.
+    it('takes each provider window from its own model id', () => {
+      expect(mod.load({ model: 'claude-opus-5' }).modelContextWindow).toBe(200_000);
+      expect(mod.load({ model: 'gemini-3.5-flash' }).modelContextWindow).toBe(1_048_576);
+      expect(mod.load({ model: 'deepseek-chat' }).modelContextWindow).toBe(128_000);
+      // Her birinde girdi + çıktı kendi penceresine sığmalı.
+      for (const model of ['claude-opus-5', 'gemini-3.5-flash', 'deepseek-chat']) {
+        const budget = mod.load({ model });
+        expect(budget.maxContextTokens).toBeLessThanOrEqual(budget.modelContextWindow);
+      }
+    });
+
+    it('never overrides a maxContextTokens the user set by hand', () => {
+      mod.save({ preset: 'balanced', ...mod.PRESETS.balanced, maxContextTokens: 32_000 });
+      expect(mod.load({ model: 'MiniMax-M2.7' }).maxContextTokens).toBe(32_000);
+    });
+
+    // `/model` ile model değişince bütçe de değişmeli; önbellek oturum boyunca
+    // eski pencerede kalmamalı.
+    it('follows a model switch instead of caching the old window', () => {
+      expect(mod.load({ model: 'bilinmeyen-model-9' }).maxContextTokens).toBe(16_384);
+      expect(mod.load({ model: 'MiniMax-M2.7' }).maxContextTokens).toBeGreaterThan(16_384);
+      expect(mod.load({ model: 'bilinmeyen-model-9' }).maxContextTokens).toBe(16_384);
+    });
+  });
+
   describe('setPreset', () => {
     it('should switch to efficient preset', () => {
       const result = mod.setPreset('efficient');

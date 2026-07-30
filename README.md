@@ -1,636 +1,451 @@
-# NatureCo CLI
+# Skuld
 
-[![npm version](https://img.shields.io/npm/v/natureco-cli)](https://www.npmjs.com/package/natureco-cli)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue)]()
-[![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)]()
-[![Downloads](https://img.shields.io/npm/dm/natureco-cli)](https://www.npmjs.com/package/natureco-cli)
-[![Stars](https://img.shields.io/github/stars/natureco-official/natureco-cli)](https://github.com/natureco-official/natureco-cli)
+[![CI](https://github.com/natureco-official/natureco-skuld/actions/workflows/test.yml/badge.svg)](https://github.com/natureco-official/natureco-skuld/actions/workflows/test.yml)
+[![CodeQL](https://github.com/natureco-official/natureco-skuld/actions/workflows/codeql.yml/badge.svg)](https://github.com/natureco-official/natureco-skuld/actions/workflows/codeql.yml)
+[![npm](https://img.shields.io/npm/v/natureco-skuld?color=7dd3fc)](https://www.npmjs.com/package/natureco-skuld)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18-7dd3fc)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-7dd3fc.svg)](LICENSE)
+[![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-7dd3fc)](#system-requirements)
 
-> **The power of AI, now at your fingertips.**
-> *Discover the speed of the terminal with NatureCo.*
+```text
+  █▀▀  █▄▀  █ █  █    █▀▄
+  ▀▀█  █▀▄  █ █  █    █ █
+  ▀▀▀  ▀ ▀  ▀▀▀  ▀▀▀  ▀▀
 
-Most AI coding CLIs lock you into one vendor's model and stop at your editor. **NatureCo doesn't.** One agent, **12 providers** to choose from, that writes and ships your code, remembers what matters across sessions, and — uniquely — runs your **Telegram, Discord, Slack, WhatsApp, and iMessage bots** from the same install. Swap providers without losing memory. Automate without duct tape. Never send another risky `rm -rf` without a confirmation prompt.
-
-**A Claude Code & OpenClaw alternative, built to not box you in:** Multi-agent orchestration · Cross-session memory backed by a real git-native memory engine ([Urðr](https://github.com/natureco-official/urdr)) · Token-budgeted context · Dangerous-command approval on every shell path · 12 providers, 133 models · 91 tools · 103 commands · 14 channels (9 stable messaging + 4 experimental + webhooks).
-
-**Why teams pick it over the alternatives:**
-- 🔓 **No vendor lock-in** — switch between OpenAI, Anthropic, Gemini, MiniMax, or 8 more providers with one command; your memory and workflows carry over.
-- 🧠 **Memory that's actually durable** — backed by a git-native, hash-chained architecture, not a JSON blob that silently corrupts.
-- 💬 **It lives where your team already talks** — the same agent answers in your terminal, your Telegram bot, and your Slack workspace.
-- 🛡️ **Guardrails by default** — every shell command is risk-scored before it runs; nothing destructive executes without your say-so.
-- 🌍 **Genuinely cross-platform** — audited and live-tested on macOS, Windows, and Linux, not just "should work."
-
-```
-███╗   ██╗ █████╗ ████████╗██╗   ██╗██████╗ ███████╗ ██████╗  ██████╗
-████╗  ██║██╔══██╗╚══██╔══╝██║   ██║██╔══██╗██╔════╝██╔════╝ ██╔═══██╗
-██╔██╗ ██║███████║   ██║   ██║   ██║██████╔╝█████╗  ██║      ██║   ██║
-██║╚██╗██║██╔══██║   ██║   ██║   ██║██╔══██╗██╔══╝  ██║      ██║   ██║
-██║ ╚████║██║  ██║   ██║   ╚██████╔╝██║  ██║███████╗╚██████╗ ╚██████╔╝
-╚═╝  ╚═══╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝ ╚═════╝  ╚═════╝
+  ne olacaksa, doğrulanmış olarak.
 ```
 
----
+**Skuld is a coding-first AI agent for the terminal.** It can inspect a repository, edit files, run commands, test its work, use Git and GitHub, delegate focused tasks, retain durable context, and refuse to call a change complete without evidence.
 
-## 🚀 Quick Start
+Skuld takes the coding workflow developed in NatureCo Code and ships it as a focused, standalone product under its own identity. The animated Skuld hero, full-screen coding surface, security gates, memory engine, and release checks are part of the product—not a thin chat wrapper.
+
+> **Release status:** `0.1.0` is the first public release candidate. The package is being verified locally before its first npm and GitHub publication.
+
+## Why Skuld
+
+- **Coding is the default.** Run `nskuld` and land directly in the coding workspace.
+- **Rich terminal UI.** Fixed hero and status areas, a stable composer, scrollable conversation history, streamed Markdown, diffs, tool cards, animations, and ice-blue visual language.
+- **Real agent loop.** Tool calls continue until the model returns a final answer; empty provider replies and malformed calls are surfaced instead of silently ending the task.
+- **70 first-party coding capabilities.** 54 manifest-backed tools plus 16 runtime tools before optional MCP tools are added.
+- **Evidence before completion.** Post-change checks, quality gates, protected-path policy, CodeDNA integration, and honest incomplete-state reporting.
+- **Durable memory.** Urðr-backed retrieval, project context, resumable sessions, and cross-session recall.
+- **Provider choice without catalogue drift.** Live model discovery when supported, with one shared fallback catalogue used by setup, `models`, and `/model`.
+- **Remote coding without channel clutter.** Telegram is the intentionally supported remote-coding surface.
+- **Private by layout.** Installed application code and personal state live in different directories; `~/.nskuld` is never part of the npm package.
+
+## Quick start
+
+### Install
 
 ```bash
-# 1. Install
-npm install -g natureco-cli
-
-# 2. First-run setup wizard (provider, model, bot name)
-natureco setup
-
-# 3. Start chatting
-natureco chat
-
-# 4. Or launch the coding agent
-natureco code
+npm install -g natureco-skuld
+nskuld setup
+nskuld
 ```
 
-**Ready in 30 seconds.** On first launch, the wizard walks you through it: pick a provider → enter your API key → choose a model → name your bot. That's it.
-
-> **Cross-platform:** works natively on **macOS, Windows, and Linux**. Core tools (file, search, shell, git, code execution, web, memory) are OS-agnostic; platform-specific helpers degrade gracefully.
-
----
-
-## 🆕 What's New
-
-| Version | Highlights |
-|---------|-----------|
-| **v0.1.0** | **NatureCo Code deneyimi Skuld'a taşındı:** uzun görevler için 10.000 araç turu, bağlantı ve sessizlik zaman aşımıyla donmaya dayanıklı stream, her turda oturum kaydı, tam kırmızı/yeşil diff kartları, tıklayarak aç/kapat ve `Ctrl+O` ayrıntılı araç geçmişi. Normal ekranda yerel fare kaydırması/seçimi korunur; `/` paleti yön tuşları ve Enter ile çalışır. `/model`, setup ve model komutları GPT‑5.6, Claude 5, MiniMax M3/M2.7, Kimi K3, GLM 5.1 ve diğer güncel sağlayıcıları ortak katalogdan sunar. |
-| **v5.70.0** | **`natureco code` visual + experience overhaul:** answers now stream live with incremental markdown rendering and syntax-highlighted code, **Esc interrupts** an in-flight turn transactionally (session stays intact), a chat-style bordered input box replaces the bare prompt, tool calls print unified cards with real colored diffs and secret redaction, plus a live `model · tokens · elapsed` status line — with a critical 256-color fix so the palette finally renders on every terminal. 936 → 995 tests. |
-| **v5.69.0 – v5.69.4** | **Windows/macOS GUI automation reliability + real CI enforcement:** fixed AppleScript injection and locale-ambiguous date parsing across 6 macOS automation tools, a Windows `SendKeys` assembly-loading bug, and a Windows `timeout` command that failed under piped stdin — all found via genuine live-device testing, not just automated tests. |
-| **v5.68.0 – v5.68.6** | **Full command-surface security audit:** every `src/commands/` file (107 files) audited and fixed — credential masking, path-traversal validation, honest success/failure reporting (commands no longer silently claim success on failure), plus full test coverage added for all 91 built-in tools. |
-| **v5.66.0 – v5.67.6** | **Real Urðr memory engine integration:** `natureco`'s persistent memory (`memory write`, `memory search`, `code` session context) is now genuinely backed by [Urðr](https://github.com/natureco-official/urdr)'s git-native, hash-chained memory architecture — not just an in-repo JSON file — with automatic legacy fallback. Also: 10 shell-injection fixes converting `execSync` string-building to safe `execFileSync` argv arrays, and a Turkish-locale filename bug fix across 25 files. |
-
-See [`CHANGELOG.md`](CHANGELOG.md) for the full release history.
-
-### Slash-Prefix Command System
-
-On **iMessage and WhatsApp**, only messages starting with `/` are processed as commands:
-
-```
-You  > /hello how are you?
-AI   Hey! 🙌 Doing great — how about you?
-
-You  > /tell me a joke
-AI   Sure! A classic programmer joke...
-```
-
-Regular messages are **skipped** (loop prevention), so:
-- ✅ The bot never replies to its own messages
-- ✅ No echo loops
-- ✅ Only `/`-prefixed messages reach the AI
-
-### Dangerous-Command Approval
-
-A smart approval system that prompts **only for risky operations**:
+The first run configures a provider and model. You can also sign in with a NatureCo account:
 
 ```bash
-# Auto-approved (safe)
-natureco memory write "favorite color is red"
-✓ Memory added
-
-# Approval required (risky)
-rm -rf node_modules
-🔴 HIGH RISK: file-deletion command
-Continue? (Y/n)
+nskuld account login
+nskuld account whoami
 ```
 
-**Risk detection:**
-- `rm -rf`, `sudo`, `dd if=` → 🔴 HIGH
-- `chmod 777`, `mv` → 🟡 MEDIUM
-- `mv .env` → 🔴 (sensitive file)
-
-Two-tier policy (`deny` / `allowlist` / `full`) applies to **every** shell path — no tool bypasses it.
-
----
-
-## ✨ Features
-
-### 🤖 AI & Chat
-- **91 tools** — file ops, web search, image generation, code execution, memory, automation, channels, and more
-- **Interactive REPL** — read_file, edit_file, bash, multi-turn conversation
-- **Slash commands** — `/memory`, `/help`, `/skills`, `/model`, `/clear`
-- **Streaming output** with live tool-call visibility and a thinking indicator
-- **Persistent memory** — fact-based, cross-session
-- **Token-budgeted context** — recent relevant turns are retained without repeatedly sending oversized code and tool output
-
-### 💻 Coding Agent (Claude Code alternative)
-- **Read / Write / Edit** multi-file operations
-- **Sandboxed shell execution** with the approval flow
-- **Multi-agent orchestration** — spawn focused sub-agents and plan before acting
-- **Skills** — progressive-disclosure expertise loaded on demand via `skill_view`
-- **Verify loop** — the agent runs and tests the code it writes
-- **Reliable follow-ups** — references such as “the game you just created” retain the current coding-session context
-- **Context profiles** — Efficient (1,024), Balanced (2,048), and Quality (8,192) workflow-history token budgets
-
-### ⚡ Token Economy
-
-NatureCo uses progressive disclosure and bounded context instead of sending every skill, tool result, and old response on every request:
-
-- Skills are discovered with `skill_find` and loaded only when needed with `skill_view`.
-- System, internal tool, and empty messages are excluded from workflow history.
-- Recent user/assistant turns are kept within the selected token profile.
-- Oversized generated code is truncated in later prompts while the file path and conversational intent remain available.
-- `natureco ask` stays tool-free by default; use `--tools` only when an action is required.
-
-For a 32,000-character previous response, the Balanced profile bounds repeated history to about 2,048 tokens instead of roughly 8,000—a reduction of approximately 74% for that repeated context.
-
-### 👁️ Verified GUI Automation
-
-MiniMax Token Plan users need no extra key: NatureCo automatically sends screenshots to MiniMax VLM while keeping the M-series model for chat. A separate OpenAI-compatible vision provider remains an optional override:
+### Open a project
 
 ```bash
-natureco config set guiVisionProviderUrl https://api.openai.com/v1
-natureco config set guiVisionApiKey "$OPENAI_API_KEY"
-natureco config set guiVisionModel gpt-4.1-mini
+cd path/to/project
+nskuld
 ```
 
-NatureCo reports GUI success only after a state-changing action, a changed screen, and a separate visual verification with explicit evidence. Purchasing, booking, sending, or other consequential actions should still be reviewed at the final confirmation step.
-
-### 📡 14 Channels — 9 stable · 4 experimental · webhooks
-
-| Platform | Connect | Notes |
-|----------|---------|-------|
-| **Telegram** | `natureco telegram connect` | ✅ |
-| **WhatsApp** | `natureco whatsapp connect` | ✅ (Baileys) |
-| **iMessage** | `natureco imessage connect` | ✅ (imsg CLI) |
-| **Discord** | `natureco discord connect` | Token |
-| **Slack** | `natureco slack connect` | Token |
-| **Mattermost** | `natureco mattermost connect` | URL |
-| **IRC** | `natureco irc connect` | Server |
-| **Signal** | `natureco signal connect` | signal-cli |
-| **SMS** | `natureco sms connect` | Twilio |
-| **Matrix** | `natureco matrix connect` | ⚠️ Experimental |
-| **Teams** | `natureco teams connect` | ⚠️ Experimental |
-| **Google Chat** | `natureco googlechat connect` | ⚠️ Experimental |
-| **Zalo** | `natureco zalo connect` | ⚠️ Experimental |
-| **Webhooks** | `natureco webhooks list` | ✅ |
-
-**Gateway:** `natureco gateway start` — run all channels in a single process. Per-channel sender allow-lists keep unauthorized users out, and personal memory is never leaked to them.
-
-### 🌿 NatureCo Native
-- **NatureHub** sharing (social feed)
-- **Medium** article drafting/publishing
-- **SEO** analysis (score 0–100)
-- **XP & levels** (gamification)
-
-### 🛡️ Security & Observability
-- **Dangerous-command approval** — risk detection on every shell path
-- **Command-injection safe** — structured process spawning (`execFileSync`), no shell string interpolation
-- **Local-only admin RPC** — bound to `127.0.0.1`, mandatory bearer token, secrets masked by default
-- **Secure at rest** — config, backups, and session files stored `0600`/`0700`
-- **Audit logs** — every operation recorded
-- **Cost tracking** — AI spend by today/week/month/budget
-- **Security audit** — `natureco security audit`
-
-### ⚙️ Automation & Scheduling
-- **Cron jobs** — `natureco cron add` (app-managed by default; system crontab is opt-in and approval-gated)
-- **Hooks** — event-driven automation
-- **Webhooks** — HTTP callbacks
-- **Tasks (Kanban)** — `natureco tasks`
-
----
-
-## 📋 Commands (A–Z, 103 commands)
-
-### 🤖 AI & Chat
-
-| Command | Description |
-|---------|-------------|
-| `natureco chat` | Interactive REPL chat (91 tools available) |
-| `natureco chat --resume` | Resume the previous session |
-| `natureco code` | Coding agent (write apps/scripts) |
-| `natureco code <file>` | Coding agent on a specific file |
-| `natureco run <script>` | Run a Markdown workflow script |
-| `natureco ask "<question>"` | One-shot question to the AI |
-| `natureco bots` | List available bots |
-| `natureco models` | Manage provider models |
-| `natureco ultrareview <file>` | Deep code review |
-
-`natureco code` uses its chat-style input box in VT-capable terminals (Windows Terminal,
-Cupertino Terminal, and VS Code included). Set `NATURECO_PLAIN_INPUT=1` to use the
-classic readline prompt on older or incompatible terminals. `NO_COLOR` keeps the box
-but removes its colors.
-
-**In-REPL slash commands:**
-```
-/clear         Clear the screen
-/bot           Switch bot
-/skills        Show active skills
-/memory        Memory status
-/memory clear  Clear memory
-/commands      List all commands
-/help          Help
-exit / quit    Exit
-```
-
-### ⚙️ Setup & Config
+Or select the workspace explicitly:
 
 ```bash
-natureco setup         # First-run setup wizard
-natureco login         # Enter API key
-natureco logout        # Log out
-natureco init          # Initialize a project (create SOUL.md)
-natureco doctor        # System health check
-natureco doctor --fix  # Auto-fix
-natureco config list   # Show configuration
-natureco config set <key> <value>
-natureco configure     # Interactive config
-natureco update        # Update the CLI
-natureco completion bash|powershell
+nskuld code --dir path/to/project
 ```
 
-### 📡 Channels (14: 9 stable, 4 experimental, webhooks)
+### Run one task from a script or CI job
 
 ```bash
-# All channels
-natureco channels              # List connected channels
-natureco channels add <type>   # Add a channel
-natureco channels remove <type>
-
-# Telegram
-natureco telegram connect      # Save token
-natureco telegram chatid       # Auto-detect chat ID
-natureco telegram allow <id>   # Allow a chat
-natureco telegram status
-
-# WhatsApp (Baileys)
-natureco whatsapp connect
-natureco whatsapp status
-
-# iMessage (imsg CLI)
-natureco imessage connect
-natureco imessage status
-natureco imessage allow <number>
-natureco imessage send <number> <message>
-
-# Discord, Slack, Mattermost, IRC, Signal, SMS, Webhooks
-natureco discord connect
-natureco slack connect
-natureco mattermost connect
-natureco irc connect
-natureco signal connect
-natureco sms connect
-natureco webhooks list
-
-# Gateway — start all channels
-natureco gateway start
-natureco gateway stop
-natureco gateway status
+nskuld code --dir path/to/project -p "Inspect the failing tests and explain the root cause"
 ```
 
-### 🧠 Memory & Sessions
+Headless mode uses the same model and tool pipeline, but interactive approval is unavailable. Operations that require human approval fail closed.
+
+## The coding workspace
+
+Skuld opens in a full-screen application view when the terminal supports it. The hero and composer remain fixed while the conversation body scrolls independently.
+
+```text
+╭ SKULD // CODE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ v0.1.0 ╮
+│ ◇ project  C:\work\my-app  git main (2)                               │
+│ ⚡ MiniMax-M2.7  tools 70  context 18%                                │
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+```
+
+Use `--minimal` for traditional terminal scrollback or `SKULD_PLAIN_INPUT=1` for the classic line editor.
+
+### In-session commands
+
+| Command | Purpose |
+|---|---|
+| `/help` | Show all coding-screen commands |
+| `/model [number-or-id]` | Discover, list, and switch models |
+| `/tools` | List tools loaded for the session |
+| `/system` | Show the real package, data, config, log, and project paths |
+| `/context` | Show current context usage |
+| `/compact` | Compact provider context without deleting visual history |
+| `/run <command>` | Run a command and add its output to context |
+| `/test` | Detect and run the project test command |
+| `/git` | Show Git status and recent commits |
+| `/commit` | Commit staged changes with an AI-generated message |
+| `/undo [file]` | Restore the last captured file snapshot |
+| `/retry` | Retry the previous user request |
+| `/index` | Re-index the active project |
+| `/memory` | Show project memory |
+| `/plan on\|approve\|reject\|show` | Control plan mode |
+| `/summary` | Show the session summary |
+| `/done` | Save, summarize, and exit |
+| `/fullscreen` / `/minimal` | Switch the terminal presentation mode |
+| `Ctrl+O` | Open or close the detailed tool transcript |
+| `Esc` | Interrupt the current model/tool turn safely |
+| `Ctrl+C` | Exit |
+
+## Tools
+
+Skuld's public coding boundary is deliberately smaller than the inherited general-assistant surface. Only tools that support software work are loaded into the coding manifest.
+
+### 54 built-in coding tools
+
+| Area | Tools |
+|---|---|
+| Files and patches | `read_file`, `write_file`, `edit_file`, `structural_patch`, `notebook_edit`, `list_dir`, `file_search`, `grep_search`, `filesystem`, `file_state`, `checkpoint` |
+| Commands and source control | `bash`, `shell_command`, `code_execution`, `git`, `skuld_system` |
+| Planning and delegation | `plan`, `todo_write`, `clarify`, `blueprint`, `workflow`, `sub_agent`, `delegate_task`, `async_delegation`, `llm_task` |
+| Memory and skills | `memory`, `memory_search`, `memory_write`, `memory_tree`, `cross_session_memory`, `session_search`, `skill_find`, `skill_view`, `skills_list`, `skills_autoload` |
+| Research and browser verification | `web_search`, `web_readability`, `duckduckgo_search`, `exa_search`, `searxng_search`, `parallel_search`, `firecrawl`, `http_request`, `url_safety`, `browser`, `browser_use`, `computer_use`, `computer_use_loop`, `macos_screenshot` |
+| Assets and inspection | `document_extract`, `image_generation`, `media_understanding`, `pii_redact` |
+| Security | `approval` |
+
+### 16 runtime tools
+
+The coding session also injects plan-mode entry/exit, isolated worktree entry/exit, background task create/list/result/stop, session search, file history/restore, multi-focus review, scheduled task add/list/remove, and `enable_tools`.
+
+To reduce prompt cost, Skuld advertises a core schema set first. The model can load any hidden coding schema with `enable_tools`; execution remains available immediately after activation. `--all-tools` sends all schemas up front when token cost is not a concern.
+
+### MCP
+
+Configured Model Context Protocol servers are loaded into the same coding loop. Name collisions are rejected in favor of the built-in safety-reviewed tool.
 
 ```bash
-natureco memory write "favorite color is red"
-natureco memory write "user_name=patron"
-natureco memory search "color"
-natureco memory status
-natureco memory list
-natureco memory clear
-natureco memory export
-natureco memory import <file>
-
-natureco sessions list         # All sessions
-natureco sessions show <id>    # Session details
+nskuld mcp list
+nskuld mcp add <name> <command>
+nskuld mcp test <name>
 ```
 
-### 🔌 Skills, MCP, Plugins
+## Git and GitHub workflows
+
+Skuld can inspect history and diffs, create commits, review changes, and clone an HTTPS GitHub repository into a child of the active workspace. After cloning, it reads repository instructions such as `AGENTS.md`, `README.md`, and package manifests before running setup commands.
+
+Examples:
+
+```text
+Clone https://github.com/owner/project into this workspace, install it using
+the repository instructions, run its verification command, and report evidence.
+```
+
+```text
+Review the current diff for security and logic regressions. Fix confirmed
+issues, run the relevant tests, then summarize the exact files changed.
+```
+
+Repository installation, dependency installation, publishing, destructive Git operations, and other consequential actions remain behind approval and path-policy checks.
+
+## Models and providers
+
+Setup, `nskuld models`, and the in-session `/model` picker share the same catalogue. Skuld first tries the provider's live models endpoint and falls back to the bundled catalogue only when discovery is unavailable.
+
+The release catalogue currently contains **18 providers and 75 model entries**:
+
+| Provider | Bundled entries | Default route |
+|---|---:|---|
+| OpenAI | 4 | `gpt-5.6-sol` |
+| Anthropic | 5 | `claude-fable-5` |
+| Google Gemini | 5 | `gemini-3.5-flash` |
+| Groq | 5 | `openai/gpt-oss-120b` |
+| DeepSeek | 2 | `deepseek-chat` |
+| Ollama (local) | 4 | `qwen3-coder` |
+| MiniMax | 7 | `MiniMax-M2.7` |
+| OpenRouter | 3 | `openrouter/auto` |
+| Mistral AI | 4 | `mistral-medium-latest` |
+| Cohere | 4 | `command-a-03-2025` |
+| xAI | 1 | `grok-4.5` |
+| Together AI | 7 | `MiniMaxAI/MiniMax-M3` |
+| Perplexity | 4 | `sonar-pro` |
+| DeepInfra | 4 | `Qwen/Qwen3-Coder-480B-A35B-Instruct-Turbo` |
+| Fireworks AI | 2 | `accounts/fireworks/models/gpt-oss-120b` |
+| NatureCo | 3 | `natureco-default` |
+| Moonshot AI | 3 | `kimi-k3` |
+| Z.ai | 8 | `glm-5.1` |
+
+Custom OpenAI-compatible URLs are also supported. Provider availability and model IDs change over time; the live provider response is authoritative.
 
 ```bash
-natureco skills list           # Active skills
-natureco skills install <name>
-natureco skills remove <name>
-
-natureco mcp list              # MCP servers
-natureco mcp add <name> <url>
-
-natureco plugins list
-natureco plugins install <name>
+nskuld models list
+nskuld models scan
+nskuld models set <model-id>
 ```
 
-### ⏰ Automation
+## Memory and completion quality
+
+### Urðr memory
+
+Skuld uses Urðr as its preferred durable memory engine. Recall is inserted as data rather than trusted instructions, reducing persistent prompt-injection risk. If Urðr is unavailable, coding continues with an explicit reason instead of crashing.
+
+Memory is scoped:
+
+- global user context under `~/.nskuld` and the configured Urðr tree;
+- project context associated with the active workspace;
+- resumable coding transcripts under `~/.nskuld/sessions`;
+- visual scrollback kept independently from provider-context compaction.
 
 ```bash
-natureco cron add              # Scheduled task
-natureco cron list
-natureco cron remove --name <name>
-
-natureco hooks list            # Event hooks
-natureco hooks create
-
-natureco tasks list            # Kanban (todo)
-natureco tasks add
-natureco tasks done <id>
-
-natureco webhooks list         # Webhook URLs
-natureco webhooks add <url>
-
-natureco dashboard             # Web dashboard (localhost)
+nskuld memory status
+nskuld memory search "decision"
+nskuld sessions list
+nskuld code --continue
 ```
 
-### 🔍 Developer Tools
+### Quality gate and CodeDNA
+
+When a coding turn changes files, Skuld tracks the exact paths, captures undo history, detects verification commands, and evaluates the result through its quality bridge. Protected-module findings can block completion. CodeDNA adds AI-code transparency when installed; the protected-path gate remains active when CodeDNA is absent.
+
+Skuld does not equate “the model stopped calling tools” with “the work is verified.” Failed tests, blocked changes, tool-round limits, malformed tool arguments, and repeated empty replies are reported honestly.
+
+## Security model
+
+Skuld is powerful by design, so execution is constrained by default:
+
+- **Workspace boundary:** file and command operations are resolved against the active project.
+- **Sensitive-path policy:** credentials, SSH material, and secret locations are denied in safe mode.
+- **Symlink escape protection:** path checks resolve links before allowing mutations.
+- **Human approval:** dangerous commands, network calls, installs, and external effects require a decision.
+- **Fail closed:** headless sessions cannot invent interactive approval.
+- **Model cannot self-approve:** approval-like fields supplied by a model are stripped at the gate.
+- **Command separation:** structured execution avoids shell parsing; explicit shell capability is treated separately.
+- **Secret masking:** command output, audit output, request previews, and tool cards redact detected secrets.
+- **Redirect and SSRF controls:** approved network destinations cannot silently redirect into another trust boundary.
+- **Self-edit guard:** modifying Skuld's installed source is disabled unless the user explicitly enables it from a terminal.
+- **Audit trail:** security-sensitive operations and failures are recorded under the user data directory.
+
+See [SECURITY.md](SECURITY.md) for vulnerability reporting.
+
+## Telegram remote coding
+
+Telegram remote is optional and off by default. It exists for continuing a coding session while away from the computer, with an allowlisted chat and an explicit workspace.
 
 ```bash
-natureco git status            # Git status
-natureco git diff              # Diff
-natureco git log               # Commit log
-natureco git branches          # Branch list
-
-natureco audit today           # Today's operations
-natureco audit stats           # Statistics
-natureco audit files           # File changes
-
-natureco cost today            # Today's AI cost
-natureco cost week
-natureco cost month
-natureco cost budget 50        # $50 limit
-
-natureco security audit        # Sensitive-file / config scan
-
-natureco logs                  # Log files
+nskuld remote setup
+nskuld remote start
+nskuld remote status
+nskuld remote stop
 ```
 
-### 🌿 NatureCo Native
+Remote-origin requests cannot approve protected self-edits. Keep the Telegram token private and restrict allowed chats.
+
+## NatureCo ecosystem
+
+Skuld integrates with the parts of the NatureCo ecosystem that support coding work:
+
+- **NatureCo Account and Developer Portal** for optional identity and access;
+- **NatureCo SDK** for ecosystem APIs;
+- **Urðr** for durable tree memory;
+- **CodeDNA** for post-change transparency and quality evidence;
+- **Cupertino Terminal** for deep links and enhanced terminal integration, with a standard-terminal fallback;
+- **ZeroLink** as an optional execution target when a paired session is available;
+- **Telegram Remote** for allowlisted remote coding.
 
 ```bash
-natureco naturehub post <text> # Share to NatureHub
-natureco naturehub feed        # View the feed
-
-natureco seo audit natureco.me # SEO analysis (score)
-
-natureco medium draft          # Medium article draft
-natureco medium publish <file> # Publish
-
-natureco xp rewards            # XP & levels
-natureco xp leaderboard
+nskuld ecosystem status
+nskuld ecosystem links
+nskuld terminal status
 ```
 
-### 🛡️ Management
+Skuld remains usable without a NatureCo account, Cupertino Terminal, CodeDNA, or Telegram.
+
+## Data, installation, and privacy
+
+Run `/system` inside the coding screen or the following diagnostics to see the exact paths on the current machine:
 
 ```bash
-natureco reset --scope config  # Reset
-natureco reset --scope memory
-natureco reset --scope sessions
-natureco reset --scope all --yes
-
-natureco uninstall
-
-natureco approvals             # Approval management
-natureco approvals allow <cmd>
-
-natureco admin-rpc start       # Local admin RPC (127.0.0.1, bearer-token auth)
+nskuld doctor
+nskuld config file
+nskuld logs path
 ```
 
----
+The directory roles are intentionally separate:
 
-## 🌐 Provider Support (12 providers, 133 models)
+| Data | Location | Published to npm/GitHub? |
+|---|---|---|
+| Application package | npm global package directory | Yes, package source only |
+| Personal config and provider settings | `~/.nskuld/config.json` and secure storage | No |
+| Sessions, memory, logs, approvals, backups | `~/.nskuld/` | No |
+| Project files | The workspace selected by the user | No |
+| Project-local Skuld metadata | `<workspace>/.nskuld/` when a feature needs it | Only if the user deliberately commits it |
 
-| Provider | Models | API Key |
-|----------|--------|---------|
-| **OpenAI** | GPT-5, GPT-4.1, o3, GPT-4o | OpenAI |
-| **Anthropic** | Claude Opus 4, Sonnet 4, Haiku | Anthropic |
-| **Gemini** | 2.5 Pro, 2.0 Flash, Gemma | Google |
-| **Groq** | Llama 3.3, Mixtral | Groq |
-| **DeepSeek** | R1, Chat V3 | DeepSeek |
-| **Ollama** | Llama, Qwen (local) | — |
-| **MiniMax** | M2.5, M2 | MiniMax |
-| **OpenRouter** | 15+ models (multi-provider) | OpenRouter |
-| **Mistral** | Large, Small, Codestral | Mistral |
-| **Cohere** | Command R+, Embed | Cohere |
-| **xAI** | Grok 2, Grok Beta | xAI |
-| **Together** | Llama, Mixtral, Qwen | Together |
+The npm tarball is built from the `files` allowlist in `package.json`. A developer checkout such as `C:\Projects\natureco-skuld` is never a runtime requirement for ordinary users.
+
+## Command reference
+
+`nskuld --help` is the authoritative, generated command list. The main surfaces are grouped below.
+
+| Area | Commands |
+|---|---|
+| Coding | `code`, `acp`, `repl`, `ask`, `run`, `agent`, `agents`, `team`, `tasks`, `workboard`, `ultrareview` |
+| Setup and identity | `setup`, `onboard`, `configure`, `init`, `login`, `logout`, `account`, `lang`, `completion` |
+| Models and capabilities | `models`, `infer`, `capability`, `tools`, `skills`, `plugins`, `mcp`, `hooks`, `commands` |
+| Source and quality | `git`, `dna`, `policy`, `exec-policy`, `approvals`, `sandbox`, `security`, `audit` |
+| Memory and history | `memory`, `sessions`, `transcripts`, `backup`, `migrate` |
+| Configuration and operations | `config`, `secrets`, `doctor`, `status`, `health`, `logs`, `cost`, `update`, `reset`, `uninstall` |
+| Automation | `cron`, `daemon`, `gateway`, `dashboard` |
+| Ecosystem and remote | `ecosystem`, `remote`, `terminal`, `system`, `directory`, `path`, `oc-path` |
+| Devices and nodes | `device-pair`, `devices`, `pairing`, `node`, `nodes` |
+| Content and help | `browser`, `web-fetch`, `docs`, `help` |
+
+Examples:
 
 ```bash
-# Provider selection lives in the wizard
-natureco setup
-# Wizard: Provider → API Key → Model → Bot name
-
-# List models
-natureco models list --provider openai
-natureco models list --provider anthropic
+nskuld doctor
+nskuld tools list
+nskuld skills list
+nskuld mcp list
+nskuld git review
+nskuld backup create
+nskuld security audit
+nskuld completion powershell
 ```
 
-> The agent adapts to each provider's native tool-calling style automatically (OpenAI-style `tool_calls` JSON or agentic-text XML), so the same tools and memory work everywhere.
+## Configuration and environment
 
----
+Prefer `nskuld config` for persistent settings. Environment flags are useful in CI and terminal compatibility scenarios.
 
-## 🔄 vs. Other CLIs
+| Variable | Purpose |
+|---|---|
+| `SKULD_LANG=tr\|en` | Interface language |
+| `SKULD_CODE_MAX_TOOL_ROUNDS=<n>` | Tool-round ceiling; `0` means unlimited |
+| `SKULD_CODE_SCREEN_MODE=fullscreen\|minimal` | Coding-screen mode |
+| `SKULD_PLAIN_INPUT=1` | Disable the boxed composer |
+| `SKULD_NO_ANIM=1` | Disable animations |
+| `SKULD_NO_UPDATE_CHECK=1` | Disable update checks |
+| `SKULD_TRUECOLOR=1` | Opt into 24-bit color when supported |
+| `SKULD_SKILL_INDEX=names\|off` | Reduce or disable the injected skill index |
+| `SKULD_AGENT_EXEC=full` | Explicitly expand agent execution policy |
+| `SKULD_HAFIZA=0` | Disable the memory bridge |
+| `SKULD_KALITE=0` | Disable the optional quality bridge |
+| `NO_COLOR=1` / `FORCE_COLOR=0` | Disable ANSI colors |
 
-| Feature | NatureCo | Claude Code | Hermes | OpenClaw |
-|---------|----------|-------------|--------|----------|
-| Multi-provider | ✅ 12 | ❌ Anthropic | ✅ 8 | ❌ |
-| Model catalogue | ✅ 133 | ❌ | ✅ | ❌ |
-| Multi-agent orchestration | ✅ | ✅ | ⚠️ | ⚠️ |
-| Dangerous-command approval | ✅ | ✅ | ✅ | ⚠️ |
-| Multi-channel | ✅ 14 (9 stable) | ❌ | ✅ (Python) | ❌ |
-| Persistent memory | ✅ Git-native (Urðr) | ✅ | ✅ | ❌ |
-| Tool-output path anonymization | ✅ | ❌ | ❌ | ❌ |
-| XP / gamification | ✅ | ❌ | ❌ | ❌ |
-| SEO / Medium / NatureHub native | ✅ | ❌ | ❌ | ❌ |
-| Cross-platform (macOS/Win/Linux) | ✅ Audited + CI-verified | ✅ | ⚠️ | ⚠️ |
-| MIT licensed | ✅ | ✅ | ❌ | ❌ |
-| npm package | ✅ | ❌ | ❌ | ❌ |
-| Built-in tools | ✅ 91 | ✅ ~30 | ✅ ~25 | ✅ ~40 |
-| Cron + Hooks + Webhooks | ✅ | ❌ | ✅ | ❌ |
+Do not store API keys in shell history. Use the setup flow, NatureCo account flow, OS credential storage, or `nskuld secrets`.
 
----
+## Update and uninstall
 
-## 🛠️ System Requirements
-
-| Requirement | Minimum | Recommended |
-|-------------|---------|-------------|
-| **Node.js** | 18.x | 20.x (LTS) |
-| **RAM** | 256 MB | 512 MB |
-| **Disk** | 100 MB | 500 MB (with cache) |
-| **OS** | macOS 12, Win 10, Ubuntu 20 | macOS 14+, Win 11, Ubuntu 22 |
-| **Internet** | Required | — |
-
-**Optional** for richer functionality: `ripgrep` (faster search — falls back to a pure-Node scanner), `python3` (for `code_execution`), `git`.
-
----
-
-## 🚀 Real Examples
-
-### 1. Simple chat
-```
-$ natureco chat
-Provider: api.minimax.io
-Model: MiniMax-M2.5
-Bot: naruto
-
-👋 Hi! I'm naruto, boss.
-
-You  > who are you?
-AI   I'm naruto, your NatureCo CLI assistant. 91 tools active,
-     memory persisted, channels ready.
-
-You  > create racing-game.html on my Desktop with a small canvas racing game
-AI   🔧 write_file ✓
-     Done — racing-game.html created on your Desktop.
-```
-
-### 2. Connect a Telegram bot
-```
-$ natureco telegram connect
-? Telegram bot token: *** (from BotFather)
-✓ Token saved
-Bot ID: telegram_1782204289029
-
-$ natureco telegram chatid
-⏳ Bot running, waiting for the first message...
-[send /start from Telegram]
-✓ Chat ID detected: 6139455189
-
-$ natureco gateway start
-[gateway] Gateway running (PID 77765)
-[telegram] watching for inbound
-[telegram] Inbound from +90****44: "hello"
-[telegram] Reply sent (117 chars)
-```
-
-### 3. iMessage slash command
-```
-$ natureco imessage connect
-? imsg CLI path: /opt/homebrew/bin/imsg
-✓ Connected
-
-$ natureco imessage allow +90****4449
-✓ Allowed: +90****4449
-
-$ natureco gateway start
-[imessage] watching for new messages (streaming)
-[imessage] Inbound from +90****4449: "/who are you"
-[imessage] Slash command: /who are you
-[imessage] Reply sent (178 chars)
-```
-
-### 4. Coding agent — a small app
-```
-$ natureco code
-NatureCo Code Agent v5
-
-You  > create notes.py — add/list/delete notes, stored as JSON
-
-Tool: write_file (2303 bytes)
-Tool: bash (python3 notes.py)
-✅ Note added: Groceries
-✅ Note added: Meeting
-✅ Total: 3 notes
-✅ Deleted: ID 2
-
-📂 notes.py (2303 bytes)
-```
-
----
-
-## 🔌 Integrations
-
-### Webhook
-```bash
-# HTTP callback URLs
-natureco webhooks add https://example.com/hook
-
-# Incoming webhook (POST)
-POST /webhook/<id>
-Content-Type: application/json
-{"event": "...", "data": {...}}
-```
-
-### Cron (scheduled tasks)
-```bash
-# Every 5 minutes
-natureco cron add \
-  --name "hello-task" \
-  --schedule "*/5 * * * *" \
-  --command "echo 'Hello!'"
-
-# One-off
-natureco cron add --at "2026-12-31T23:59"
-```
-
-### MCP (Model Context Protocol)
-```bash
-natureco mcp add filesystem npx -y @modelcontextprotocol/server-filesystem
-natureco mcp add github npx -y @modelcontextprotocol/server-github
-```
-
----
-
-## 📚 Documentation
-
-- 🌐 **Homepage:** [natureco.me/cli](https://natureco.me/cli)
-- 📖 **Command reference:** [natureco.me/cli/commands](https://natureco.me/cli/commands)
-- 🎓 **Tutorial:** [natureco.me/cli/getting-started](https://natureco.me/cli/getting-started)
-- 🔧 **API:** [natureco.me/cli/api](https://natureco.me/cli/api)
-- 🔒 **Security:** [`SECURITY_AUDIT_SUMMARY.md`](SECURITY_AUDIT_SUMMARY.md)
-- 📝 **Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
-
----
-
-## 🤝 Contributing
-
-PRs and issues are welcome!
+Update the global package:
 
 ```bash
-# Clone the repo
-git clone https://github.com/natureco-official/natureco-cli.git
-cd natureco-cli
+npm install -g natureco-skuld@latest
+nskuld doctor
+```
 
-# Install
+Remove only the application and keep personal state for a later reinstall:
+
+```bash
+npm uninstall -g natureco-skuld
+```
+
+Preview a complete removal, including `~/.nskuld`, before deleting anything:
+
+```bash
+nskuld uninstall dry-run
+nskuld uninstall run
+```
+
+`nskuld uninstall run` is destructive and asks for critical confirmation. Back up `~/.nskuld` first if its sessions or memory matter.
+
+## System requirements
+
+- Node.js **18 or newer**;
+- Windows 10/11, current macOS, or a modern Linux distribution;
+- Git for repository and worktree features;
+- a provider API key, NatureCo account route, or local Ollama instance;
+- a terminal with ANSI/Unicode support for the full visual experience.
+
+Optional features have their own dependencies: browser automation needs an installed supported browser; LSP features need language servers; Cupertino and ZeroLink features need their respective NatureCo applications.
+
+## Development
+
+```bash
+git clone https://github.com/natureco-official/natureco-skuld.git
+cd natureco-skuld
 npm install
-
-# Test (vitest)
 npm test
-
-# Lint
 npm run lint
-
-# Smoke check
-npm run smoke
+npm run typecheck
+npm run prepublishOnly
+npm link
+nskuld --version
 ```
 
+The release gates include:
+
+- the complete Vitest suite and integration packages;
+- live local tool smoke tests using temporary workspaces, processes, HTTP loopback, file history, task, and cron lifecycles;
+- manifest coverage checks for all 54 built-in coding tools;
+- real provider → tool → result → final-response smoke verification;
+- TypeScript workspace builds;
+- execution-gateway and provenance boundaries;
+- help/command consistency and design-boundary checks;
+- capability, package extraction, secret, and npm audit checks;
+- Windows, macOS, and Linux CI.
+
+Before publishing:
+
+```bash
+npm run yayin
+npm publish --dry-run
+```
+
+Do not publish until all local gates and the GitHub Actions matrix are green. See [docs/YAYIN-ADIMLARI.md](docs/YAYIN-ADIMLARI.md).
+
+## Documentation
+
+- [Security policy](SECURITY.md)
+- [Contributing](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
+- [Release procedure](docs/YAYIN-ADIMLARI.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Architecture decisions](docs/architecture/ADR-0001-foundation.md)
+- [Data boundaries](docs/architecture/ADR-0002-data-boundaries.md)
+- [Cupertino contract](docs/architecture/ADR-0003-cupertino-contract.md)
+- [Self-edit policy](SELF.md)
+
+## Contributing
+
+Bug reports and focused pull requests are welcome. Please include the operating system, Node.js version, Skuld version, reproduction steps, expected behavior, actual behavior, and relevant redacted logs.
+
+```bash
+npm test
+npm run lint
+npm run typecheck
+```
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Security issues must follow [SECURITY.md](SECURITY.md), not the public issue tracker.
+
+## License
+
+[MIT](LICENSE) © Gencay Olgun / NatureCo.
+
+## Acknowledgements
+
+Skuld is informed by the interaction language and engineering lessons of [NatureCo CLI](https://github.com/natureco-official/natureco-cli), while remaining a separate coding-focused product. It also builds on the open-source ecosystems around Node.js, Git, MCP, Playwright, Urðr, Vitest, and the supported model providers.
+
 ---
 
-## 📄 License
-
-MIT © [NatureCo](https://github.com/natureco-official)
-
----
-
-## 🙏 Acknowledgements
-
-- [OpenAI](https://openai.com) — GPT API
-- [Anthropic](https://anthropic.com) — Claude API
-- [MiniMax](https://api.minimax.io) — AI provider
-- [Baileys](https://github.com/WhiskeySockets/Baileys) — WhatsApp Web
-- [imsg](https://github.com/steipete/imsg) — iMessage CLI
-- [ripgrep](https://github.com/BurntSushi/ripgrep) — fast search
-
----
-
-<p align="center">
-  <b>The power of AI, now at your fingertips.</b><br>
-  <i>Discover the speed of the terminal with NatureCo.</i>
-</p>
-
-<p align="center">
-  Made with 🌿 for developers who live in the terminal.
-</p>
-
----
-
----
-
-## More from NatureCo
-
-- [**Cupertino Terminal**](https://github.com/natureco-official/cupertino-terminal) — A macOS-grade terminal for Windows, macOS and Linux — Rust core, no Electron, with a built-in end-to-end encrypted P2P remote shell
-- [**Urðr**](https://github.com/natureco-official/urdr) — Tree-structured memory for AI coding agents — plain Markdown you can `git diff`, no vector database
-- [**CodeDNA**](https://github.com/natureco-official/codedna) — How much of a commit was written by AI, and does its author actually understand it?
-- [**NatureCo SDK**](https://github.com/natureco-official/natureco-sdk) — JavaScript SDK for the NatureCo API — build AI chatbots and ship them anywhere
-- [**Verðandi**](https://github.com/natureco-official/verdandi) — Task-context compiler for AI coding agents — indexes with the TypeScript AST so the agent stops burning tokens hunting for the right file
-
-<sub>Part of the **NatureCo** ecosystem — [natureco.me](https://natureco.me) · NatureCo ekosisteminin parçası</sub>
+**NatureCo:** [natureco.me](https://natureco.me) · **Ecosystem:** [natureco.me/ekosistem](https://natureco.me/ekosistem) · **Issues:** [GitHub Issues](https://github.com/natureco-official/natureco-skuld/issues)

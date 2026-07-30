@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createRequire } from 'module';
 
 const requireCjs = createRequire(import.meta.url);
-const { createStreamWriter } = requireCjs('../src/utils/stream-render.js');
+const { createPresentationWriter, createStreamWriter } = requireCjs('../src/utils/stream-render.js');
 const { renderMarkdown } = requireCjs('../src/utils/render.js');
 const tui = requireCjs('../src/utils/tui.js');
 
@@ -70,6 +70,44 @@ afterEach(() => {
 });
 
 describe('stream presentation writer', () => {
+  it('decodes HTML entities in prose without changing fenced code', () => {
+    const rendered = tui.stripAnsi(renderMarkdown('AI &quot;agent&quot; isn&#39;t a &lt;bot&gt;.\n\n```html\n&amp;quot;\n```'));
+    expect(rendered).toContain('AI "agent" isn\'t a <bot>.');
+    expect(rendered).toContain('&amp;quot;');
+  });
+
+  it('uses the ice-blue 256-colour slot for generated markdown headings', () => {
+    const previousTrueColor = tui.CAPS.trueColor;
+    tui.CAPS.trueColor = false;
+    try {
+      expect(renderMarkdown('# Heading')).toContain('\x1b[38;5;117m');
+      expect(renderMarkdown('# Heading')).not.toContain('\x1b[38;5;41m');
+    } finally {
+      tui.CAPS.trueColor = previousTrueColor;
+    }
+  });
+
+  it('does not let status repaint erase the last character of a partial line', () => {
+    const output = sink();
+    let tick = () => {};
+    const presentation = createPresentationWriter({
+      output,
+      model: 'test-model',
+      scheduler: {
+        setInterval(fn) { tick = fn; return 1; },
+        clearInterval() {},
+      },
+    });
+    const writer = createStreamWriter({ output, presentation, render: value => value });
+
+    writer.push('Tree agent Yönler');
+    tick();
+    writer.end();
+
+    expect(terminalText(output.value).split('\n')[0]).toBe('Tree agent Yönler');
+    presentation.dispose();
+  });
+
   it('(a,d) commits incrementally and retains byte-identical raw deltas', () => {
     const output = sink();
     const writer = createStreamWriter({ output });

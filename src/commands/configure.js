@@ -32,12 +32,12 @@ async function configure(params) {
     if (!action) return cmdMenu();
     if (action === 'gateway') return await cmdGateway();
     if (action === 'auth') return await cmdAuth();
-    if (action === 'channels') return cmdChannels();
+    if (action === 'remote') return cmdRemote();
     if (action === 'plugins') return cmdPlugins();
     if (action === 'skills') return cmdSkills();
 
     console.log(chalk.red(`\n  Unknown configure action: ${action}\n`));
-    console.log(chalk.gray('  Usage: nskuld configure [gateway|auth|channels|plugins|skills]\n'));
+    console.log(chalk.gray('  Usage: nskuld configure [gateway|auth|remote|plugins|skills]\n'));
   } catch (err) {
     console.log(chalk.red(`\n  Configure error: ${err.message}\n`));
   }
@@ -48,7 +48,7 @@ function cmdMenu() {
   console.log(chalk.gray('  Run with an action:'));
   console.log(chalk.gray('    nskuld configure gateway   Update gateway config'));
   console.log(chalk.gray('    nskuld configure auth      Update provider keys'));
-  console.log(chalk.gray('    nskuld configure channels   Re-run channels setup'));
+  console.log(chalk.gray('    nskuld configure remote     Configure optional Telegram remote coding'));
   console.log(chalk.gray('    nskuld configure plugins    Re-run plugin setup'));
   console.log(chalk.gray('    nskuld configure skills     Re-run skills setup\n'));
 }
@@ -83,14 +83,10 @@ async function cmdAuth() {
   }
 }
 
-function cmdChannels() {
-  console.log(chalk.cyan('\n  Channels Setup\n'));
-  console.log(chalk.gray('  To connect a channel:'));
-  const channels = ['telegram', 'whatsapp', 'discord', 'slack', 'signal', 'irc', 'mattermost', 'imessage'];
-  for (const ch of channels) {
-    console.log(chalk.gray('    natureco ' + ch + ' connect'));
-  }
-  console.log('');
+function cmdRemote() {
+  console.log(chalk.cyan('\n  Optional Telegram Remote Coding\n'));
+  console.log(chalk.gray('  Run the guarded Telegram setup:'));
+  console.log(chalk.cyan('    nskuld remote setup\n'));
 }
 
 function cmdPlugins() {

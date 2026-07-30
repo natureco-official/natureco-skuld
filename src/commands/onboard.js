@@ -7,7 +7,7 @@ const { writePrivateFile } = require('../utils/config');
 const BASE_DIR = path.join(os.homedir(), '.nskuld');
 const CONFIG_FILE = path.join(BASE_DIR, 'config.json');
 
-const STEPS = ['gateway', 'auth', 'workspace', 'channels', 'skills', 'health'];
+const STEPS = ['gateway', 'auth', 'workspace', 'remote', 'skills', 'health'];
 
 function getConfig() {
   if (!fs.existsSync(CONFIG_FILE)) return {};
@@ -27,12 +27,12 @@ function onboard(params) {
     if (action === 'gateway') return cmdGateway();
     if (action === 'auth') return cmdAuth();
     if (action === 'workspace') return cmdWorkspace();
-    if (action === 'channels') return cmdChannels();
+    if (action === 'remote') return cmdRemote();
     if (action === 'skills') return cmdSkills();
     if (action === 'health') return cmdHealth();
 
     console.log(chalk.red(`\n  Unknown onboard action: ${action}\n`));
-    console.log(chalk.gray('  Usage: nskuld onboard [gateway|auth|workspace|channels|skills|health|status]\n'));
+    console.log(chalk.gray('  Usage: nskuld onboard [gateway|auth|workspace|remote|skills|health|status]\n'));
   } catch (err) {
     console.log(chalk.red(`\n  Onboard error: ${err.message}\n`));
   }
@@ -46,7 +46,7 @@ function cmdStatus() {
     gateway: cfg.gatewayUrl ? 'done' : 'pending',
     auth: cfg.providerApiKey ? 'done' : 'pending',
     workspace: cfg.workspacePath ? 'done' : 'pending',
-    channels: cfg.channels ? 'done' : 'pending',
+    remote: cfg.telegramRemoteEnabled ? 'done' : 'optional',
     skills: cfg.skills && cfg.skills.list && cfg.skills.list.length > 0 ? 'done' : 'pending',
     health: cfg.setupCompleted ? 'done' : 'pending',
   };
@@ -90,14 +90,10 @@ function cmdWorkspace() {
   console.log(chalk.hex('#7dd3fc')('\n  Workspace ready at: ' + wsPath + '\n'));
 }
 
-function cmdChannels() {
-  console.log(chalk.cyan('\n  Channels Setup\n'));
-  console.log(chalk.gray('  Available channels:'));
-  const channels = ['telegram', 'whatsapp', 'discord', 'slack', 'signal', 'irc', 'mattermost', 'imessage'];
-  for (const ch of channels) {
-    console.log(chalk.gray('    natureco ' + ch + ' connect'));
-  }
-  console.log('');
+function cmdRemote() {
+  console.log(chalk.cyan('\n  Optional Telegram Remote Coding\n'));
+  console.log(chalk.gray('  Continue coding away from this computer:'));
+  console.log(chalk.cyan('    nskuld remote setup\n'));
 }
 
 function cmdSkills() {

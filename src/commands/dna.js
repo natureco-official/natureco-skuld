@@ -58,7 +58,7 @@ async function dna(pathArg, opts = {}) {
 
   // Anlama skoru (1-5): anket varsa onu, yoksa otomatik tahmini kullan
   const uScore = (f) => (f.understanding != null ? f.understanding : f.understanding_estimate);
-  const uCol = (v) => (v >= 4 ? chalk.green : v >= 2.5 ? chalk.yellow : chalk.red);
+  const uCol = (v) => (v >= 4 ? chalk.hex('#7dd3fc') : v >= 2.5 ? chalk.yellow : chalk.red);
 
   // En yüksek YZ olasılıklı 5 dosya
   const top = (data.files || []).slice(0, 5);

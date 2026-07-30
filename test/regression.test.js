@@ -48,7 +48,9 @@ describe('regression: all commands', () => {
       { encoding: 'utf8', timeout: 60000 }
     );
     expect(result).toContain('nskuld');
-    expect(result).toContain('chat');
+    expect(result).toContain('code');
+    expect(result).toContain('remote');
+    expect(result).not.toContain('matrix');
     expect(result).toContain('agent');
     expect(result).toContain('completion');
     expect(result).toContain('sandbox');
@@ -114,7 +116,6 @@ describe('regression: subcommand --help', () => {
     'tui',
     'uninstall',
     'update',
-    'webhooks',
   ];
 
   for (const cmd of keyCommands) {

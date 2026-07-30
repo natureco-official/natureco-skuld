@@ -101,15 +101,21 @@ describe('smartTrim / trimMessages keep transcripts provider-valid', () => {
     }
   }
 
+  // Bütçe açıkça veriliyor: aksi hâlde test, çalıştığı makinedeki aktif
+  // modelin bağlam penceresine bağlı olurdu ve geniş pencereli bir modelde
+  // budama hiç gerekmediği için düşerdi. Test edilen şey budamanın transkripti
+  // geçerli bırakması, budamanın ne zaman tetiklendiği değil.
+  const DAR_BUTCE = { ...TB.PRESETS.balanced, preset: 'balanced' };
+
   it('smartTrim output has no orphaned tool calls or results', () => {
     const input = longExchange(40);
-    const trimmed = TB.smartTrim(input);
+    const trimmed = TB.smartTrim(input, DAR_BUTCE);
     expect(trimmed.length).toBeLessThan(input.length);
     assertPaired(trimmed);
   });
 
   it('trimMessages output has no orphaned tool calls or results', () => {
-    const trimmed = TB.trimMessages(longExchange(40));
+    const trimmed = TB.trimMessages(longExchange(40), DAR_BUTCE);
     assertPaired(trimmed);
   });
 });

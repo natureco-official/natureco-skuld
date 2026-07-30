@@ -100,6 +100,15 @@ function bolumler() {
         ['models', L('Model listesi ve seçimi', 'Model list and selection')],
         ['cost', L('Maliyet takibi', 'Cost tracking')],
         ['login', L('API anahtarı ile giriş', 'Sign in with an API key')],
+        ['account', L('NatureCo hesabı (login|logout|whoami|portal)', 'NatureCo account (login|logout|whoami|portal)')],
+        ['ecosystem', L('NatureCo ekosistem durumu ve bağlantıları', 'NatureCo ecosystem status and links')],
+      ],
+    },
+    {
+      baslik: L('Bağlantılar', 'Connections'),
+      satirlar: [
+        ['terminal status', L('Cupertino Terminal ve çalıştırma hedefi', 'Cupertino Terminal and execution target')],
+        ['remote', L('Telegram ile izin listeli uzaktan kodlama', 'Allowlisted remote coding through Telegram')],
       ],
     },
     {
@@ -116,7 +125,6 @@ function bolumler() {
       baslik: L('Otomasyon ve gözlem', 'Automation and observability'),
       satirlar: [
         ['cron', L('Zamanlanmış görevler', 'Scheduled jobs')],
-        ['webhooks', L('Webhook yönetimi', 'Webhook management')],
         ['daemon', L('Arka plan süreci', 'Background daemon')],
         ['dashboard', L('Web kontrol paneli', 'Web dashboard')],
         ['workboard', L('İş panosu', 'Work board')],

@@ -4,6 +4,7 @@ import os from 'os';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { loadToolManifest } from '../../src/utils/tool-manifest.js';
+import codingSurface from '../../src/utils/coding-surface.js';
 
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 const tempPaths = [];
@@ -76,7 +77,6 @@ describe('AUDIT_FINDINGS_3 low-severity regressions', () => {
     directory: ['self', 'peers', 'search', 'register', 'remove', 'groups'],
     nodes: ['list', 'pair', 'approve', 'reject', 'remove', 'rename', 'status', 'describe', 'invoke', 'notify', 'push', 'canvas', 'camera', 'screen', 'location'],
     sandbox: ['list', 'create', 'destroy', 'exec'],
-    webhooks: ['list', 'gmail setup', 'gmail run'],
   };
 
   it.each(Object.entries(commandActions))('L-03 %s help matches its implemented actions', (command, actions) => {
@@ -101,7 +101,7 @@ describe('AUDIT_FINDINGS_3 low-severity regressions', () => {
     const output = result.stdout + result.stderr;
     const normalizedOutput = output.replace(/\s+/g, ' ');
 
-    expect(count).toBe(91);
+    expect(count).toBe(codingSurface.CODING_TOOL_NAMES.size);
     expect(result.status).toBe(0);
     // Asserts the count, not the surrounding marketing copy, so the guard
     // survives a reworded description but still catches a drifting count.

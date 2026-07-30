@@ -52,6 +52,10 @@ class MiniTerminal {
           } else if (command === 'K' && (params === '2' || params === '')) {
             this.ensureRow(this.cursor.row);
             this.rows[this.cursor.row] = [];
+          } else if (command === 'J' && (params === '0' || params === '')) {
+            this.ensureRow(this.cursor.row);
+            this.rows = this.rows.slice(0, this.cursor.row + 1);
+            this.rows[this.cursor.row] = this.rows[this.cursor.row].slice(0, this.cursor.col);
           } else if (command === 'h' && params === '?25') {
             this.visible = true;
           } else if (command === 'l' && params === '?25') {
@@ -128,6 +132,99 @@ function type(input, value) {
 }
 
 describe('chat-style input box', () => {
+  it('updates only the changed row while typing instead of repainting the whole box', async () => {
+    const { input, output } = terminal(60);
+    const pending = promptInput({ stdin: input, stdout: output, color: false });
+    output.value = '';
+
+    type(input, 'a');
+
+    expect((output.value.match(/\x1b\[2K/g) || [])).toHaveLength(1);
+    expect(output.value).not.toContain('\x1b[?25l');
+    expect(output.value).not.toContain('\x1b[?25h');
+    type(input, '\r');
+    await expect(pending).resolves.toBe('a');
+  });
+
+  it('accepts the first raw bytes when Windows keypress decoding is dormant', async () => {
+    const { input, output } = terminal(60);
+    const pending = promptInput({ stdin: input, stdout: output, color: false });
+
+    // Keep only the raw fallback listener, simulating a dormant readline
+    // decoder even though ConPTY still delivers `data` bytes.
+    const [rawFallback, ...decoderListeners] = input.listeners('data');
+    for (const listener of decoderListeners) input.removeListener('data', listener);
+    expect(rawFallback).toBeTypeOf('function');
+
+    input.emit('data', Buffer.from('ilk harf'));
+    await new Promise(resolve => setImmediate(resolve));
+    input.emit('data', Buffer.from('\r'));
+    await expect(pending).resolves.toBe('ilk harf');
+  });
+
+  it('reactivates input after returning to a Windows Terminal tab', async () => {
+    const { input, output } = terminal(60);
+    const pending = promptInput({ stdin: input, stdout: output, color: false });
+
+    expect(output.value).toContain('\x1b[?1004h');
+    input.emit('data', Buffer.from('\x1b[O'));
+    input.isRaw = false;
+    output.value = '';
+    input.emit('data', Buffer.from('\x1b[I'));
+
+    expect(input.setRawMode).toHaveBeenLastCalledWith(true);
+    expect(input.isRaw).toBe(true);
+    expect(output.value).toContain('\x1b[?1004h');
+
+    // Reproduce the observed post-tab state: ConPTY delivers bytes but the
+    // readline decoder stays dormant until Enter. The raw fallback must make
+    // the text editable immediately, without using Enter as a wake-up key.
+    const [rawFallback, ...decoderListeners] = input.listeners('data');
+    for (const listener of decoderListeners) input.removeListener('data', listener);
+    expect(rawFallback).toBeTypeOf('function');
+    input.emit('data', Buffer.from('sekmeden d\u00f6n\u00fc\u015f'));
+    await new Promise(resolve => setImmediate(resolve));
+    input.emit('data', Buffer.from('\r'));
+
+    await expect(pending).resolves.toBe('sekmeden d\u00f6n\u00fc\u015f');
+    expect(output.value).toContain('\x1b[?1004l');
+  });
+
+  it('temporarily hands keyboard ownership to a nested selection and restores it', () => {
+    const { input } = terminal(45);
+    const transport = getKeypressTransport(input);
+    const outer = vi.fn();
+    const inner = vi.fn();
+    const releaseOuter = transport.acquire(outer);
+    const releaseInner = transport.acquire(inner);
+
+    type(input, 'a');
+    expect(inner).toHaveBeenCalled();
+    expect(outer).not.toHaveBeenCalled();
+
+    releaseInner();
+    type(input, 'b');
+    expect(outer).toHaveBeenCalled();
+    releaseOuter();
+    expect(transport.active).toBeNull();
+  });
+
+  it('anchors at column zero and removes stale cells below the composer', async () => {
+    const { input, output, screen } = terminal(45);
+    output.write('partial status');
+    screen.cursor.row = 2;
+    screen.ensureRow(3);
+    screen.rows[3] = Array.from('stale text behind composer');
+
+    const pending = promptInput({ stdin: input, stdout: output, color: false });
+    expect(screen.screen().join('\n')).not.toContain('stale text behind composer');
+    expect(screen.screen()[2]).toMatch(/^╭/);
+
+    type(input, 'safe input');
+    type(input, '\r');
+    await expect(pending).resolves.toBe('safe input');
+  });
+
   it('shows and selects slash commands with arrows and Enter', async () => {
     const { input, output } = terminal(60);
     const slashCommands = [
@@ -159,7 +256,7 @@ describe('chat-style input box', () => {
     await expect(pending).resolves.toBe('/run npm test');
   });
 
-  it('opens the tool transcript with Ctrl+O and toggles detail with a mouse click', async () => {
+  it('opens the tool transcript with Ctrl+O and toggles detail with Enter', async () => {
     const { input, output } = terminal(60);
     let expanded = false;
     const getTranscript = vi.fn(options => {
@@ -168,15 +265,43 @@ describe('chat-style input box', () => {
     });
     const pending = promptInput({ stdin: input, stdout: output, color: false, getTranscript });
     type(input, 'draft');
+    // Besteci normal terminal görünümünde: bildirim kapalı, seçme/kopyalama
+    // terminalin.
     expect(output.value).not.toContain('\x1b[?1000h');
     type(input, '\x0f');
     expect(output.value).toContain('\x1b[?1049h');
+    // Döküm görünümü kendi ekranıdır ve gezinmesi tamamen kart tıklaması ile
+    // tekerleğe dayanır; bildirim kapalıyken ikisi de ölü koddu.
     expect(output.value).toContain('\x1b[?1000h');
-    type(input, '\x1b[<0;5;1M');
+    type(input, '\r');
     expect(output.value).toContain('-old');
     type(input, '\x0f');
     type(input, '\r');
     await expect(pending).resolves.toBe('draft');
+  });
+
+  it('uses an in-place transcript overlay inside the fullscreen code shell', async () => {
+    const { input, output } = terminal(60);
+    const onTranscriptClose = vi.fn();
+    const pending = promptInput({
+      stdin: input,
+      stdout: output,
+      color: false,
+      getTranscript: () => 'Tool: read_file',
+      transcriptUsesAlternateScreen: false,
+      onTranscriptClose,
+    });
+    output.value = '';
+
+    type(input, '\x0f');
+    expect(output.value).toContain('Tool: read_file');
+    expect(output.value).not.toContain('\x1b[?1049h');
+    type(input, '\x0f');
+
+    expect(onTranscriptClose).toHaveBeenCalledOnce();
+    expect(output.value).not.toContain('\x1b[?1049l');
+    type(input, '\r');
+    await expect(pending).resolves.toBe('');
   });
 
   it('leaves terminal mouse reporting disabled in the main view', async () => {
@@ -189,15 +314,184 @@ describe('chat-style input box', () => {
     await expect(pending).resolves.toBe('');
   });
 
-  it('scrolls after the transcript is explicitly opened', async () => {
+  it('scrolls the transcript with PageUp and reports the mouse inside it', async () => {
     const { input, output } = terminal(60);
     const transcript = Array.from({ length: 60 }, (_, index) => `line-${index + 1}`).join('\n');
     const pending = promptInput({ stdin: input, stdout: output, color: false, getTranscript: () => transcript });
     type(input, '\x0f');
-    type(input, '\x1b[<64;5;5M');
-    expect(output.value).toContain('mouse wheel');
+    expect(output.value).toContain('\x1b[?1000h');
+    type(input, '\x1b[5~');
     expect(output.value).toContain('line-36');
     type(input, '\x0f');
+    type(input, '\r');
+    await expect(pending).resolves.toBe('');
+  });
+
+  it('scrolls the fullscreen viewport with PageUp and reports the mouse there', async () => {
+    const { input, output } = terminal(60);
+    const onViewportScroll = vi.fn(() => ({ browsing: true }));
+    const onViewportReturn = vi.fn();
+    const pending = promptInput({
+      stdin: input,
+      stdout: output,
+      color: false,
+      mouseScroll: true,
+      onViewportScroll,
+      onViewportReturn,
+    });
+
+    // `mouseScroll` = alternatif ekran etkin. Orada terminalin kendi kaydırma
+    // geçmişi yoktur, yani korunacak bir seçim/kaydırma da yoktur — bildirim
+    // kapalı bırakılınca tekerlek olayları hiç gelmiyor ve tam ekranda hiçbir
+    // şey kaydırılamıyordu.
+    expect(output.value).toContain('\x1b[?1000h');
+    type(input, 'taslak');
+    type(input, '\x1b[5~');
+    expect(onViewportScroll).toHaveBeenCalledWith(-8);
+    expect(onViewportReturn).not.toHaveBeenCalled();
+
+    await new Promise(resolve => setImmediate(resolve));
+    type(input, ' devam');
+    expect(onViewportReturn).toHaveBeenCalledOnce();
+    type(input, '\r');
+    await expect(pending).resolves.toBe('taslak devam');
+    expect(output.value).toContain('\x1b[?1000l');
+  });
+
+  // Kullanıcının bildirdiği hata: tam ekranda fareyle yukarı/aşağı kaydırma
+  // hiç çalışmıyordu. Tekerleği işleyen kod vardı ama fare bildirimi hiçbir
+  // yerde açılmadığı için terminal SGR paketini hiç göndermiyordu — yani o kod
+  // ölüydü ve hiçbir test onu çalıştırmıyordu. Bu test paketi gerçekten
+  // gönderiyor.
+  it('scrolls the fullscreen viewport with the mouse wheel', async () => {
+    const { input, output } = terminal(60);
+    const onViewportScroll = vi.fn(() => ({ browsing: true }));
+    const pending = promptInput({
+      stdin: input,
+      stdout: output,
+      color: false,
+      mouseScroll: true,
+      onViewportScroll,
+    });
+
+    expect(output.value).toContain('\x1b[?1000h');
+    expect(output.value).toContain('\x1b[?1006h');
+
+    type(input, '\x1b[<64;10;5M');   // tekerlek yukarı
+    expect(onViewportScroll).toHaveBeenCalledWith(-3);
+    type(input, '\x1b[<65;10;5M');   // tekerlek aşağı
+    expect(onViewportScroll).toHaveBeenLastCalledWith(3);
+
+    type(input, '\r');
+    await expect(pending).resolves.toBe('');
+    // Çıkışta terminal her zaman kendi haline bırakılır.
+    expect(output.value).toContain('\x1b[?1000l');
+  });
+
+  // Normal terminal görünümünde bildirim AÇILMAMALI: orada terminalin kendi
+  // kaydırma geçmişi ve metin seçimi var, onları elinden almak bedava değil.
+  it('does not report the mouse in the composer outside fullscreen', async () => {
+    const { input, output } = terminal(60);
+    const onViewportScroll = vi.fn(() => ({ browsing: true }));
+    const pending = promptInput({
+      stdin: input,
+      stdout: output,
+      color: false,
+      mouseScroll: false,
+      onViewportScroll,
+    });
+
+    expect(output.value).not.toContain('\x1b[?1000h');
+    type(input, '\x1b[<64;10;5M');
+    expect(onViewportScroll).not.toHaveBeenCalled();
+    type(input, '\r');
+    await expect(pending).resolves.toBe('');
+  });
+
+  it('does not open the tool transcript when the main viewport is scrolled', async () => {
+    const { input, output } = terminal(60);
+    const getTranscript = vi.fn(() => 'Tool details');
+    const onViewportScroll = vi.fn(() => ({ browsing: true }));
+    const pending = promptInput({
+      stdin: input,
+      stdout: output,
+      color: false,
+      mouseScroll: true,
+      getTranscript,
+      transcriptUsesAlternateScreen: false,
+      onViewportScroll,
+    });
+
+    type(input, '\x1b[<64;10;10M');
+    expect(onViewportScroll).toHaveBeenCalledWith(-3);
+    expect(getTranscript).not.toHaveBeenCalled();
+    expect(output.value).not.toContain('Tool details');
+
+    type(input, '\x0f');
+    expect(getTranscript).toHaveBeenCalled();
+    expect(output.value).toContain('Tool details');
+    type(input, '\x0f');
+    type(input, '\r');
+    await expect(pending).resolves.toBe('');
+  });
+
+  it('keeps delayed ConPTY mouse-coordinate fragments out of the composer', async () => {
+    const { input, output } = terminal(60);
+    const onViewportScroll = vi.fn(() => ({ browsing: true }));
+    const pending = promptInput({
+      stdin: input,
+      stdout: output,
+      color: false,
+      mouseScroll: true,
+      onViewportScroll,
+    });
+
+    type(input, '\x1b[<64;56;14M');
+    await new Promise(resolve => setImmediate(resolve));
+    input.emit('keypress', '64;56;14M', { sequence: '64;56;14M' });
+    type(input, 'gercek yazi');
+    type(input, '\r');
+
+    expect(onViewportScroll).toHaveBeenCalledWith(-3);
+    await expect(pending).resolves.toBe('gercek yazi');
+  });
+
+  it('buffers a fragmented SGR mouse packet instead of typing its coordinates', async () => {
+    const { input, output } = terminal(60);
+    const onViewportScroll = vi.fn(() => ({ browsing: true }));
+    const pending = promptInput({
+      stdin: input,
+      stdout: output,
+      color: false,
+      mouseScroll: true,
+      onViewportScroll,
+    });
+
+    type(input, '\x1b[<64;');
+    type(input, '56;14M');
+    await new Promise(resolve => setImmediate(resolve));
+    type(input, 'temiz');
+    type(input, '\r');
+
+    expect(onViewportScroll).toHaveBeenCalledWith(-3);
+    await expect(pending).resolves.toBe('temiz');
+  });
+
+  it('supports PageUp and PageDown in the fullscreen conversation viewport', async () => {
+    const { input, output } = terminal(60);
+    const onViewportScroll = vi.fn(delta => ({ browsing: delta < 0 }));
+    const pending = promptInput({
+      stdin: input,
+      stdout: output,
+      color: false,
+      mouseScroll: true,
+      onViewportScroll,
+    });
+
+    type(input, '\x1b[5~');
+    type(input, '\x1b[6~');
+    expect(onViewportScroll).toHaveBeenNthCalledWith(1, -8);
+    expect(onViewportScroll).toHaveBeenNthCalledWith(2, 8);
     type(input, '\r');
     await expect(pending).resolves.toBe('');
   });
@@ -361,6 +655,41 @@ describe('chat-style input box', () => {
     expect(screen.screen()[0]).toContain('╭');
     type(input, '\r');
     await expect(pending).resolves.toBe(value);
+  });
+
+  it('queues nested selection input without creating a second stdin owner', async () => {
+    const stdin = new PassThrough();
+    stdin.isTTY = false;
+    const stdout = new PassThrough();
+    stdout.isTTY = false;
+    stdout.columns = 80;
+    const session = codeV5._presentation.createCodeInputSession({ stdin, stdout, env: {} });
+
+    stdin.end('/model\n1\n/exit\n');
+    await expect(session.read()).resolves.toBe('/model');
+    await expect(session.read({ question: 'choose: ', echo: false })).resolves.toBe('1');
+    await expect(session.read()).resolves.toBe('/exit');
+    expect(stdout.read()?.toString() || '').toContain('choose: ');
+    session.close();
+  });
+
+  it('accepts a model number through the same boxed keyboard transport', async () => {
+    const { input, output } = terminal(80);
+    const session = codeV5._presentation.createCodeInputSession({
+      stdin: input,
+      stdout: output,
+      env: {},
+    });
+
+    const command = session.read();
+    type(input, '/model\r');
+    await expect(command).resolves.toBe('/model');
+
+    const selection = session.read({ placeholder: 'Model number', echo: false });
+    type(input, '2\r');
+    await expect(selection).resolves.toBe('2');
+    session.close();
+    expect(input.listenerCount('keypress')).toBe(0);
   });
 
   it('(j) pure frame maps middle, wrapped, emoji, and CJK cursor positions', () => {

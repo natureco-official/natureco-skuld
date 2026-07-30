@@ -510,9 +510,9 @@ export interface JsonRpcYanit {
 /**
  * Minimal MCP stdio istemcisi.
  *
- * Burada durmasının sebebi: süreci gateway açıyor ve iki tüketicisi var
- * (Urðr hafızası, Verðandi bağlam motoru). İkisine ayrı ayrı kopyalamak,
- * birinde düzeltilen bir hatayı diğerinde yaşatır.
+ * Burada durmasının sebebi: süreci gateway açıyor. MCP tüketicilerinin aynı
+ * güvenlik ve hata yönetimi yolunu paylaşması, düzeltilen bir hatanın başka bir
+ * istemci kopyasında yaşamaya devam etmesini önler.
  */
 export class McpStdioIstemcisi {
   #surec: SurecTutamaci | undefined;

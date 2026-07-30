@@ -65,6 +65,7 @@ function createPresentationWriter(options = {}) {
   let frame = 0;
   let timer = null;
   let transientVisible = false;
+  let transientSuspended = false;
   let cursorHidden = false;
   let disposed = false;
 
@@ -84,7 +85,7 @@ function createPresentationWriter(options = {}) {
   }
 
   function renderTransient() {
-    if (!enabled || disposed) return;
+    if (!enabled || disposed || transientSuspended) return;
     status.elapsedSeconds = Math.max(0, Math.floor((now() - startedAt) / 1000));
     const estimate = typeof options.getEstimate === 'function' ? options.getEstimate() : null;
     if (estimate) {
@@ -161,6 +162,18 @@ function createPresentationWriter(options = {}) {
     emit(value);
   }
 
+  function suspendTransient() {
+    if (!enabled || disposed) return;
+    clearTransient();
+    transientSuspended = true;
+  }
+
+  function resumeTransient() {
+    if (!enabled || disposed || !transientSuspended) return;
+    transientSuspended = false;
+    renderTransient();
+  }
+
   function dispose() {
     if (disposed) return;
     disposed = true;
@@ -187,6 +200,8 @@ function createPresentationWriter(options = {}) {
     updateStatus,
     writeCommitted,
     clearTransient,
+    suspendTransient,
+    resumeTransient,
     dispose,
     get isEnabled() { return enabled; },
     get isDisposed() { return disposed; },
@@ -234,6 +249,7 @@ function createStreamWriter(options = {}) {
   let committedRendered = '';
   let activeRendered = '';
   let ended = false;
+  let transientSuspended = false;
   let commitCount = 0;
 
   function write(value) {
@@ -288,6 +304,13 @@ function createStreamWriter(options = {}) {
     if (ended) throw new Error('Cannot write after stream end');
     const delta = String(text ?? '');
     raw += delta;
+    if (presentation && !transientSuspended) {
+      // A status repaint starts with CR + erase-line. If it runs while the
+      // streamed markdown's last line is incomplete, it deletes the final
+      // characters ("Tree" → "Tre", "agent" → "agen").
+      presentation.suspendTransient?.();
+      transientSuspended = true;
+    }
     if (!repaint) {
       write(delta);
       return;
@@ -313,6 +336,14 @@ function createStreamWriter(options = {}) {
       if (typeof options.onCommit === 'function') options.onCommit(finalAppend);
       committedRendered = finalRendered;
       committedBoundary = raw.length;
+    }
+    if (presentation && transientSuspended) {
+      // Put the status renderer on its own line before allowing repaint again.
+      // The newline is presentation-only; getRaw()/conversation content stay
+      // byte-for-byte identical to the provider response.
+      if (raw && !raw.endsWith('\n')) write('\n');
+      presentation.resumeTransient?.();
+      transientSuspended = false;
     }
     return raw;
   }

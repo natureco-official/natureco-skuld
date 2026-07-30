@@ -1,29 +1,35 @@
-# Security Policy
+# Security policy
 
-## Supported Versions
+## Supported versions
 
-| Version | Supported          |
-|---------|--------------------|
-| 5.6.x   | Active support     |
-| 5.5.x   | Critical fixes only |
-| < 5.5   | End of life        |
+Skuld has not reached `1.0` yet. Security fixes are applied to the latest published `0.1.x` release and the current `main` branch.
 
-## Reporting a Vulnerability
+| Version | Support |
+|---|---|
+| Latest `0.1.x` | Active security support |
+| Older pre-release builds | Upgrade required |
 
-If you discover a security vulnerability in NatureCo CLI:
+## Reporting a vulnerability
 
-1. **DO NOT** open a public GitHub issue
-2. Email: **security@natureco.me**
-3. Include:
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
+Please do **not** open a public issue for a suspected vulnerability.
 
-We will respond within **48 hours**.
+Email **security@natureco.me** with:
 
-## Security Best Practices
+- a concise description;
+- affected Skuld version and operating system;
+- reproducible steps or a minimal proof of concept;
+- potential impact;
+- suggested mitigation, if known.
 
-- **Never commit API keys** — use `.env` files
-- **Review** `natureco doctor` output
-- **Use Dangerous Command Approval** — enabled by default in v5.6.x
-- **Update regularly** — `npm update -g natureco-cli`
+Remove API keys, access tokens, personal paths, and private repository content from reports and logs. We aim to acknowledge complete reports within 48 hours.
+
+## Security expectations
+
+- Keep Skuld, Node.js, Git, and provider SDKs current.
+- Store credentials through setup, OS credential storage, NatureCo account login, or `nskuld secrets`; never commit them.
+- Review approval prompts, including the exact command, workspace, network destination, and reason.
+- Run `nskuld security audit`, `nskuld doctor`, and `npm audit` before publishing or deploying.
+- Keep Telegram remote disabled unless it is needed; use an allowlisted chat and a dedicated workspace.
+- Do not enable `SKULD_AGENT_EXEC=full` or self-editing globally without understanding the expanded authority.
+
+Skuld's design boundaries are described in [ADR-0002](docs/architecture/ADR-0002-data-boundaries.md) and [SELF.md](SELF.md).

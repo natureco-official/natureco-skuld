@@ -242,10 +242,11 @@ describe('gateway registration', () => {
 });
 
 describe('CLI surface', () => {
-  it('registers a command per new channel', () => {
+  it('exposes only Telegram remote coding, not inherited channel commands', () => {
     const src = fs.readFileSync(path.resolve('bin/nskuld.js'), 'utf8');
+    expect(src).toContain(".command('remote [action]')");
     for (const name of ['matrix', 'teams', 'googlechat', 'zalo']) {
-      expect(src).toContain(`'${name}'`);
+      expect(src).not.toContain(`.command('${name}`);
     }
   });
 

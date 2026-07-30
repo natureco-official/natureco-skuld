@@ -141,7 +141,7 @@ function log(module, message, color = 'white') {
   const logLine = `[${timestamp}] [${module}] ${message}`;
   
   // Console output with color (will be redirected to file by parent process)
-  const colorFn = chalk[color] || chalk.white;
+  const colorFn = color === 'green' ? chalk.hex('#7dd3fc') : (chalk[color] || chalk.white);
   console.log(colorFn(logLine));
   
   // Note: File writing removed - parent process redirects stdout/stderr to log file
@@ -2449,6 +2449,29 @@ function showLogs() {
   console.log(logs);
 }
 
+/**
+ * Start the Telegram-only coding worker through the inherited, audited
+ * process-host boundary. Callers never receive access to child_process.
+ */
+function startTelegramRemoteWorker({ cwd, logFd }) {
+  const workspace = path.resolve(String(cwd || ''));
+  if (!workspace || !fs.existsSync(workspace) || !fs.statSync(workspace).isDirectory()) {
+    throw new Error('Telegram remote workspace is invalid');
+  }
+  if (!Number.isInteger(logFd) || logFd < 0) {
+    throw new Error('Telegram remote log handle is invalid');
+  }
+  const service = path.resolve(__dirname, '..', 'utils', 'telegram-remote-service.js');
+  const child = spawn(process.execPath, [service], {
+    cwd: workspace,
+    detached: true,
+    stdio: ['ignore', logFd, logFd],
+    windowsHide: true,
+  });
+  child.unref();
+  return { pid: child.pid };
+}
+
 // Direkt çalıştırılınca worker olarak başlat
 if (require.main === module || process.argv.includes('--gateway-worker')) {
   gatewayServer('--gateway-worker');
@@ -2460,3 +2483,4 @@ module.exports.channelGate = channelGate;
 module.exports.buildGatewayHealth = buildGatewayHealth;
 module.exports.gatewayDeliveryManager = gatewayDeliveryManager;
 module.exports.registerGatewayDeliveryAdapters = registerGatewayDeliveryAdapters;
+module.exports.startTelegramRemoteWorker = startTelegramRemoteWorker;

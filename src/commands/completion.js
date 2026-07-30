@@ -5,15 +5,15 @@ function getCommands() {
     'agent', 'agents', 'approvals', 'ask', 'backup', 'bonjour', 'bots',
     'capability', 'channels', 'chat', 'clickclack', 'code', 'commands',
     'commitments', 'completion', 'config', 'configure', 'crestodian', 'cron',
-    'daemon', 'dashboard', 'device-pair', 'devices', 'directory', 'discord',
+    'daemon', 'dashboard', 'device-pair', 'devices', 'directory', 'discord', 'ecosystem',
     'dns', 'doctor', 'docs', 'exec-policy', 'gateway', 'git', 'health', 'help',
-    'hooks', 'imessage', 'infer', 'init', 'irc', 'login', 'logs', 'logout',
+    'hooks', 'imessage', 'infer', 'init', 'irc', 'login', 'logs', 'logout', 'account',
     'mattermost', 'mcp', 'memory', 'message', 'migrate', 'models', 'node',
     'nodes', 'oc-path', 'onboard', 'open-prose', 'pairing', 'plugins', 'policy',
     'proxy', 'qr', 'reset', 'run', 'sandbox', 'secrets', 'security', 'sessions',
-    'setup', 'signal', 'skills', 'slack', 'sms', 'status', 'system', 'tasks',
-    'telegram', 'terminal', 'thread-ownership', 'transcripts', 'ultrareview',
-    'uninstall', 'update', 'voice', 'vydra', 'webhooks', 'whatsapp', 'workboard',
+    'setup', 'signal', 'skills', 'slack', 'sms', 'status', 'system', 'tasks', 'remote',
+    'terminal', 'transcripts', 'ultrareview',
+    'uninstall', 'update', 'voice', 'vydra', 'workboard',
   ];
 }
 
@@ -36,7 +36,7 @@ function completion(params) {
 function printBash() {
   const cmds = getCommands().join(' ');
   console.log(`# nskuld bash completion
-_natureco() {
+_nskuld() {
   local cur prev opts
   COMPREPLY=()
   cur="\${COMP_WORDS[COMP_CWORD]}"
@@ -44,24 +44,24 @@ _natureco() {
   COMPREPLY=( $(compgen -W "\${opts}" -- \${cur}) )
   return 0
 }
-complete -F _natureco natureco`);
+complete -F _nskuld nskuld`);
 }
 
 function printZsh() {
-  console.log(`#compdef natureco
-_natureco() {
+  console.log(`#compdef nskuld
+_nskuld() {
   local -a commands
   commands=(
     ${getCommands().map(c => `"${c}:${c}"`).join(' ')}
   )
   _describe 'command' commands
 }
-_natureco "$@"`);
+_nskuld "$@"`);
 }
 
 function printFish() {
   const cmds = getCommands().join(' ');
-  console.log(`complete -c natureco -f -a "${cmds}"`);
+  console.log(`complete -c nskuld -f -a "${cmds}"`);
 }
 
 function printInstall() {
@@ -72,12 +72,12 @@ function printInstall() {
   console.log('');
   console.log(chalk.white('  Zsh:'));
   console.log(chalk.gray('    mkdir -p ~/.zsh/completion'));
-  console.log(chalk.gray('    nskuld completion zsh > ~/.zsh/completion/_natureco'));
+  console.log(chalk.gray('    nskuld completion zsh > ~/.zsh/completion/_nskuld'));
   console.log(chalk.gray('    echo "fpath=(~/.zsh/completion \$fpath)" >> ~/.zshrc'));
   console.log(chalk.gray('    echo "autoload -Uz compinit && compinit" >> ~/.zshrc'));
   console.log('');
   console.log(chalk.white('  Fish:'));
-  console.log(chalk.gray('    nskuld completion fish > ~/.config/fish/completions/natureco.fish'));
+  console.log(chalk.gray('    nskuld completion fish > ~/.config/fish/completions/nskuld.fish'));
   console.log('');
 }
 

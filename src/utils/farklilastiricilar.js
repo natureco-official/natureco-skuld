@@ -27,6 +27,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
 let modulSozu = null;
 
@@ -52,24 +53,53 @@ async function modul(paket) {
 async function hafizaAc(opt = {}) {
   if (process.env.SKULD_HAFIZA === '0') return null;
   try {
-    const m = await modul('memory');
-    if (!m || !m.UrdrHafiza) return null;
+    const memoryTree = require('../tools/memory_tree');
+    const projeKoku = path.resolve(opt.projeKoku || process.cwd());
+    const projeAdi = opt.projeAdi || path.basename(projeKoku);
+    const scopeId = crypto.createHash('sha256').update(projeKoku).digest('hex').slice(0, 10);
+    const username = `project-${projeAdi}-${scopeId}`;
+    memoryTree._internal.ensureTree(username);
 
-    // Urðr ağacının yeri. Kullanıcının gerçek ağacına yazmamak için
-    // `SKULD_MEMORY_DIR` ile geçersiz kılınabiliyor — bir test bu yüzden
-    // kullanıcının canlı hafızasını kirletmişti.
-    const hafizaDizini = process.env.SKULD_MEMORY_DIR
-      || path.join(require('os').homedir(), 'urdr-memory');
-    if (!fs.existsSync(hafizaDizini)) return null;
-
-    const sunucuYolu = process.env.SKULD_URDR_SUNUCU || 'urdr-mcp';
-    const hafiza = new m.UrdrHafiza({
-      hafizaDizini,
-      sunucuYolu,
-      projeAdi: opt.projeAdi || path.basename(opt.projeKoku || process.cwd()),
-    });
-    if (typeof hafiza.bagla === 'function') await hafiza.bagla();
-    return hafiza.bagliMi ? hafiza : null;
+    return {
+      bagliMi: true,
+      engine: (await require('./urdr-engine').describeEngine()).engine,
+      async hatirla(gorev) {
+        const started = Date.now();
+        const words = String(gorev || '')
+          .toLocaleLowerCase('tr-TR')
+          .split(/[^\p{L}\p{N}_-]+/u)
+          .filter(word => word.length >= 4)
+          .slice(0, 6);
+        const hits = [];
+        for (const word of words) {
+          const result = await memoryTree.execute({ action: 'search', username, query: word });
+          for (const entry of result.results || []) {
+            if (!hits.includes(entry)) hits.push(entry);
+          }
+        }
+        return {
+          hatiralar: hits.slice(0, 8).map(metin => ({
+            metin,
+            kapsam: 'proje',
+            kaynak: 'urdr',
+            guven: 0.7,
+          })),
+          aramaSuresiMs: Date.now() - started,
+        };
+      },
+      async hatirlat(karar, kapsam, kaynak) {
+        const content = `[${kapsam || 'proje'}] ${String(karar).replace(/\s+/g, ' ').trim()} (kaynak: ${kaynak})`;
+        const result = await memoryTree.execute({
+          action: 'append',
+          username,
+          root: '3-kararlar',
+          branch: 'Kararlar',
+          content,
+        });
+        return result?.success === true;
+      },
+      async kapat() {},
+    };
   } catch {
     return null; // hafıza kurulumu görevi düşürmez
   }
@@ -81,11 +111,25 @@ async function hafizaAc(opt = {}) {
 async function kaliteKapisiAc(opt = {}) {
   if (process.env.SKULD_KALITE === '0') return null;
   try {
-    const m = await modul('quality-gate');
-    if (!m || !m.KaliteKapisi) return null;
+    const [m, gatewayModule] = await Promise.all([
+      modul('quality-gate'),
+      modul('execution-gateway'),
+    ]);
+    if (!m?.KaliteKapisi || !gatewayModule?.ExecutionGateway) return null;
+    const projeKoku = path.resolve(opt.projeKoku || process.cwd());
+    const codednaYolu = opt.codednaYolu === undefined ? m.codednaBul() : opt.codednaYolu;
+    const gateway = new gatewayModule.ExecutionGateway({
+      workspace: projeKoku,
+      onay: async () => 'ret',
+      onaysizKomutlar: new Set(['codedna']),
+      zamanAsimiMs: opt.zamanAsimiMs || 60_000,
+      enFazlaCiktiKarakteri: 2 * 1024 * 1024,
+    });
     return new m.KaliteKapisi({
-      projeKoku: opt.projeKoku || process.cwd(),
-      ...(opt.ayar || {}),
+      gateway,
+      codednaYolu,
+      korumaliYollar: opt.korumaliYollar || [],
+      zamanAsimiMs: opt.zamanAsimiMs || 60_000,
     });
   } catch {
     return null;

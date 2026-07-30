@@ -46,7 +46,7 @@ const DASHBOARD_HTML = `
     }
     .header h1 {
       font-size: 28px;
-      background: linear-gradient(135deg, #10b981, #059669);
+      background: linear-gradient(135deg, #7dd3fc, #38bdf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 8px;
@@ -77,7 +77,7 @@ const DASHBOARD_HTML = `
     .card .value {
       font-size: 32px;
       font-weight: 700;
-      color: #10b981;
+      color: #7dd3fc;
     }
     .card .label { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
     .panel {
@@ -91,7 +91,7 @@ const DASHBOARD_HTML = `
     .panel h2 {
       font-size: 18px;
       margin-bottom: 16px;
-      color: #10b981;
+      color: #7dd3fc;
     }
     .tool-list {
       max-height: 400px;
@@ -105,13 +105,13 @@ const DASHBOARD_HTML = `
       margin-bottom: 8px;
       background: rgba(255,255,255,0.03);
       border-radius: 8px;
-      border-left: 3px solid #10b981;
+      border-left: 3px solid #7dd3fc;
     }
-    .tool-item .name { font-weight: 600; color: #10b981; }
+    .tool-item .name { font-weight: 600; color: #7dd3fc; }
     .tool-item .desc { font-size: 12px; color: rgba(255,255,255,0.5); }
     .badge {
       background: rgba(16, 185, 129, 0.2);
-      color: #10b981;
+      color: #7dd3fc;
       padding: 4px 12px;
       border-radius: 12px;
       font-size: 11px;
@@ -129,7 +129,7 @@ const DASHBOARD_HTML = `
       gap: 6px;
       padding: 6px 14px;
       background: rgba(16, 185, 129, 0.2);
-      color: #10b981;
+      color: #7dd3fc;
       border-radius: 20px;
       font-size: 13px;
       font-weight: 600;
@@ -138,7 +138,7 @@ const DASHBOARD_HTML = `
       content: '';
       width: 8px;
       height: 8px;
-      background: #10b981;
+      background: #7dd3fc;
       border-radius: 50%;
       animation: pulse 2s infinite;
     }

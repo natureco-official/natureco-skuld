@@ -16,6 +16,7 @@
  */
 
 const { getLang } = require('./i18n');
+const { CODING_TOOL_NAMES, isCodingToolName } = require('./coding-surface');
 
 const L = (tr, en) => (getLang() === 'en' ? en : tr);
 
@@ -30,6 +31,7 @@ const CORE_TOOLS = new Set([
   'list_dir', 'file_search', 'grep_search',
   // Execution
   'bash', 'shell_command', 'code_execution', 'git',
+  'skuld_system',
   // Task shape
   'todo_write', 'plan', 'clarify', 'sub_agent',
   // Knowledge
@@ -67,7 +69,9 @@ function selectTools(toolDefs, options = {}) {
   const enabled = options.enabled || new Set();
   const platform = options.platform || process.platform;
 
-  const alive = toolDefs.filter(tool => !isPlatformDead(tool.name, platform));
+  const alive = toolDefs.filter(tool =>
+    (isCodingToolName(tool.name) || tool._mcp || tool.name.startsWith('mcp__') || tool._alwaysExpose)
+    && !isPlatformDead(tool.name, platform));
 
   if (profile === 'all') return { exposed: alive, hidden: [] };
 
@@ -135,7 +139,7 @@ function createEnableToolsTool(enabled, resolveNames, resolveCatalogNames) {
         names: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Tool names from the catalogue, e.g. ["image_generation","discord"]',
+          description: 'Coding tool names from the catalogue, e.g. ["image_generation","browser"]',
         },
       },
       required: ['names'],
@@ -165,6 +169,7 @@ function createEnableToolsTool(enabled, resolveNames, resolveCatalogNames) {
 
 module.exports = {
   CORE_TOOLS,
+  CODING_TOOL_NAMES,
   MAC_ONLY,
   isPlatformDead,
   selectTools,

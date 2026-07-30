@@ -30,7 +30,7 @@ const COLORS = {
   accent: chalk.hex(hex(tema.GUMUS[100])), // en parlak — başlık
   muted: chalk.hex(hex(tema.GUMUS[600])),
   danger: chalk.hex('#fda4af'),
-  success: chalk.hex('#86efac'),
+  success: chalk.hex('#7dd3fc'),
   bold: chalk.bold,
   // `cyan` upstream'de KULLANILIYOR ama TANIMLI DEĞİLDİ: gatewayScreen
   // çağrıldığı anda "COLORS.cyan is not a function" ile çöküyordu. Hiçbir

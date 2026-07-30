@@ -5,6 +5,8 @@ const tui = require('./tui');
 
 const ESC = '\x1b';
 const CSI = `${ESC}[`;
+const SYNC_START = `${CSI}?2026h`;
+const SYNC_END = `${CSI}?2026l`;
 const MIN_BOX_COLUMNS = 20;
 const MAX_BOX_WIDTH = 100;
 const transports = new WeakMap();
@@ -240,16 +242,18 @@ function bootstrapKeypressTransport(input = process.stdin) {
   state = {
     active: null,
     priorListeners: [],
+    ownerStack: [],
     disposed: false,
     api: null,
   };
 
   const api = {
     acquire(handler) {
-      if (state.active) throw new Error('keypress transport already has an owner');
       state.disposed = false;
-      state.priorListeners = input.listeners('keypress');
-      for (const listener of state.priorListeners) input.removeListener('keypress', listener);
+      const frame = { handler, priorListeners: input.listeners('keypress') };
+      state.ownerStack.push(frame);
+      state.priorListeners = frame.priorListeners;
+      for (const listener of frame.priorListeners) input.removeListener('keypress', listener);
       state.active = handler;
       input.on('keypress', handler);
       input.resume?.();
@@ -257,23 +261,25 @@ function bootstrapKeypressTransport(input = process.stdin) {
       return () => {
         if (released) return;
         released = true;
-        if (state.active === handler) {
-          input.removeListener('keypress', handler);
-          state.active = null;
-          for (const listener of state.priorListeners) {
-            if (!input.listeners('keypress').includes(listener)) input.on('keypress', listener);
-          }
-          state.priorListeners = [];
-          input.pause?.();
+        const frameIndex = state.ownerStack.findIndex(owner => owner.handler === handler);
+        if (frameIndex < 0 || frameIndex !== state.ownerStack.length - 1) return;
+        const [frame] = state.ownerStack.splice(frameIndex, 1);
+        input.removeListener('keypress', handler);
+        for (const listener of frame.priorListeners) {
+          if (!input.listeners('keypress').includes(listener)) input.on('keypress', listener);
         }
+        state.active = state.ownerStack.at(-1)?.handler || null;
+        state.priorListeners = state.ownerStack.at(-1)?.priorListeners || [];
+        if (state.active) input.resume?.();
+        else input.pause?.();
       };
     },
     dispose() {
-      if (state.active) {
-        input.removeListener('keypress', state.active);
-        state.active = null;
-      }
-      for (const listener of state.priorListeners) {
+      const baseListeners = state.ownerStack[0]?.priorListeners || state.priorListeners;
+      for (const owner of state.ownerStack) input.removeListener('keypress', owner.handler);
+      state.ownerStack = [];
+      state.active = null;
+      for (const listener of baseListeners) {
         if (!input.listeners('keypress').includes(listener)) input.on('keypress', listener);
       }
       state.priorListeners = [];
@@ -295,7 +301,7 @@ function getKeypressTransport(input = process.stdin) {
 
 function eraseRendered(output, rendered) {
   if (!rendered || rendered.renderedRows < 1) {
-    output.write('\r');
+    output.write(`\r${CSI}0J`);
     return;
   }
   const down = rendered.renderedRows - 1 - rendered.cursorRow;
@@ -305,7 +311,11 @@ function eraseRendered(output, rendered) {
     output.write(`${CSI}2K`);
     if (row > 0) output.write(`${CSI}1A`);
   }
-  output.write('\r');
+  // The composer is always the last terminal region. Clear everything below
+  // its anchor as well as its known rows: Windows Terminal can reflow a prior
+  // frame after resize/scroll, leaving cells that are no longer represented by
+  // renderedRows. Without this, those cells appear behind the next input box.
+  output.write(`\r${CSI}0J`);
 }
 
 function drawRendered(output, frame) {
@@ -313,11 +323,75 @@ function drawRendered(output, frame) {
     output.write('\r');
     return;
   }
-  output.write(frame.text);
+  // Never inherit the column of an earlier console write. A partial status
+  // update may otherwise shift the whole composer and make it overlap text.
+  output.write(`\r${frame.text}`);
   output.write('\r');
   const up = frame.renderedRows - 1 - frame.cursorRow;
   if (up > 0) output.write(`${CSI}${up}A`);
   if (frame.cursorCol > 0) output.write(`${CSI}${frame.cursorCol}C`);
+}
+
+function updateRendered(output, previous, next, { forceFull = false } = {}) {
+  const compatible = !forceFull
+    && previous
+    && previous.mode === next.mode
+    && previous.renderedRows === next.renderedRows
+    && previous.lines?.length === next.lines?.length;
+
+  if (!compatible) {
+    output.write(SYNC_START);
+    eraseRendered(output, previous);
+    drawRendered(output, next);
+    output.write(SYNC_END);
+    return;
+  }
+
+  let row = previous.cursorRow;
+  let sequence = SYNC_START;
+  const moveToRow = target => {
+    const delta = target - row;
+    sequence += '\r';
+    if (delta < 0) sequence += `${CSI}${-delta}A`;
+    else if (delta > 0) sequence += `${CSI}${delta}B`;
+    row = target;
+  };
+
+  for (let index = 0; index < next.lines.length; index++) {
+    if (previous.lines[index] === next.lines[index]) continue;
+    moveToRow(index);
+    sequence += `${CSI}2K${next.lines[index]}`;
+  }
+
+  moveToRow(next.cursorRow);
+  if (next.cursorCol > 0) sequence += `${CSI}${next.cursorCol}C`;
+  output.write(sequence + SYNC_END);
+}
+
+function updateRenderedFixed(output, previous, next, bottomRow) {
+  const bottom = Math.max(1, Math.floor(Number(bottomRow) || 1));
+  const previousRows = previous?.renderedRows || 0;
+  const clearRows = Math.max(previousRows, next.renderedRows);
+  const clearTop = Math.max(1, bottom - clearRows + 1);
+  const nextTop = Math.max(1, bottom - next.renderedRows + 1);
+  let sequence = SYNC_START;
+  for (let row = clearTop; row <= bottom; row++) {
+    sequence += `${CSI}${row};1H${CSI}2K`;
+  }
+  next.lines.forEach((line, index) => {
+    sequence += `${CSI}${nextTop + index};1H${line}`;
+  });
+  sequence += `${CSI}${nextTop + next.cursorRow};${next.cursorCol + 1}H${SYNC_END}`;
+  output.write(sequence);
+}
+
+function eraseRenderedFixed(output, rendered, bottomRow) {
+  if (!rendered?.renderedRows) return;
+  const bottom = Math.max(1, Math.floor(Number(bottomRow) || 1));
+  const top = Math.max(1, bottom - rendered.renderedRows + 1);
+  let sequence = SYNC_START;
+  for (let row = top; row <= bottom; row++) sequence += `${CSI}${row};1H${CSI}2K`;
+  output.write(`${sequence}${CSI}${top};1H${SYNC_END}`);
 }
 
 function isEnterKey(key, sequence) {
@@ -340,7 +414,39 @@ function promptInput({
   color = env?.NO_COLOR === undefined,
   getTranscript,
   slashCommands = [],
+  transcriptUsesAlternateScreen = true,
+  onTranscriptClose,
+  mouseScroll = false,
+  // Ctrl+O dökümü kendi tam ekranıdır ve kart tıklaması bir tek orada var, o
+  // yüzden varsayılanı açık. Kullanıcı "faremi hiç alma" dediyse (bkz.
+  // `codeMouseScroll`) burası da buna uyar; döküm klavyeyle tam gezilebilir.
+  transcriptMouse = true,
+  onViewportScroll,
+  onViewportReturn,
+  fixedBottomRow,
+  onFrameLayout,
 } = {}) {
+  // Fare bildirimi (DECSET 1000/1006) normal terminal görünümünde KAPALI
+  // kalır: sürükleme olaylarını yakalayıp terminalin kendi metin seçimini ve
+  // kopyalamasını bozuyor.
+  //
+  // Ama bu kural, kaydırılacak bir kaydırma geçmişi OLDUĞU varsayımına
+  // dayanıyor. Skuld tam ekran modunda ALTERNATİF EKRANDA çalışıyor ve orada
+  // terminalin kendi geçmişi yoktur — korunacak bir şey olmadığı gibi, kapalı
+  // bildirim tekerlek olaylarını da yok ediyor. Sonuç: tam ekranda fareyle
+  // hiçbir şey kaydırılamıyordu ve tekerleği bekleyen kod ölü koddu; geriye
+  // yalnızca PgUp/PgDn kalmıştı.
+  //
+  // `mouseScroll` tam olarak "alternatif ekran etkin" demektir (code_v5 onu
+  // `Boolean(screen?.active)` ile geçiriyor), yani bildirim yalnızca kendi
+  // kaydırma görünümümüz varken açılır. Ctrl+O ile açılan döküm görünümü de
+  // kendi tam ekranıdır ve kart tıklaması/tekerlek için bildirime ihtiyaç
+  // duyar; orada koşulsuz açılır.
+  const MOUSE_ON = `${CSI}?1000h${CSI}?1006h`;
+  const MOUSE_OFF = `${CSI}?1006l${CSI}?1000l`;
+  const composerMouseMode = () => (mouseScroll ? MOUSE_ON : MOUSE_OFF);
+  const transcriptMouseMode = () => (transcriptMouse ? MOUSE_ON : MOUSE_OFF);
+
   const transport = bootstrapKeypressTransport(stdin);
   const model = createTextModel();
   const compactHistory = history.filter((entry, index, entries) => (
@@ -359,10 +465,18 @@ function promptInput({
   let transcriptOffset = Infinity;
   let selectedSuggestion = 0;
   let suggestionsDismissed = false;
+  let keypressCount = 0;
+  let rawFocusSequence = null;
+  let rawMouseHandled = false;
+  let rawMouseBuffer = '';
+  const pendingMouseKeypresses = [];
+  const completedMouseKeypresses = [];
+  let viewportBrowsing = false;
+  let lastFixedBottom = null;
   const priorRaw = Boolean(stdin.isRaw);
 
   return new Promise((resolve, reject) => {
-    const redraw = () => {
+    const redraw = (forceFull = false) => {
       if (transcriptOpen) {
         renderTranscript();
         return;
@@ -376,10 +490,16 @@ function promptInput({
         suggestions,
         selectedSuggestion,
       });
-      stdout.write(`${CSI}?25l`);
-      eraseRendered(stdout, rendered);
-      drawRendered(stdout, next);
-      stdout.write(`${CSI}?25h`);
+      const fixedBottom = typeof fixedBottomRow === 'function'
+        ? fixedBottomRow()
+        : fixedBottomRow;
+      if (Number.isFinite(Number(fixedBottom))) {
+        lastFixedBottom = Number(fixedBottom);
+        onFrameLayout?.(next.renderedRows);
+        updateRenderedFixed(stdout, rendered, next, lastFixedBottom);
+      } else {
+        updateRendered(stdout, rendered, next, { forceFull });
+      }
       rendered = next;
     };
 
@@ -422,7 +542,7 @@ function promptInput({
       const mode = transcriptExpanded ? 'expanded' : 'compact';
       stdout.write(`${CSI}H${CSI}2J${page}`);
       stdout.write(`${CSI}${rows};1H${CSI}2K` +
-        `Transcript (${mode}) · click a card: expand/collapse · mouse wheel/↑/↓/PgUp/PgDn · Ctrl+O/Esc: close`);
+        `Transcript (${mode}) · Enter: expand/collapse · ↑/↓/PgUp/PgDn · Ctrl+O/Esc: close`);
     };
 
     const openTranscript = ({ expanded = false } = {}) => {
@@ -430,14 +550,31 @@ function promptInput({
       transcriptOpen = true;
       transcriptExpanded = expanded;
       transcriptOffset = Infinity;
-      stdout.write(`${CSI}?1049h${CSI}?1000h${CSI}?1006h${CSI}?25l`);
+      stdout.write(
+        `${transcriptUsesAlternateScreen ? `${CSI}?1049h` : ''}`
+        // Döküm görünümü açıkça açılan kendi ekranıdır: karta tıklayıp
+        // genişletmek ve tekerlekle gezmek buradaki gezinmenin tamamı, o
+        // yüzden bildirim burada açık olmak zorunda. Kapalıyken `onRawMouse`
+        // hiçbir paket görmüyordu ve tıklama/tekerlek çalışmıyordu.
+        + `${transcriptMouseMode()}${CSI}?25l`,
+      );
       renderTranscript();
     };
 
     const closeTranscript = () => {
       if (!transcriptOpen) return;
       transcriptOpen = false;
-      stdout.write(`${CSI}?1006l${CSI}?1000l${CSI}?1049l${CSI}?25h`);
+      stdout.write(
+        // Döküm kapanınca besteci hangi moddaysa ona dönülür — tam ekranda
+        // açık, normal terminalde kapalı.
+        `${composerMouseMode()}`
+        + `${transcriptUsesAlternateScreen ? `${CSI}?1049l` : `${CSI}2J${CSI}H`}`
+        + `${CSI}?25h`,
+      );
+      if (!transcriptUsesAlternateScreen) {
+        onTranscriptClose?.();
+        redraw(true);
+      }
     };
 
     const handleTranscriptMouse = sequence => {
@@ -458,11 +595,145 @@ function promptInput({
       return true;
     };
 
-    // Ana görünüm terminalin doğal scrollback/seçim/sağ tıklamasını korur.
-    // SGR fare paketleri yalnızca Ctrl+O transcript görünümü açıkken üretilir.
+    const reactivateAfterFocus = () => {
+      if (settled) return;
+      // Windows Terminal/ConPTY may leave stdin paused or raw mode inactive
+      // after another tab owns the window. Re-assert the complete composer
+      // state as soon as DEC focus reporting tells us this tab is active.
+      if (typeof stdin.setRawMode === 'function') stdin.setRawMode(true);
+      stdin.resume?.();
+      stdin.ref?.();
+      stdout.write(
+        `${CSI}?2004h${CSI}?1004h`
+        + `${transcriptOpen ? transcriptMouseMode() : composerMouseMode()}`
+        + `${CSI}?25h`,
+      );
+      redraw(true);
+    };
+
+    const rememberMouseKeypress = sequence => {
+      const packet = String(sequence);
+      const suffix = packet.replace(/^\x1b\[</, '');
+      const now = Date.now();
+      while (pendingMouseKeypresses[0]?.expiresAt <= now) pendingMouseKeypresses.shift();
+      while (completedMouseKeypresses[0]?.expiresAt <= now) completedMouseKeypresses.shift();
+      pendingMouseKeypresses.push({ remaining: packet, suffix, expiresAt: now + 1000 });
+      if (pendingMouseKeypresses.length > 128) pendingMouseKeypresses.shift();
+    };
+
+    const consumeDelayedMouseKeypress = sequence => {
+      const now = Date.now();
+      while (pendingMouseKeypresses[0]?.expiresAt <= now) pendingMouseKeypresses.shift();
+      while (completedMouseKeypresses[0]?.expiresAt <= now) completedMouseKeypresses.shift();
+      const decoded = String(sequence);
+
+      if (completedMouseKeypresses.some(packet => packet.variants.includes(decoded))) return true;
+
+      const pending = pendingMouseKeypresses[0];
+      if (!pending) return false;
+      const wholeVariants = [pending.remaining, pending.suffix, `[<${pending.suffix}`, `<${pending.suffix}`];
+      const whole = wholeVariants.find(candidate => decoded === candidate);
+      if (whole) {
+        pendingMouseKeypresses.shift();
+        completedMouseKeypresses.push({
+          variants: [pending.suffix, `[<${pending.suffix}`, `<${pending.suffix}`],
+          expiresAt: now + 1000,
+        });
+        return true;
+      }
+
+      if (!pending.remaining.startsWith(decoded)) return false;
+      pending.remaining = pending.remaining.slice(decoded.length);
+      if (!pending.remaining) {
+        pendingMouseKeypresses.shift();
+        completedMouseKeypresses.push({
+          variants: [pending.suffix, `[<${pending.suffix}`, `<${pending.suffix}`],
+          expiresAt: now + 1000,
+        });
+      }
+      return true;
+    };
+
+    const dispatchMousePacket = sequence => {
+      rememberMouseKeypress(sequence);
+      if (handleTranscriptMouse(sequence)) return;
+      const viewportMouse = sequence.match(/^\x1b\[<(\d+);\d+;\d+[Mm]$/);
+      const button = Number(viewportMouse?.[1]);
+      if (mouseScroll && (button === 64 || button === 65)) {
+        const result = onViewportScroll?.(button === 64 ? -3 : 3);
+        viewportBrowsing = Boolean(result?.browsing);
+      }
+    };
+
     const onRawMouse = chunk => {
-      const sequence = Buffer.isBuffer(chunk) ? chunk.toString() : String(chunk);
-      handleTranscriptMouse(sequence);
+      let sequence = Buffer.isBuffer(chunk) ? chunk.toString() : String(chunk);
+      const focusIn = sequence.includes(`${ESC}[I`);
+      const focusOut = sequence.includes(`${ESC}[O`);
+      if (focusIn || focusOut) {
+        rawFocusSequence = focusIn ? `${ESC}[I` : `${ESC}[O`;
+        setImmediate(() => {
+          rawFocusSequence = null;
+        });
+        sequence = sequence.replaceAll(`${ESC}[I`, '').replaceAll(`${ESC}[O`, '');
+        if (focusIn) reactivateAfterFocus();
+        if (!sequence) return;
+      }
+      const continuingMousePacket = Boolean(rawMouseBuffer);
+      if (rawMouseBuffer) {
+        sequence = rawMouseBuffer + sequence;
+        rawMouseBuffer = '';
+      }
+
+      let mouseRemainder = sequence;
+      let handledMouse = false;
+      while (mouseRemainder.startsWith(`${ESC}[<`)) {
+        const packet = mouseRemainder.match(/^\x1b\[<\d+;\d+;\d+[Mm]/)?.[0];
+        if (!packet) {
+          // ConPTY may split one SGR mouse report at any byte boundary. Keep
+          // the partial report away from readline until its final M/m arrives.
+          if (mouseRemainder.length <= 64) {
+            rawMouseBuffer = mouseRemainder;
+            rawMouseHandled = true;
+            return;
+          }
+          break;
+        }
+        handledMouse = true;
+        // A complete packet is filtered by its remembered payload below; do
+        // not suppress an unrelated key pressed immediately after scrolling.
+        // The broad latch is only needed while a split packet is in flight.
+        if (continuingMousePacket) rawMouseHandled = true;
+        dispatchMousePacket(packet);
+        mouseRemainder = mouseRemainder.slice(packet.length);
+      }
+      if (handledMouse) {
+        if (rawMouseHandled) {
+          setImmediate(() => {
+            rawMouseHandled = false;
+          });
+        }
+        if (!mouseRemainder) return;
+        sequence = mouseRemainder;
+      }
+
+      // Windows/ConPTY can rarely leave readline's keypress decoder dormant
+      // after a pause/raw-mode transition: the composer is visible, `data`
+      // arrives, but no `keypress` is emitted until Enter wakes the next
+      // prompt. Defer one event-loop turn and synthesize only when the decoder
+      // truly produced nothing for this raw chunk. In the normal path
+      // keypressCount changes synchronously, so characters are never doubled.
+      const observedBefore = keypressCount;
+      setImmediate(() => {
+        if (settled || keypressCount !== observedBefore) return;
+        if (
+          isPrintableSequence(sequence)
+          || isEnterKey({}, sequence)
+          || sequence.includes(`${ESC}[200~`)
+          || pasteMode
+        ) {
+          onKeypress(sequence, { sequence, synthetic: true });
+        }
+      });
     };
 
     const cleanup = () => {
@@ -470,7 +741,8 @@ function promptInput({
       try {
         closeTranscript();
         stdout.write(`${CSI}?25l`);
-        eraseRendered(stdout, rendered);
+        if (lastFixedBottom !== null) eraseRenderedFixed(stdout, rendered, lastFixedBottom);
+        else eraseRendered(stdout, rendered);
       } catch (error) {
         cleanupError = error;
       }
@@ -483,7 +755,7 @@ function promptInput({
         cleanupError ||= error;
       }
       try {
-        stdout.write(`${CSI}?1006l${CSI}?1000l${CSI}?2004l${CSI}?25h`);
+        stdout.write(`${CSI}?1006l${CSI}?1000l${CSI}?1004l${CSI}?2004l${CSI}?25h`);
       } catch (error) { cleanupError ||= error; }
       return cleanupError;
     };
@@ -542,7 +814,17 @@ function promptInput({
     };
 
     const onKeypress = failSafe((text, key = {}) => {
+      keypressCount++;
       const sequence = String(key.sequence ?? text ?? '');
+      if (sequence === `${ESC}[I`) {
+        // The prepended raw listener normally handles this first. Keep this
+        // path for streams where only readline's decoded keypress is exposed.
+        if (rawFocusSequence !== sequence) reactivateAfterFocus();
+        return;
+      }
+      if (sequence === `${ESC}[O`) return;
+      if (consumeDelayedMouseKeypress(sequence)) return;
+      if (rawMouseHandled) return;
       const togglesTranscript = (key.ctrl && key.name === 'o') || sequence === '\x0f';
       if (transcriptOpen) {
         if (togglesTranscript || key.name === 'escape' || sequence === 'q') {
@@ -551,6 +833,11 @@ function promptInput({
         }
         if (/^\x1b\[<\d+;\d+;\d+[Mm]$/.test(sequence)) return;
         const pageSize = Math.max(1, (Number(stdout.rows) || 24) - 4);
+        if (isEnterKey(key, sequence) || sequence === ' ') {
+          getTranscript?.({ expanded: transcriptExpanded, toggleLine: transcriptOffset });
+          renderTranscript();
+          return;
+        }
         if (key.name === 'up') transcriptOffset -= 1;
         else if (key.name === 'down') transcriptOffset += 1;
         else if (key.name === 'pageup') transcriptOffset -= pageSize;
@@ -560,6 +847,18 @@ function promptInput({
         else return;
         renderTranscript();
         return;
+      }
+      if (/^\x1b\[<\d+;\d+;\d+[Mm]$/.test(sequence)) return;
+      if (typeof onViewportScroll === 'function' && (key.name === 'pageup' || key.name === 'pagedown')) {
+        const result = onViewportScroll?.(key.name === 'pageup' ? -8 : 8);
+        viewportBrowsing = Boolean(result?.browsing);
+        if (!viewportBrowsing) redraw(true);
+        return;
+      }
+      if (viewportBrowsing) {
+        onViewportReturn?.();
+        viewportBrowsing = false;
+        redraw(true);
       }
       if (togglesTranscript) {
         openTranscript({ expanded: false });
@@ -678,16 +977,24 @@ function promptInput({
       }
     });
 
-    const onResize = failSafe(() => redraw());
+    const onResize = failSafe(() => redraw(true));
 
     try {
       if (typeof stdin.setRawMode === 'function') stdin.setRawMode(true);
-      stdout.write(`${CSI}?2004h`);
+      stdout.write(
+        `${CSI}?2004h${CSI}?1004h`
+        + `${composerMouseMode()}`,
+      );
       stdout.on?.('resize', onResize);
       if (typeof stdin.prependListener === 'function') stdin.prependListener('data', onRawMouse);
       else stdin.on?.('data', onRawMouse);
       releaseOwner = transport.acquire(onKeypress);
       redraw();
+      // Re-assert flowing mode after drawing. This is intentionally after the
+      // owner is installed, so no byte can be consumed between resume and the
+      // active keypress handler.
+      stdin.resume?.();
+      stdin.ref?.();
     } catch (error) {
       settle(error);
     }
@@ -708,6 +1015,7 @@ module.exports = {
   renderFrame,
   eraseRendered,
   drawRendered,
+  updateRendered,
   bootstrapKeypressTransport,
   getKeypressTransport,
   promptInput,

@@ -22,9 +22,15 @@ const success = (msg) => log('  \u2713 ' + msg, '\x1b[32m');
 const warn = (msg) => log('  \u26a0  ' + msg, '\x1b[33m');
 const error = (msg) => log('  \u2717 ' + msg, '\x1b[31m');
 
-function run(cmd, args = []) {
+function run(cmd, args = [], options = {}) {
   try {
-    return execFileSync(cmd, args, { stdio: 'pipe', encoding: 'utf8' });
+    return execFileSync(cmd, args, {
+      stdio: 'pipe',
+      encoding: 'utf8',
+      timeout: options.timeoutMs || 30000,
+      windowsHide: true,
+      env: { ...process.env, SKULD_POSTINSTALL_CHILD: '1' },
+    });
   } catch (e) {
     return null;
   }
@@ -92,7 +98,13 @@ function checkHomebrewConflict() {
 
 function runDoctor() {
   log('\n[4/4] Sistem kontrolu...');
-  const result = run(process.execPath, [path.join(__dirname, '..', 'bin', 'nskuld.js'), 'doctor']);
+  // Doctor may include slow optional probes. A package installation must not
+  // remain open forever because one probe or child handle does not settle.
+  const result = run(
+    process.execPath,
+    [path.join(__dirname, '..', 'bin', 'nskuld.js'), 'doctor'],
+    { timeoutMs: 20000 },
+  );
   if (result !== null) {
     const ok = result.includes('saglikli') || result.includes('geçti');
     if (ok) {

@@ -10,6 +10,7 @@ if (process.argv.length === 3 && (process.argv[2] === '--version' || process.arg
 const { Command } = require('commander');
 const chalk = require('chalk');
 const packageJson = require('../package.json');
+const { CODING_TOOL_NAMES } = require('../src/utils/coding-surface');
 // Küresel çökme/EPIPE yakalayıcıları — ham Node stack yerine düzgün mesaj + audit log
 require('../src/utils/process-errors').install();
 // Eski `NATURECO_*` ortam değişkenlerini `SKULD_*`'a köprüler. HERŞEYDEN ÖNCE
@@ -23,6 +24,7 @@ try { require('../src/utils/builtin-links').ensureBuiltinLinks(); } catch { /* a
 const login = require('../src/commands/login');
 const logout = require('../src/commands/logout');
 const account = require('../src/commands/account');
+const ecosystem = require('../src/commands/ecosystem');
 const dna = require('../src/commands/dna');
 const lang = require('../src/commands/lang');
 const help = require('../src/commands/help');
@@ -30,11 +32,9 @@ const init = require('../src/commands/init');
 const config = require('../src/commands/config');
 const ask = require('../src/commands/ask');
 const run = require('../src/commands/run');
-const webhooks = require('../src/commands/webhooks');
 const policy = require('../src/commands/policy');
 const ocPath = require('../src/commands/oc-path');
 const workboard = require('../src/commands/workboard');
-const threadOwnership = require('../src/commands/thread-ownership');
 const devicePair = require('../src/commands/device-pair');
 const openProse = require('../src/commands/open-prose');
 // OpenClaw uyumlu komutlar
@@ -90,8 +90,8 @@ ${chalk.yellow('🤖 Kodlama')}
 
 ${chalk.yellow('⚙️  Kurulum & Ayarlar')}
   ${chalk.cyan('setup')}         İlk kurulum (config|workspace|dirs|status)
-  ${chalk.cyan('onboard')}       Interaktif onboarding (gateway|auth|workspace|channels|skills|health|status)
-  ${chalk.cyan('configure')}     Interaktif yapılandırma (gateway|auth|channels|plugins|skills)
+  ${chalk.cyan('onboard')}       Interaktif onboarding (gateway|auth|workspace|remote|skills|health|status)
+  ${chalk.cyan('configure')}     Interaktif yapılandırma (gateway|auth|remote|plugins|skills)
   ${chalk.cyan('login')}         API key ile giriş
   ${chalk.cyan('account')}       NatureCo hesabı / SSO (login|logout|whoami)
   ${chalk.cyan('dna')}           Kod şeffaflığı — CodeDNA ile YZ-DNA raporu
@@ -103,7 +103,7 @@ ${chalk.yellow('⚙️  Kurulum & Ayarlar')}
   ${chalk.cyan('completion')}    Shell completion (bash|zsh|fish)
 
 ${chalk.yellow('🔌 Entegrasyonlar')}
-  ${chalk.cyan('channels')}      Kanal yönetimi (list|status|add|remove|logs|login|logout|capabilities|resolve)
+  ${chalk.cyan('remote')}        Telegram ile uzaktan kodlama (setup|start|stop|restart|status)
 
 ${chalk.yellow('💻 Geliştirici Araçları')}
   ${chalk.cyan('git')}           Git entegrasyonu
@@ -136,7 +136,6 @@ ${chalk.yellow('🛰️  Ağ & Cihaz')}
   ${chalk.cyan('directory')}     Dizin sorgulama (self|peers|search|register|remove)
   ${chalk.cyan('policy')}        Workspace uyumluluk politikası
   ${chalk.cyan('oc-path')}       nc:// URI path handler
-  ${chalk.cyan('thread-ownership')} Slack thread koordinasyonu
   ${chalk.cyan('device-pair')}   Cihaz eşleştirme (QR kod)
   ${chalk.cyan('devices')}       Cihaz yönetimi (list|pair|unpair|token|regenerate-token|rotate|revoke|clear)
   ${chalk.cyan('pairing')}       Cihaz eşleştirme (list|approve|reject|generate)
@@ -153,7 +152,7 @@ ${chalk.yellow('📦 Medya & İçerik')}
 
 ${chalk.yellow('Örnekler:')}
   ${chalk.gray('$ nskuld setup')}              İlk kurulum
-  ${chalk.gray('$ nskuld onbord')}             Onboarding
+  ${chalk.gray('$ nskuld onboard')}            Onboarding
   ${chalk.gray('$ nskuld')}                    Kodlama ekranını aç
   ${chalk.gray('$ nskuld code')}               Code agent
   ${chalk.gray('$ nskuld doctor')}             Sistem kontrolü
@@ -168,8 +167,13 @@ program
 
 program
   .command('account [action]')
-  .description('NatureCo hesabı / SSO (login | logout | whoami)')
+  .description('NatureCo hesabı / SSO (login | logout | whoami | portal)')
   .action(account);
+
+program
+  .command('ecosystem [action]')
+  .description('NatureCo ekosistem durumu ve bağlantıları (status | links)')
+  .action(ecosystem);
 
 program
   .command('dna [path]')
@@ -199,10 +203,12 @@ program
   .command('code [file]')
   // Keep the tool count in this string — test/security/audit-findings-3-low.js
   // (L-03) asserts it matches the real manifest, so it cannot silently drift.
-  .description('Agentic coding modu — 91 tools + MCP, streaming, Esc-interrupt, resumable sessions')
+  .description(`Agentic coding modu — ${CODING_TOOL_NAMES.size} tools + MCP, streaming, Esc-interrupt, resumable sessions`)
   .option('--dir <path>', 'çalışma dizini', process.cwd())
   .option('-p, --print <task>', 'tek seferlik görev çalıştır, sadece cevabı bas (CI/script)')
   .option('--no-stream', 'streaming devre dışı')
+  .option('--fullscreen', 'Grok tarzı tam ekran TUI (varsayılan)')
+  .option('--minimal', 'terminal scrollback tabanlı sade görünüm')
   .option('--dry-run', 'değişiklikleri göster ama uygulama')
   .option('--workflow', 'her mesajdan önce workflow planlayıcıyı çalıştır (zayıf modeller için)')
   .option('--all-tools', 'tüm araç şemalarını her istekte gönder (token pahalı)')
@@ -292,7 +298,7 @@ program
   .command('cron <action>')
   .option('--name <name>', 'Cron job adı')
   .option('--schedule <schedule>', 'Cron schedule (örnek: "0 9 * * *")')
-  .option('--action <action>', 'Aksiyon: whatsapp veya telegram')
+  .option('--action <action>', 'Aksiyon: prompt veya telegram')
   .option('--target <target>', 'Hedef numara veya chat ID')
   .option('--prompt <prompt>', 'AI\'a gönderilecek prompt')
   .description('Cron job yönetimi (add|list|remove|get|edit|enable|disable|runs|run)')
@@ -355,34 +361,9 @@ program
 
 program
 
-// Matrix / Teams / Google Chat / Zalo share one connect/status/probe
-// implementation (src/utils/channel-setup.js) driven by a per-channel
-// descriptor, instead of a fourth copy of the same 150 lines.
-for (const [name, label] of [
-  ['matrix', 'Matrix'],
-  ['teams', 'Microsoft Teams'],
-  ['googlechat', 'Google Chat'],
-  ['zalo', 'Zalo'],
-]) {
-  program
-    .command(`${name} [action]`)
-    .description(`${label} integration (connect|disconnect|status|probe)`)
-    .action((action) => {
-      require(`../src/commands/${name}`)(action);
-    });
-}
-
 program
 
 program
-
-program
-  .command('webhooks <action>')
-  .description('Webhook management (list|gmail setup|gmail run)')
-  .action((action) => {
-    const webhooksCmd = require('../src/commands/webhooks');
-    webhooksCmd(process.argv.slice(3));
-  });
 
 program
 
@@ -405,12 +386,9 @@ program
   });
 
 program
-  .command('channels [action] [params...]')
-  .description('Manage connected channels (list|status|add|remove|logs|login|logout|capabilities|resolve)')
-  .action((action, params) => {
-    const channelsCmd = require('../src/commands/channels');
-    channelsCmd([action, ...(params || [])]);
-  });
+  .command('remote [action]')
+  .description('Telegram remote coding (setup|start|stop|restart|status)')
+  .action((action) => require('../src/commands/remote')(action));
 
 program
   .command('policy [action]')
@@ -437,14 +415,6 @@ program
   .action((action) => {
     const args = process.argv.slice(3);
     workboard(args);
-  });
-
-program
-  .command('thread-ownership [action]')
-  .description('Thread ownership (status|list|assign|release|check|agent)')
-  .action((action) => {
-    const args = process.argv.slice(3);
-    threadOwnership(args);
   });
 
 program
@@ -716,9 +686,9 @@ program
 
 program
   .command('terminal <action> [text...]')
-  .description('Terminal session management (exec|connect|disconnect|list)')
+  .description('Cupertino/terminal integration (status|open|zerolink|exec|connect|disconnect|list)')
   .action((action, text) => {
-    terminal([action, ...(text || [])]);
+    return terminal([action, ...(text || [])]);
   });
 
 program

@@ -100,6 +100,13 @@ function matchWindowsRisk(cmd) {
  * @returns {{requiresApproval: boolean, reason: string, level: string}}
  */
 function assessRisk(tool, args = {}) {
+  if (tool === 'git' && String(args.operation || '').toLowerCase() === 'clone') {
+    return {
+      requiresApproval: true,
+      level: 'medium',
+      reason: `${L('İnternetten çalışma alanına depo indirilecek', 'A repository will be downloaded into the workspace')}: ${args.url || args.args || '?'}`,
+    };
+  }
   if (tool === 'code_execution') {
     const code = String(args.code || args.script || '');
     const lower = code.toLowerCase();

@@ -100,12 +100,12 @@ function detectCapabilities() {
 }
 
 // ════════════════════════════════════════════════════════════
-// Color Palette — NatureCo Brand
+// Color Palette — Skuld Brand
 // ════════════════════════════════════════════════════════════
 
 const PALETTE = {
   // Brand renkleri
-  primary: '#22c55e',    // NatureCo yeşil
+  primary: '#7dd3fc',    // Skuld buz mavisi
   secondary: '#0ea5e9',  // sky blue
   accent: '#f59e0b',     // amber
   // Yeşil yerine buz mavisi (kullanıcı isteği). Tek canlı ton ilkesi.
@@ -211,12 +211,18 @@ function styled(text, opts = {}) {
 
 // Renkli kısayollar
 const C = {
+  // Chalk-compatible custom colour factory. Several command surfaces need a
+  // one-off colour; keeping it here prevents them from reaching into chalk
+  // and preserves plain/no-colour behaviour.
+  hex: (color) => (t) => styled(t, { color }),
   brand: (t) => styled(t, { color: PALETTE.primary, bold: true }),
   sky: (t) => styled(t, { color: PALETTE.secondary }),
+  cyan: (t) => styled(t, { color: PALETTE.secondary }),
   amber: (t) => styled(t, { color: PALETTE.accent }),
   green: (t) => styled(t, { color: PALETTE.success }),
   red: (t) => styled(t, { color: PALETTE.danger }),
   yellow: (t) => styled(t, { color: PALETTE.warning }),
+  warning: (t) => styled(t, { color: PALETTE.warning }),
   blue: (t) => styled(t, { color: PALETTE.info }),
   muted: (t) => styled(t, { color: PALETTE.muted }),
   text: (t) => styled(t, { color: PALETTE.text }),

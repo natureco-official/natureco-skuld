@@ -27,6 +27,7 @@ const DURUMLAR = [
 const BETIK = `
 const tema = require(${JSON.stringify(path.join(KOK, "src/utils/skuld-theme.js"))});
 const y = require(${JSON.stringify(path.join(KOK, "src/utils/yuzey.js"))});
+const { CODING_TOOL_NAMES } = require(${JSON.stringify(path.join(KOK, "src/utils/coding-surface.js"))});
 
 // Kelime işareti — dinlenme gradyanı (animasyonun son karesi).
 for (const satir of tema.KELIME_ISARETI) console.log('  ' + tema.gradyan(satir, 200, 500));
@@ -35,7 +36,7 @@ console.log('');
 // Taban ızgarası: nokta doldurma, sağa hizalı değerler, durum rengi.
 for (const satir of y.izgara([
   ['sağlayıcı', 'gemini-2.5-flash'],
-  ['araç', '107'],
+  ['araç', String(CODING_TOOL_NAMES.size)],
   ['kapı', 'devrede', 'ok'],
   ['doğrulama', 'komut yok', 'uyari'],
   ['workspace', 'dışına yazma engelli', 'ok'],
