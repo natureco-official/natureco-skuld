@@ -928,7 +928,11 @@ async function handleNoArgs() {
     // gerektiğini söylemeyen bir hata ekranıdır.
     if (loginStatus === 'ok') {
       const codeV5 = require('../src/commands/code_v5');
-      await codeV5(process.cwd(), {});
+      // `acilisYapildi`: splash animasyonu kelime işaretini zaten bastı.
+      // Kodlama ekranı ikinci kez basmasın — kullanıcı iki hero görüyordu.
+      // Hangisinin atlanacağı önemli: animasyonlu olan kalıyor, çünkü açılışta
+      // bir kez görülen şey o.
+      await codeV5(process.cwd(), { acilisYapildi: !noSplash && tui.CAPS.isTTY && !process.env.CI });
     }
     return;
   }

@@ -22,7 +22,8 @@ const https = require('https');
 
 const CACHE_FILE = path.join(os.homedir(), '.nskuld', 'update-check.json');
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 saat
-const REGISTRY_URL = 'https://registry.npmjs.org/natureco-skuld/latest';
+const PAKET_ADI = require('../../package.json').name;
+const REGISTRY_URL = `https://registry.npmjs.org/${PAKET_ADI}/latest`;
 
 /** "5.47.1" > "5.13.0" gibi basit semver karşılaştırması (a > b → 1, a < b → -1). */
 function compareVersions(a, b) {
@@ -35,14 +36,35 @@ function compareVersions(a, b) {
   return 0;
 }
 
+/**
+ * Önbelleği okur — ama BAŞKA BİR PAKETE aitse yok sayar.
+ *
+ * Kullanıcı bildirdi: `nskuld` açılışta "v0.1.0 → v5.71.2 — npm install -g
+ * natureco-skuld" diyordu. v5.71.2 `natureco-cli`'nin sürümü; önbellek
+ * yeniden adlandırmadan ÖNCE yazılmıştı ve hangi pakete ait olduğunu
+ * kaydetmiyordu. Yani kod doğru pakete bakıyor, önbellek yanlış cevabı
+ * saklıyordu.
+ *
+ * Ders: bir önbellek girdisi, hangi soruya cevap olduğunu da saklamalı.
+ * Yoksa soru değiştiğinde eski cevap doğru görünmeye devam eder.
+ */
 function readCache() {
-  try { return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8')); } catch { return null; }
+  try {
+    const veri = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+    if (!veri || typeof veri !== 'object') return null;
+    // `paket` alanı olmayan girdiler yeniden adlandırma öncesinden; atılıyor.
+    if (veri.paket !== PAKET_ADI) return null;
+    return veri;
+  } catch {
+    return null;
+  }
 }
 
 function writeCache(data) {
   try {
     fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true });
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(data), 'utf8');
+    // Cevabın hangi pakete ait olduğu da yazılıyor.
+    fs.writeFileSync(CACHE_FILE, JSON.stringify({ ...data, paket: PAKET_ADI }), 'utf8');
   } catch { /* önbellek kritik değil */ }
 }
 
@@ -80,7 +102,7 @@ function maybeNotify(currentVersion) {
   if (cache && cache.latest && compareVersions(cache.latest, currentVersion) > 0) {
     // chalk'a bağımlı olmadan soluk sarı bildirim
     const dim = '\x1b[2m', yellow = '\x1b[33m', cyan = '\x1b[36m', reset = '\x1b[0m';
-    console.log(`${yellow}⬆ Yeni sürüm: v${currentVersion} → v${cache.latest}${reset} ${dim}—${reset} ${cyan}npm install -g natureco-skuld${reset} ${dim}(yeni skill'ler ve araçlar içerir)${reset}`);
+    console.log(`${yellow}⬆ Yeni sürüm: v${currentVersion} → v${cache.latest}${reset} ${dim}—${reset} ${cyan}npm install -g ${PAKET_ADI}${reset} ${dim}(yeni skill'ler ve araçlar içerir)${reset}`);
   }
 
   if (!cache || (Date.now() - (cache.lastCheck || 0)) > CHECK_INTERVAL_MS) {

@@ -735,8 +735,12 @@ async function codeV5(targetPath, cliOptions = {}) {
   }
 
   console.log('');
-  for (const satir of tema.KELIME_ISARETI) console.log('  ' + tema.gradyan(satir, 200, 500));
-  console.log('');
+  // Kelime işareti YALNIZCA açılış animasyonu çalışmadıysa basılıyor.
+  // İkisi birlikte iki hero demek ve kullanıcı bunu bildirdi.
+  if (!cliOptions.acilisYapildi) {
+    for (const satir of tema.KELIME_ISARETI) console.log('  ' + tema.gradyan(satir, 200, 500));
+    console.log('');
+  }
   console.log('  ' + tema.soluk(tema.gumus(500, L(
     `v${require('../../package.json').version} · kodlama ekranı · çıkmak için /exit`,
     `v${require('../../package.json').version} · coding screen · /exit to leave`,
