@@ -252,6 +252,12 @@ describe("execution-gateway — kabuk yeteneği", () => {
     assert.match(istek.gerekce, /KABUK/, "gerekçe kabuk olduğunu söylemeli");
     // Komut kısaltılmadan gösterilmeli: kullanıcı neyi onayladığını bilmeli.
     assert.equal(istek.komut, "cat /etc/passwd | head -1");
+    // Dizin de tek ve çözülmüş biçimde gösterilmeli. İstek bir cwd taşıdığında
+    // yol `yoluDogrula`'dan geçip realpath'leniyordu, taşımadığında ham
+    // workspace görünüyordu: aynı dizin macOS'ta `/var` ve `/private/var`,
+    // Windows'ta `RUNNER~1` ve `runneradmin` olarak iki farklı şekilde
+    // çıkıyordu. Onay metnini okuyan insan için bunlar aynı yer değil.
+    assert.equal(istek.cwd, await realpathish(kok));
   });
 
   it("onaylanınca boru ve zincir GERÇEKTEN çalışır", async () => {

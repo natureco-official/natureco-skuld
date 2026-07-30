@@ -108,6 +108,27 @@ export class ExecutionGateway {
     return this.#workspace;
   }
 
+  /**
+   * Workspace kökünün ÇÖZÜLMÜŞ hâli.
+   *
+   * Onay metnindeki `cwd`, istek bir yol taşıdığında `yoluDogrula`'dan geçip
+   * `realpath`'lenmiş oluyor, taşımadığında ise ham `#workspace` olarak
+   * gösteriliyordu — yani insanın yıkıcı bir komutu onaylarken okuduğu dizin,
+   * hangi kod yolundan geldiğine göre iki farklı biçimde çıkıyordu. macOS'ta
+   * bu `/var` ile `/private/var`, Windows'ta `RUNNER~1` ile `runneradmin`
+   * farkı demek; ikisi de aynı yer ama okuyan için aynı görünmüyor.
+   *
+   * Çözülemezse ham yol döner: onay metnini üretememek, komutu sessizce
+   * çalıştırmaktan iyi değil — burada amaç doğrulama değil, gösterim.
+   */
+  async cozulmusWorkspace(): Promise<string> {
+    try {
+      return await realpath(this.#workspace);
+    } catch {
+      return this.#workspace;
+    }
+  }
+
   /** Uzun ömürlü süreç açar (MCP stdio sunucusu gibi). */
   async surecAc(istek: SurecIstegi): Promise<SurecTutamaci> {
     return await ExecutionGatewayEk.ac(this, this.#onay, this.#onaysiz, istek);
@@ -212,7 +233,7 @@ export class ExecutionGateway {
       throw politikaReddi("komut adında kabuk metakarakteri var", { komut: istek.komut });
     }
 
-    const cwd = istek.cwd ? await this.yoluDogrula(istek.cwd) : this.#workspace;
+    const cwd = istek.cwd ? await this.yoluDogrula(istek.cwd) : await this.cozulmusWorkspace();
     const gosterilecek = [istek.komut, ...istek.argumanlar].join(" ");
     const gerekce = this.onayGerekcesi(istek);
 
@@ -335,7 +356,7 @@ export async function kabukCalistir(
   const komut = (istek.komut ?? "").trim();
   if (!komut) throw kullaniciHatasi("boş komut");
 
-  const cwd = istek.cwd ? await gw.yoluDogrula(istek.cwd) : gw.workspace;
+  const cwd = istek.cwd ? await gw.yoluDogrula(istek.cwd) : await gw.cozulmusWorkspace();
 
   const karar = await onay({
     sinif: "calistir",
@@ -434,7 +455,7 @@ export class ExecutionGatewayEk {
     if (/[;&|><`$(){}[\]\n\r]/.test(istek.komut)) {
       throw politikaReddi("komut adında kabuk metakarakteri var", { komut: istek.komut });
     }
-    const cwd = istek.cwd ? await gw.yoluDogrula(istek.cwd) : gw.workspace;
+    const cwd = istek.cwd ? await gw.yoluDogrula(istek.cwd) : await gw.cozulmusWorkspace();
     const temel = path.basename(istek.komut).replace(/\.(exe|cmd|bat)$/i, "");
 
     if (!onaysiz.has(temel)) {
