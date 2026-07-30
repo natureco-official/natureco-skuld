@@ -35,6 +35,7 @@ const {
 } = require("../utils/api");
 const { loadMcpToolDefinitions } = require("../utils/mcp-tools");
 const { supportsNativeToolCalls } = require("../utils/provider-detect");
+const tema = require("../utils/skuld-theme");
 const { getConfig } = require("../utils/config");
 const { loadToolDefinitions, executeTool, toOpenAIFormat } = require("../utils/tools");
 const { runPostHooks } = require("../utils/tool-hooks");
@@ -712,18 +713,39 @@ async function codeV5(targetPath, cliOptions = {}) {
   const toolCatalog = () => buildCatalog(selectTools(toolDefs, { profile: toolProfile, enabled: sessionEnabledTools }).hidden);
 
   if (!headlessPrompt) {
-  // Header / Welcome
-  console.log("");
-  console.log(tui.styled("  ╭" + "─".repeat(58) + "╮", { color: tui.PALETTE.primary }));
-  console.log(tui.styled("  │", { color: tui.PALETTE.primary }) + "  ⚡ " + tui.styled("NatureCo Code Agent v5", { color: tui.PALETTE.primary, bold: true }) + tui.C.muted("    Claude Code alternative") + "".padEnd(8) + tui.styled(" │", { color: tui.PALETTE.primary }));
-  console.log(tui.styled("  │", { color: tui.PALETTE.primary }) + tui.C.muted("  Proje:  ") + tui.styled(cwd.padEnd(47), { color: tui.PALETTE.text }) + tui.styled(" │", { color: tui.PALETTE.primary }));
-  console.log(tui.styled("  │", { color: tui.PALETTE.primary }) + tui.C.muted("  Model:  ") + tui.styled((config.providerModel || "—").padEnd(47), { color: tui.PALETTE.text }) + tui.styled(" │", { color: tui.PALETTE.primary }));
-  console.log(tui.styled("  │", { color: tui.PALETTE.primary }) + tui.C.muted("  Tools:  ") + tui.styled(String(toolDefs.length).padEnd(47), { color: tui.PALETTE.success, bold: true }) + tui.styled(" │", { color: tui.PALETTE.primary }));
+  // ── Kodlama ekranı başlığı ─────────────────────────────────────────────
+  //
+  // Devralınan hâli natureco-cli'nin kartıydı: `⚡ NatureCo Code Agent v5`
+  // ve yanında `Claude Code alternative`. İki sorun vardı. Birincisi kimlik:
+  // kullanıcı Skuld çalıştırıp başka bir ürünün adını görüyordu. İkincisi
+  // hizalama: başlık satırı kutu genişliğinden uzun olduğu için sağ kenar
+  // dışa taşıyordu — sabit `padEnd` ile çizilen kutular içerik uzayınca
+  // sessizce bozulur.
+  //
+  // Skuld'un kimliği kutu ÇİZMİYOR. Hizalama ve boşlukla derinlik ima
+  // ediliyor; ayrım ilk bakışta görünmeli. Kutu olmadığı için içerik uzasa
+  // da bozulacak bir kenar yok.
+  const satirlar = [
+    ['proje', cwd],
+    ['model', config.providerModel || '—'],
+    ['araç', String(toolDefs.length)],
+  ];
   if (mcp.servers.length > 0) {
-    const label = `${mcp.servers.join(", ")} (${mcp.tools.length})`;
-    console.log(tui.styled("  │", { color: tui.PALETTE.primary }) + tui.C.muted("  MCP:    ") + tui.styled(label.slice(0, 47).padEnd(47), { color: tui.PALETTE.text }) + tui.styled(" │", { color: tui.PALETTE.primary }));
+    satirlar.push(['mcp', `${mcp.servers.join(', ')} (${mcp.tools.length})`]);
   }
-  console.log(tui.styled("  ╰" + "─".repeat(58) + "╯", { color: tui.PALETTE.primary }));
+
+  console.log('');
+  for (const satir of tema.KELIME_ISARETI) console.log('  ' + tema.gradyan(satir, 200, 500));
+  console.log('');
+  console.log('  ' + tema.soluk(tema.gumus(500, L(
+    `v${require('../../package.json').version} · kodlama ekranı · çıkmak için /exit`,
+    `v${require('../../package.json').version} · coding screen · /exit to leave`,
+  ))));
+  console.log('');
+  for (const [ad, deger] of satirlar) {
+    console.log('    ' + tema.soluk(tema.gumus(600, ad.padEnd(7))) + tema.gumus(200, deger));
+  }
+  console.log('');
   for (const error of mcp.errors) {
     console.log("  " + tui.C.yellow(`⚠ MCP: ${error}`));
   }

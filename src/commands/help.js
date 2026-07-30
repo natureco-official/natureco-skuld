@@ -49,10 +49,10 @@ function bolumler() {
     {
       baslik: L('Kodlama', 'Coding'),
       satirlar: [
+        ['', L('(argümansız) kodlama ekranını aç', '(no arguments) open the coding screen')],
         ['code', L('Kodlama ajanı — oku, yaz, çalıştır, doğrula', 'Coding agent — read, write, run, verify')],
         ['code -p "<görev>"', L('Tek seferlik, etkileşimsiz (CI için)', 'One-shot, non-interactive (for CI)')],
         ['ask "<soru>"', L('Tek soru, araç yok', 'One question, no tools')],
-        ['chat', L('Sohbet oturumu', 'Chat session')],
         ['run <betik.md>', L('Markdown betiği çalıştır', 'Run a Markdown script')],
         ['repl', L('Etkileşimli REPL', 'Interactive REPL')],
         ['git', L('Git işlemleri (kapıdan geçer)', 'Git operations (through the gate)')],

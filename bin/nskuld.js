@@ -25,7 +25,6 @@ const logout = require('../src/commands/logout');
 const account = require('../src/commands/account');
 const dna = require('../src/commands/dna');
 const lang = require('../src/commands/lang');
-const chat = require('../src/commands/chat');
 const help = require('../src/commands/help');
 const init = require('../src/commands/init');
 const config = require('../src/commands/config');
@@ -81,8 +80,7 @@ program
   .showSuggestionAfterError(true); // yazım hatasında "şunu mu demek istediniz?"
 
 program.addHelpText('after', `
-${chalk.yellow('🤖 AI & Chat')}
-  ${chalk.cyan('chat')}          AI sohbet başlat
+${chalk.yellow('🤖 Kodlama')}
   ${chalk.cyan('code')}          Code agent — dosya oku, yaz, komut çalıştır
   ${chalk.cyan('ask')}           Tek soru sor
   ${chalk.cyan('run')}           Markdown script çalıştır
@@ -156,7 +154,7 @@ ${chalk.yellow('📦 Medya & İçerik')}
 ${chalk.yellow('Örnekler:')}
   ${chalk.gray('$ nskuld setup')}              İlk kurulum
   ${chalk.gray('$ nskuld onbord')}             Onboarding
-  ${chalk.gray('$ nskuld chat')}               Sohbet başlat
+  ${chalk.gray('$ nskuld')}                    Kodlama ekranını aç
   ${chalk.gray('$ nskuld code')}               Code agent
   ${chalk.gray('$ nskuld doctor')}             Sistem kontrolü
   ${chalk.gray('$ nskuld agent run "dosya oku"')}  One-shot agent
@@ -196,18 +194,6 @@ program
   .command('logout')
   .description('Logout and remove stored credentials')
   .action(logout);
-
-program
-  .command('chat [bot-name...]')
-  .description('Start interactive chat with a bot (uses default bot if not specified)')
-  .option('--resume [session-id]', 'Resume a previous session')
-  .option('--continue', 'son oturumu devam ettir')
-  .option('--list', 'geçmiş oturumları listele')
-  .option('--no-stream', 'streaming devre dışı')
-  .action((botNameParts, options) => {
-    const botName = Array.isArray(botNameParts) ? botNameParts.join(' ') : botNameParts;
-    chat(botName, options);
-  });
 
 program
   .command('code [file]')
@@ -914,14 +900,36 @@ async function handleNoArgs() {
         : { tur: 'uyari', ad: 'sağlayıcı', not: 'API anahtarı gerekli — nskuld setup' },
       { tur: 'bilgi', ad: 'kullanıcı', not: userName },
     ];
-    console.log(
-      tema.anaEkran({
-        surum: `v${packageJson.version}`,
-        proje: process.cwd(),
-        bilesenler,
-        ipucu: brand.pickDailyTip(),
-      }),
-    );
+    // Karşılama kartı YALNIZCA kodlama ekranı açılmayacaksa basılıyor.
+    // İkisi birlikte iki başlık üst üste demek: kullanıcı bir eylem için bir
+    // komut yazıyor ve iki kart görüyor.
+    if (loginStatus !== 'ok') {
+      console.log(
+        tema.anaEkran({
+          surum: `v${packageJson.version}`,
+          proje: process.cwd(),
+          bilesenler,
+          ipucu: brand.pickDailyTip(),
+        }),
+      );
+    }
+
+    // Çıplak `nskuld` DOĞRUDAN kodlama ekranını açar.
+    //
+    // Önce yalnızca karşılama kartını basıp çıkıyordu: kullanıcı bir kodlama
+    // aracını çalıştırıp bir kartvizit görüyor ve ikinci bir komut yazmak
+    // zorunda kalıyordu. Bir kodlama ajanının varsayılan eylemi kodlamaktır.
+    //
+    // `chat` komutu kaldırıldı — ayrı bir sohbet yüzeyi tutmak, kodlama
+    // döngüsünün iki farklı girişi olması demekti ve ikisi ayrışıyordu.
+    // Sohbet etmek isteyen aynı ekranda soru sorar.
+    //
+    // Sağlayıcı yoksa açmıyoruz: boş bir kodlama ekranı, ne yapması
+    // gerektiğini söylemeyen bir hata ekranıdır.
+    if (loginStatus === 'ok') {
+      const codeV5 = require('../src/commands/code_v5');
+      await codeV5(process.cwd(), {});
+    }
     return;
   }
   // Global option'ları filtrele (--no-splash, --plain, --profile) ve parse et
