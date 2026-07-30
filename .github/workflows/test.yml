@@ -47,8 +47,13 @@ jobs:
       - name: Typecheck and build packages
         run: npm run typecheck
 
+      # `npm test` zinciri `vitest run && node scripts/run-tests.mjs`. `--` ile
+      # verilen bayrak zincirin SONUNA ekleniyor, yani vitest'e değil paket
+      # koşucusuna gidiyordu ve `node: bad option: --reporter=dot` ile CI'ı
+      # düşürüyordu. Bayrak vitest'e ait; paket testlerinin zaten kendi adımı
+      # var, burada ikinci kez koşmasına da gerek yok.
       - name: Unit and regression tests
-        run: npm test -- --reporter=dot
+        run: npm run test:unit -- --reporter=dot
 
       # Skuld'a özgü değişmezler. Bunlar CI'da koşmazsa yalnızca birinin
       # elle çalıştırmayı hatırladığı zaman koşarlar — yani bir süre sonra

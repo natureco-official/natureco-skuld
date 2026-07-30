@@ -40,7 +40,20 @@ if (dosyalar.length === 0) {
   console.log("run-tests: henüz test dosyası yok (tests/ boş). 0 test.");
   process.exitCode = 0;
 } else {
-  const ekBayraklar = process.argv.slice(2);
+  // Gelen argümanlar node BAYRAĞI olarak iletiliyor (aşağıda `--test`ten
+  // önce geliyorlar). Node tanımadığı bir bayrağa "bad option" deyip çıkıyor,
+  // yani buraya sızan alakasız tek bir bayrak tüm koşuyu öldürüyor —
+  // CI'da `--reporter=dot` (bir vitest bayrağı) tam olarak bunu yaptı ve
+  // hata mesajı hangi komutun şikâyet ettiğini söylemiyordu.
+  //
+  // Yalnızca node test koşucusuna ait bayraklar geçirilir; gerisi sessizce
+  // yutulmaz, adı söylenerek yok sayılır.
+  const tumArgumanlar = process.argv.slice(2);
+  const ekBayraklar = tumArgumanlar.filter((arg) => arg.startsWith('--test'));
+  const yokSayilan = tumArgumanlar.filter((arg) => !arg.startsWith('--test'));
+  if (yokSayilan.length > 0) {
+    console.log(`run-tests: node test koşucusuna ait olmayan bayraklar yok sayıldı: ${yokSayilan.join(', ')}`);
+  }
   const cocuk = spawn(
     process.execPath,
     ["--experimental-strip-types", ...ekBayraklar, "--test", ...dosyalar],
