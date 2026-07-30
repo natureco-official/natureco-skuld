@@ -302,29 +302,76 @@ async function acilis({ surum, sure = 900 } = {}) {
     imlecGizli = true;
     process.stdout.write('\n');
 
-    for (let k = 0; k <= kare; k++) {
-      const t = k / kare;
+    // ── Üç fazlı açılış ───────────────────────────────────────────────────
+    //
+    // Tek fazlı parıltı yeterince canlı değildi: harfler zaten görünürken
+    // üzerinden bir bant geçiyordu, yani "beliriyor" hissi yoktu. Kullanıcı
+    // renk geçişi istedi; tek renk rampasında süpürme yapmak parlaklık
+    // değişimi verir, renk değişimi vermez.
+    //
+    //   1. DOĞUŞ    — harfler karanlıktan yükselir, sol üstten sağ alta.
+    //   2. SÜPÜRME  — dar bir bant üzerlerinden geçer ve TEPEDE gümüşten buz
+    //                 mavisine sapar: ışık soğuk bir metalden yansıyor gibi.
+    //                 Renk geçişi burada.
+    //   3. OTURMA   — bant çıkar, harfler dinlenme gradyanına yerleşir.
+    //
+    // Kare sayısı `sure`den TÜRETİLİYOR: yavaş makinede kare düşer, süre
+    // uzamaz. Bir açılış animasyonunun en kötü hâli beklemeye dönüşmesidir.
+    const kareler = Math.max(18, Math.min(48, Math.round(sure / 22)));
+    const bekleKare = Math.max(12, Math.floor(sure / kareler));
+
+    for (let k = 0; k <= kareler; k++) {
+      const t = k / kareler;
+      const dogus = Math.min(1, t / 0.35);
+      const supurmeT = t < 0.2 ? -0.2 : (t - 0.2) / 0.6;
+      const bantYeri = -0.2 + supurmeT * 1.4;
+
       const satirlar = isaret.map((satir, i) => {
-        const gorunur = [...satir];
+        const karakterler = [...satir];
         let cikti = '';
-        for (let x = 0; x < gorunur.length; x++) {
-          const yer = gorunur.length === 1 ? 0 : x / (gorunur.length - 1);
-          // Parıltı: t konumunun etrafındaki dar bant parlar.
-          const uzaklik = Math.abs(yer - t);
-          const parla = Math.max(0, 1 - uzaklik * 6);
-          const taban = 250 + i * 90;
-          const ton = Math.round(taban - parla * 150);
-          const en = ton <= 150 ? 100 : ton <= 250 ? 200 : ton <= 350 ? 300 : ton <= 450 ? 400 : 500;
-          cikti += gumus(en, gorunur[x]);
+        for (let x = 0; x < karakterler.length; x++) {
+          const ch = karakterler[x];
+          if (ch === ' ') { cikti += ' '; continue; }
+
+          const yer = karakterler.length === 1 ? 0 : x / (karakterler.length - 1);
+
+          // Sol üstten sağ alta yayılan dalga. Henüz gelmemiş karakter en koyu
+          // tonda duruyor — silinmiş değil, karanlıkta.
+          const gecikme = yer * 0.6 + (i / Math.max(1, isaret.length - 1)) * 0.4;
+          const belirme = Math.max(0, Math.min(1, (dogus - gecikme * 0.8) / 0.35));
+
+          const uzaklik = Math.abs(yer - bantYeri);
+          const parla = Math.max(0, 1 - uzaklik * 5.5);
+
+          const dinlenme = 200 + i * 100;
+          const taban = 700 - (700 - dinlenme) * belirme;
+          const ton = Math.round(taban - parla * 260);
+
+          // Bandın tepesi soğuk vurguya sapıyor.
+          if (parla > 0.72 && renkVar()) {
+            cikti += kalin(vurgu(ch));
+            continue;
+          }
+          const en = ton <= 120 ? 100 : ton <= 220 ? 200 : ton <= 320 ? 300
+            : ton <= 430 ? 400 : ton <= 540 ? 500 : ton <= 640 ? 600 : 700;
+          cikti += gumus(en, ch);
         }
         return '  ' + cikti;
       });
+
       if (k > 0) process.stdout.write(`\x1b[${isaret.length}A`);
       process.stdout.write(satirlar.join('\n') + '\n');
-      await new Promise((r) => setTimeout(r, bekle));
+      await new Promise((r) => setTimeout(r, bekleKare));
     }
 
-    process.stdout.write('\n  ' + gumus(400, 'ne olacaksa, doğrulanmış olarak'));
+    // Slogan KELİME kelime aydınlanıyor, harf harf değil: harf harf yazmak
+    // daktilo taklidi olurdu.
+    const kelimeler = 'ne olacaksa, doğrulanmış olarak'.split(' ');
+    process.stdout.write('\n  ');
+    for (let i = 0; i < kelimeler.length; i++) {
+      process.stdout.write(gumus(400, kelimeler[i]) + (i < kelimeler.length - 1 ? ' ' : ''));
+      await new Promise((r) => setTimeout(r, 34));
+    }
     process.stdout.write('  ' + soluk(gumus(600, '·')) + '  ' + soluk(gumus(600, surum)) + '\n\n');
   } finally {
     imleciAc();

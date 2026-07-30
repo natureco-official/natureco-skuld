@@ -15,7 +15,12 @@ describe('status command tool count', () => {
       console.log = originalLog;
     }
     const output = logs.join('\n');
-    expect(output).toContain(`Tools            ${manifestCount}`);
-    expect(output).not.toContain('Tools            92');
+    // SÖZLEŞME ölçülüyor, YERLEŞİM değil. Eski hâli `Tools            91`
+    // arıyordu — sabit genişlikli hizalama. Yerleşimi teste sabitlemek,
+    // tasarımı değiştirmeyi imkânsız kılar; oysa iddia "sayı manifestten
+    // gelir" olmalı, "şu kadar boşlukla basılır" değil.
+    expect(output).toMatch(/araç|Tools/);
+    expect(output).toContain(String(manifestCount));
+    expect(output).not.toContain('92');
   });
 });

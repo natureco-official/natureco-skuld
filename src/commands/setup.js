@@ -557,40 +557,76 @@ async function cmdWizard() {
   console.log(chalk.green('  ✓ Setup complete!\n'));
   console.log(chalk.white('  Config saved to: ') + chalk.gray(CONFIG_FILE));
   console.log('');
-  console.log(chalk.white('  Next steps:'));
-  console.log(chalk.cyan('    nskuld chat              Start chatting'));
-  console.log(chalk.cyan(L('    nskuld repl              İnteraktif REPL (persistent memory)', '    nskuld repl              Interactive REPL (persistent memory)')));
-  console.log(chalk.cyan(L('    nskuld telegram connect  Telegram bot bağla (henüz yapılmadıysa)', '    nskuld telegram connect  Connect Telegram bot (if not done yet)')));
-  console.log(chalk.cyan('    nskuld help              View all commands'));
+  // Kurulum sonrası yönlendirme. Devralınan hâli `nskuld chat` ve
+  // `nskuld telegram connect` öneriyordu — ikisi de artık YOK. Kurulum
+  // ekranının son sözü var olmayan bir komut olamaz.
+  const y = require('../utils/yuzey');
+  console.log('');
+  console.log(y.sirtli(y.etiket('sırada'), 0.3));
+  for (const satir of y.izgara([
+    ['nskuld', L('kodlama ekranını aç', 'open the coding screen')],
+    ['nskuld code -p "…"', L('tek seferlik görev', 'one-shot task')],
+    ['nskuld doctor', L('sistem sağlığı', 'system health')],
+    ['nskuld help', L('tüm komutlar', 'all commands')],
+  ])) console.log(y.sirtli(satir, 0.6));
   console.log('');
 }
 
-function cmdStatus() {
-  console.log(chalk.cyan('\n  Setup Status\n'));
-
+/**
+ * Kurulum durumu — yüzey dilinde.
+ *
+ * Devralınan hâli `chalk.white('  Config:     ')` gibi elle hizalanmış
+ * satırlardı: sabit boşluklarla kurulmuş bir hizalama, değer uzayınca bozulur
+ * ve renk hiyerarşi taşıyordu (beyaz etiket, gri değer).
+ *
+ * Yüzey dilinde renk yalnızca DURUM taşıyor; hiyerarşi konum ve nokta
+ * doldurmayla kuruluyor. Dizinler tablo yerine bir oran çubuğu: "7/9 dizin"
+ * okunacak bir şey, dolu bir çubuk görülecek bir şey.
+ */
+async function cmdStatus() {
+  const y = require('../utils/yuzey');
   const configExists = fs.existsSync(CONFIG_FILE);
   const dirExists = fs.existsSync(BASE_DIR);
 
-  console.log(chalk.white('  Config:     ') + (configExists ? chalk.green('exists') : chalk.yellow('missing')));
-  console.log(chalk.white('  Directory:  ') + (dirExists ? chalk.green('exists') : chalk.yellow('missing')));
+  const temel = [
+    ['yapılandırma', configExists ? L('var', 'present') : L('yok', 'missing'), configExists ? 'ok' : 'uyari'],
+    ['dizin', dirExists ? L('var', 'present') : L('yok', 'missing'), dirExists ? 'ok' : 'uyari'],
+  ];
 
+  const saglayici = [];
   if (configExists) {
     const cfg = getConfig();
-    console.log(chalk.white('  Provider:   ') + chalk.gray(cfg.providerUrl || 'not set'));
-    console.log(chalk.white('  Model:      ') + chalk.gray(cfg.providerModel || 'not set'));
-    console.log(chalk.white('  API Key:    ') + (cfg.providerApiKey ? chalk.green('set') : chalk.yellow('not set')));
-    console.log(chalk.white('  Setup:      ') + (cfg.setupCompleted ? chalk.green('completed') : chalk.yellow('incomplete')));
+    let host = cfg.providerUrl || L('ayarlı değil', 'not set');
+    try { if (cfg.providerUrl) host = new URL(cfg.providerUrl).hostname; } catch { /* ham değer */ }
+    saglayici.push(['sağlayıcı', host, cfg.providerUrl ? 'ok' : 'uyari']);
+    saglayici.push(['model', cfg.providerModel || L('ayarlı değil', 'not set'), cfg.providerModel ? 'ok' : 'uyari']);
+    saglayici.push(['api anahtarı', cfg.providerApiKey ? L('ayarlı', 'set') : L('yok', 'missing'), cfg.providerApiKey ? 'ok' : 'uyari']);
+    saglayici.push(['kurulum', cfg.setupCompleted ? L('tamamlandı', 'completed') : L('yarım', 'incomplete'), cfg.setupCompleted ? 'ok' : 'uyari']);
   }
 
+  const dizinSatirlari = [];
   if (dirExists) {
-    const existing = fs.readdirSync(BASE_DIR).filter(f => fs.statSync(path.join(BASE_DIR, f)).isDirectory());
-    const present = DIRS.filter(d => existing.includes(d));
-    const absent = DIRS.filter(d => !existing.includes(d));
-    if (present.length) console.log(chalk.white('  Dirs:       ') + chalk.green(present.join(', ')));
-    if (absent.length) console.log(chalk.white('  Missing:    ') + chalk.yellow(absent.join(', ')));
+    const mevcut = fs.readdirSync(BASE_DIR)
+      .filter((f) => fs.statSync(path.join(BASE_DIR, f)).isDirectory());
+    const varOlan = DIRS.filter((d) => mevcut.includes(d));
+    const eksik = DIRS.filter((d) => !mevcut.includes(d));
+    dizinSatirlari.push(
+      y.oran(varOlan.length, DIRS.length) + '  '
+      + (eksik.length === 0
+        ? y.kabarik(`${varOlan.length}/${DIRS.length}`)
+        : `${varOlan.length}/${DIRS.length}  ` + L('eksik: ', 'missing: ') + eksik.join(', ')),
+    );
   }
 
-  console.log('');
+  const bolumler = [{ satirlar: y.izgara(temel) }];
+  if (saglayici.length) bolumler.push({ etiket: L('sağlayıcı', 'provider'), satirlar: y.izgara(saglayici) });
+  if (dizinSatirlari.length) bolumler.push({ etiket: L('dizinler', 'directories'), satirlar: dizinSatirlari });
+
+  await y.yuzey({
+    baslik: L('kurulum durumu', 'setup status'),
+    altBaslik: BASE_DIR,
+    bolumler,
+  });
 }
 
 function cmdConfig() {

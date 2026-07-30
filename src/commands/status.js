@@ -32,67 +32,89 @@ async function cmdRun() {
   const config = tryRequire('../utils/config');
   const cfg = config ? config.getConfig() : {};
 
-  // Phase 9 TUI: round border + iki kolon
-  const cardW = 56;
-  const lines = [];
-  lines.push(tui.styled('  ╭' + '─'.repeat(cardW) + '╮', { color: tui.PALETTE.border }));
-  lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Version          ') + tui.styled(`v${version}`.padEnd(36), { color: tui.PALETTE.text, bold: true }) + tui.styled(' │', { color: tui.PALETTE.border }));
-  lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Platform         ') + tui.styled(`${process.platform} ${os.release()}`.padEnd(36), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
+  // ── Yüzey dili ───────────────────────────────────────────────────────
+  //
+  // Devralınan hâli 56 karakter genişliğinde bir kutu ve her satırda
+  // `.padEnd(36)`. İki sorun: sağlayıcı URL'si 36'yı geçtiğinde kutunun sağ
+  // kenarı dışa taşıyor (sabit genişlikle çizilen kutular böyle sessizce
+  // bozulur), ve `Gateway` satırı ARKA PLAN rengiyle bir etiket basıyordu —
+  // ANSI'nin en ucuz görünen numarası.
+  //
+  // Yerine sırt + taban ızgarası. Genişlik yok, o yüzden bozulacak kenar da
+  // yok. Renk yalnızca durum taşıyor.
+  const y = require('../utils/yuzey');
 
   const pidFile = path.join(os.homedir(), '.nskuld', 'gateway.pid');
   const gatewayRunning = fs.existsSync(pidFile);
-  const gatewayStatus = gatewayRunning
-    ? tui.styled(L('  ✓ Çalışıyor ', '  ✓ Running   '), { bg: tui.PALETTE.success, color: '#000', bold: true })
-    : tui.styled(L('  ✗ Durmuş   ', '  ✗ Stopped  '), { bg: tui.PALETTE.muted, color: '#000', bold: true });
-  lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Gateway          ') + gatewayStatus + ' '.repeat(23) + tui.styled(' │', { color: tui.PALETTE.border }));
-
-  if (cfg.providerUrl) {
-    lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Provider         ') + tui.styled(cfg.providerUrl.padEnd(36), { color: tui.PALETTE.primary, bold: true }) + tui.styled(' │', { color: tui.PALETTE.border }));
-  }
-  if (cfg.botName) {
-    lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Bot              ') + tui.styled((cfg.botName || '—').padEnd(36), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
-  }
 
   const nodesFile = path.join(os.homedir(), '.nskuld', 'nodes.json');
   let nodeCount = 0;
   if (fs.existsSync(nodesFile)) {
-    try { nodeCount = Object.keys(JSON.parse(fs.readFileSync(nodesFile, 'utf8'))).length; } catch {}
+    try { nodeCount = Object.keys(JSON.parse(fs.readFileSync(nodesFile, 'utf8'))).length; } catch { /* bozuk dosya = 0 */ }
   }
-  lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Nodes            ') + tui.styled(String(nodeCount).padEnd(36), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
 
-  const channelCount = [cfg.telegramToken, cfg.whatsappConnected, cfg.discordToken, cfg.slackToken].filter(Boolean).length;
-  lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Channels         ') + tui.styled(String(channelCount).padEnd(36), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
-
-  // Skill + araç görünürlüğü: "skill'ler görünmüyor" raporlarını tek bakışta
-  // teşhis edilir yapar (yerleşikler npm paketinin içinde yaşar, ~/.nskuld'da değil)
   let skillInfo = '—';
+  let skillSayi = 0;
   try {
     const { getSkills } = tryRequire('../utils/skills') || {};
     if (getSkills) {
       const all = getSkills();
-      const builtin = all.filter(s => s.source === 'builtin').length;
+      skillSayi = all.length;
+      const builtin = all.filter((sk) => sk.source === 'builtin').length;
       const user = all.length - builtin;
-      skillInfo = `${all.length} (${builtin} ${L('yerleşik', 'built-in')}` + (user > 0 ? ` + ${user} ${L('kullanıcı', 'user')}` : '') + ')';
+      skillInfo = `${all.length} (${builtin} ${L('yerleşik', 'built-in')}`
+        + (user > 0 ? ` + ${user} ${L('kullanıcı', 'user')}` : '') + ')';
     }
-  } catch {}
-  lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Skills           ') + tui.styled(skillInfo.padEnd(36), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
+  } catch { /* skill okunamazsa tire */ }
 
   let toolCount = '—';
   try {
     const { loadToolManifest } = require('../utils/tool-manifest');
     toolCount = String(loadToolManifest().size);
-  } catch {}
-  lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Tools            ') + tui.styled(String(toolCount).padEnd(36), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
+  } catch { /* manifest yoksa tire */ }
 
   const { describeEngine } = require('../utils/urdr-engine');
   const memoryEngine = await describeEngine();
-  const memoryInfo = `${memoryEngine.engine} (${memoryEngine.reason})`.slice(0, 36);
-  lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Memory engine    ') + tui.styled(memoryInfo.padEnd(36), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
 
-  lines.push(tui.styled('  ╰' + '─'.repeat(cardW) + '╯', { color: tui.PALETTE.border }));
-  console.log('\n' + tui.styled(L('  🩺 Sistem Durumu', '  🩺 System Status'), { color: tui.PALETTE.primary, bold: true }));
-  console.log(lines.join('\n'));
-  console.log('');
+  let host = cfg.providerUrl || '—';
+  try { if (cfg.providerUrl) host = new URL(cfg.providerUrl).hostname; } catch { /* ham değer */ }
+
+  const bolumler = [
+    {
+      satirlar: y.izgara([
+        ['sürüm', `v${version}`],
+        ['platform', `${process.platform} ${os.release()}`],
+      ]),
+    },
+    {
+      etiket: L('sağlayıcı', 'provider'),
+      satirlar: y.izgara([
+        ['adres', host, cfg.providerUrl ? 'ok' : 'uyari'],
+        ['model', cfg.providerModel || '—', cfg.providerModel ? 'ok' : 'uyari'],
+        ['hafıza motoru', memoryEngine.engine, 'ok'],
+      ].concat(cfg.botName ? [['ajan', cfg.botName]] : [])),
+    },
+    {
+      etiket: L('yüzey', 'surface'),
+      satirlar: y.izgara([
+        ['araç', String(toolCount)],
+        ['skill', skillInfo],
+        ['düğüm', String(nodeCount)],
+        [
+          'gateway',
+          gatewayRunning ? L('çalışıyor', 'running') : L('durmuş', 'stopped'),
+          gatewayRunning ? 'ok' : undefined,
+        ],
+      ]),
+    },
+  ];
+
+  await y.yuzey({
+    baslik: L('sistem durumu', 'system status'),
+    altBaslik: memoryEngine.reason,
+    bolumler,
+  });
+
 }
 
 function cmdSimple() {

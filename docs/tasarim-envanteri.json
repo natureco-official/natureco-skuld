@@ -1,0 +1,20 @@
+{
+  "aciklama": "Hala kutu cizen ekranlar. Bu liste YALNIZCA KISALABILIR.",
+  "neden": "Kutu bir arayuz taklidi ve sabit genislikle cizildigi icin icerik uzayinca bozulur. Yerine src/utils/yuzey.js kullanilir.",
+  "dondurma": "2026-07-30",
+  "kalan": [
+    "src/commands/agent.js",
+    "src/commands/approvals.js",
+    "src/commands/config.js",
+    "src/commands/cost.js",
+    "src/commands/gateway.js",
+    "src/commands/init.js",
+    "src/commands/seo.js",
+    "src/commands/skills.js",
+    "src/commands/team.js",
+    "src/commands/xp.js",
+    "src/utils/format.js",
+    "src/utils/input-box.js",
+    "src/utils/tool-card.js"
+  ]
+}

@@ -117,6 +117,19 @@ function viewportAroundCursor(graphemes, cursor, width) {
   };
 }
 
+function truncateToWidth(value, width) {
+  const limit = Math.max(0, Math.floor(width));
+  let result = '';
+  let used = 0;
+  for (const grapheme of segmentGraphemes(value)) {
+    const next = graphemeWidth(grapheme);
+    if (used + next > limit) break;
+    result += grapheme;
+    used += next;
+  }
+  return result;
+}
+
 function ansiStyle(text, color, { bold = false, dim = false, enabled = true } = {}) {
   if (!enabled) return text;
   const [r, g, b] = tui.hexToRgb(color);
@@ -131,6 +144,8 @@ function renderFrame({
   columns,
   placeholder = '',
   color = true,
+  suggestions = [],
+  selectedSuggestion = 0,
 } = {}) {
   const measuredColumns = Number(columns);
   if (!Number.isFinite(measuredColumns) || measuredColumns < 4) {
@@ -185,6 +200,17 @@ function renderFrame({
     );
   }
   lines.push(border(`╰${'─'.repeat(width - 2)}╯`));
+
+  const menuWidth = Math.max(1, width - 4);
+  suggestions.forEach((suggestion, index) => {
+    const selected = index === selectedSuggestion;
+    const command = String(suggestion?.value || '');
+    const description = String(suggestion?.description || '');
+    const raw = `${selected ? '›' : ' '} ${command}${description ? `  ${description}` : ''}`;
+    lines.push(ansiStyle(truncateToWidth(raw, menuWidth), selected
+      ? tui.PALETTE.primary
+      : tui.PALETTE.muted, { bold: selected, enabled: color }));
+  });
 
   return {
     mode: 'box',
@@ -312,6 +338,8 @@ function promptInput({
   history = [],
   placeholder = '',
   color = env?.NO_COLOR === undefined,
+  getTranscript,
+  slashCommands = [],
 } = {}) {
   const transport = bootstrapKeypressTransport(stdin);
   const model = createTextModel();
@@ -326,11 +354,28 @@ function promptInput({
   let pasteMode = false;
   let historyIndex = history.length;
   let draft = '';
+  let transcriptOpen = false;
+  let transcriptExpanded = false;
+  let transcriptOffset = Infinity;
+  let selectedSuggestion = 0;
+  let suggestionsDismissed = false;
   const priorRaw = Boolean(stdin.isRaw);
 
   return new Promise((resolve, reject) => {
     const redraw = () => {
-      const next = renderFrame({ model, columns: stdout.columns, placeholder, color });
+      if (transcriptOpen) {
+        renderTranscript();
+        return;
+      }
+      const suggestions = currentSuggestions();
+      const next = renderFrame({
+        model,
+        columns: stdout.columns,
+        placeholder,
+        color,
+        suggestions,
+        selectedSuggestion,
+      });
       stdout.write(`${CSI}?25l`);
       eraseRendered(stdout, rendered);
       drawRendered(stdout, next);
@@ -338,22 +383,108 @@ function promptInput({
       rendered = next;
     };
 
+    const currentSuggestions = () => {
+      const value = modelValue(model);
+      if (
+        suggestionsDismissed
+        || !value.startsWith('/')
+        || /\s/.test(value)
+        || model.cursor !== model.graphemes.length
+      ) return [];
+      const query = value.toLocaleLowerCase();
+      const matches = slashCommands
+        .filter(item => String(item?.value || '').toLocaleLowerCase().startsWith(query))
+        .slice(0, 8);
+      selectedSuggestion = Math.max(0, Math.min(selectedSuggestion, matches.length - 1));
+      return matches;
+    };
+
+    const resetSuggestions = () => {
+      selectedSuggestion = 0;
+      suggestionsDismissed = false;
+    };
+
+    const transcriptLines = () => {
+      const value = typeof getTranscript === 'function'
+        ? getTranscript({ expanded: transcriptExpanded })
+        : '';
+      return String(value || 'No tool transcript yet.').split('\n');
+    };
+
+    const renderTranscript = () => {
+      const rows = Math.max(6, Number(stdout.rows) || 24);
+      const height = rows - 2;
+      const lines = transcriptLines();
+      const maximum = Math.max(0, lines.length - height);
+      if (!Number.isFinite(transcriptOffset)) transcriptOffset = maximum;
+      transcriptOffset = Math.max(0, Math.min(maximum, transcriptOffset));
+      const page = lines.slice(transcriptOffset, transcriptOffset + height).join('\n');
+      const mode = transcriptExpanded ? 'expanded' : 'compact';
+      stdout.write(`${CSI}H${CSI}2J${page}`);
+      stdout.write(`${CSI}${rows};1H${CSI}2K` +
+        `Transcript (${mode}) · click a card: expand/collapse · mouse wheel/↑/↓/PgUp/PgDn · Ctrl+O/Esc: close`);
+    };
+
+    const openTranscript = ({ expanded = false } = {}) => {
+      if (typeof getTranscript !== 'function') return;
+      transcriptOpen = true;
+      transcriptExpanded = expanded;
+      transcriptOffset = Infinity;
+      stdout.write(`${CSI}?1049h${CSI}?1000h${CSI}?1006h${CSI}?25l`);
+      renderTranscript();
+    };
+
+    const closeTranscript = () => {
+      if (!transcriptOpen) return;
+      transcriptOpen = false;
+      stdout.write(`${CSI}?1006l${CSI}?1000l${CSI}?1049l${CSI}?25h`);
+    };
+
+    const handleTranscriptMouse = sequence => {
+      const mouse = String(sequence).match(/^\x1b\[<(\d+);(\d+);(\d+)([Mm])$/);
+      if (!transcriptOpen || !mouse) return false;
+      const button = Number(mouse[1]);
+      if (button === 0 && mouse[4] === 'M') {
+        const clickedLine = transcriptOffset + Math.max(0, Number(mouse[3]) - 1);
+        getTranscript?.({ expanded: transcriptExpanded, toggleLine: clickedLine });
+        renderTranscript();
+      } else if (button === 64) {
+        transcriptOffset -= 3;
+        renderTranscript();
+      } else if (button === 65) {
+        transcriptOffset += 3;
+        renderTranscript();
+      }
+      return true;
+    };
+
+    // Ana görünüm terminalin doğal scrollback/seçim/sağ tıklamasını korur.
+    // SGR fare paketleri yalnızca Ctrl+O transcript görünümü açıkken üretilir.
+    const onRawMouse = chunk => {
+      const sequence = Buffer.isBuffer(chunk) ? chunk.toString() : String(chunk);
+      handleTranscriptMouse(sequence);
+    };
+
     const cleanup = () => {
       let cleanupError;
       try {
+        closeTranscript();
         stdout.write(`${CSI}?25l`);
         eraseRendered(stdout, rendered);
       } catch (error) {
         cleanupError = error;
       }
       try { stdout.removeListener?.('resize', onResize); } catch (error) { cleanupError ||= error; }
+      try { stdin.removeListener?.('data', onRawMouse); } catch (error) { cleanupError ||= error; }
       try { releaseOwner?.(); } catch (error) { cleanupError ||= error; }
       try {
         if (typeof stdin.setRawMode === 'function') stdin.setRawMode(priorRaw);
       } catch (error) {
         cleanupError ||= error;
       }
-      try { stdout.write(`${CSI}?2004l${CSI}?25h`); } catch (error) { cleanupError ||= error; }
+      try {
+        stdout.write(`${CSI}?1006l${CSI}?1000l${CSI}?2004l${CSI}?25h`);
+      } catch (error) { cleanupError ||= error; }
       return cleanupError;
     };
 
@@ -412,6 +543,28 @@ function promptInput({
 
     const onKeypress = failSafe((text, key = {}) => {
       const sequence = String(key.sequence ?? text ?? '');
+      const togglesTranscript = (key.ctrl && key.name === 'o') || sequence === '\x0f';
+      if (transcriptOpen) {
+        if (togglesTranscript || key.name === 'escape' || sequence === 'q') {
+          closeTranscript();
+          return;
+        }
+        if (/^\x1b\[<\d+;\d+;\d+[Mm]$/.test(sequence)) return;
+        const pageSize = Math.max(1, (Number(stdout.rows) || 24) - 4);
+        if (key.name === 'up') transcriptOffset -= 1;
+        else if (key.name === 'down') transcriptOffset += 1;
+        else if (key.name === 'pageup') transcriptOffset -= pageSize;
+        else if (key.name === 'pagedown') transcriptOffset += pageSize;
+        else if (key.name === 'home') transcriptOffset = 0;
+        else if (key.name === 'end') transcriptOffset = Infinity;
+        else return;
+        renderTranscript();
+        return;
+      }
+      if (togglesTranscript) {
+        openTranscript({ expanded: false });
+        return;
+      }
       if (key.ctrl && key.name === 'c') {
         const error = new Error('SIGINT');
         error.code = 'SIGINT';
@@ -427,6 +580,17 @@ function promptInput({
         return;
       }
       if (isEnterKey(key, sequence)) {
+        const suggestions = currentSuggestions();
+        if (suggestions.length > 0) {
+          const selected = suggestions[selectedSuggestion];
+          const suffix = selected.requiresArgument ? ' ' : '';
+          replaceModel(model, `${selected.value}${suffix}`);
+          suggestionsDismissed = true;
+          if (selected.requiresArgument) {
+            redraw();
+            return;
+          }
+        }
         const value = modelValue(model);
         if (value) {
           for (let index = history.length - 1; index >= 0; index--) {
@@ -459,23 +623,47 @@ function promptInput({
           if (model.cursor > 0) {
             model.graphemes.splice(model.cursor - 1, 1);
             model.cursor--;
+            resetSuggestions();
             redraw();
           }
           return;
         case 'delete':
           if (model.cursor < model.graphemes.length) {
             model.graphemes.splice(model.cursor, 1);
+            resetSuggestions();
             redraw();
           }
           return;
         case 'up':
+          if (currentSuggestions().length > 0) {
+            const length = currentSuggestions().length;
+            selectedSuggestion = (selectedSuggestion - 1 + length) % length;
+            redraw();
+            return;
+          }
           changeHistory(-1);
           return;
         case 'down':
+          if (currentSuggestions().length > 0) {
+            selectedSuggestion = (selectedSuggestion + 1) % currentSuggestions().length;
+            redraw();
+            return;
+          }
           changeHistory(1);
           return;
         case 'escape':
+          if (currentSuggestions().length > 0) {
+            suggestionsDismissed = true;
+            redraw();
+          }
+          return;
         case 'tab':
+          if (currentSuggestions().length > 0) {
+            const selected = currentSuggestions()[selectedSuggestion];
+            replaceModel(model, `${selected.value}${selected.requiresArgument ? ' ' : ''}`);
+            suggestionsDismissed = true;
+            redraw();
+          }
           return;
         default:
           break;
@@ -485,6 +673,7 @@ function promptInput({
         isPrintableSequence(sequence)
         || (sequence && segmentGraphemes(sequence).length > 1)
       ) {
+        resetSuggestions();
         insertSequence(sequence);
       }
     });
@@ -495,6 +684,8 @@ function promptInput({
       if (typeof stdin.setRawMode === 'function') stdin.setRawMode(true);
       stdout.write(`${CSI}?2004h`);
       stdout.on?.('resize', onResize);
+      if (typeof stdin.prependListener === 'function') stdin.prependListener('data', onRawMouse);
+      else stdin.on?.('data', onRawMouse);
       releaseOwner = transport.acquire(onKeypress);
       redraw();
     } catch (error) {

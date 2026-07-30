@@ -112,6 +112,7 @@ function terminal(columns = 40) {
   const output = new EventEmitter();
   output.isTTY = true;
   output.columns = columns;
+  output.rows = 24;
   output.value = '';
   output.emulator = new MiniTerminal();
   output.write = vi.fn(chunk => {
@@ -127,6 +128,80 @@ function type(input, value) {
 }
 
 describe('chat-style input box', () => {
+  it('shows and selects slash commands with arrows and Enter', async () => {
+    const { input, output } = terminal(60);
+    const slashCommands = [
+      { value: '/help', description: 'Show help' },
+      { value: '/model', description: 'Switch model' },
+      { value: '/tools', description: 'List tools' },
+    ];
+    const pending = promptInput({ stdin: input, stdout: output, color: false, slashCommands });
+    type(input, '/');
+    expect(output.value).toContain('/help  Show help');
+    expect(output.value).toContain('/model  Switch model');
+    type(input, '\x1b[B');
+    type(input, '\r');
+    await expect(pending).resolves.toBe('/model');
+  });
+
+  it('keeps required slash-command arguments editable after selection', async () => {
+    const { input, output } = terminal(60);
+    const pending = promptInput({
+      stdin: input,
+      stdout: output,
+      color: false,
+      slashCommands: [{ value: '/run', description: 'Run command', requiresArgument: true }],
+    });
+    type(input, '/r');
+    type(input, '\r');
+    type(input, 'npm test');
+    type(input, '\r');
+    await expect(pending).resolves.toBe('/run npm test');
+  });
+
+  it('opens the tool transcript with Ctrl+O and toggles detail with a mouse click', async () => {
+    const { input, output } = terminal(60);
+    let expanded = false;
+    const getTranscript = vi.fn(options => {
+      if (Number.isInteger(options.toggleLine)) expanded = !expanded;
+      return expanded ? 'Tool: edit_file\n-old\n+new' : 'Tool: edit_file\n… (+2 lines)';
+    });
+    const pending = promptInput({ stdin: input, stdout: output, color: false, getTranscript });
+    type(input, 'draft');
+    expect(output.value).not.toContain('\x1b[?1000h');
+    type(input, '\x0f');
+    expect(output.value).toContain('\x1b[?1049h');
+    expect(output.value).toContain('\x1b[?1000h');
+    type(input, '\x1b[<0;5;1M');
+    expect(output.value).toContain('-old');
+    type(input, '\x0f');
+    type(input, '\r');
+    await expect(pending).resolves.toBe('draft');
+  });
+
+  it('leaves terminal mouse reporting disabled in the main view', async () => {
+    const { input, output } = terminal(60);
+    const getTranscript = vi.fn(() => 'Tool');
+    const pending = promptInput({ stdin: input, stdout: output, color: false, getTranscript });
+    expect(output.value).not.toContain('\x1b[?1000h');
+    expect(getTranscript).not.toHaveBeenCalled();
+    type(input, '\r');
+    await expect(pending).resolves.toBe('');
+  });
+
+  it('scrolls after the transcript is explicitly opened', async () => {
+    const { input, output } = terminal(60);
+    const transcript = Array.from({ length: 60 }, (_, index) => `line-${index + 1}`).join('\n');
+    const pending = promptInput({ stdin: input, stdout: output, color: false, getTranscript: () => transcript });
+    type(input, '\x0f');
+    type(input, '\x1b[<64;5;5M');
+    expect(output.value).toContain('mouse wheel');
+    expect(output.value).toContain('line-36');
+    type(input, '\x0f');
+    type(input, '\r');
+    await expect(pending).resolves.toBe('');
+  });
+
   it('(a) renders Turkish/emoji input and cleans the box before transcript output', async () => {
     const { input, output, screen } = terminal(45);
     const pending = promptInput({ stdin: input, stdout: output, history: [], color: false });
