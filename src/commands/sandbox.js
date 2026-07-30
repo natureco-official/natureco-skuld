@@ -45,7 +45,7 @@ function listSandboxes() {
       const dir = path.join(SANDBOX_DIR, name);
       const files = fs.readdirSync(dir).length;
       const created = fs.statSync(dir).birthtime;
-      console.log(`  ${chalk.green('●')} ${chalk.white(name)}  ${chalk.gray(`(${files} file(s), ${created.toISOString().slice(0, 10)})`)}`);
+      console.log(`  ${chalk.hex('#7dd3fc')('●')} ${chalk.white(name)}  ${chalk.gray(`(${files} file(s), ${created.toISOString().slice(0, 10)})`)}`);
     }
   }
 
@@ -84,7 +84,7 @@ function createSandbox(name) {
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, '.nskuld-sandbox'), JSON.stringify({ created: new Date().toISOString(), name: sandboxName }));
 
-  console.log(chalk.green(`\n  ✅ Sandbox created: ${sandboxName}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ Sandbox created: ${sandboxName}\n`));
   console.log(chalk.gray(`  Directory: ${dir}\n`));
   console.log(chalk.gray('  Usage:') + chalk.cyan(` nskuld sandbox exec ${sandboxName} "node -e 'console.log(\\"hello\\")'"`) + '\n');
 }

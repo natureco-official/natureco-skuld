@@ -57,7 +57,7 @@ async function gitReview() {
     const response = await sendMessage(apiKey, bot.id, prompt, null, '');
     const reply = response.reply || response.message || 'No response';
     
-    console.log(chalk.green('Code Review:\n'));
+    console.log(chalk.hex('#7dd3fc')('Code Review:\n'));
     console.log(chalk.white(reply));
     console.log('');
   } catch (err) {
@@ -94,7 +94,7 @@ async function gitCommit() {
     // Clean up the message
     commitMessage = commitMessage.trim().replace(/^["']|["']$/g, '');
     
-    console.log(chalk.green('Suggested commit message:\n'));
+    console.log(chalk.hex('#7dd3fc')('Suggested commit message:\n'));
     console.log(chalk.white(commitMessage));
     console.log('');
     
@@ -112,7 +112,7 @@ async function gitCommit() {
     if (answer.confirm) {
       try {
         execFileSync('git', ['commit', '-m', commitMessage], { stdio: 'inherit' });
-        console.log(chalk.green('\n✅ Committed successfully\n'));
+        console.log(chalk.hex('#7dd3fc')('\n✅ Committed successfully\n'));
       } catch (err) {
         console.log(chalk.red('\n❌ Commit failed\n'));
         process.exit(1);
@@ -154,7 +154,7 @@ async function gitPR() {
     const response = await sendMessage(apiKey, bot.id, prompt, null, '');
     const prDescription = response.reply || response.message || 'No description';
     
-    console.log(chalk.green('PR Description:\n'));
+    console.log(chalk.hex('#7dd3fc')('PR Description:\n'));
     console.log(chalk.white(prDescription));
     console.log('');
   } catch (err) {
@@ -190,7 +190,7 @@ async function gitExplain() {
     const response = await sendMessage(apiKey, bot.id, prompt, null, '');
     const explanation = response.reply || response.message || 'No explanation';
     
-    console.log(chalk.green('Commit Explanation:\n'));
+    console.log(chalk.hex('#7dd3fc')('Commit Explanation:\n'));
     console.log(chalk.white(explanation));
     console.log('');
   } catch (err) {

@@ -129,7 +129,7 @@ async function addCron(options) {
   crons.push(newCron);
   saveCrons(crons);
   
-  console.log(chalk.green(L('\n✅ Cron eklendi!\n', '\n✅ Cron added!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ Cron eklendi!\n', '\n✅ Cron added!\n')));
   console.log(chalk.cyan(L('İsim:', 'Name:')), chalk.white(name));
   console.log(chalk.cyan(L('Zamanlama:', 'Schedule:')), chalk.white(schedule));
   console.log(chalk.cyan(L('Kanal:', 'Channel:')), chalk.white(action));

@@ -60,7 +60,7 @@ async function connectSlack() {
   config.slackBotId = botId;
   saveConfig(config);
   
-  console.log(chalk.green(L('✅ Slack token kaydedildi!\n', '✅ Slack token saved!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('✅ Slack token kaydedildi!\n', '✅ Slack token saved!\n')));
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(answers.token)));
   console.log(chalk.gray(L('\nNot: Slack botunuzu Slack App settings\'ten yapılandırmanız gerekiyor.', '\nNote: You need to configure your Slack bot from the Slack App settings.')));
@@ -96,7 +96,7 @@ async function disconnectSlack() {
   delete config.slackBotId;
   saveConfig(config);
   
-  console.log(chalk.green('\n✅ Slack disconnected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ Slack disconnected\n'));
   console.log(chalk.gray('Note: The bot is still registered on Slack.'));
   console.log(chalk.gray('You may need to manually remove it from Slack App settings.\n'));
 }
@@ -110,7 +110,7 @@ function statusSlack() {
     return;
   }
   
-  console.log(chalk.green('\n✅ Slack connected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ Slack connected\n'));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(config.slackToken)));
   
   if (config.slackBotId) {

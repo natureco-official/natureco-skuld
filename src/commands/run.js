@@ -59,7 +59,7 @@ async function run(scriptPath) {
     process.stdout.write('\r');
 
     const botReply = response.reply || response.message || 'Yanıt alınamadı';
-    console.log(chalk.green(`\n${botReply}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n${botReply}\n`));
   } catch (err) {
     clearInterval(loadingInterval);
     process.stdout.write('\r');

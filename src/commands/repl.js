@@ -817,7 +817,7 @@ async function sendStreaming(providerUrl, providerApiKey, messages, model, onChu
           });
         });
         if (approved === true) {
-          console.log(tui.C.green(L('  ✓ Plan onaylandı. Plan uygulanıyor...\n', '  ✓ Plan approved. Applying...\n')));
+          console.log(tui.C.hex('#7dd3fc')(L('  ✓ Plan onaylandı. Plan uygulanıyor...\n', '  ✓ Plan approved. Applying...\n')));
           // Devam — model cevap versin
         } else if (approved === 'edit') {
           console.log(tui.C.yellow(L('  📝 Planı düzenleyin ve /plan ile yeniden gönderin.\n', '  📝 Edit the plan and resubmit with /plan.\n')));
@@ -1199,7 +1199,7 @@ async function startRepl(args) {
     const session = loadSession(resumeId);
     if (session) {
       messages = session.messages || [];
-      console.log(chalk.green(`\n  ✓ ${L('Oturum yüklendi', 'Session loaded')}: ${session.id} (${messages.length} ${L('mesaj', 'messages')})\n`));
+      console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Oturum yüklendi', 'Session loaded')}: ${session.id} (${messages.length} ${L('mesaj', 'messages')})\n`));
     } else {
       console.log(chalk.yellow(`\n  ⚠️  ${L('Oturum bulunamadı', 'Session not found')}: ${resumeId}\n`));
     }
@@ -1488,7 +1488,7 @@ async function startRepl(args) {
         case 'history':
           console.log(chalk.cyan(L('\n  📜 Bu oturumun geçmişi:\n', '\n  📜 This session\'s history:\n')));
           for (const m of messages.filter(m => !m._internal)) {
-            const role = m.role === 'user' ? chalk.green('You') : chalk.blue('AI  ');
+            const role = m.role === 'user' ? chalk.hex('#7dd3fc')('You') : chalk.blue('AI  ');
             const content = (m.content || '').slice(0, 120) + ((m.content || '').length > 120 ? '...' : '');
             console.log(`  ${role}  ${content}`);
           }
@@ -1521,7 +1521,7 @@ async function startRepl(args) {
             promptOpts.memorySnapshotBlock = memoryStore.getSystemPromptBlock();
             systemPrompt = rebuildSystemPrompt(promptOpts);
             messages[0] = { role: 'system', content: systemPrompt, _internal: true };
-            console.log(chalk.green(L('  ✓ Memory temizlendi', '  ✓ Memory cleared')));
+            console.log(chalk.hex('#7dd3fc')(L('  ✓ Memory temizlendi', '  ✓ Memory cleared')));
           } catch (e) {
             console.log(chalk.red('  ❌ ' + e.message));
           }
@@ -1543,7 +1543,7 @@ async function startRepl(args) {
             const sysIdx = messages.findIndex(m => m._internal);
             if (sysIdx >= 0) messages[sysIdx] = { role: 'system', content: systemPrompt, _internal: true };
             else messages.unshift({ role: 'system', content: systemPrompt, _internal: true });
-            console.log(chalk.green(`  ✓ ${L('Oturum yüklendi', 'Session loaded')}: ${session.id} (${messages.length} ${L('mesaj', 'messages')})`));
+            console.log(chalk.hex('#7dd3fc')(`  ✓ ${L('Oturum yüklendi', 'Session loaded')}: ${session.id} (${messages.length} ${L('mesaj', 'messages')})`));
           } else {
             console.log(chalk.yellow(`  ⚠️  ${L('Oturum bulunamadı', 'Session not found')}: ${arg}`));
           }
@@ -1560,12 +1560,30 @@ async function startRepl(args) {
           const volTiers = buildTiers(volOpts);
           systemPrompt = assemble(_cachedStable, _cachedContext, volTiers.volatile);
           messages[0] = { role: 'system', content: systemPrompt, _internal: true };
-          console.log(chalk.green(L('  ✓ System prompt güncellendi', '  ✓ System prompt updated')));
+          console.log(chalk.hex('#7dd3fc')(L('  ✓ System prompt güncellendi', '  ✓ System prompt updated')));
           break;
         case 'model':
-          if (!arg) { console.log(chalk.yellow(L('  Kullanım: /model <name>', '  Usage: /model <name>'))); break; }
-          model = arg;
-          console.log(chalk.green('  ✓ Model: ') + chalk.cyan(model));
+          if (!arg) {
+            const { discoverProviderModels } = require('./models');
+            const discovered = await discoverProviderModels({ ...cfg, providerModel: model }, { timeout: 5000 });
+            console.log(chalk.cyan(L('\n  Kullanılabilir Modeller\n', '\n  Available Models\n')));
+            discovered.models.forEach((entry, index) => {
+              const active = entry.id === model ? chalk.hex('#7dd3fc')(L(' ← aktif', ' ← active')) : '';
+              console.log(chalk.white(`  ${index + 1}. ${entry.id}`) + active);
+            });
+            console.log(chalk.gray(L('\n  Seçmek için: /model <numara veya model-id>', '\n  Select with: /model <number or model-id>')));
+            break;
+          }
+          {
+            const { discoverProviderModels, resolveModelSelection } = require('./models');
+            const discovered = await discoverProviderModels({ ...cfg, providerModel: model }, { timeout: 5000 });
+            const selection = resolveModelSelection(arg, discovered.models);
+            if (!selection) { console.log(chalk.red(L('  Geçersiz model seçimi', '  Invalid model selection'))); break; }
+            model = selection.id;
+            cfg.providerModel = model;
+            require('../utils/config').saveConfig(cfg);
+            console.log(chalk.hex('#7dd3fc')('  ✓ Model: ') + chalk.cyan(model));
+          }
           break;
         case 'identity':
           if (!arg) { console.log(chalk.yellow(`  ${L('Mevcut', 'Current')}: ${memory.botName || L('Asistan', 'Assistant')}`)); break; }
@@ -1579,7 +1597,7 @@ async function startRepl(args) {
           promptOpts.memoryFacts = memory.facts || [];
           systemPrompt = rebuildSystemPrompt(promptOpts);
           messages[0] = { role: 'system', content: systemPrompt, _internal: true };
-          console.log(chalk.green(L('  ✓ Bot adı: ', '  ✓ Bot name: ')) + chalk.cyan(arg));
+          console.log(chalk.hex('#7dd3fc')(L('  ✓ Bot adı: ', '  ✓ Bot name: ')) + chalk.cyan(arg));
           break;
         case 'tokens':
           console.log(chalk.gray(`  Token: ~${totalInputTokens} in / ~${totalOutputTokens} out`));
@@ -1611,7 +1629,7 @@ async function startRepl(args) {
           const sessId = saveSession(messages, {
             provider: providerUrl, model, user: cfg.userName, bot: memory.botName,
           });
-          console.log(chalk.green(L('  ✓ Kaydedildi: ', '  ✓ Saved: ')) + chalk.cyan(sessId));
+          console.log(chalk.hex('#7dd3fc')(L('  ✓ Kaydedildi: ', '  ✓ Saved: ')) + chalk.cyan(sessId));
           break;
         default:
           // CLI komutları (REPL içinden)

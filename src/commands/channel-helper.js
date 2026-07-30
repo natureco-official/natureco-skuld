@@ -27,7 +27,7 @@ async function checkExistingToken(config, channelKey, channelName) {
   // Mevcut token goster (maskelenmis)
   const masked = maskToken(config[channelKey]);
 
-  console.log(chalk.green('\n✓ ' + channelName + L(' token zaten kayıtlı: ', ' token already saved: ') + masked));
+  console.log(chalk.hex('#7dd3fc')('\n✓ ' + channelName + L(' token zaten kayıtlı: ', ' token already saved: ') + masked));
 
   if (config[channelKey + 'BotId']) {
     console.log(chalk.gray('  Bot ID: ' + config[channelKey + 'BotId']));
@@ -45,7 +45,7 @@ async function checkExistingToken(config, channelKey, channelName) {
   }]);
 
   if (!ans.change) {
-    console.log(chalk.green(L('\n✅ Mevcut token kullanılacak.\n', '\n✅ Existing token will be used.\n')));
+    console.log(chalk.hex('#7dd3fc')(L('\n✅ Mevcut token kullanılacak.\n', '\n✅ Existing token will be used.\n')));
     console.log(chalk.gray(L('Gateway başlatmak için: nskuld gateway start\n', 'To start the gateway: nskuld gateway start\n')));
     return false; // Mevcut kullanilacak
   }

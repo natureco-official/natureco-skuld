@@ -35,7 +35,7 @@ function discoverNetwork() {
 
   const tailscaleIP = detectTailscale();
   if (tailscaleIP) {
-    console.log(`\n  ${chalk.green('●')} ${chalk.white('Tailscale')}: ${chalk.cyan(tailscaleIP)}`);
+    console.log(`\n  ${chalk.hex('#7dd3fc')('●')} ${chalk.white('Tailscale')}: ${chalk.cyan(tailscaleIP)}`);
     const hostname = os.hostname();
     dns.resolveTxt(`_natureco._tcp.${hostname}.tailscale.net`, (err, records) => {
       if (!err && records) {
@@ -46,7 +46,7 @@ function discoverNetwork() {
 
   const zerotier = detectZeroTier();
   if (zerotier) {
-    console.log(`  ${chalk.green('●')} ${chalk.white('ZeroTier')}: ${chalk.cyan(zerotier)}`);
+    console.log(`  ${chalk.hex('#7dd3fc')('●')} ${chalk.white('ZeroTier')}: ${chalk.cyan(zerotier)}`);
   }
 
   console.log(chalk.gray('\n  mDNS: ') + chalk.cyan('nskuld bonjour scan'));
@@ -170,7 +170,7 @@ function discoverServices() {
     dns.resolveSrv(svc + '.local', { hints: dns.ADDRCONFIG }, (err, addresses) => {
       if (!err && addresses && addresses.length > 0) {
         found = true;
-        console.log(`  ${chalk.green('●')} ${chalk.white(svc)}`);
+        console.log(`  ${chalk.hex('#7dd3fc')('●')} ${chalk.white(svc)}`);
         for (const addr of addresses) {
           dns.resolve4(addr.name, { hints: dns.ADDRCONFIG }, (err4, ips) => {
             const ip = ips && ips.length > 0 ? `(${ips[0]})` : '';

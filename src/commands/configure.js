@@ -65,7 +65,7 @@ async function cmdGateway() {
   cfg.gatewayPort = parseInt(port) || cfg.gatewayPort || 3848;
   saveConfig(cfg);
 
-  console.log(chalk.green(`\n  Gateway updated: ${cfg.gatewayUrl}:${cfg.gatewayPort}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Gateway updated: ${cfg.gatewayUrl}:${cfg.gatewayPort}\n`));
 }
 
 async function cmdAuth() {
@@ -77,7 +77,7 @@ async function cmdAuth() {
   if (key) {
     cfg.providerApiKey = key;
     saveConfig(cfg);
-    console.log(chalk.green('\n  API key updated.\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  API key updated.\n'));
   } else {
     console.log(chalk.gray('\n  No changes made.\n'));
   }

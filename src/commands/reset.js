@@ -77,7 +77,7 @@ async function reset() {
     const f = path.join(baseDir, 'config.json');
     if (fs.existsSync(f)) {
       fs.unlinkSync(f);
-      console.log(chalk.green('  \u2713 config.json silindi'));
+      console.log(chalk.hex('#7dd3fc')('  \u2713 config.json silindi'));
     }
   }
 
@@ -85,7 +85,7 @@ async function reset() {
     const d = path.join(baseDir, 'memory');
     if (fs.existsSync(d)) {
       fs.rmSync(d, { recursive: true });
-      console.log(chalk.green('  \u2713 memory/ silindi'));
+      console.log(chalk.hex('#7dd3fc')('  \u2713 memory/ silindi'));
     }
   }
 
@@ -93,7 +93,7 @@ async function reset() {
     const d = path.join(baseDir, 'sessions');
     if (fs.existsSync(d)) {
       fs.rmSync(d, { recursive: true });
-      console.log(chalk.green('  \u2713 sessions/ silindi'));
+      console.log(chalk.hex('#7dd3fc')('  \u2713 sessions/ silindi'));
     }
   }
 
@@ -101,7 +101,7 @@ async function reset() {
     const d = path.join(baseDir, 'soul');
     if (fs.existsSync(d)) {
       fs.rmSync(d, { recursive: true });
-      console.log(chalk.green('  \u2713 soul/ silindi (generic doner)'));
+      console.log(chalk.hex('#7dd3fc')('  \u2713 soul/ silindi (generic doner)'));
     }
   }
 
@@ -109,7 +109,7 @@ async function reset() {
     const d = path.join(baseDir, 'personal');
     if (fs.existsSync(d)) {
       fs.rmSync(d, { recursive: true });
-      console.log(chalk.green('  \u2713 personal/ silindi'));
+      console.log(chalk.hex('#7dd3fc')('  \u2713 personal/ silindi'));
     }
   }
 

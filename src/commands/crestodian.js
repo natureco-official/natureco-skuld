@@ -60,14 +60,14 @@ async function crestodian(args) {
   // Print results
   const failed = checks.filter(c => !c.ok);
   for (const check of checks) {
-    const icon = check.ok ? chalk.green('✅') : check.optional ? chalk.gray('⬜') : chalk.red('❌');
+    const icon = check.ok ? chalk.hex('#7dd3fc')('✅') : check.optional ? chalk.gray('⬜') : chalk.red('❌');
     console.log(`  ${icon} ${chalk.white(check.name)} ${chalk.gray('- ' + check.message)}`);
   }
 
   console.log(chalk.gray('\n  ' + '─'.repeat(48)));
 
   if (failed.length === 0) {
-    console.log(chalk.green('\n  ✅ All checks passed!\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  ✅ All checks passed!\n'));
   } else {
     console.log(chalk.yellow(`\n  ⚠️  ${failed.length} issue(s) found:\n`));
     for (const f of failed) {

@@ -109,7 +109,7 @@ function cmdRun(opts = {}) {
   if (opts.fix) {
     const { applied, failed } = applyFixes();
     if (applied.length) {
-      console.log('\n' + tui.C.green(L('  🔧 Düzeltildi:', '  🔧 Fixed:')));
+      console.log('\n' + tui.C.hex('#7dd3fc')(L('  🔧 Düzeltildi:', '  🔧 Fixed:')));
       applied.forEach(a => console.log('     ' + tui.C.text('• ' + a)));
     } else {
       console.log('\n' + tui.C.muted(L('  🔧 Düzeltilecek bir şey yok — sistem zaten düzgün.', '  🔧 Nothing to fix — system is already fine.')));
@@ -170,7 +170,7 @@ function cmdRun(opts = {}) {
   } else if (warnings > 0) {
     console.log('\n' + tui.C.amber(L('  ⚠️  Bazı kontroller belirlenemedi.', '  ⚠️  Some checks could not be determined.')));
   } else {
-    console.log('\n' + tui.C.green(L('  ✨ Tüm kontroller geçti! Sistem sağlıklı.', '  ✨ All checks passed! System healthy.')));
+    console.log('\n' + tui.C.hex('#7dd3fc')(L('  ✨ Tüm kontroller geçti! Sistem sağlıklı.', '  ✨ All checks passed! System healthy.')));
   }
   console.log('');
 }

@@ -78,7 +78,7 @@ function cmdShow(id) {
   const msgs = found.data.messages || [];
   console.log(`  ${chalk.white('Messages:')}  ${chalk.cyan(msgs.length)}`);
   for (const msg of msgs.slice(-10)) {
-    const role = msg.role === 'user' ? chalk.green('You') : chalk.cyan('Bot');
+    const role = msg.role === 'user' ? chalk.hex('#7dd3fc')('You') : chalk.cyan('Bot');
     const content = (msg.content || '').slice(0, 200);
     console.log(`  ${role}: ${chalk.white(content)}`);
   }

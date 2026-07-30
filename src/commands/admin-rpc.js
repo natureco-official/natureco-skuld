@@ -96,7 +96,7 @@ function statusAdmin() {
   const running = serverInstance !== null;
   console.log(chalk.cyan('\n  🖥️  Admin HTTP RPC\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
-  console.log(`  ${chalk.white('Server:')}       ${running ? chalk.green(`http://localhost:${serverInstance?.port || 3847}`) : chalk.red('Durduruldu')}`);
+  console.log(`  ${chalk.white('Server:')}       ${running ? chalk.hex('#7dd3fc')(`http://localhost:${serverInstance?.port || 3847}`) : chalk.red('Durduruldu')}`);
   console.log(`  ${chalk.white('Methods:')}       ${ALLOWED_METHODS.length}`);
   console.log(chalk.gray('\n  Commands:'));
   console.log(chalk.cyan('    start [port]') + chalk.gray('  Start RPC server (default: 3847)'));
@@ -136,7 +136,7 @@ async function callMethod(method, jsonParams) {
   console.log(chalk.cyan(`\n  📡 Calling: ${method}\n`));
 
   if (method === 'health') {
-    console.log(chalk.green('  ✅ System healthy'));
+    console.log(chalk.hex('#7dd3fc')('  ✅ System healthy'));
     console.log(chalk.gray(`  Node: ${process.version}`));
     console.log(chalk.gray(`  Platform: ${process.platform}`));
     console.log(chalk.gray(`  Memory: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB\n`));
@@ -145,7 +145,7 @@ async function callMethod(method, jsonParams) {
 
   if (method === 'status') {
     const config = getConfig();
-    console.log(chalk.green('  ✅ Status\n'));
+    console.log(chalk.hex('#7dd3fc')('  ✅ Status\n'));
     console.log(chalk.gray(`  Gateway: ${config.gatewayUrl || 'not configured'}`));
     console.log(chalk.gray(`  Provider: ${config.provider || 'not set'}`));
     console.log(chalk.gray(`  Model: ${config.model || 'not set'}\n`));
@@ -155,7 +155,7 @@ async function callMethod(method, jsonParams) {
   if (method === 'plugins.list') {
     const { loadTools } = require('../utils/tool-runner');
     const tools = loadTools();
-    console.log(chalk.green(`  📦 ${Object.keys(tools).length} tools loaded\n`));
+    console.log(chalk.hex('#7dd3fc')(`  📦 ${Object.keys(tools).length} tools loaded\n`));
     for (const [name, t] of Object.entries(tools)) {
       console.log(`  ${chalk.white('●')} ${name} ${chalk.gray('- ' + (t.description || '').substring(0, 60))}`);
     }
@@ -194,7 +194,7 @@ async function callMethod(method, jsonParams) {
     const { setConfigValue } = require('../utils/config');
     if (!params.key) { console.log(chalk.red(L('\n  ❌ params.key gerekli\n', '\n  ❌ params.key required\n'))); process.exit(1); }
     setConfigValue(params.key, params.value);
-    console.log(chalk.green(`\n  ✅ config.${params.key} = •••• saved\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✅ config.${params.key} = •••• saved\n`));
     return;
   }
 
@@ -206,7 +206,7 @@ async function callMethod(method, jsonParams) {
     if (method === 'channels.status') {
       for (const ch of channels) {
         const token = cfg[`${ch}Token`];
-        console.log(`  ${token ? chalk.green('●') : chalk.gray('○')} ${ch} ${token ? chalk.gray('(configured)') : chalk.gray('(not set)')}`);
+        console.log(`  ${token ? chalk.hex('#7dd3fc')('●') : chalk.gray('○')} ${ch} ${token ? chalk.gray('(configured)') : chalk.gray('(not set)')}`);
       }
     } else {
       const ch = params.name || 'all';
@@ -223,7 +223,7 @@ async function callMethod(method, jsonParams) {
     console.log(chalk.cyan(`\n  👤 Agents (${summary.active} active, ${summary.total} total)\n`));
     console.log(chalk.gray('  ' + '─'.repeat(48)));
     for (const t of tasks.slice(0, 10)) {
-      const icon = t.status === 'succeeded' ? chalk.green('✓') : t.status === 'running' ? chalk.yellow('●') : chalk.gray('○');
+      const icon = t.status === 'succeeded' ? chalk.hex('#7dd3fc')('✓') : t.status === 'running' ? chalk.yellow('●') : chalk.gray('○');
       console.log(`  ${icon} ${chalk.white(t.message || '(no message)')}`);
       console.log(chalk.gray(`     [${t.id}] ${t.runtime} — ${t.status}`));
     }
@@ -352,7 +352,7 @@ function startAdmin(portStr, opts = {}) {
   serverInstance.port = port;
 
   server.listen(port, host, () => {
-    console.log(chalk.green(`\n  ✅ Admin RPC server started on http://${host}:${port}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✅ Admin RPC server started on http://${host}:${port}\n`));
     if (expose) {
       console.log(chalk.red('  ⚠️  --expose ile TÜM ağ arayüzlerinde (0.0.0.0) dinliyor. Bearer token ZORUNLU; yine de yalnızca güvendiğin ağda kullan.'));
     }

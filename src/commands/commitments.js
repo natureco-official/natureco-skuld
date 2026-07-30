@@ -64,7 +64,7 @@ function addC(text) {
   const c = { id: genId(), text, status: 'pending', createdAt: new Date().toISOString(), resolvedAt: null };
   items.push(c);
   save(items);
-  console.log(chalk.green(`\n  ✅ ${L('Commitment eklendi', 'Commitment added')}: ${c.id}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ ${L('Commitment eklendi', 'Commitment added')}: ${c.id}\n`));
   console.log(`  ${chalk.white(c.text)}`);
   console.log();
 }
@@ -80,7 +80,7 @@ function checkC(id) {
   if (c.status === 'resolved') { console.log(chalk.yellow(`\n  ⚠️  "${c.text}" ${L('zaten çözülmüş', 'already resolved')}\n`)); return; }
   c.status = 'checked';
   save(items);
-  console.log(chalk.green(`\n  ☑️  "${c.text}" ${L('tamamlandı olarak işaretlendi', 'marked as done')}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ☑️  "${c.text}" ${L('tamamlandı olarak işaretlendi', 'marked as done')}\n`));
 }
 
 function resolveC(id) {
@@ -93,7 +93,7 @@ function resolveC(id) {
       c.resolvedAt = new Date().toISOString();
     }
     save(items);
-    console.log(chalk.green(`\n  ✅ ${pending.length} ${L('commitment çözüldü', 'commitments resolved')}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✅ ${pending.length} ${L('commitment çözüldü', 'commitments resolved')}\n`));
     return;
   }
   const items = load();
@@ -102,7 +102,7 @@ function resolveC(id) {
   c.status = 'resolved';
   c.resolvedAt = new Date().toISOString();
   save(items);
-  console.log(chalk.green(`\n  ✅ "${c.text}" ${L('çözüldü', 'resolved')}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ "${c.text}" ${L('çözüldü', 'resolved')}\n`));
 }
 
 function pendingC() {
@@ -128,7 +128,7 @@ function summaryC() {
   console.log(chalk.cyan('\n  📊 Commitments Summary\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   console.log(`  ${chalk.white(L('Toplam:', 'Total:'))}   ${total}`);
-  console.log(`  ${chalk.green(L('Çözülen:', 'Resolved:'))}  ${resolved}`);
+  console.log(`  ${chalk.hex('#7dd3fc')(L('Çözülen:', 'Resolved:'))}  ${resolved}`);
   console.log(`  ${chalk.yellow('Kontrol:')}  ${checked}`);
   console.log(`  ${chalk.cyan('Kalan:')}    ${pending}`);
   console.log();

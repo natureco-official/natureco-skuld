@@ -36,7 +36,8 @@ const {
 const { loadMcpToolDefinitions } = require("../utils/mcp-tools");
 const { supportsNativeToolCalls } = require("../utils/provider-detect");
 const tema = require("../utils/skuld-theme");
-const { getConfig } = require("../utils/config");
+const { getConfig, saveConfig } = require("../utils/config");
+const { discoverProviderModels, resolveModelSelection } = require('./models');
 const { loadToolDefinitions, executeTool, toOpenAIFormat } = require("../utils/tools");
 const { runPostHooks } = require("../utils/tool-hooks");
 const { createToolGate, assessRisk } = require("../utils/tool-gate");
@@ -875,7 +876,7 @@ async function codeV5(targetPath, cliOptions = {}) {
   }
   if (!headlessPrompt) {
     if (restored) {
-      console.log("  " + tui.C.green(
+      console.log("  " + tui.C.hex('#7dd3fc')(
         `↺ ${L('oturum geri yüklendi', 'session restored')}: ${restored.id} (${messages.length - 1} ${L('mesaj', 'messages')})`,
       ));
     } else if (cliOptions.continue || cliOptions.resume) {
@@ -1139,7 +1140,7 @@ async function codeV5(targetPath, cliOptions = {}) {
     ['/compact', L('Konuşma bağlamını şimdi sıkıştır', 'Compact the conversation context now')],
     ['/context', L('Bağlam kullanımını göster', 'Show context usage')],
     ['/tools', L('Yüklü araçları listele', 'List loaded tools')],
-    ['/model', L('Aktif modeli göster', 'Show the active model')],
+    ['/model [model|no]', L('Modeli listele veya değiştir', 'List or change model')],
     ['/undo [dosya]', L('Son dosya değişikliğini geri al', 'Undo the last file change')],
     ['/retry', L('Son isteği tekrar çalıştır', 'Re-run the last request')],
     ['/run <komut>', L('Komutu çalıştır, çıktısını bağlama ekle', 'Run a command and add its output to context')],
@@ -1169,7 +1170,7 @@ async function codeV5(targetPath, cliOptions = {}) {
     console.log("\n  " + tui.C.muted(`▶ ${command}`));
     try {
       const output = execSync(command, { cwd, timeout: 120000, stdio: 'pipe' }).toString();
-      console.log("  " + tui.C.green(L('✓ Başarılı', '✓ Success')));
+      console.log("  " + tui.C.hex('#7dd3fc')(L('✓ Başarılı', '✓ Success')));
       if (output.trim()) console.log(tui.C.muted("  " + output.trim().split('\n').slice(0, 40).join('\n  ')));
       return { ok: true, output };
     } catch (error) {
@@ -1235,11 +1236,36 @@ async function codeV5(targetPath, cliOptions = {}) {
         console.log("  " + tui.C.text(names.join(', ')));
         return true;
       }
-      case 'model':
-        console.log("\n  " + tui.C.muted(L('Model', 'Model') + ': ') + tui.C.text(config.providerModel || '—'));
-        console.log("  " + tui.C.muted(L('Sağlayıcı', 'Provider') + ': ') + tui.C.text(config.providerUrl || '—'));
-        console.log("  " + tui.C.muted(L('Değiştirmek için: nskuld models', 'To change it: nskuld models')));
+      case 'model': {
+        const discovered = await discoverProviderModels(config, { timeout: 5000 });
+        if (discovered.warning) {
+          console.log("\n  " + tui.C.yellow(L('Canlı model listesi alınamadı; yerel katalog kullanılıyor.', 'Live model list unavailable; using the local catalogue.')));
+        }
+        if (!discovered.models.length) {
+          console.log("\n  " + tui.C.yellow(L('Bu sağlayıcı için model bulunamadı.', 'No models found for this provider.')));
+          return true;
+        }
+        let selection = arg ? resolveModelSelection(arg, discovered.models) : null;
+        if (!arg) {
+          console.log("\n  " + tui.C.muted(L('Kullanılabilir modeller', 'Available models') + ` (${discovered.source}):`));
+          discovered.models.forEach((entry, index) => {
+            const active = entry.id === config.providerModel ? ` ${L('← aktif', '← active')}` : '';
+            console.log("  " + tui.C.text(`${String(index + 1).padStart(2)}. ${entry.id}`) + tui.C.hex('#7dd3fc')(active));
+          });
+          const answer = await askLine("\n  " + L('Model numarası veya kimliği (boş=iptal): ', 'Model number or ID (empty=cancel): '));
+          if (!answer) return true;
+          selection = resolveModelSelection(answer, discovered.models);
+        }
+        if (!selection) {
+          console.log("  " + tui.C.red(L('Geçersiz model seçimi.', 'Invalid model selection.')));
+          return true;
+        }
+        config.providerModel = selection.id;
+        saveConfig(config);
+        messages.push({ role: 'system', content: `[Model changed to ${selection.id}]` });
+        console.log("  " + tui.C.hex('#7dd3fc')('✓ ') + tui.C.text(selection.id));
         return true;
+      }
       case 'undo': {
         const target = arg || lastChangedFile;
         if (!target) {
@@ -1255,7 +1281,7 @@ async function codeV5(targetPath, cliOptions = {}) {
         const restored = fh.restore(target, history[0].timestamp);
         console.log("  " + (restored.error
           ? tui.C.red(restored.error)
-          : tui.C.green(`✓ ${L('geri alındı', 'restored')}: ${target}`)));
+          : tui.C.hex('#7dd3fc')(`✓ ${L('geri alındı', 'restored')}: ${target}`)));
         return true;
       }
       case 'retry':
@@ -1312,7 +1338,7 @@ async function codeV5(targetPath, cliOptions = {}) {
         }
         try {
           execFileSync('git', ['commit', '-m', message], { cwd, stdio: 'pipe' });
-          console.log("  " + tui.C.green(L('✓ Commit yapıldı.', '✓ Committed.')));
+          console.log("  " + tui.C.hex('#7dd3fc')(L('✓ Commit yapıldı.', '✓ Committed.')));
         } catch (error) {
           console.log("  " + tui.C.red(`${L('Commit başarısız', 'Commit failed')}: ${error.message}`));
         }
@@ -1321,7 +1347,7 @@ async function codeV5(targetPath, cliOptions = {}) {
       case 'index': {
         projectCtx = indexProject(cwd);
         messages[0] = { role: 'system', content: messages[0].content.replace(/Project information:[\s\S]*?(?=\n\n|$)/, buildIndexPrompt(projectCtx)) };
-        console.log("\n  " + tui.C.green(`✓ ${projectCtx.files.length} ${L('dosya indekslendi', 'files indexed')} (${projectCtx.type})`));
+        console.log("\n  " + tui.C.hex('#7dd3fc')(`✓ ${projectCtx.files.length} ${L('dosya indekslendi', 'files indexed')} (${projectCtx.type})`));
         return true;
       }
       case 'memory': {
@@ -1346,7 +1372,7 @@ async function codeV5(targetPath, cliOptions = {}) {
           if (pm.enter()) console.log(tui.C.cyan(L('\n  📋 Plan modu aktif.\n', '\n  📋 Plan mode active.\n')));
           else console.log(tui.C.yellow(L('  Zaten plan modunda.', '  Already in plan mode.')));
         } else if (arg === "approve") {
-          if (pm.inReview()) { pm.approve(); console.log(tui.C.green(L('  ✓ Plan onaylandı.\n', '  ✓ Plan approved.\n'))); }
+          if (pm.inReview()) { pm.approve(); console.log(tui.C.hex('#7dd3fc')(L('  ✓ Plan onaylandı.\n', '  ✓ Plan approved.\n'))); }
           else console.log(tui.C.yellow(L('  Onay bekleyen plan yok.', '  No plan awaiting approval.')));
         } else if (arg === "reject") {
           if (pm.inReview()) { pm.reject(); console.log(tui.C.amber(L('  ⨯ Plan reddedildi.\n', '  ⨯ Plan rejected.\n'))); }
@@ -1760,8 +1786,8 @@ function printSummary(files, cmds, msgs, startTime) {
   const min = Math.floor(elapsed / 60);
   const sec = elapsed % 60;
   console.log("\n  " + tui.styled(L("─── Session Özeti ───", "─── Session Summary ───"), { color: tui.PALETTE.primary, bold: true }));
-  console.log("  " + tui.C.green("  ✓ " + files + L(" dosya değiştirildi", " files changed")));
-  console.log("  " + tui.C.green("  ✓ " + cmds + L(" komut çalıştırıldı", " commands run")));
+  console.log("  " + tui.C.hex('#7dd3fc')("  ✓ " + files + L(" dosya değiştirildi", " files changed")));
+  console.log("  " + tui.C.hex('#7dd3fc')("  ✓ " + cmds + L(" komut çalıştırıldı", " commands run")));
   console.log("  " + tui.C.amber("  ✓ " + msgs + L(" mesaj değişimi", " message exchanges")));
   console.log("  " + tui.C.muted("  ⏱  " + min + L("dk ", "min ") + sec + L("sn", "s")));
   console.log("");

@@ -109,7 +109,7 @@ async function connect(descriptor) {
   config[botIdKey(descriptor.id)] = botId;
   saveConfig(config);
 
-  console.log(chalk.green(`\n✅ ${L(`${descriptor.label} bağlantısı kaydedildi!`, `${descriptor.label} connection saved!`)}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n✅ ${L(`${descriptor.label} bağlantısı kaydedildi!`, `${descriptor.label} connection saved!`)}\n`));
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   for (const field of descriptor.fields) {
     const shown = field.secret ? maskSecret(values[field.key]) : values[field.key];
@@ -150,7 +150,7 @@ async function disconnect(descriptor) {
   }
   for (const key of ownedKeys(descriptor)) delete config[key];
   saveConfig(config);
-  console.log(chalk.green(`\n✅ ${descriptor.label} disconnected\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n✅ ${descriptor.label} disconnected\n`));
 }
 
 function status(descriptor) {
@@ -160,7 +160,7 @@ function status(descriptor) {
     console.log(chalk.gray(`${L('Bağlanmak için', 'Connect with')}: natureco ${descriptor.id} connect\n`));
     return;
   }
-  console.log(chalk.green(`\n✅ ${L(`${descriptor.label} bağlı`, `${descriptor.label} connected`)}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n✅ ${L(`${descriptor.label} bağlı`, `${descriptor.label} connected`)}\n`));
   console.log(chalk.cyan('Bot ID:'), chalk.white(config[botIdKey(descriptor.id)]));
   for (const field of descriptor.fields) {
     const value = config[configKey(descriptor.id, field.key)];
@@ -215,7 +215,7 @@ async function probe(descriptor) {
     return;
   }
 
-  console.log(chalk.green(`✓ ${L('Bağlantı doğrulandı', 'Connection verified')}\n`));
+  console.log(chalk.hex('#7dd3fc')(`✓ ${L('Bağlantı doğrulandı', 'Connection verified')}\n`));
   for (const [label, value] of result.lines || []) {
     console.log(chalk.cyan(label + ':'), chalk.white(String(value)));
   }

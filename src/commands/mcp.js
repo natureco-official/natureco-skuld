@@ -35,7 +35,7 @@ function mcp(args) {
 function cmdServe() {
   console.log(chalk.cyan('\n  MCP Server\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
-  console.log(`  ${chalk.white('Endpoint:')}  ${chalk.green('http://127.0.0.1:3848/mcp')}`);
+  console.log(`  ${chalk.white('Endpoint:')}  ${chalk.hex('#7dd3fc')('http://127.0.0.1:3848/mcp')}`);
   console.log(`  ${chalk.white('Status:')}    ${chalk.gray('Would start MCP server here')}`);
   console.log('');
 }
@@ -55,7 +55,7 @@ function cmdList() {
 
   for (const name of names) {
     const s = servers[name];
-    const status = s.disabled ? chalk.red('disabled') : chalk.green('enabled');
+    const status = s.disabled ? chalk.red('disabled') : chalk.hex('#7dd3fc')('enabled');
     console.log(`  ${chalk.white(name)} ${chalk.gray(`— ${status}`)}`);
     console.log(chalk.gray(`    Command: ${s.command} ${(s.args || []).join(' ')}`));
   }
@@ -78,7 +78,7 @@ function cmdShow(name) {
   console.log(chalk.cyan(`\n  MCP Server: ${name}\n`));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   console.log(`  ${chalk.white('Command:')}  ${chalk.white(s.command)} ${chalk.gray((s.args || []).join(' '))}`);
-  console.log(`  ${chalk.white('Status:')}   ${s.disabled ? chalk.red('disabled') : chalk.green('enabled')}`);
+  console.log(`  ${chalk.white('Status:')}   ${s.disabled ? chalk.red('disabled') : chalk.hex('#7dd3fc')('enabled')}`);
   if (s.env && Object.keys(s.env).length > 0) {
     console.log(`  ${chalk.white('Env:')}      ${chalk.gray(Object.keys(s.env).join(', '))}`);
   }
@@ -98,7 +98,7 @@ function cmdSet(name, rest) {
     disabled: false,
   };
   saveServers(servers);
-  console.log(chalk.green(`\n  MCP server "${name}" configured.\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  MCP server "${name}" configured.\n`));
 }
 
 function cmdUnset(name) {

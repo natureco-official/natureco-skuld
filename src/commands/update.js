@@ -70,7 +70,7 @@ function cmdStatus() {
   if (latest) {
     console.log(chalk.white('  Latest:    ') + chalk.cyan('v' + latest));
     if (current === latest) {
-      console.log(chalk.green('  ✓ You are up to date.\n'));
+      console.log(chalk.hex('#7dd3fc')('  ✓ You are up to date.\n'));
     } else {
       console.log(chalk.yellow('  Update available: v' + current + ' → v' + latest + '\n'));
     }
@@ -91,7 +91,7 @@ async function cmdRun() {
   }
 
   if (current === latest) {
-    console.log(chalk.green('\n  Already up to date (v' + current + ').\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  Already up to date (v' + current + ').\n'));
     return;
   }
 
@@ -100,7 +100,7 @@ async function cmdRun() {
   try {
     execSync('npm update -g natureco-skuld', { stdio: 'inherit' });
     saveVersion({ installed: latest, updated: new Date().toISOString(), latest });
-    console.log(chalk.green('\n  ✓ Updated to v' + latest + '\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  ✓ Updated to v' + latest + '\n'));
   } catch (e) {
     console.log(chalk.red('\n  Update failed: ' + e.message + '\n'));
     console.log(chalk.gray('  Try: npm install -g natureco-skuld@latest\n'));
@@ -122,7 +122,7 @@ async function cmdWizard() {
   console.log(chalk.white('  Latest:  v' + latest));
 
   if (current === latest) {
-    console.log(chalk.green('\n  You are up to date!\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  You are up to date!\n'));
     return;
   }
 
@@ -137,7 +137,7 @@ async function cmdWizard() {
   try {
     execSync('npm install -g natureco-skuld@latest', { stdio: 'inherit' });
     saveVersion({ installed: latest, updated: new Date().toISOString(), latest });
-    console.log(chalk.green('\n  ✓ Updated to v' + latest + '\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  ✓ Updated to v' + latest + '\n'));
   } catch (e) {
     console.log(chalk.red('\n  Update failed: ' + e.message + '\n'));
   }

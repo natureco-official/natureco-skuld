@@ -88,7 +88,7 @@ function listPlugins(opts) {
   }
 
   filtered.forEach(p => {
-    const status = p.enabled ? chalk.green(L('✓ aktif', '✓ active')) : chalk.gray(L('○ pasif', '○ inactive'));
+    const status = p.enabled ? chalk.hex('#7dd3fc')(L('✓ aktif', '✓ active')) : chalk.gray(L('○ pasif', '○ inactive'));
     const source = registry.plugins.find(r => r.id === p.slug)?.source || 'local';
     const sourceIcon = source === 'npm' ? '📦' : source === 'git' ? '🌐' : source === 'local' ? '📁' : '❓';
     console.log(`  ${sourceIcon} ${chalk.white(p.name)} ${chalk.gray(`v${p.version}`)}  ${status}`);
@@ -128,7 +128,7 @@ async function installHandler(spec, opts) {
 
   try {
     const result = await installPlugin(spec);
-    console.log(chalk.green(`  ✓ ${L('Plugin yüklendi', 'Plugin installed')}: ${result.name} v${result.version}\n`));
+    console.log(chalk.hex('#7dd3fc')(`  ✓ ${L('Plugin yüklendi', 'Plugin installed')}: ${result.name} v${result.version}\n`));
     console.log(chalk.gray(`  ${L('Kaynak', 'Source')}: ${result.source}`));
     console.log(chalk.gray(`  Slug: ${result.slug}\n`));
   } catch (err) {
@@ -151,7 +151,7 @@ async function uninstallHandler(slug, opts) {
 
   try {
     const result = await uninstallPlugin(slug, { keepFiles: opts.keepFiles });
-    console.log(chalk.green(`\n  ✓ ${L('Plugin kaldırıldı', 'Plugin removed')}: ${result.name}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Plugin kaldırıldı', 'Plugin removed')}: ${result.name}\n`));
   } catch (err) {
     console.log(chalk.red(`\n  ❌ ${L('Kaldırma başarısız', 'Removal failed')}: ${err.message}\n`));
     process.exit(1);
@@ -171,7 +171,7 @@ function toggleHandler(slug, enable) {
   const disabledFile = path.join(pluginDir, '.disabled');
   if (enable) {
     if (fs.existsSync(disabledFile)) fs.unlinkSync(disabledFile);
-    console.log(chalk.green(`\n  ✓ ${L('Plugin aktif', 'Plugin enabled')}: ${slug}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Plugin aktif', 'Plugin enabled')}: ${slug}\n`));
   } else {
     fs.writeFileSync(disabledFile, '');
     console.log(chalk.gray(`\n  ○ ${L('Plugin pasif', 'Plugin disabled')}: ${slug}\n`));
@@ -219,7 +219,7 @@ function showPluginDetail(p) {
   console.log(chalk.cyan.bold(`\n  ${p.name}\n`));
   console.log(chalk.gray('  Slug      : ') + chalk.white(p.slug));
   console.log(chalk.gray(L('  Versiyon  : ', '  Version   : ')) + chalk.white(p.version));
-  console.log(chalk.gray(L('  Durum     : ', '  Status    : ')) + (p.enabled ? chalk.green(L('aktif', 'active')) : chalk.gray(L('pasif', 'inactive'))));
+  console.log(chalk.gray(L('  Durum     : ', '  Status    : ')) + (p.enabled ? chalk.hex('#7dd3fc')(L('aktif', 'active')) : chalk.gray(L('pasif', 'inactive'))));
   if (p.description) console.log(chalk.gray(L('  Açıklama  : ', '  Description: ')) + chalk.white(p.description));
   if (p.author) console.log(chalk.gray(L('  Yazar     : ', '  Author    : ')) + chalk.white(p.author));
   if (p.license) console.log(chalk.gray(L('  Lisans    : ', '  License   : ')) + chalk.white(p.license));
@@ -230,7 +230,7 @@ function showPluginDetail(p) {
     console.log(chalk.gray(L('  Bağımlılıklar:', '  Dependencies:')));
     Object.entries(p.dependencies).forEach(([k, v]) => {
       const depPath = path.join(p.installPath, 'node_modules', k);
-      const installed = fs.existsSync(depPath) ? chalk.green('✓') : chalk.yellow('✗');
+      const installed = fs.existsSync(depPath) ? chalk.hex('#7dd3fc')('✓') : chalk.yellow('✗');
       console.log(chalk.gray(`    ${installed} ${k}: ${v}`));
     });
   }
@@ -254,7 +254,7 @@ async function updateHandler(slug, opts) {
     for (const p of all) {
       try {
         const result = await updatePlugin(p.slug);
-        console.log(chalk.green(`  ✓ ${p.name}: ${p.version} → ${result.version}\n`));
+        console.log(chalk.hex('#7dd3fc')(`  ✓ ${p.name}: ${p.version} → ${result.version}\n`));
       } catch (err) {
         console.log(chalk.yellow(`  ⚠ ${p.name}: ${err.message}\n`));
       }
@@ -269,7 +269,7 @@ async function updateHandler(slug, opts) {
 
   try {
     const result = await updatePlugin(slug);
-    console.log(chalk.green(`\n  ✓ ${L('Plugin güncellendi', 'Plugin updated')}: ${result.name} → v${result.version}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Plugin güncellendi', 'Plugin updated')}: ${result.name} → v${result.version}\n`));
   } catch (err) {
     console.log(chalk.red(`\n  ❌ ${L('Güncelleme başarısız', 'Update failed')}: ${err.message}\n`));
     process.exit(1);
@@ -373,7 +373,7 @@ function doctorHandler() {
     }
 
     if (hasPackage && hasEntry && manifestErrors.length === 0) {
-      console.log(`  ${chalk.green('✓')} ${p.name} v${p.version} — ${L('sağlıklı', 'healthy')}`);
+      console.log(`  ${chalk.hex('#7dd3fc')('✓')} ${p.name} v${p.version} — ${L('sağlıklı', 'healthy')}`);
     }
   });
 
@@ -385,7 +385,7 @@ function doctorHandler() {
   });
 
   if (issues === 0 && list.length > 0) {
-    console.log(chalk.green(L('  ✓ Tüm pluginler sağlıklı.\n', '  ✓ All plugins healthy.\n')));
+    console.log(chalk.hex('#7dd3fc')(L('  ✓ Tüm pluginler sağlıklı.\n', '  ✓ All plugins healthy.\n')));
   } else if (issues > 0) {
     console.log(chalk.yellow(`\n  ⚠ ${issues} ${L('sorun bulundu.', 'issue(s) found.')}\n`));
   }
@@ -408,7 +408,7 @@ function registryHandler(opts) {
   if (registry.plugins.length > 0) {
     console.log(chalk.cyan(L('\n  Kayıtlı Pluginler\n', '\n  Registered Plugins\n')));
     registry.plugins.forEach(p => {
-      const installed = scanInstalled().some(s => s.slug === p.id) ? chalk.green('✓') : chalk.yellow('✗');
+      const installed = scanInstalled().some(s => s.slug === p.id) ? chalk.hex('#7dd3fc')('✓') : chalk.yellow('✗');
       console.log(`  ${installed} ${chalk.white(p.name || p.id)} ${chalk.gray(`v${p.version} [${p.source}]`)}`);
     });
   }

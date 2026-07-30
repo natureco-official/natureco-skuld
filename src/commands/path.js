@@ -51,10 +51,10 @@ function listPaths() {
 
   for (const [name, p] of entries) {
     const exists = fs.existsSync(p);
-    const icon = exists ? chalk.green('●') : chalk.red('○');
+    const icon = exists ? chalk.hex('#7dd3fc')('●') : chalk.red('○');
     console.log(`  ${icon} ${chalk.white(name)}`);
     console.log(`    ${chalk.gray('Path:')} ${chalk.cyan(p)}`);
-    console.log(`    ${chalk.gray('Exists:')} ${exists ? chalk.green('Yes') : chalk.red('No')}`);
+    console.log(`    ${chalk.gray('Exists:')} ${exists ? chalk.hex('#7dd3fc')('Yes') : chalk.red('No')}`);
   }
   console.log();
 }
@@ -84,7 +84,7 @@ function resolvePath(uri) {
     console.log(`  ${chalk.white('Name:')} ${chalk.white(name)}`);
     console.log(`  ${chalk.white('Path:')} ${chalk.white(resolved)}`);
     console.log(`  ${chalk.white('From registry:')} ${chalk.gray(registered)}`);
-    console.log(`  ${chalk.white('Exists:')} ${exists ? chalk.green('Yes') : chalk.red('No')}`);
+    console.log(`  ${chalk.white('Exists:')} ${exists ? chalk.hex('#7dd3fc')('Yes') : chalk.red('No')}`);
     console.log();
     return;
   }
@@ -97,7 +97,7 @@ function resolvePath(uri) {
   console.log(`  ${chalk.white('URI:')}  ${chalk.cyan(fullUri)}`);
   console.log(`  ${chalk.white('Path:')} ${chalk.white(resolved)}`);
   console.log(`  ${chalk.white('From registry:')} ${chalk.gray('No')}`);
-  console.log(`  ${chalk.white('Exists:')} ${exists ? chalk.green('Yes') : chalk.red('No')}`);
+  console.log(`  ${chalk.white('Exists:')} ${exists ? chalk.hex('#7dd3fc')('Yes') : chalk.red('No')}`);
   console.log();
 }
 
@@ -123,7 +123,7 @@ function findPath(name) {
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   console.log(`  ${chalk.white('Name:')}   ${chalk.cyan(name)}`);
   console.log(`  ${chalk.white('Path:')}   ${chalk.white(entry)}`);
-  console.log(`  ${chalk.white('Exists:')} ${exists ? chalk.green('Yes') : chalk.red('No')}`);
+  console.log(`  ${chalk.white('Exists:')} ${exists ? chalk.hex('#7dd3fc')('Yes') : chalk.red('No')}`);
   console.log();
 }
 
@@ -142,7 +142,7 @@ function setPath(name, targetPath) {
   paths[name] = resolved;
   savePaths(paths);
 
-  console.log(chalk.green(`\n  ✅ Path registered: ${name}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ Path registered: ${name}\n`));
   console.log(chalk.gray(`  Name: ${chalk.white(name)}`));
   console.log(chalk.gray(`  Path: ${chalk.cyan(resolved)}\n`));
 }
@@ -167,7 +167,7 @@ function validatePath(name) {
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   console.log(`  ${chalk.white('Name:')}   ${chalk.cyan(name)}`);
   console.log(`  ${chalk.white('Path:')}   ${chalk.white(entry)}`);
-  console.log(`  ${chalk.white('Exists:')} ${exists ? chalk.green('Yes') : chalk.red('No')}`);
+  console.log(`  ${chalk.white('Exists:')} ${exists ? chalk.hex('#7dd3fc')('Yes') : chalk.red('No')}`);
 
   if (exists) {
     try {
@@ -199,7 +199,7 @@ function emitPath(name) {
   console.log(chalk.cyan('\n  🔗 Clickable URI\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   console.log(`  ${chalk.white('Name:')}  ${chalk.cyan(name)}`);
-  console.log(`  ${chalk.white('URI:')}   ${chalk.bold.green(uri)}`);
+  console.log(`  ${chalk.white('URI:')}   ${chalk.bold.hex('#7dd3fc')(uri)}`);
   console.log(`  ${chalk.white('Path:')}  ${chalk.gray(entry)}`);
   console.log();
   console.log(chalk.gray('  Copy the URI above to use in nc://-aware tools.\n'));

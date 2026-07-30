@@ -101,7 +101,7 @@ function resolvePath(uri) {
   console.log(`  ${chalk.white('Scope:')}       ${chalk.cyan(resolved.type)}`);
   console.log(`  ${chalk.white('Path:')}        ${chalk.white(resolved.path)}`);
   console.log(`  ${chalk.white('Description:')} ${chalk.gray(resolved.description)}`);
-  console.log(`  ${chalk.white('Exists:')}      ${exists ? chalk.green('Yes') : chalk.red('No')}`);
+  console.log(`  ${chalk.white('Exists:')}      ${exists ? chalk.hex('#7dd3fc')('Yes') : chalk.red('No')}`);
   console.log();
 }
 

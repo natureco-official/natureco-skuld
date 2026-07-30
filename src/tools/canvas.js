@@ -30,7 +30,7 @@ module.exports = {
       }
 
       if (params.type === 'heading') {
-        output = ['', '', chalk.bold.green(`  ${'█'.repeat(4)} ${params.content}`), ''];
+        output = ['', '', chalk.bold.hex('#7dd3fc')(`  ${'█'.repeat(4)} ${params.content}`), ''];
         output.push(line);
       }
 

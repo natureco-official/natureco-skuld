@@ -42,9 +42,9 @@ function statusClickclack() {
   const cc = config.clickclack || {};
   console.log(chalk.cyan('\n  🔔 ClickClack Status\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
-  console.log(`  ${chalk.white('Enabled:')}      ${cc.enabled !== false ? chalk.green('Yes') : chalk.red('No')}`);
-  console.log(`  ${chalk.white('Beep on msg:')}   ${cc.beepOnMessage !== false ? chalk.green('Yes') : chalk.red('No')}`);
-  console.log(`  ${chalk.white('Speak on msg:')}  ${cc.speakOnMessage ? chalk.green('Yes') : chalk.gray('No')}`);
+  console.log(`  ${chalk.white('Enabled:')}      ${cc.enabled !== false ? chalk.hex('#7dd3fc')('Yes') : chalk.red('No')}`);
+  console.log(`  ${chalk.white('Beep on msg:')}   ${cc.beepOnMessage !== false ? chalk.hex('#7dd3fc')('Yes') : chalk.red('No')}`);
+  console.log(`  ${chalk.white('Speak on msg:')}  ${cc.speakOnMessage ? chalk.hex('#7dd3fc')('Yes') : chalk.gray('No')}`);
   console.log(`  ${chalk.white('Webhook port:')}  ${chalk.cyan(cc.webhookPort || 3888)}`);
   console.log(chalk.gray('\n  Commands:'));
   console.log(chalk.cyan('    nskuld clickclack test') + chalk.gray('     Test beep/speak'));
@@ -61,7 +61,7 @@ function testClickclack() {
   console.log(chalk.gray('  Beep sent'));
   speak('ClickClack notification test');
   console.log(chalk.gray('  Speech sent'));
-  console.log(chalk.green('\n  ✅ Test complete\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  ✅ Test complete\n'));
 }
 
 function enableClickclack() {
@@ -69,7 +69,7 @@ function enableClickclack() {
   if (!config.clickclack) config.clickclack = {};
   config.clickclack.enabled = true;
   saveConfig(config);
-  console.log(chalk.green('\n  ✅ ClickClack enabled\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  ✅ ClickClack enabled\n'));
 }
 
 function disableClickclack() {
@@ -88,7 +88,7 @@ function sendNotification(message) {
   }
   beep();
   if (message.length < 100) speak(message);
-  console.log(chalk.green(`  🔔 ${message}\n`));
+  console.log(chalk.hex('#7dd3fc')(`  🔔 ${message}\n`));
 }
 
 function listenWebhook(port) {
@@ -102,10 +102,10 @@ function listenWebhook(port) {
           const message = data.message || data.text || data.notification || JSON.stringify(data);
           beep();
           if (message.length < 100) speak(message);
-          console.log(chalk.green(`\n  🔔 ${new Date().toISOString()} — ${message}\n`));
+          console.log(chalk.hex('#7dd3fc')(`\n  🔔 ${new Date().toISOString()} — ${message}\n`));
         } catch {
           beep();
-          console.log(chalk.green(`\n  🔔 ${new Date().toISOString()} — ${body}\n`));
+          console.log(chalk.hex('#7dd3fc')(`\n  🔔 ${new Date().toISOString()} — ${body}\n`));
         }
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));

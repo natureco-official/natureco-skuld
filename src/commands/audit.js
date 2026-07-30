@@ -25,11 +25,11 @@ const SEVERITY_COLORS = {
   command: chalk.cyan,
   approval: chalk.yellow,
   tool: chalk.magenta,
-  auth: chalk.green,
+  auth: chalk.hex('#7dd3fc'),
   secret: chalk.red.bold,
   config: chalk.blue,
   cron: chalk.gray,
-  skill: chalk.green,
+  skill: chalk.hex('#7dd3fc'),
   error: chalk.red,
   info: chalk.white,
 };
@@ -130,7 +130,7 @@ function audit_cmd(args) {
 
   if (action === 'cleanup') {
     const removed = audit.cleanup();
-    console.log(chalk.green(`\n  ✓ ${removed} ${L('eski log dosyası temizlendi (30 gün+).', 'old log files cleaned (30 days+).')}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${removed} ${L('eski log dosyası temizlendi (30 gün+).', 'old log files cleaned (30 days+).')}\n`));
     return;
   }
 

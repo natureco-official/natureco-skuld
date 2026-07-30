@@ -61,7 +61,7 @@ function startSpinner(label) {
 
 function stopSpinner(timer, label, success = true) {
   clearInterval(timer);
-  process.stdout.write(`\r  ${success ? chalk.green('✓') : chalk.red('✗')} ${chalk.cyan(label)}\n`);
+  process.stdout.write(`\r  ${success ? chalk.hex('#7dd3fc')('✓') : chalk.red('✗')} ${chalk.cyan(label)}\n`);
 }
 
 // ── Proje indexing ────────────────────────────────────────────────────────────
@@ -138,7 +138,7 @@ async function runToolCall(toolCall, stats, dryRun = false, codingSession = null
     const newLines = newContent.split('\n');
     console.log(chalk.gray(`\n  📄 ${toolCall.input.path}`));
     newLines.forEach(line => {
-      if (line && !oldLines.includes(line)) console.log(chalk.green('  + ' + line));
+      if (line && !oldLines.includes(line)) console.log(chalk.hex('#7dd3fc')('  + ' + line));
     });
     oldLines.forEach(line => {
       if (line && !newLines.includes(line)) console.log(chalk.red('  - ' + line));
@@ -171,7 +171,7 @@ async function runToolCall(toolCall, stats, dryRun = false, codingSession = null
     if (toolCall.name === 'write_file') {
       stats.filesChanged++;
       stats.changedFiles.push(toolCall.input.path || '?');
-      console.log(chalk.green(`  ✓ ${toolCall.input.path} ${L('güncellendi', 'updated')}`));
+      console.log(chalk.hex('#7dd3fc')(`  ✓ ${toolCall.input.path} ${L('güncellendi', 'updated')}`));
       if (stats.changedFiles.length === 1) {
         console.log(chalk.gray(`  💡 git add . && /commit ${L('ile kaydet', 'to save')}`));
       }
@@ -196,7 +196,7 @@ async function runTests(projectIndex, conversationMessages, tools, providerConfi
     const output = execSync('npm test', {
       cwd: workDir, timeout: 30000, stdio: 'pipe',
     }).toString();
-    console.log(chalk.green(L('  ✅ Testler geçti!\n', '  ✅ Tests passed!\n')));
+    console.log(chalk.hex('#7dd3fc')(L('  ✅ Testler geçti!\n', '  ✅ Tests passed!\n')));
   } catch (err) {
     const errOutput = (err.stdout?.toString() || err.message || '').slice(0, 500);
     console.log(chalk.red(L('  ❌ Test hatası:\n', '  ❌ Test error:\n')));
@@ -341,7 +341,7 @@ ${indexPrompt}`);
     '█▀▀ █▀█ █▀▄ █▀▀',
     '█▄▄ █▄█ █▄▀ ██▄',
   ].join('\n');
-  console.log(centerText(chalk.green(codeLogo)));
+  console.log(centerText(chalk.hex('#7dd3fc')(codeLogo)));
   console.log();
   console.log(centerText(chalk.cyan(`(\\_/)  ${displayBotName} ${L('hazır', 'ready')}`) + chalk.gray(`  ·  v${version}`)));
   console.log(sep());
@@ -363,9 +363,9 @@ ${indexPrompt}`);
     console.log(chalk.gray(L('  Agent Session Özeti', '  Agent Session Summary')));
     if (options.dryRun) console.log(chalk.yellow(L('  ⚠️  DRY RUN — hiçbir dosya değiştirilmedi', '  ⚠️  DRY RUN — no files changed')));
     console.log(chalk.gray('─'.repeat(w)));
-    console.log(`  ${chalk.green('✓')} ${stats.filesChanged} ${L('dosya değiştirildi', 'files changed')}`);
-    console.log(`  ${chalk.green('✓')} ${stats.commandsRun} ${L('komut çalıştırıldı', 'commands run')}`);
-    console.log(`  ${chalk.green('✓')} ${stats.toolCallCount} ${L('tool çağrısı yapıldı', 'tool calls made')}`);
+    console.log(`  ${chalk.hex('#7dd3fc')('✓')} ${stats.filesChanged} ${L('dosya değiştirildi', 'files changed')}`);
+    console.log(`  ${chalk.hex('#7dd3fc')('✓')} ${stats.commandsRun} ${L('komut çalıştırıldı', 'commands run')}`);
+    console.log(`  ${chalk.hex('#7dd3fc')('✓')} ${stats.toolCallCount} ${L('tool çağrısı yapıldı', 'tool calls made')}`);
     console.log(`  ${chalk.cyan('◉')} ${stats.messageCount} ${L('mesaj', 'messages')}`);
     if (stats.changedFiles.length > 0) {
       console.log();
@@ -383,7 +383,7 @@ ${indexPrompt}`);
       const output = execSync(cmd, {
         cwd: workDir, timeout: 30000, stdio: 'pipe',
       }).toString();
-      console.log(chalk.green(L('  ✓ Başarılı:', '  ✓ Success:')));
+      console.log(chalk.hex('#7dd3fc')(L('  ✓ Başarılı:', '  ✓ Success:')));
       console.log(chalk.gray('  ' + output.slice(0, 500).split('\n').join('\n  ')));
       console.log();
     } catch (err) {
@@ -434,13 +434,13 @@ ${indexPrompt}`);
           return;
         case 'undo': {
           const undone = codingSession.undo();
-          console.log(undone.ok ? chalk.green(`  ✓ ${undone.path}`) : chalk.yellow(`  ${undone.error}`));
+          console.log(undone.ok ? chalk.hex('#7dd3fc')(`  ✓ ${undone.path}`) : chalk.yellow(`  ${undone.error}`));
           return;
         }
         case 'compact': {
           const compacted = codingSession.compact(conversationMessages);
           conversationMessages.splice(0, conversationMessages.length, ...compacted.messages);
-          console.log(chalk.green(`  ✓ Context compacted: ${compacted.before} → ${compacted.after}`));
+          console.log(chalk.hex('#7dd3fc')(`  ✓ Context compacted: ${compacted.before} → ${compacted.after}`));
           return;
         }
         case 'retry': {
@@ -527,7 +527,7 @@ ${indexPrompt}`);
             const ok = await confirmAction(L('Commit edilsin mi?', 'Commit?'));
             if (ok) {
               execFileSync('git', ['commit', '-m', commitMsg], { cwd: workDir, stdio: 'pipe' });
-              console.log(chalk.green(L('  ✓ Commit yapıldı!\n', '  ✓ Committed!\n')));
+              console.log(chalk.hex('#7dd3fc')(L('  ✓ Commit yapıldı!\n', '  ✓ Committed!\n')));
             } else {
               console.log(chalk.gray(L('  İptal edildi.\n', '  Cancelled.\n')));
             }

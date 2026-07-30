@@ -21,11 +21,11 @@ async function account(action) {
 
 async function doLogin() {
   console.log('');
-  console.log(chalk.green.bold('  (\\_/)'));
-  console.log(chalk.green.bold('  (•ᴥ•)'));
-  console.log(chalk.green('  />🌿'));
+  console.log(chalk.hex('#7dd3fc').bold('  (\\_/)'));
+  console.log(chalk.hex('#7dd3fc').bold('  (•ᴥ•)'));
+  console.log(chalk.hex('#7dd3fc')('  />🌿'));
   console.log('');
-  console.log(chalk.green.bold('  ' + L('NatureCo Hesabı — Giriş', 'NatureCo Account — Sign in')));
+  console.log(chalk.hex('#7dd3fc').bold('  ' + L('NatureCo Hesabı — Giriş', 'NatureCo Account — Sign in')));
   console.log(chalk.gray('  ' + L('natureco.me hesabınla ekosistemin her yerinde tek kimlik.', 'One identity across the whole ecosystem with your natureco.me account.') + '\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)) + '\n');
 
@@ -74,7 +74,7 @@ async function doLogin() {
   }
 
   const me = await acc.whoami();
-  console.log(chalk.green('\n  ✓ ' + L('Giriş başarılı!', 'Signed in!')));
+  console.log(chalk.hex('#7dd3fc')('\n  ✓ ' + L('Giriş başarılı!', 'Signed in!')));
   if (me && me.email) console.log(chalk.gray('  ' + L('Hoş geldin, ', 'Welcome, ')) + chalk.white(me.email));
   console.log(chalk.gray('  ' + L('Oturum: ', 'Session: ') + '~/.nskuld/auth.json'));
   console.log('');
@@ -87,7 +87,7 @@ async function doLogout() {
   }
   const who = acc.currentEmail();
   acc.logout();
-  console.log(chalk.green('\n  ✓ ' + L('Çıkış yapıldı', 'Signed out') + `${who ? ' (' + who + ')' : ''}.\n`));
+  console.log(chalk.hex('#7dd3fc')('\n  ✓ ' + L('Çıkış yapıldı', 'Signed out') + `${who ? ' (' + who + ')' : ''}.\n`));
 }
 
 async function doWhoami() {
@@ -102,7 +102,7 @@ async function doWhoami() {
     console.log(chalk.yellow('\n  ⚠ ' + L('Oturum süresi dolmuş görünüyor. Tekrar giriş yap: ', 'Your session looks expired. Sign in again: ')) + chalk.cyan('nskuld account login') + '\n');
     return;
   }
-  console.log(chalk.green.bold('\n  ⬡ ' + L('NatureCo Hesabı', 'NatureCo Account')));
+  console.log(chalk.hex('#7dd3fc').bold('\n  ⬡ ' + L('NatureCo Hesabı', 'NatureCo Account')));
   console.log(chalk.gray('  ' + L('E-posta: ', 'Email: ')) + chalk.white(me.email || '-'));
   console.log(chalk.gray('  ID:      ') + chalk.gray(me.id || '-'));
   console.log('');

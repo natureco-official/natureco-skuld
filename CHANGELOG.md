@@ -2,6 +2,26 @@
 
 All notable changes to NatureCo CLI will be documented in this file.
 
+## [0.1.0] - 2026-07-30 — NatureCo Code parity for Skuld
+
+### Added
+- Interactive slash-command palette with keyboard selection and argument-aware completion.
+- Interactive `/model` switching backed by one shared setup/models catalogue, including GPT-5.6,
+  Claude 5, MiniMax M3/M2.7, Kimi K3 and GLM 5.1 families.
+- Expandable full tool transcript (`Ctrl+O`) and click-to-expand diff cards.
+
+### Changed
+- Long coding goals default to 10,000 tool rounds and can be configured with
+  `codeMaxToolRounds` or `SKULD_CODE_MAX_TOOL_ROUNDS`; `0` means unlimited.
+- Setup, model discovery, capability detection and inference use the same provider catalogue.
+- Normal terminal mode leaves native mouse scrolling, selection and context-menu behavior intact.
+
+### Fixed
+- Half-open SSE streams now terminate on provider completion markers.
+- Connection and idle timeouts prevent an unresponsive provider from freezing a coding session.
+- File-edit cards render complete red/green diffs, including exact edit fallbacks when snapshots
+  are unavailable; coding sessions persist after every completed interactive turn.
+
 ## [5.71.2] - 2026-07-25 — Fix: the assistant started every session knowing nothing
 
 ### Fixed

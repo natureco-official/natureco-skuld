@@ -79,7 +79,7 @@ function assignOwnership(threadId, agentName, channel) {
   config.threadOwnership[threadId] = { agent: agentName, channel: channel || 'slack', since: new Date().toISOString() };
   saveConfig(config);
 
-  console.log(chalk.green(`\n  ✅ Thread ${threadId} → ${agentName}${channel ? ` (${channel})` : ''}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ Thread ${threadId} → ${agentName}${channel ? ` (${channel})` : ''}\n`));
 }
 
 function releaseOwnership(threadId, channel) {
@@ -120,7 +120,7 @@ function checkOwnership(threadId, channel, agentName) {
   });
 
   if (!entry) {
-    console.log(chalk.green(`\n  ✅ Thread ${threadId} ${L('sahipsiz', 'unowned')} — ${agentName} ${L('alabilir', 'can take it')}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✅ Thread ${threadId} ${L('sahipsiz', 'unowned')} — ${agentName} ${L('alabilir', 'can take it')}\n`));
     return;
   }
 
@@ -129,7 +129,7 @@ function checkOwnership(threadId, channel, agentName) {
   const since = typeof data === 'string' ? '-' : data.since ? new Date(data.since).toLocaleString() : '-';
 
   if (owner === agentName) {
-    console.log(chalk.green(`\n  ✅ Thread ${threadId} ${L('zaten', 'already belongs to')} ${agentName}${L("'e ait", '')}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✅ Thread ${threadId} ${L('zaten', 'already belongs to')} ${agentName}${L("'e ait", '')}\n`));
     return;
   }
 
@@ -153,7 +153,7 @@ function setDefaultAgent(name) {
   if (!config.threadOwnership.agents) config.threadOwnership.agents = {};
   config.threadOwnership.agents.default = name;
   saveConfig(config);
-  console.log(chalk.green(`\n  ✅ Default agent set to: ${name}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ Default agent set to: ${name}\n`));
 }
 
 module.exports = threadOwnership;

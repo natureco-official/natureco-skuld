@@ -173,7 +173,7 @@ function setPolicy(policy) {
   const config = getConfig();
   config.execApprovalPolicy = policy;
   saveConfig(config);
-  console.log(chalk.green(`\n  ✅ Approval policy: ${policy}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ Approval policy: ${policy}\n`));
 }
 
 function getReq(id) {

@@ -52,7 +52,7 @@ function cmdStatus() {
   };
 
   for (const step of STEPS) {
-    const icon = status[step] === 'done' ? chalk.green('✓') : chalk.yellow('○');
+    const icon = status[step] === 'done' ? chalk.hex('#7dd3fc')('✓') : chalk.yellow('○');
     console.log(`  ${icon} ${step}`);
   }
   console.log('');
@@ -67,7 +67,7 @@ function cmdGateway() {
   console.log(chalk.cyan('    nskuld gateway start\n'));
   cfg.gatewayUrl = 'ws://localhost:3848';
   saveConfig(cfg);
-  console.log(chalk.green('  Gateway step marked as done.\n'));
+  console.log(chalk.hex('#7dd3fc')('  Gateway step marked as done.\n'));
 }
 
 function cmdAuth() {
@@ -78,7 +78,7 @@ function cmdAuth() {
   console.log(chalk.gray('  Or set your API key in config.\n'));
   cfg.authConfigured = true;
   saveConfig(cfg);
-  console.log(chalk.green('  Auth step marked as done.\n'));
+  console.log(chalk.hex('#7dd3fc')('  Auth step marked as done.\n'));
 }
 
 function cmdWorkspace() {
@@ -87,7 +87,7 @@ function cmdWorkspace() {
   if (!fs.existsSync(wsPath)) fs.mkdirSync(wsPath, { recursive: true });
   cfg.workspacePath = wsPath;
   saveConfig(cfg);
-  console.log(chalk.green('\n  Workspace ready at: ' + wsPath + '\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  Workspace ready at: ' + wsPath + '\n'));
 }
 
 function cmdChannels() {
@@ -119,7 +119,7 @@ function cmdHealth() {
   ];
 
   for (const c of checks) {
-    console.log(`  ${c.pass ? chalk.green('✓') : chalk.yellow('○')} ${c.label}`);
+    console.log(`  ${c.pass ? chalk.hex('#7dd3fc')('✓') : chalk.yellow('○')} ${c.label}`);
   }
 
   const done = checks.filter(c => c.pass).length;

@@ -53,7 +53,7 @@ function listDevices() {
     console.log(chalk.gray(L('  Eşleştirilmiş cihaz yok.\n', '  No paired devices.\n')));
   } else {
     for (const d of devices) {
-      console.log(`  ${chalk.green('●')} ${chalk.white(d.name || d.id)} ${chalk.gray(`(${d.type || 'unknown'})`)}`);
+      console.log(`  ${chalk.hex('#7dd3fc')('●')} ${chalk.white(d.name || d.id)} ${chalk.gray(`(${d.type || 'unknown'})`)}`);
       console.log(`    ${chalk.gray('ID:')}    ${d.id}`);
       console.log(`    ${chalk.gray('Since:')} ${d.pairedAt ? new Date(d.pairedAt).toLocaleString() : '-'}`);
       console.log(`    ${chalk.gray('Token:')} ${d.token ? d.token.substring(0, 8) + '…' : '-'}`);
@@ -139,7 +139,7 @@ function approvePairing(code) {
   data.pendingRequests.splice(idx, 1);
   savePairings(data);
 
-  console.log(chalk.green(`\n  ✅ Paired: ${request.name}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ Paired: ${request.name}\n`));
   console.log(chalk.gray(`  Device ID: ${request.id}`));
   console.log(chalk.gray(`  Token: ${token}\n`));
 }
@@ -210,7 +210,7 @@ function verifyPairing(code, deviceName) {
   const pending = data.pendingRequests || [];
 
   if (pending.some(p => p.code === code)) {
-    console.log(chalk.green('\n  ✅ Pairing code valid — awaiting approval\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  ✅ Pairing code valid — awaiting approval\n'));
     console.log(chalk.gray('  Ask the admin to run:'));
     console.log(chalk.cyan(`    nskuld device-pair approve ${code}\n`));
     return;
@@ -223,7 +223,7 @@ function verifyPairing(code, deviceName) {
   });
 
   if (matched) {
-    console.log(chalk.green(`\n  ✅ Already paired as: ${matched.name}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✅ Already paired as: ${matched.name}\n`));
     return;
   }
 

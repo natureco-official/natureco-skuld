@@ -10,6 +10,8 @@ const readline = require('readline');
 const inquirer = require('../utils/inquirer-wrapper');
 const brand = require('../utils/branding');
 const tema = require('../utils/skuld-theme');
+const { applySetupCatalog } = require('../utils/model-catalog');
+const { findModelsEndpoint, fetchLiveModels } = require('./models');
 const { COLORS, FULL_LOGO } = brand;
 
 const BASE_DIR = path.join(os.homedir(), '.nskuld');
@@ -265,6 +267,10 @@ const PROVIDER_PRESETS = {
   },
 };
 
+// Setup, `models` and the interactive `/model` command share one catalogue.
+// Live discovery still wins whenever the provider exposes a model endpoint.
+applySetupCatalog(PROVIDER_PRESETS, L);
+
 
 function rlQuestion(query) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -450,7 +456,7 @@ async function cmdWizard() {
       delete cfg.mattermostBot;
       delete cfg.smsTwilioSid;
       delete cfg.webhooks;
-      console.log(chalk.green(L('  ✓ Eski ayarlar temizlendi', '  ✓ Old settings cleared')));
+      console.log(chalk.hex('#7dd3fc')(L('  ✓ Eski ayarlar temizlendi', '  ✓ Old settings cleared')));
     }
   }
   const apiKey = await rlQuestion(`  API Key ${currentKey ? '(leave blank to keep current)' : ''}: `);
@@ -537,7 +543,7 @@ async function cmdWizard() {
     const val = await rlQuestion(`  ${integ.name} ${current ? L('(mevcut - boş bırakın)', '(current - leave blank)') : L('(boş = atla)', '(blank = skip)')}: `);
     if (val) {
       cfg[integ.key] = val;
-      console.log(chalk.green(`    ✓ ${integ.name} ${L('ayarlandı', 'set')}`));
+      console.log(chalk.hex('#7dd3fc')(`    ✓ ${integ.name} ${L('ayarlandı', 'set')}`));
     }
   }
 
@@ -554,7 +560,7 @@ async function cmdWizard() {
   saveConfig(cfg);
 
   console.log('');
-  console.log(chalk.green('  ✓ Setup complete!\n'));
+  console.log(chalk.hex('#7dd3fc')('  ✓ Setup complete!\n'));
   console.log(chalk.white('  Config saved to: ') + chalk.gray(CONFIG_FILE));
   console.log('');
   // Kurulum sonrası yönlendirme. Devralınan hâli `nskuld chat` ve
@@ -647,7 +653,7 @@ function cmdConfig() {
   }
 
   writePrivateFile(CONFIG_FILE, JSON.stringify(defaults, null, 2));
-  console.log(chalk.green('\n  Config created at: ' + CONFIG_FILE + '\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  Config created at: ' + CONFIG_FILE + '\n'));
 }
 
 function cmdWorkspace() {
@@ -659,7 +665,7 @@ function cmdWorkspace() {
   if (!fs.existsSync(workspaceDir)) fs.mkdirSync(workspaceDir, { recursive: true });
   if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
 
-  console.log(chalk.green('\n  Workspace directories created:\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  Workspace directories created:\n'));
   console.log(chalk.gray('    ' + workspaceDir));
   console.log(chalk.gray('    ' + logsDir));
   console.log('');
@@ -677,7 +683,7 @@ function cmdDirs() {
     }
   }
 
-  console.log(chalk.green(`\n  Created ${created} data director${created === 1 ? 'y' : 'ies'}`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Created ${created} data director${created === 1 ? 'y' : 'ies'}`));
   if (created > 0) {
     console.log(chalk.gray('  Location: ' + BASE_DIR));
   }
@@ -691,6 +697,16 @@ module.exports = setup;
  * Boylece kullanici yanlis key ile devam etmez
  */
 async function validateApiKey(providerUrl, apiKey) {
+  const modelsEndpoint = findModelsEndpoint(providerUrl);
+  if (modelsEndpoint) {
+    try {
+      await fetchLiveModels(modelsEndpoint, apiKey, { timeout: 8000 });
+      return true;
+    } catch {
+      // Some compatible providers do not expose /models. Fall through to the
+      // tiny completion probe so setup remains compatible with them.
+    }
+  }
   return new Promise((resolve) => {
     const https = require('https');
     const { isMiniMax, isGroq, isAnthropic } = require('../utils/provider-detect');
@@ -700,12 +716,12 @@ async function validateApiKey(providerUrl, apiKey) {
       : providerUrl.replace(/\/+$/, '') + '/chat/completions';
 
     // Her provider icin test modeli
-    let testModel = 'gpt-3.5-turbo';
-    if (isGroq(providerUrl)) testModel = 'llama-3.1-8b-instant';
-    else if (isAnthropic(providerUrl)) testModel = 'claude-3-haiku-20240307';
-    else if (isMM) testModel = 'MiniMax-M2.5';
-    else if (providerUrl.includes('gemini')) testModel = 'gemini-1.5-flash';
-    else if (providerUrl.includes('mistral.ai')) testModel = 'mistral-tiny';
+    let testModel = 'gpt-5.6-sol';
+    if (isGroq(providerUrl)) testModel = 'openai/gpt-oss-20b';
+    else if (isAnthropic(providerUrl)) testModel = 'claude-haiku-4-5';
+    else if (isMM) testModel = 'MiniMax-M2.7';
+    else if (providerUrl.includes('gemini')) testModel = 'gemini-3.5-flash';
+    else if (providerUrl.includes('mistral.ai')) testModel = 'mistral-small-latest';
     else if (providerUrl.includes('openrouter.ai')) testModel = 'meta-llama/llama-3.1-8b-instruct:free';
     else if (providerUrl.includes('deepseek.com')) testModel = 'deepseek-chat';
 

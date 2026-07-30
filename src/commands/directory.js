@@ -68,7 +68,7 @@ function listPeers() {
     for (const ch of channels) {
       if (config[ch]) {
         const info = typeof config[ch] === 'object' ? Object.keys(config[ch]).join(', ') : 'connected';
-        console.log(`  ${chalk.green('●')} ${chalk.white(ch)}: ${chalk.gray(info)}`);
+        console.log(`  ${chalk.hex('#7dd3fc')('●')} ${chalk.white(ch)}: ${chalk.gray(info)}`);
         found = true;
       }
     }
@@ -83,7 +83,7 @@ function listPeers() {
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   peers.forEach(p => {
     const status = p.lastSeen ? chalk.gray(`(seen: ${new Date(p.lastSeen).toLocaleDateString()})`) : '';
-    console.log(`  ${chalk.green('●')} ${chalk.white(p.name || p.url)}`);
+    console.log(`  ${chalk.hex('#7dd3fc')('●')} ${chalk.white(p.name || p.url)}`);
     console.log(`     ${chalk.gray(p.url)} ${status}`);
   });
   console.log(chalk.gray(`\n  Total: ${peers.length} peers`));
@@ -113,7 +113,7 @@ function searchPeers(query) {
   console.log(chalk.cyan(`\n  Search Results (${results.length}) for: "${query}"\n`));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   results.forEach(p => {
-    console.log(`  ${chalk.green('●')} ${chalk.white(p.name || p.url)}`);
+    console.log(`  ${chalk.hex('#7dd3fc')('●')} ${chalk.white(p.name || p.url)}`);
     console.log(`     ${chalk.gray(p.url)}`);
     if (p.tags) console.log(`     ${chalk.gray('tags: ' + p.tags.join(', '))}`);
   });
@@ -135,7 +135,7 @@ function registerPeer(url, name) {
 
   peers.push({ url, name: name || url, tags: [], addedAt: new Date().toISOString(), lastSeen: null });
   savePeers(peers);
-  console.log(chalk.green(`\n  ✓ ${L('Peer kaydedildi', 'Peer registered')}: ${name || url}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Peer kaydedildi', 'Peer registered')}: ${name || url}\n`));
 }
 
 function removePeer(urlOrName) {
@@ -155,7 +155,7 @@ function removePeer(urlOrName) {
   }
 
   savePeers(peers);
-  console.log(chalk.green(`\n  ✓ ${L('Peer kaldırıldı', 'Peer removed')}: ${urlOrName}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Peer kaldırıldı', 'Peer removed')}: ${urlOrName}\n`));
 }
 
 function groupsList() {
@@ -174,7 +174,7 @@ function groupsMembers(name) {
     return;
   }
   for (const p of peers) {
-    console.log(`  ${chalk.green('●')} ${chalk.white(p.name || p.url)}`);
+    console.log(`  ${chalk.hex('#7dd3fc')('●')} ${chalk.white(p.name || p.url)}`);
   }
   console.log();
 }

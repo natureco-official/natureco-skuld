@@ -8,7 +8,7 @@ const { getApiKey } = require('../utils/config');
 const { getBots } = require('../utils/api');
 
 async function init() {
-  console.log(chalk.green.bold(L('\n╭─ NatureCo Proje Başlatma ─╮\n', '\n╭─ NatureCo Project Init ─╮\n')));
+  console.log(chalk.hex('#7dd3fc').bold(L('\n╭─ NatureCo Proje Başlatma ─╮\n', '\n╭─ NatureCo Project Init ─╮\n')));
 
   const apiKey = getApiKey();
   if (!apiKey) {
@@ -124,7 +124,7 @@ ${L('[Projenizi tanımlayın]', '[Describe your project]')}
     fs.mkdirSync(skillsDir, { recursive: true });
   }
 
-  console.log(chalk.green(L('\n✅ Proje başlatıldı!\n', '\n✅ Project initialized!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ Proje başlatıldı!\n', '\n✅ Project initialized!\n')));
   console.log(chalk.cyan(L('Oluşturulan dosyalar:', 'Created files:')));
   console.log(chalk.gray(`  .nskuld/config.json`));
   console.log(chalk.gray(`  .nskuld/AGENTS.md`));

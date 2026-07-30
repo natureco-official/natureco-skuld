@@ -76,7 +76,7 @@ function setVoiceProvider(args) {
   else delete config.tts.voiceId;
   saveConfig(config);
 
-  console.log(chalk.green(`\n  ✅ Voice provider set to ${PROVIDER_LABELS[provider]}${voiceId ? ` (voice: ${voiceId})` : ''}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ Voice provider set to ${PROVIDER_LABELS[provider]}${voiceId ? ` (voice: ${voiceId})` : ''}\n`));
 }
 
 module.exports = voice;

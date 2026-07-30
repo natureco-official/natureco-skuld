@@ -148,7 +148,7 @@ async function discoverServices() {
   console.log(chalk.cyan.bold(L('\n  Bulunan Servisler\n', '\n  Discovered Services\n')));
 
   results.forEach(r => {
-    console.log(`  ${chalk.green('●')} ${chalk.white(r.service)} ${chalk.gray(`→ ${r.host}:${r.port}`)}`);
+    console.log(`  ${chalk.hex('#7dd3fc')('●')} ${chalk.white(r.service)} ${chalk.gray(`→ ${r.host}:${r.port}`)}`);
   });
 
   console.log(chalk.gray(L('\n  Özel port eklemek: ', '\n  Add custom port: ')) + chalk.cyan('nskuld config set discoveryPorts [3000,4000]\n'));

@@ -47,14 +47,14 @@ async function allowlistAction(args) {
 
   if (sub === 'add' && args[2]) {
     addAllowlistEntry('default', args.slice(2).join(' '));
-    console.log(chalk.green('\n  ✓ Command added to allowlist\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  ✓ Command added to allowlist\n'));
     return;
   }
 
   if (sub === 'remove' && args[2]) {
     const removed = removeAllowlistEntry('default', args[2]);
     if (removed) {
-      console.log(chalk.green('\n  ✓ Entry removed from allowlist\n'));
+      console.log(chalk.hex('#7dd3fc')('\n  ✓ Entry removed from allowlist\n'));
     } else {
       console.log(chalk.yellow('\n  ⚠️  Entry not found\n'));
     }
@@ -75,7 +75,7 @@ async function policyAction(args) {
     const value = args[2];
     if (['deny', 'allowlist', 'full'].includes(value)) {
       setSecurityPolicy('default', { security: value });
-      console.log(chalk.green(`\n  ✓ Security policy set to: ${value}\n`));
+      console.log(chalk.hex('#7dd3fc')(`\n  ✓ Security policy set to: ${value}\n`));
     } else {
       console.log(chalk.red(`\n  ❌ Invalid policy: ${value}. Use: deny, allowlist, full\n`));
     }
@@ -99,7 +99,7 @@ async function scanSecrets(args) {
   console.log(chalk.cyan.bold('\n  Secret Reference Scan\n'));
 
   if (refs.length === 0) {
-    console.log(chalk.green('  ✓ No secret references found in config\n'));
+    console.log(chalk.hex('#7dd3fc')('  ✓ No secret references found in config\n'));
     return;
   }
 
@@ -109,7 +109,7 @@ async function scanSecrets(args) {
   for (const ref of refs) {
     try {
       const value = resolveSecretRef(ref.ref, { throwOnMissing: true });
-      console.log(chalk.green(`  ✓ ${ref.path} → resolved (${ref.ref.source}:${ref.ref.id})`));
+      console.log(chalk.hex('#7dd3fc')(`  ✓ ${ref.path} → resolved (${ref.ref.source}:${ref.ref.id})`));
       resolved++;
     } catch {
       console.log(chalk.yellow(`  ⚠️  ${ref.path} → ${ref.ref.source}:${ref.ref.id} (unresolved)`));
@@ -250,7 +250,7 @@ async function audit(args) {
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   console.log(chalk.cyan.bold(L('\n  Güvenlik Denetimi\n', '\n  Security Audit\n')));
 
-  ok.forEach(msg => console.log(chalk.green('  ✓ ') + chalk.gray(msg)));
+  ok.forEach(msg => console.log(chalk.hex('#7dd3fc')('  ✓ ') + chalk.gray(msg)));
 
   if (warnings.length > 0) {
     console.log('');
@@ -266,7 +266,7 @@ async function audit(args) {
   console.log(chalk.gray('  ' + '─'.repeat(48)));
 
   if (issues.length === 0 && warnings.length === 0) {
-    console.log(chalk.green(L('  ✓ Güvenlik sorunu bulunamadı\n', '  ✓ No security issues found\n')));
+    console.log(chalk.hex('#7dd3fc')(L('  ✓ Güvenlik sorunu bulunamadı\n', '  ✓ No security issues found\n')));
     return;
   }
 
@@ -278,7 +278,7 @@ async function audit(args) {
       if (i.fix) {
         try {
           i.fix();
-          console.log(chalk.green(`  ✓ ${L('Düzeltildi', 'Fixed')}: ${i.id}`));
+          console.log(chalk.hex('#7dd3fc')(`  ✓ ${L('Düzeltildi', 'Fixed')}: ${i.id}`));
         } catch (e) {
           console.log(chalk.red(`  ❌ ${L('Düzeltilemedi', 'Could not fix')}: ${i.id} — ${e.message}`));
         }

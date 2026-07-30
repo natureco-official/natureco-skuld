@@ -58,7 +58,7 @@ async function connectSms() {
   config.smsBotId = botId;
   saveConfig(config);
 
-  console.log(chalk.green(L('\n✅ SMS (Twilio) bağlantısı kaydedildi!\n', '\n✅ SMS (Twilio) connection saved!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ SMS (Twilio) bağlantısı kaydedildi!\n', '\n✅ SMS (Twilio) connection saved!\n')));
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   console.log(chalk.cyan('Account SID:'), chalk.white(answers.accountSid.slice(0, 20) + '...'));
   console.log(chalk.cyan(L('Numara:', 'Number:')), chalk.white(answers.fromNumber || '(Messaging Service)'));
@@ -92,7 +92,7 @@ async function disconnectSms() {
   delete config.smsMessagingServiceSid; delete config.smsPublicWebhookUrl;
   delete config.smsDmPolicy; delete config.smsEnableWebhook; delete config.smsBotId;
   saveConfig(config);
-  console.log(chalk.green('\n✅ SMS disconnected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ SMS disconnected\n'));
 }
 
 function statusSms() {
@@ -102,7 +102,7 @@ function statusSms() {
     console.log(chalk.gray('Connect with: nskuld sms connect\n'));
     return;
   }
-  console.log(chalk.green('\n✅ SMS (Twilio) connected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ SMS (Twilio) connected\n'));
   console.log(chalk.cyan('Bot ID:'), chalk.white(config.smsBotId));
   console.log(chalk.cyan('Account SID:'), chalk.white((config.smsAccountSid || '').slice(0, 20) + '...'));
   console.log(chalk.cyan(L('Numara:', 'Number:')), chalk.white(config.smsFromNumber || '(Messaging Service)'));
@@ -135,7 +135,7 @@ async function probeSms() {
     }
 
     const account = await res.json();
-    console.log(chalk.green(L('✓ Twilio API Bağlantısı Başarılı\n', '✓ Twilio API Connection Successful\n')));
+    console.log(chalk.hex('#7dd3fc')(L('✓ Twilio API Bağlantısı Başarılı\n', '✓ Twilio API Connection Successful\n')));
     console.log(chalk.cyan(L('Hesap Adı:', 'Account Name:')), chalk.white(account.friendly_name));
     console.log(chalk.cyan('Status:'), chalk.white(account.status));
     console.log(chalk.cyan('Type:'), chalk.white(account.type));

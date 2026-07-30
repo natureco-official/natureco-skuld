@@ -47,7 +47,7 @@ function cmdApprove(id) {
   p.status = 'approved';
   p.approvedAt = new Date().toISOString();
   savePairings(pairings);
-  console.log(chalk.green(`\n  Pairing "${id}" approved.\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Pairing "${id}" approved.\n`));
 }
 
 function cmdReject(id) {
@@ -79,7 +79,7 @@ function cmdGenerate() {
 
   console.log(chalk.cyan('\n  Pairing Code Generated\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
-  console.log(`  ${chalk.white('Code:')} ${chalk.green(code)}`);
+  console.log(`  ${chalk.white('Code:')} ${chalk.hex('#7dd3fc')(code)}`);
   console.log(`  ${chalk.white('ID:')}   ${chalk.gray(entry.id)}`);
   console.log('');
   console.log(chalk.gray('  Share this code with the node to pair.\n'));

@@ -106,7 +106,7 @@ ${code}
     const response = await sendMessage(apiKey || config.providerApiKey, botId, prompt, null, '');
     const review = response.reply || response.message || 'No response';
     
-    console.log(chalk.green('\n📊 Ultra Review:\n'));
+    console.log(chalk.hex('#7dd3fc')('\n📊 Ultra Review:\n'));
     console.log(chalk.white(review));
     console.log('');
     

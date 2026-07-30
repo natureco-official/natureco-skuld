@@ -97,7 +97,7 @@ function addItem(text) {
     created: new Date().toISOString()
   });
   saveBoard(board);
-  console.log(chalk.green(`\n  ✅ Added: ${chalk.white(text)} ${chalk.gray(`[${id}]`)}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ Added: ${chalk.white(text)} ${chalk.gray(`[${id}]`)}\n`));
 }
 
 function moveItem(id, column) {
@@ -117,7 +117,7 @@ function moveItem(id, column) {
   item.column = column;
   item.updated = new Date().toISOString();
   saveBoard(board);
-  console.log(chalk.green(`\n  ✅ Moved "${item.text.substring(0, 40)}" → ${column}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ Moved "${item.text.substring(0, 40)}" → ${column}\n`));
 }
 
 function removeItem(id) {
@@ -135,7 +135,7 @@ function removeItem(id) {
 
   const removed = board.items.splice(idx, 1)[0];
   saveBoard(board);
-  console.log(chalk.green(`\n  ✅ Removed: ${removed.text.substring(0, 40)}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ Removed: ${removed.text.substring(0, 40)}\n`));
 }
 
 function clearBoard() {
@@ -157,7 +157,7 @@ function manageColumns(params) {
     }
     config.workboard.columns = cols;
     saveConfig(config);
-    console.log(chalk.green(`\n  ✅ Columns set: ${cols.join(', ')}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✅ Columns set: ${cols.join(', ')}\n`));
     return;
   }
 
@@ -199,7 +199,7 @@ function importBoard(filePath) {
     }
 
     saveBoard(data);
-    console.log(chalk.green(`\n  ✅ Board imported: ${data.items.length} items\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✅ Board imported: ${data.items.length} items\n`));
   } catch (err) {
     console.log(chalk.red(`\n  ❌ ${L('Import hatası', 'Import error')}: ${err.message}\n`));
     process.exit(1);

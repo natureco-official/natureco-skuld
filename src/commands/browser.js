@@ -114,7 +114,7 @@ function cmdStatus() {
   console.log(chalk.gray('  ' + '-'.repeat(48)));
 
   if (state.running) {
-    console.log(chalk.green('  Status: Running'));
+    console.log(chalk.hex('#7dd3fc')('  Status: Running'));
   } else {
     console.log(chalk.gray('  Status: Stopped'));
   }
@@ -148,7 +148,7 @@ function cmdDoctor() {
 
   const profileCount = Object.keys(profiles).length;
   if (profileCount > 0) {
-    console.log(chalk.green('  Profiles:'), chalk.white(`${profileCount} configured`));
+    console.log(chalk.hex('#7dd3fc')('  Profiles:'), chalk.white(`${profileCount} configured`));
   } else {
     console.log(chalk.yellow('  Profiles: None configured'));
     console.log(chalk.gray('    Run `browser start` to create a default profile'));
@@ -157,7 +157,7 @@ function cmdDoctor() {
 
   const stateDir = path.dirname(BROWSER_STATE_FILE);
   if (fs.existsSync(stateDir)) {
-    console.log(chalk.green('  State directory:'), chalk.white(stateDir));
+    console.log(chalk.hex('#7dd3fc')('  State directory:'), chalk.white(stateDir));
   } else {
     console.log(chalk.yellow('  State directory: Not created yet'));
   }
@@ -166,7 +166,7 @@ function cmdDoctor() {
   let foundBrowser = false;
   for (const cp of chromiumPaths) {
     if (fs.existsSync(cp)) {
-      console.log(chalk.green('  Browser binary:'), chalk.white(cp));
+      console.log(chalk.hex('#7dd3fc')('  Browser binary:'), chalk.white(cp));
       foundBrowser = true;
       break;
     }
@@ -177,7 +177,7 @@ function cmdDoctor() {
   }
 
   if (allGood) {
-    console.log(chalk.green('\n  All checks passed.\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  All checks passed.\n'));
   } else {
     console.log(chalk.yellow('\n  Some items need attention.\n'));
   }
@@ -204,7 +204,7 @@ function cmdStart() {
     };
     config.browser.profiles.default = defaultProfile;
     saveConfig(config);
-    console.log(chalk.green('  Created default browser profile.\n'));
+    console.log(chalk.hex('#7dd3fc')('  Created default browser profile.\n'));
   }
 
   state.running = true;
@@ -213,7 +213,7 @@ function cmdStart() {
   state.focusedTabId = null;
   saveState(state);
 
-  console.log(chalk.green('\n  Browser session started.\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  Browser session started.\n'));
   console.log(chalk.gray('  Browser automation is ready. Use CDP-compatible browser to connect.\n'));
 }
 
@@ -278,7 +278,7 @@ function cmdTabs() {
   }
 
   for (const tab of tabs) {
-    const focusMark = tab.id === state.focusedTabId ? chalk.green(' <-- focused') : '';
+    const focusMark = tab.id === state.focusedTabId ? chalk.hex('#7dd3fc')(' <-- focused') : '';
     console.log(chalk.white(`  [${tab.id}]`), chalk.gray(tab.label || 'untitled'), chalk.gray('-'), chalk.white(tab.url) + focusMark);
   }
   console.log();
@@ -312,7 +312,7 @@ function cmdOpen(params) {
   state.currentUrl = url;
   saveState(state);
 
-  console.log(chalk.green(`\n  Opening: ${url}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Opening: ${url}\n`));
   console.log(chalk.gray(`  Tab ID: ${tabId}`));
   if (label) {
     console.log(chalk.gray(`  Label: ${label}`));
@@ -372,7 +372,7 @@ function cmdFocus(target) {
   state.currentUrl = tab.url;
   saveState(state);
 
-  console.log(chalk.green(`\n  Focused tab: ${tab.label || tab.id} (${tab.url})\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Focused tab: ${tab.label || tab.id} (${tab.url})\n`));
 }
 
 function cmdNavigate(url) {
@@ -396,7 +396,7 @@ function cmdNavigate(url) {
   state.currentUrl = url;
   saveState(state);
 
-  console.log(chalk.green(`\n  Navigating to: ${url}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Navigating to: ${url}\n`));
   console.log(chalk.gray('  (CDP: Page.navigate would be called)\n'));
 }
 
@@ -463,7 +463,7 @@ function cmdClick(ref) {
     process.exit(1);
   }
 
-  console.log(chalk.green(`\n  Clicking element: ${ref}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Clicking element: ${ref}\n`));
   console.log(chalk.gray('  (CDP: Input.dispatchMouseEvent would be called)\n'));
 }
 
@@ -480,7 +480,7 @@ function cmdType(ref, text) {
     process.exit(1);
   }
 
-  console.log(chalk.green(`\n  Typing into element: ${ref}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Typing into element: ${ref}\n`));
   console.log(chalk.white(`  Text: ${text}`));
   console.log(chalk.gray('  (CDP: Input.dispatchKeyEvent would be called)\n'));
 }
@@ -498,7 +498,7 @@ function cmdPress(key) {
     process.exit(1);
   }
 
-  console.log(chalk.green(`\n  Pressing key: ${key}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Pressing key: ${key}\n`));
   console.log(chalk.gray('  (CDP: Input.dispatchKeyEvent would be called)\n'));
 }
 
@@ -521,7 +521,7 @@ function cmdResize(width, height) {
   state.viewport = { width: w, height: h };
   saveState(state);
 
-  console.log(chalk.green(`\n  Resized browser to ${w}x${h}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Resized browser to ${w}x${h}\n`));
   console.log(chalk.gray('  (CDP: Browser.setWindowBounds would be called)\n'));
 }
 
@@ -538,7 +538,7 @@ function cmdHover(selector) {
     process.exit(1);
   }
 
-  console.log(chalk.green(`\n  Hovering over: ${selector}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Hovering over: ${selector}\n`));
   console.log(chalk.gray('  (CDP: Runtime.evaluate + Input.dispatchMouseEvent would be called)\n'));
 }
 
@@ -555,7 +555,7 @@ function cmdDrag(selector, x, y) {
     process.exit(1);
   }
 
-  console.log(chalk.green(`\n  Dragging element: ${selector}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Dragging element: ${selector}\n`));
   console.log(chalk.white(`  Offset: (${x}, ${y})`));
   console.log(chalk.gray('  (CDP: Input.dispatchMouseEvent mousedown + mousemove + mouseup would be called)\n'));
 }
@@ -573,7 +573,7 @@ function cmdSelect(selector, value) {
     process.exit(1);
   }
 
-  console.log(chalk.green(`\n  Selecting option in: ${selector}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Selecting option in: ${selector}\n`));
   console.log(chalk.white(`  Value: ${value}`));
   console.log(chalk.gray('  (CDP: Runtime.evaluate to set selectedIndex would be called)\n'));
 }
@@ -596,7 +596,7 @@ function cmdUpload(selector, filepath) {
     return;
   }
 
-  console.log(chalk.green(`\n  Uploading file to: ${selector}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Uploading file to: ${selector}\n`));
   console.log(chalk.white(`  File: ${filepath}`));
   console.log(chalk.gray('  (CDP: DOM.setFileInputFiles would be called)\n'));
 }
@@ -614,7 +614,7 @@ function cmdFill(selector, text) {
     process.exit(1);
   }
 
-  console.log(chalk.green(`\n  Filling form field: ${selector}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Filling form field: ${selector}\n`));
   console.log(chalk.white(`  Text: ${text}`));
   console.log(chalk.gray('  (CDP: Runtime.evaluate to set value + dispatch input event would be called)\n'));
 }
@@ -635,7 +635,7 @@ function cmdDialog(action) {
   state.lastDialogAction = action;
   saveState(state);
 
-  console.log(chalk.green(`\n  Dialog action: ${action}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Dialog action: ${action}\n`));
   console.log(chalk.gray('  (CDP: Page.handleJavaScriptDialog would be called)\n'));
 }
 
@@ -739,7 +739,7 @@ function cmdResetProfile(name) {
   };
   saveConfig(config);
 
-  console.log(chalk.green(`\n  Profile reset: ${profileName}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Profile reset: ${profileName}\n`));
 }
 
 function cmdCreateProfile(name) {
@@ -766,7 +766,7 @@ function cmdCreateProfile(name) {
   };
   saveConfig(config);
 
-  console.log(chalk.green(`\n  Profile created: ${name}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Profile created: ${name}\n`));
 }
 
 function cmdDeleteProfile(name) {
@@ -788,7 +788,7 @@ function cmdDeleteProfile(name) {
   delete config.browser.profiles[name];
   saveConfig(config);
 
-  console.log(chalk.green(`\n  Profile deleted: ${name}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Profile deleted: ${name}\n`));
 }
 
 function getChromiumPaths() {

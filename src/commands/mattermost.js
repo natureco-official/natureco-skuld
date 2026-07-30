@@ -53,7 +53,7 @@ async function connectMattermost() {
   config.mattermostBotId = botId;
   saveConfig(config);
 
-  console.log(chalk.green(L('\n✅ Mattermost bağlantısı kaydedildi!\n', '\n✅ Mattermost connection saved!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ Mattermost bağlantısı kaydedildi!\n', '\n✅ Mattermost connection saved!\n')));
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   console.log(chalk.cyan(L('Sunucu:', 'Server:')), chalk.white(config.mattermostBaseUrl));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(answers.token)));
@@ -77,7 +77,7 @@ async function disconnectMattermost() {
   delete config.mattermostSlashEnabled; delete config.mattermostDmPolicy;
   delete config.mattermostBotId;
   saveConfig(config);
-  console.log(chalk.green('\n✅ Mattermost disconnected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ Mattermost disconnected\n'));
 }
 
 function statusMattermost() {
@@ -87,7 +87,7 @@ function statusMattermost() {
     console.log(chalk.gray('Connect with: nskuld mattermost connect\n'));
     return;
   }
-  console.log(chalk.green('\n✅ Mattermost connected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ Mattermost connected\n'));
   console.log(chalk.cyan('Bot ID:'), chalk.white(config.mattermostBotId));
   console.log(chalk.cyan(L('Sunucu:', 'Server:')), chalk.white(config.mattermostBaseUrl));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(config.mattermostToken)));
@@ -128,7 +128,7 @@ async function probeMattermost() {
     }
 
     const me = await res.json();
-    console.log(chalk.green(L('✓ API Bağlantısı Başarılı\n', '✓ API Connection Successful\n')));
+    console.log(chalk.hex('#7dd3fc')(L('✓ API Bağlantısı Başarılı\n', '✓ API Connection Successful\n')));
     console.log(chalk.cyan(L('Bot Kullanıcı ID:', 'Bot User ID:')), chalk.white(me.id));
     console.log(chalk.cyan(L('Kullanıcı Adı:', 'Username:')), chalk.white(me.username));
     console.log(chalk.cyan(L('E-posta:', 'Email:')), chalk.white(me.email));

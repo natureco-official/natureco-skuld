@@ -117,7 +117,7 @@ function cmdDoctor() {
   function check(label, condition, severity) {
     if (condition) {
       passed++;
-      console.log(chalk.green(`  [PASS] ${label}`));
+      console.log(chalk.hex('#7dd3fc')(`  [PASS] ${label}`));
     } else if (severity === 'warn') {
       warnings++;
       console.log(chalk.yellow(`  [WARN] ${label}`));
@@ -159,7 +159,7 @@ function cmdDoctor() {
   if (failed > 0) {
     console.log(chalk.red(`\n  Some checks failed. Run ${chalk.cyan('nskuld wiki init')} to fix.\n`));
   } else {
-    console.log(chalk.green('\n  Vault is healthy.\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  Vault is healthy.\n'));
   }
 }
 
@@ -186,7 +186,7 @@ function cmdInit() {
   };
   saveVault(vault);
 
-  console.log(chalk.green('\n  Wiki vault initialized at') + chalk.white(` ${WIKI_DIR}\n`));
+  console.log(chalk.hex('#7dd3fc')('\n  Wiki vault initialized at') + chalk.white(` ${WIKI_DIR}\n`));
   console.log(chalk.gray('  Created:'));
   console.log(chalk.gray('    sources/   — ingested markdown pages'));
   console.log(chalk.gray('    concepts/  — compiled concept pages'));
@@ -263,7 +263,7 @@ function cmdIngest(srcPath) {
   vault.updated = new Date().toISOString();
   saveVault(vault);
 
-  console.log(chalk.green(`\n  Ingested ${copied} file(s)`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Ingested ${copied} file(s)`));
   if (skipped > 0) console.log(chalk.gray(`  Skipped ${skipped} non-markdown file(s)`));
   console.log('');
 }
@@ -329,7 +329,7 @@ function cmdCompile() {
   vault.updated = new Date().toISOString();
   saveVault(vault);
 
-  console.log(chalk.green(`\n  Compiled ${srcFiles.length} source files into concepts/ and cache/\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Compiled ${srcFiles.length} source files into concepts/ and cache/\n`));
 }
 
 // ── lint ────────────────────────────────────────────────────────────────────
@@ -405,7 +405,7 @@ function cmdLint() {
 
   const summary = `${filesChecked} files checked, ${issues} issue(s) found`;
   if (issues === 0) {
-    console.log(chalk.green(`\n  ${summary}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ${summary}\n`));
   } else {
     console.log(chalk.yellow(`\n  ${summary}\n`));
   }
@@ -577,7 +577,7 @@ function applySynthesis(params) {
 
   fs.writeFileSync(digestFile, JSON.stringify(synthesis, null, 2), 'utf8');
 
-  console.log(chalk.green(`\n  Applied synthesis: ${sourceFiles.length} sources catalogued\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Applied synthesis: ${sourceFiles.length} sources catalogued\n`));
   console.log(chalk.gray(`  Written to: ${digestFile}\n`));
 }
 
@@ -670,7 +670,7 @@ function applyMetadata(params) {
 
   fs.writeFileSync(filePath, content, 'utf8');
 
-  console.log(chalk.green(`\n  Applied metadata to "${targetFile}"\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Applied metadata to "${targetFile}"\n`));
   for (const kv of kvPairs) {
     console.log(chalk.gray(`    ${kv}`));
   }

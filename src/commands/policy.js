@@ -114,7 +114,7 @@ function checkPolicy() {
   for (const check of POLICY_CHECKS) {
     const result = check.check();
     if (result.status === 'pass') {
-      console.log(`  ${chalk.green('✓')} ${check.name}: ${chalk.white(result.message)}`);
+      console.log(`  ${chalk.hex('#7dd3fc')('✓')} ${check.name}: ${chalk.white(result.message)}`);
       passed++;
     } else if (result.status === 'fail') {
       console.log(`  ${chalk.red('✗')} ${check.name}: ${chalk.white(result.message)}`);
@@ -140,7 +140,7 @@ function setPolicy(key, value) {
   if (!config.policies) config.policies = {};
   config.policies[key] = value;
   saveConfig(config);
-  console.log(chalk.green(`\n  ✓ ${L('Politika ayarlandı', 'Policy set')}: ${key} = ${value}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Politika ayarlandı', 'Policy set')}: ${key} = ${value}\n`));
 }
 
 function listPolicies() {
@@ -169,7 +169,7 @@ function removePolicy(key) {
   if (config.policies?.[key]) {
     delete config.policies[key];
     saveConfig(config);
-    console.log(chalk.green(`\n  ✓ ${L('Politika silindi', 'Policy deleted')}: ${key}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Politika silindi', 'Policy deleted')}: ${key}\n`));
   } else {
     console.log(chalk.yellow(`\n  ⚠ ${L('Politika bulunamadı', 'Policy not found')}: ${key}\n`));
   }

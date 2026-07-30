@@ -47,7 +47,7 @@ function execCmd(cmd) {
   try {
     const output = execSync(cmd, { encoding: 'utf8', timeout: 30000, maxBuffer: 1024 * 1024 });
     if (output) console.log(output);
-    console.log(chalk.green(`\n  ✅ ${L('Komut başarıyla tamamlandı', 'Command completed successfully')} (${output.length} bytes)\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✅ ${L('Komut başarıyla tamamlandı', 'Command completed successfully')} (${output.length} bytes)\n`));
   } catch (err) {
     if (err.stdout) console.log(err.stdout.toString());
     if (err.stderr) console.log(chalk.red(err.stderr.toString()));
@@ -72,7 +72,7 @@ function connectSession(target, cmd) {
   sessions.push(session);
   saveSessions(sessions);
 
-  console.log(chalk.green(`\n  ✅ ${L('Oturum başlatıldı', 'Session started')}: ${session.id}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ ${L('Oturum başlatıldı', 'Session started')}: ${session.id}\n`));
   console.log(`  ${chalk.white('Target:')} ${target}`);
   console.log(`  ${chalk.white('Shell:')}  ${session.cmd}`);
   console.log();
@@ -116,7 +116,7 @@ function listSessions() {
     return;
   }
   for (const s of sessions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))) {
-    const icon = s.status === 'active' ? chalk.green('●') : chalk.gray('○');
+    const icon = s.status === 'active' ? chalk.hex('#7dd3fc')('●') : chalk.gray('○');
     console.log(`  ${icon} ${chalk.white(s.target)} — ${s.cmd}`);
     console.log(chalk.gray(`     [${s.id}] ${s.createdAt.slice(0, 16)}`));
   }

@@ -200,7 +200,7 @@ async function startGateway() {
     }
   }
   
-  console.log(chalk.green('\n🚀 Starting NatureCo Gateway...\n'));
+  console.log(chalk.hex('#7dd3fc')('\n🚀 Starting NatureCo Gateway...\n'));
   
   // Ensure log directory exists
   const dir = path.dirname(LOG_FILE);
@@ -227,7 +227,7 @@ async function startGateway() {
   }
   fs.writeFileSync(PID_FILE, String(child.pid), 'utf-8');
   
-  console.log(chalk.green('✅ Gateway started in background'));
+  console.log(chalk.hex('#7dd3fc')('✅ Gateway started in background'));
   console.log(chalk.cyan('PID:'), chalk.white(child.pid));
   console.log(chalk.cyan('Logs:'), chalk.white(LOG_FILE));
   console.log(chalk.gray('\nView logs: nskuld gateway logs'));
@@ -2373,17 +2373,17 @@ function stopGateway() {
         if (process.platform === 'win32') {
           try {
             execSync(`taskkill /F /PID ${pid}`, { stdio: 'ignore' });
-            console.log(chalk.green('\n✅ Gateway stopped (force killed)\n'));
+            console.log(chalk.hex('#7dd3fc')('\n✅ Gateway stopped (force killed)\n'));
           } catch (err) {
             console.log(chalk.red(`\n❌ Failed to stop gateway: ${err.message}\n`));
           }
         } else {
           process.kill(pid, 'SIGKILL');
-          console.log(chalk.green('\n✅ Gateway stopped (force killed)\n'));
+          console.log(chalk.hex('#7dd3fc')('\n✅ Gateway stopped (force killed)\n'));
         }
       } catch {
         // Process already stopped
-        console.log(chalk.green('\n✅ Gateway stopped\n'));
+        console.log(chalk.hex('#7dd3fc')('\n✅ Gateway stopped\n'));
       }
       
       // Remove PID file
@@ -2397,7 +2397,7 @@ function stopGateway() {
     if (process.platform === 'win32') {
       try {
         execSync(`taskkill /F /PID ${pid}`, { stdio: 'ignore' });
-        console.log(chalk.green('\n✅ Gateway stopped\n'));
+        console.log(chalk.hex('#7dd3fc')('\n✅ Gateway stopped\n'));
       } catch {
         console.log(chalk.yellow('\n⚠️  Gateway process not found\n'));
       }
@@ -2422,7 +2422,7 @@ function statusGateway() {
   
   try {
     process.kill(pid, 0);
-    console.log(chalk.green('\n✅ Gateway running\n'));
+    console.log(chalk.hex('#7dd3fc')('\n✅ Gateway running\n'));
     console.log(chalk.cyan('PID:'), chalk.white(pid));
     console.log(chalk.cyan('Logs:'), chalk.white(LOG_FILE));
     

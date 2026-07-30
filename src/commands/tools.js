@@ -77,7 +77,7 @@ function cmdEnable(name) {
   if (!disabled.has(name)) return console.log(chalk.yellow(name + ' zaten etkin.'));
   disabled.delete(name);
   setConfigValue('disabledTools', [...disabled]);
-  console.log(chalk.green('✅ ' + name + ' etkinleştirildi.'));
+  console.log(chalk.hex('#7dd3fc')('✅ ' + name + ' etkinleştirildi.'));
 }
 
 function cmdDisable(name) {

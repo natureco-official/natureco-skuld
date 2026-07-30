@@ -856,7 +856,21 @@ async function handleNoArgs() {
     if (!noSplash && tui.CAPS.isTTY && !process.env.CI) {
       // Skuld'un kendi açılışı: gümüş parıltı. tui.splash NatureCo kimliğine
       // (yeşil, blok ASCII) bağlıydı; fork'ta onu korumanın anlamı yok.
-      await tema.acilis({ surum: `v${packageJson.version}`, sure: 900 });
+      // Animasyon GERÇEK İŞİ kaplıyor, ona eklenmiyor.
+      //
+      // `code_v5` modülünü yüklemek ~170 ms, araç tanımları ~95 ms, proje
+      // indeksi ~130 ms — ölçüldü. Bu işi animasyondan SONRA yapmak, önce
+      // animasyon sonra donma demek. Şimdi ikisi birlikte koşuyor: yükleme
+      // arka planda başlıyor, animasyon o bitene kadar dönüyor.
+      //
+      // Sonuç: hızlı makinede kısa, yavaş makinede uzun animasyon. İki
+      // durumda da kullanıcı bekleme değil hareket görüyor.
+      const yuklemeSozu = (async () => require('../src/commands/code_v5'))();
+      await tema.acilis({
+        surum: `v${packageJson.version}`,
+        sure: 900,
+        bitis: yuklemeSozu,
+      });
     }
 
     if (!skipFirstRun && needsFirstRun()) {

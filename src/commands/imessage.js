@@ -51,7 +51,7 @@ async function allowNumber(number) {
   config.imessageAllowedNumbers = allowList;
   saveConfig(config);
 
-  console.log(chalk.green(`\n✅ ${L('İzin verildi', 'Allowed')}: ${number}`));
+  console.log(chalk.hex('#7dd3fc')(`\n✅ ${L('İzin verildi', 'Allowed')}: ${number}`));
   console.log(chalk.gray(`${L('Toplam izinli', 'Total allowed')}: ${allowList.length}`));
 }
 
@@ -67,7 +67,7 @@ async function disallowNumber(number) {
   config.imessageAllowedNumbers = newList;
   saveConfig(config);
 
-  console.log(chalk.green(`\n✅ ${L('İzin kaldırıldı', 'Permission removed')}: ${number}`));
+  console.log(chalk.hex('#7dd3fc')(`\n✅ ${L('İzin kaldırıldı', 'Permission removed')}: ${number}`));
 }
 
 async function sendMessage(recipient, message) {
@@ -102,7 +102,7 @@ async function sendMessage(recipient, message) {
     const args = ['send', '--to', recipient, '--text', fullMessage];
     const output = execFileSync(config.imessageCliPath, args, { encoding: 'utf8', timeout: 30000 });
 
-    console.log(chalk.green(L('✅ Mesaj gönderildi!', '✅ Message sent!')));
+    console.log(chalk.hex('#7dd3fc')(L('✅ Mesaj gönderildi!', '✅ Message sent!')));
     if (output && output.trim()) {
       console.log(chalk.gray(output.trim()));
     }
@@ -163,7 +163,7 @@ async function connectImessage() {
   config.imessageBotId = botId;
   saveConfig(config);
 
-  console.log(chalk.green(L('\n✅ iMessage bağlantısı kaydedildi!\n', '\n✅ iMessage connection saved!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ iMessage bağlantısı kaydedildi!\n', '\n✅ iMessage connection saved!\n')));
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   if (config.imessageCliPath) console.log(chalk.cyan(L('CLI Yolu:', 'CLI Path:')), chalk.white(config.imessageCliPath));
   console.log(chalk.cyan(L('Servis:', 'Service:')), chalk.white(answers.service));
@@ -186,7 +186,7 @@ async function disconnectImessage() {
   delete config.imessageCliPath; delete config.imessageDbPath; delete config.imessageService;
   delete config.imessageDmPolicy; delete config.imessageBotId;
   saveConfig(config);
-  console.log(chalk.green('\n✅ iMessage disconnected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ iMessage disconnected\n'));
 }
 
 async function statusImessage() {
@@ -196,7 +196,7 @@ async function statusImessage() {
     console.log(chalk.gray('Connect with: nskuld imessage connect\n'));
     return;
   }
-  console.log(chalk.green('\n✅ iMessage connected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ iMessage connected\n'));
   console.log(chalk.cyan('Bot ID:'), chalk.white(config.imessageBotId));
   if (config.imessageCliPath) console.log(chalk.cyan(L('CLI Yolu:', 'CLI Path:')), chalk.white(config.imessageCliPath));
   console.log(chalk.cyan(L('Servis:', 'Service:')), chalk.white(config.imessageService || 'auto'));
@@ -234,12 +234,12 @@ async function probeImessage() {
     console.log(chalk.gray(L('Veya: https://github.com/mbilker/imsg\n', 'Or: https://github.com/mbilker/imsg\n')));
     process.exit(1);
   }
-  console.log(chalk.green(`✓ imsg found: ${imsgPath}`));
+  console.log(chalk.hex('#7dd3fc')(`✓ imsg found: ${imsgPath}`));
 
   // Check DB
   const dbPath = (config.imessageDbPath || '~/Library/Messages/chat.db').replace(/^~/, require('os').homedir());
   if (fs.existsSync(dbPath)) {
-    console.log(chalk.green(`✓ iMessage DB: ${dbPath}`));
+    console.log(chalk.hex('#7dd3fc')(`✓ iMessage DB: ${dbPath}`));
   } else {
     console.log(chalk.yellow(`⚠️  iMessage DB ${L('bulunamadı', 'not found')}: ${dbPath}`));
   }

@@ -46,7 +46,7 @@ function cmdList() {
   }
 
   for (const h of hooks) {
-    const status = h.disabled ? chalk.red('disabled') : chalk.green('enabled');
+    const status = h.disabled ? chalk.red('disabled') : chalk.hex('#7dd3fc')('enabled');
     console.log(`  ${chalk.white(h.name)} ${chalk.gray(`— ${status}`)}`);
     if (h.type) console.log(chalk.gray(`    Type: ${h.type}`));
     if (h.url) console.log(chalk.gray(`    URL:  ${h.url}`));
@@ -84,7 +84,7 @@ function cmdCheck(name) {
   if (h.disabled) issues.push('Hook is disabled');
 
   if (issues.length === 0) {
-    console.log(chalk.green(`\n  Hook "${name}" is valid.\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  Hook "${name}" is valid.\n`));
   } else {
     console.log(chalk.yellow(`\n  Hook "${name}" has ${issues.length} issue(s):\n`));
     for (const issue of issues) console.log(chalk.yellow(`  - ${issue}`));
@@ -101,7 +101,7 @@ function cmdEnable(name) {
 
   h.disabled = false;
   saveHooks(hooks);
-  console.log(chalk.green(`\n  Hook "${name}" enabled.\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Hook "${name}" enabled.\n`));
 }
 
 function cmdDisable(name) {
@@ -123,7 +123,7 @@ function cmdInstall(url) {
   const name = path.basename(url, path.extname(url));
   hooks.push({ name, url, type: 'custom', disabled: false, installedAt: new Date().toISOString() });
   saveHooks(hooks);
-  console.log(chalk.green(`\n  Hook "${name}" installed from ${url}.\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Hook "${name}" installed from ${url}.\n`));
 }
 
 function cmdUpdate(name) {
@@ -135,7 +135,7 @@ function cmdUpdate(name) {
 
   h.updatedAt = new Date().toISOString();
   saveHooks(hooks);
-  console.log(chalk.green(`\n  Hook "${name}" updated.\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Hook "${name}" updated.\n`));
 }
 
 module.exports = hooks;

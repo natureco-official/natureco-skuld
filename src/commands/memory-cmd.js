@@ -194,7 +194,7 @@ function showMemory(botId) {
 function clearMemoryCmd(botId) {
   const id = botId || 'universal-provider';
   clearMemory(id);
-  console.log(chalk.green(`\n  ✓ ${L('Hafıza temizlendi', 'Memory cleared')}: ${id}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Hafıza temizlendi', 'Memory cleared')}: ${id}\n`));
 }
 
 function indexMemory() {
@@ -222,7 +222,7 @@ function indexMemory() {
     } catch {}
   });
 
-  console.log(chalk.green(`\n  ✓ ${indexed} ${L('hafıza dosyası yeniden indexlendi', 'memory file(s) re-indexed')}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${indexed} ${L('hafıza dosyası yeniden indexlendi', 'memory file(s) re-indexed')}\n`));
 }
 
 // ── Export Memory ──────────────────────────────────────────────────────────────
@@ -231,7 +231,7 @@ function exportMemoryCmd(botId, outputFile) {
   const mem = memoryStore.loadMemory(id);
   const filePath = outputFile || path.join(process.cwd(), `memory-${id}.json`);
   fs.writeFileSync(filePath, JSON.stringify(mem, null, 2));
-  console.log(chalk.green(`\n  ✓ ${L('Hafıza dışa aktarıldı', 'Memory exported')}: ${filePath}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Hafıza dışa aktarıldı', 'Memory exported')}: ${filePath}\n`));
 }
 
 // ── Import Memory ──────────────────────────────────────────────────────────────
@@ -251,7 +251,7 @@ function importMemoryCmd(botId, sourceFile) {
     // v5.6.16: memoryStore.saveMemory kullan
     const importId = botId || 'universal-provider';
     memoryStore.saveMemory(importId, data);
-    console.log(chalk.green(`\n  ✓ ${L('Hafıza içe aktarıldı', 'Memory imported')}: ${importId}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Hafıza içe aktarıldı', 'Memory imported')}: ${importId}\n`));
   } catch (err) {
     console.log(chalk.red(`\n  ❌ ${L('Hata', 'Error')}: ${err.message}\n`));
   }
@@ -271,7 +271,7 @@ function semanticSearchCmd(query) {
   }
   results.forEach((r, i) => {
     const pct = Math.round(r.score * 100);
-    const bar = chalk.green('█'.repeat(Math.floor(pct / 10))) + chalk.gray('░'.repeat(10 - Math.floor(pct / 10)));
+    const bar = chalk.hex('#7dd3fc')('█'.repeat(Math.floor(pct / 10))) + chalk.gray('░'.repeat(10 - Math.floor(pct / 10)));
     console.log(`  ${chalk.white(`${i + 1}.`)} ${bar} ${chalk.white(r.value.slice(0, 70))}`);
     console.log(chalk.gray(`     [${r.bot}]  ${L('alaka', 'relevance')}: %${pct}`));
   });
@@ -299,7 +299,7 @@ function wikiCmd(action, params) {
       return;
     }
     saveWikiPage(slug, content);
-    console.log(chalk.green(`\n  ✓ ${L('Wiki sayfası kaydedildi', 'Wiki page saved')}: ${slug}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Wiki sayfası kaydedildi', 'Wiki page saved')}: ${slug}\n`));
     return;
   }
   if (action === 'search') {
@@ -323,7 +323,7 @@ function wikiCreateCmd(slug, content) {
     return;
   }
   saveWikiPage(slug, content);
-  console.log(chalk.green(`\n  ✓ ${L('Wiki sayfası oluşturuldu', 'Wiki page created')}: ${slug}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Wiki sayfası oluşturuldu', 'Wiki page created')}: ${slug}\n`));
 }
 
 function wikiListCmd() {
@@ -384,7 +384,7 @@ function saveWikiPage(slug, content) {
   if (!fs.existsSync(WIKI_DIR)) fs.mkdirSync(WIKI_DIR, { recursive: true });
   const filePath = path.join(WIKI_DIR, `${slug}.md`);
   fs.writeFileSync(filePath, content);
-  console.log(chalk.green(`\n  ✓ ${L('Wiki sayfasi kaydedildi', 'Wiki page saved')}: ${slug}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Wiki sayfasi kaydedildi', 'Wiki page saved')}: ${slug}\n`));
 }
 
 function searchWikiPages(query) {
@@ -435,7 +435,7 @@ function lintMemoryCmd(user) {
   const conflicts = all.filter((f) => f.level === 'conflict');
 
   if (all.length === 0) {
-    console.log(chalk.green(L('\n  ✓ Temiz — yinelenen veya çelişen kayıt yok.\n', '\n  ✓ Clean — no duplicate or conflicting records.\n')));
+    console.log(chalk.hex('#7dd3fc')(L('\n  ✓ Temiz — yinelenen veya çelişen kayıt yok.\n', '\n  ✓ Clean — no duplicate or conflicting records.\n')));
     return;
   }
   // Tree bulgularında dal (branch) bağlamını da göster ki kullanıcı "hangisi nerede" bilsin.

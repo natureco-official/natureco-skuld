@@ -39,11 +39,11 @@ function statusVydra() {
 
   console.log(chalk.cyan('\n  🎬 Vydra Media Provider\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
-  console.log(`  ${chalk.white('API Key:')}      ${apiKey ? chalk.green('Configured') : chalk.red('Not set')}`);
+  console.log(`  ${chalk.white('API Key:')}      ${apiKey ? chalk.hex('#7dd3fc')('Configured') : chalk.red('Not set')}`);
   console.log(chalk.gray('\n  Available endpoints:\n'));
 
   for (const [id, ep] of Object.entries(VYDRA_ENDPOINTS)) {
-    const configured = apiKey ? chalk.green('✅') : chalk.gray('⏸️');
+    const configured = apiKey ? chalk.hex('#7dd3fc')('✅') : chalk.gray('⏸️');
     console.log(`  ${configured} ${chalk.white(ep.name)}`);
     console.log(`     ${chalk.gray(ep.endpoint)}`);
   }
@@ -63,7 +63,7 @@ function configureVydra(key) {
   const config = getConfig();
   config.vydraApiKey = key;
   saveConfig(config);
-  console.log(chalk.green('\n  ✅ Vydra API key saved\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  ✅ Vydra API key saved\n'));
 }
 
 async function testVydra() {
@@ -84,7 +84,7 @@ async function testVydra() {
         method: 'HEAD',
         headers: { 'Authorization': `Bearer ${apiKey}` }
       });
-      console.log(`  ${response.ok ? chalk.green('✅') : chalk.red('❌')} ${chalk.white(ep.name)} ${chalk.gray(`(${response.status})`)}`);
+      console.log(`  ${response.ok ? chalk.hex('#7dd3fc')('✅') : chalk.red('❌')} ${chalk.white(ep.name)} ${chalk.gray(`(${response.status})`)}`);
     } catch (err) {
       console.log(`  ${chalk.red('❌')} ${chalk.white(ep.name)} ${chalk.gray(`(${err.message})`)}`);
     }

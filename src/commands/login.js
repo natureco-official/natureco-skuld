@@ -10,11 +10,11 @@ async function login() {
   console.clear();
 
   console.log('');
-  console.log(chalk.green.bold('  (\\_/)'));
-  console.log(chalk.green.bold('  (•ᴥ•)'));
-  console.log(chalk.green('  />🌿'));
+  console.log(chalk.hex('#7dd3fc').bold('  (\\_/)'));
+  console.log(chalk.hex('#7dd3fc').bold('  (•ᴥ•)'));
+  console.log(chalk.hex('#7dd3fc')('  />🌿'));
   console.log('');
-  console.log(chalk.green.bold('  ' + L('NatureCo Skuld — Giriş', 'NatureCo Skuld — Sign in')));
+  console.log(chalk.hex('#7dd3fc').bold('  ' + L('NatureCo Skuld — Giriş', 'NatureCo Skuld — Sign in')));
   console.log(chalk.gray('  ' + L("API key'ini gir ve başla.", 'Enter your API key to get started.') + '\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   console.log('');
@@ -48,7 +48,7 @@ async function login() {
 
   saveApiKey(apiKey.trim());
 
-  console.log(chalk.green('\n  ✓ ' + L('Giriş başarılı!', 'Signed in!')));
+  console.log(chalk.hex('#7dd3fc')('\n  ✓ ' + L('Giriş başarılı!', 'Signed in!')));
   console.log(chalk.gray('  Config: ~/.nskuld/config.json'));
   console.log('');
   console.log(chalk.gray('  ' + L('Başlamak için: ', 'To get started: ')) + chalk.cyan('nskuld chat'));

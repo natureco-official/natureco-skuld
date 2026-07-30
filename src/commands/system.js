@@ -39,13 +39,13 @@ function systemHeartbeat() {
   console.log(chalk.cyan(`\n  💓 Heartbeat: ${new Date().toISOString()}\n`));
   console.log(chalk.gray(`  PID: ${process.pid}`));
   console.log(chalk.gray(`  Memory: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`));
-  console.log(chalk.gray(`  Status: ${chalk.green('alive')}\n`));
+  console.log(chalk.gray(`  Status: ${chalk.hex('#7dd3fc')('alive')}\n`));
 }
 
 function systemPresence() {
   console.log(chalk.cyan('\n  🟢 Presence\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
-  console.log(`  ${chalk.white('Status:')}   ${chalk.green('online')}`);
+  console.log(`  ${chalk.white('Status:')}   ${chalk.hex('#7dd3fc')('online')}`);
   console.log(`  ${chalk.white('Since:')}    ${new Date(Date.now() - process.uptime() * 1000).toISOString()}`);
   console.log(`  ${chalk.white('Host:')}     ${os.hostname()}`);
   console.log(`  ${chalk.white('Version:')} NatureCo Skuld`);

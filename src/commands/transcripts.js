@@ -91,7 +91,7 @@ function deleteTranscript(id) {
   }
 
   fs.unlinkSync(target);
-  console.log(chalk.green(`\n  🗑️  ${L('Transcript silindi', 'Transcript deleted')}: ${id}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  🗑️  ${L('Transcript silindi', 'Transcript deleted')}: ${id}\n`));
 }
 
 module.exports = transcripts;

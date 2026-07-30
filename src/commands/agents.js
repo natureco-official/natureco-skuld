@@ -132,7 +132,7 @@ async function setActiveAgent(botName) {
   if (bot?.id) config.defaultBotId = bot.id;
   saveConfig(config);
 
-  console.log(chalk.green(`\n  ✓ ${L('Aktif agent', 'Active agent')}: ${botName}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Aktif agent', 'Active agent')}: ${botName}\n`));
 }
 
 async function agentInfo(botName) {

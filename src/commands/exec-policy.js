@@ -42,7 +42,7 @@ function cmdShow() {
   console.log(chalk.cyan('\n  Execution Policy\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   for (const [key, val] of Object.entries(policy)) {
-    const display = typeof val === 'boolean' ? (val ? chalk.green('yes') : chalk.red('no')) : chalk.white(val);
+    const display = typeof val === 'boolean' ? (val ? chalk.hex('#7dd3fc')('yes') : chalk.red('no')) : chalk.white(val);
     console.log(`  ${chalk.white(key)}: ${display}`);
   }
   console.log('');
@@ -57,7 +57,7 @@ function cmdPreset(name) {
   }
 
   savePolicy({ ...PRESETS[name] });
-  console.log(chalk.green(`\n  Policy set to "${name}" preset.\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Policy set to "${name}" preset.\n`));
 }
 
 function cmdSet(key, value) {
@@ -74,7 +74,7 @@ function cmdSet(key, value) {
 
   policy[key] = value;
   savePolicy(policy);
-  console.log(chalk.green(`\n  Policy "${key}" set to ${JSON.stringify(value)}.\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  Policy "${key}" set to ${JSON.stringify(value)}.\n`));
 }
 
 module.exports = execPolicy;

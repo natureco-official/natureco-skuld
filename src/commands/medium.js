@@ -108,7 +108,7 @@ async function cmdDraft(args) {
     if (!fs.existsSync(draftDir)) fs.mkdirSync(draftDir, { recursive: true });
     const draftFile = path.join(draftDir, `${Date.now()}-${path.basename(filePath, '.md')}.json`);
     fs.writeFileSync(draftFile, JSON.stringify({ title, body, source: filePath, createdAt: new Date().toISOString() }, null, 2));
-    console.log(chalk.green(`  ✓ ${L('Taslak yerel olarak kaydedildi', 'Draft saved locally')}: ${draftFile}\n`));
+    console.log(chalk.hex('#7dd3fc')(`  ✓ ${L('Taslak yerel olarak kaydedildi', 'Draft saved locally')}: ${draftFile}\n`));
     return;
   }
 
@@ -121,7 +121,7 @@ async function cmdDraft(args) {
       method: 'POST',
       body: { title, contentFormat: 'markdown', content: body, publishStatus: 'draft' },
     });
-    console.log(chalk.green(L('\n  ✓ Medium\'a taslak yüklendi!', '\n  ✓ Draft uploaded to Medium!')));
+    console.log(chalk.hex('#7dd3fc')(L('\n  ✓ Medium\'a taslak yüklendi!', '\n  ✓ Draft uploaded to Medium!')));
     if (result.data?.url) console.log(chalk.cyan(`  🔗 ${result.data.url}\n`));
     audit.log(audit.ACTIONS.INFO, { source: 'medium', action: 'draft', url: result.data?.url });
   } catch (e) {
@@ -160,7 +160,7 @@ async function cmdPublish(args) {
       method: 'POST',
       body: { title, contentFormat: 'markdown', content: body, publishStatus: 'public' },
     });
-    console.log(chalk.green(L('\n  ✓ Yayınlandı!', '\n  ✓ Published!')));
+    console.log(chalk.hex('#7dd3fc')(L('\n  ✓ Yayınlandı!', '\n  ✓ Published!')));
     if (result.data?.url) console.log(chalk.cyan(`  🔗 ${result.data.url}\n`));
     audit.log(audit.ACTIONS.INFO, { source: 'medium', action: 'publish', url: result.data?.url });
   } catch (e) {

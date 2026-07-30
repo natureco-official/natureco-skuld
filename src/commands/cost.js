@@ -122,7 +122,7 @@ function setBudget(args) {
   }
   budget[key] = num;
   cost.saveBudget(budget);
-  console.log(chalk.green(`\n  ✓ ${key} = ${value}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${key} = ${value}\n`));
   audit.log(audit.ACTIONS.CONFIG_CHANGE, { source: 'cost', key, value });
 }
 
@@ -145,7 +145,7 @@ function suggestModel(args) {
   console.log(chalk.gray('  ' + L('Fiyat: ', 'Price: ')) + chalk.cyan(`${cost.formatUSD(pricing.input)} in / ${cost.formatUSD(pricing.output)} out (per 1M)`));
 
   if (suggestion.optimal) {
-    console.log(chalk.green('\n  ✓ ' + L('Mevcut model zaten optimal.', 'Current model is already optimal.') + '\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  ✓ ' + L('Mevcut model zaten optimal.', 'Current model is already optimal.') + '\n'));
   } else {
     console.log(chalk.yellow('\n  ⚠️  ' + L('Mevcut model optimal değil. Değiştirmek için:', 'Current model is not optimal. To change it:')));
     console.log(chalk.cyan(`     nskuld config set providerUrl <url>`));
@@ -169,8 +169,8 @@ function showPrices() {
   for (const [provider, models] of Object.entries(grouped)) {
     console.log(chalk.bold(`\n  ${provider.toUpperCase()}`));
     for (const m of models) {
-      const inPrice = m.input === 0 ? chalk.green(L('ücretsiz', 'free')) : cost.formatUSD(m.input);
-      const outPrice = m.output === 0 ? chalk.green(L('ücretsiz', 'free')) : cost.formatUSD(m.output);
+      const inPrice = m.input === 0 ? chalk.hex('#7dd3fc')(L('ücretsiz', 'free')) : cost.formatUSD(m.input);
+      const outPrice = m.output === 0 ? chalk.hex('#7dd3fc')(L('ücretsiz', 'free')) : cost.formatUSD(m.output);
       console.log(`    ${m.model.padEnd(40)} ${inPrice.padStart(10)} in  ${outPrice.padStart(10)} out`);
     }
   }

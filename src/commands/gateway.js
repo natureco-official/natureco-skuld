@@ -489,7 +489,7 @@ async function startWhatsAppProvider(sessionDir, config) {
               }
 
               await sock.sendMessage(msg.key.remoteJid, { text: reply.slice(0, 4000) });
-              console.log(chalk.cyan('[whatsapp]'), chalk.green(`!code ${L('tamamlandı', 'completed')} (${result.iterations} ${L('iterasyon', 'iterations')})`));
+              console.log(chalk.cyan('[whatsapp]'), chalk.hex('#7dd3fc')(`!code ${L('tamamlandı', 'completed')} (${result.iterations} ${L('iterasyon', 'iterations')})`));
             } catch (err) {
               const msg = err instanceof NatureCoError ? err.message : err?.message ?? 'Unknown error';
               console.log(chalk.red('[whatsapp/code]'), chalk.gray(`${L('hata', 'error')}: ${msg}`));
@@ -507,7 +507,7 @@ async function startWhatsAppProvider(sessionDir, config) {
             
             if (reply) {
               await sock.sendMessage(msg.key.remoteJid, { text: reply });
-              console.log(chalk.cyan('[whatsapp]'), chalk.green(`Reply sent (${reply.length} chars)`));
+              console.log(chalk.cyan('[whatsapp]'), chalk.hex('#7dd3fc')(`Reply sent (${reply.length} chars)`));
             }
           } catch (err) {
             const msg = err instanceof NatureCoError ? err.message : err?.message ?? 'Unknown error';

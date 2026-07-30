@@ -134,7 +134,7 @@ async function cmdAudit(args) {
   if (response.statusCode !== 200) {
     spinner.stop(tui.C.yellow(`⚠ HTTP ${response.statusCode} ${L('yanıtı alındı', 'response received')}`));
   } else {
-    spinner.stop(tui.C.green(L('✓ Sayfa yüklendi', '✓ Page loaded')));
+    spinner.stop(tui.C.hex('#7dd3fc')(L('✓ Sayfa yüklendi', '✓ Page loaded')));
   }
   console.log('');
 

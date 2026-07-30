@@ -108,7 +108,8 @@ const PALETTE = {
   primary: '#22c55e',    // NatureCo yeşil
   secondary: '#0ea5e9',  // sky blue
   accent: '#f59e0b',     // amber
-  success: '#10b981',
+  // Yeşil yerine buz mavisi (kullanıcı isteği). Tek canlı ton ilkesi.
+  success: '#7dd3fc',
   warning: '#eab308',
   danger: '#ef4444',
   info: '#3b82f6',
@@ -354,7 +355,7 @@ async function withSpinner(text, fn, options = {}) {
   const spinner = new Spinner(text, options).start();
   try {
     const result = await fn(spinner);
-    spinner.stop(options.successText || C.green('✓ ' + text));
+    spinner.stop(options.successText || C.hex('#7dd3fc')('✓ ' + text));
     return result;
   } catch (err) {
     spinner.stop(C.red('✗ ' + text) + C.red('\n  ' + err.message));

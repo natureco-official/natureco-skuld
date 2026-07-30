@@ -34,7 +34,7 @@ const STATUS_ICONS = {
 const STATUS_COLORS = {
   queued: chalk.yellow,
   running: chalk.cyan,
-  succeeded: chalk.green,
+  succeeded: chalk.hex('#7dd3fc'),
   failed: chalk.red,
   timed_out: chalk.red,
   cancelled: chalk.gray,
@@ -287,8 +287,8 @@ function summaryHandler(opts) {
   console.log('');
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   console.log(chalk.cyan.bold(L('\n  Task Özeti\n', '\n  Task Summary\n')));
-  console.log(chalk.gray(L('  Aktif    : ', '  Active   : ')) + (summary.active > 0 ? chalk.yellow(summary.active) : chalk.green('0')));
-  console.log(chalk.gray(L('  Hatalı   : ', '  Failed   : ')) + (summary.failures > 0 ? chalk.red(summary.failures) : chalk.green('0')));
+  console.log(chalk.gray(L('  Aktif    : ', '  Active   : ')) + (summary.active > 0 ? chalk.yellow(summary.active) : chalk.hex('#7dd3fc')('0')));
+  console.log(chalk.gray(L('  Hatalı   : ', '  Failed   : ')) + (summary.failures > 0 ? chalk.red(summary.failures) : chalk.hex('#7dd3fc')('0')));
   console.log(chalk.gray(L('  Toplam   : ', '  Total    : ')) + chalk.white(summary.total));
   console.log(chalk.gray(L('\n  Runtime Dağılımı', '\n  Runtime Distribution')));
   Object.entries(summary.byRuntime).forEach(([rt, count]) => {
@@ -427,7 +427,7 @@ function subStatusHandler() {
     const rows = status.agents.map(a => [
       a.id.slice(0, 10),
       a.type,
-      a.status === 'completed' ? chalk.green('✓') : a.status === 'failed' ? chalk.red('✗') : chalk.cyan('⟳'),
+      a.status === 'completed' ? chalk.hex('#7dd3fc')('✓') : a.status === 'failed' ? chalk.red('✗') : chalk.cyan('⟳'),
       a.task.slice(0, 40),
       a.completedAt ? new Date(a.completedAt).toLocaleString(_gl() === 'en' ? 'en-US' : 'tr-TR') : '—',
     ]);

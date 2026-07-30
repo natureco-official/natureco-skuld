@@ -6,7 +6,7 @@ function logout() {
   
   deleteConfig();
   
-  console.log(chalk.green('✅ Logged out successfully.\n'));
+  console.log(chalk.hex('#7dd3fc')('✅ Logged out successfully.\n'));
   console.log(chalk.gray(`Removed: ${CONFIG_FILE}\n`));
 }
 

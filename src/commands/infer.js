@@ -3,6 +3,7 @@ const { getConfig } = require('../utils/config');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { getProviderModels } = require('../utils/model-catalog');
 
 const STATE_FILE = path.join(os.homedir(), '.nskuld', 'infer-state.json');
 
@@ -389,7 +390,7 @@ async function inferModels() {
     }
 
     if (!p.url) {
-      console.log('  ' + chalk.green('\u25CF') + ' ' + chalk.white(p.name.padEnd(12)) + ': ' + chalk.gray('API key found'));
+      console.log('  ' + chalk.hex('#7dd3fc')('\u25CF') + ' ' + chalk.white(p.name.padEnd(12)) + ': ' + chalk.gray('API key found'));
       continue;
     }
 
@@ -405,12 +406,12 @@ async function inferModels() {
         const modelCount = models.length;
         const supported = models.slice(0, 5).join(', ');
         const more = modelCount > 5 ? '... +' + (modelCount - 5) : '';
-        console.log('  ' + chalk.green('\u25CF') + ' ' + chalk.white(p.name.padEnd(12)) + ': ' + chalk.gray(modelCount + ' models'));
+        console.log('  ' + chalk.hex('#7dd3fc')('\u25CF') + ' ' + chalk.white(p.name.padEnd(12)) + ': ' + chalk.gray(modelCount + ' models'));
         console.log('     ' + chalk.gray(supported) + ' ' + more);
       } else if (res.status === 401) {
         console.log('  ' + chalk.red('\u2717') + ' ' + chalk.white(p.name.padEnd(12)) + ': ' + chalk.red('invalid API key'));
       } else if (res.status === 404) {
-        console.log('  ' + chalk.green('\u25CF') + ' ' + chalk.white(p.name.padEnd(12)) + ': ' + chalk.gray('API key found (no model list endpoint)'));
+        console.log('  ' + chalk.hex('#7dd3fc')('\u25CF') + ' ' + chalk.white(p.name.padEnd(12)) + ': ' + chalk.gray('API key found (no model list endpoint)'));
       } else {
         console.log('  ' + chalk.yellow('\u26A0') + ' ' + chalk.white(p.name.padEnd(12)) + ': ' + chalk.gray('HTTP ' + res.status));
       }
@@ -476,7 +477,7 @@ async function inferMedia() {
     const hasKey = c.checkKey.some(k => config[k] || process.env[k.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()]);
     const hasModel = c.models.length > 0;
     const available = hasKey || hasModel;
-    const icon = available ? chalk.green('\u25CF') : chalk.gray('\u25CB');
+    const icon = available ? chalk.hex('#7dd3fc')('\u25CF') : chalk.gray('\u25CB');
     const detail = hasModel
       ? chalk.gray('(' + c.models.slice(0, 2).map(m => m.id).join(', ') + ')')
       : hasKey ? chalk.gray('(API key found)') : '';
@@ -505,7 +506,7 @@ async function inferCapabilities() {
       if (res.ok) {
         const data = await res.json();
         liveModels = (data.data || data.models || []).map(m => ({ id: m.id || m }));
-        console.log('  ' + chalk.green('\u2713') + ' ' + liveModels.length + ' models fetched\n');
+        console.log('  ' + chalk.hex('#7dd3fc')('\u2713') + ' ' + liveModels.length + ' models fetched\n');
       } else if (res.status === 401) {
         console.log('  ' + chalk.red('\u2717') + ' Invalid API key\n');
       } else if (res.status === 404) {
@@ -576,7 +577,7 @@ async function inferCapabilities() {
 
   for (const c of capList) {
     const count = caps[c.key] || 0;
-    const icon = count > 0 ? chalk.green('\u25CF (' + count + ')') : chalk.gray('\u25CB');
+    const icon = count > 0 ? chalk.hex('#7dd3fc')('\u25CF (' + count + ')') : chalk.gray('\u25CB');
     console.log('  ' + icon + ' ' + chalk.white(c.name.padEnd(16)));
   }
 
@@ -604,9 +605,9 @@ async function inferCapabilities() {
 
       if (probeRes.ok) {
         const provider = providerHost || config.provider || 'unknown';
-        console.log('  ' + chalk.green('\u2713') + ' ' + chalk.white('Chat API') + ': ' + chalk.green('working'));
+        console.log('  ' + chalk.hex('#7dd3fc')('\u2713') + ' ' + chalk.white('Chat API') + ': ' + chalk.hex('#7dd3fc')('working'));
         if (caps['vision'] > 0) {
-          console.log('  ' + chalk.green('\u25CF') + ' ' + chalk.white('Vision') + ': ' + chalk.gray('model supports vision'));
+          console.log('  ' + chalk.hex('#7dd3fc')('\u25CF') + ' ' + chalk.white('Vision') + ': ' + chalk.gray('model supports vision'));
         }
       } else {
         console.log('  ' + chalk.yellow('\u26A0') + ' ' + chalk.white('Chat API') + ': ' + chalk.gray('HTTP ' + probeRes.status));
@@ -631,11 +632,10 @@ function getKnownModels(providerUrl) {
     'api.x.ai': ['grok-beta', 'grok-vision-beta'],
     'api.deepinfra.com': ['meta-llama/Meta-Llama-3.1-70B-Instruct', 'meta-llama/Meta-Llama-3.1-8B-Instruct', 'mistralai/Mixtral-8x22B-Instruct-v0.1'],
   };
+  const current = getProviderModels(providerUrl).map(model => model.id);
+  if (current.length) return current;
   for (const [domain, models] of Object.entries(providerModels)) {
     if (providerUrl.includes(domain)) return models;
-  }
-  if (providerUrl.includes('openai') || providerUrl.includes('v1')) {
-    return providerModels['api.openai.com'];
   }
   return [];
 }
@@ -669,7 +669,7 @@ async function inferModelRun(prompt, modelOverride) {
     if (res.ok) {
       const data = await res.json();
       const reply = data.choices?.[0]?.message?.content || data.response || '(no content)';
-      console.log(chalk.green('  Response:\n'));
+      console.log(chalk.hex('#7dd3fc')('  Response:\n'));
       console.log(chalk.white('  ' + reply.split('\n').join('\n  ')));
       console.log('');
     } else if (res.status === 401) {
@@ -713,7 +713,7 @@ async function inferAuth(provider) {
       return;
     }
     if (!p.url) {
-      console.log(chalk.green('  \u2713 API key found (no test endpoint available)\n'));
+      console.log(chalk.hex('#7dd3fc')('  \u2713 API key found (no test endpoint available)\n'));
       return;
     }
     try {
@@ -722,7 +722,7 @@ async function inferAuth(provider) {
         signal: AbortSignal.timeout(5000),
       });
       if (res.ok) {
-        console.log(chalk.green('  \u2713 Authentication successful\n'));
+        console.log(chalk.hex('#7dd3fc')('  \u2713 Authentication successful\n'));
       } else if (res.status === 401) {
         console.log(chalk.red('  \u2717 Invalid API key\n'));
       } else {
@@ -740,7 +740,7 @@ async function inferAuth(provider) {
       continue;
     }
     if (!p.url) {
-      console.log(chalk.green('  \u2713 ' + p.name + ': API key found'));
+      console.log(chalk.hex('#7dd3fc')('  \u2713 ' + p.name + ': API key found'));
       continue;
     }
     try {
@@ -749,7 +749,7 @@ async function inferAuth(provider) {
         signal: AbortSignal.timeout(5000),
       });
       if (res.ok) {
-        console.log(chalk.green('  \u2713 ' + p.name + ': authenticated'));
+        console.log(chalk.hex('#7dd3fc')('  \u2713 ' + p.name + ': authenticated'));
       } else if (res.status === 401) {
         console.log(chalk.red('  \u2717 ' + p.name + ': invalid key'));
       } else {
@@ -837,7 +837,7 @@ async function inferWeb(query) {
       if (res.ok) {
         const data = await res.json();
         const results = data.results || [];
-        console.log(chalk.green('\n  Results (' + results.length + '):\n'));
+        console.log(chalk.hex('#7dd3fc')('\n  Results (' + results.length + '):\n'));
         for (const r of results.slice(0, 5)) {
           console.log(chalk.cyan('  ' + (r.title || 'Untitled')));
           console.log(chalk.gray('    ' + (r.url || '')));
@@ -879,7 +879,7 @@ async function inferEmbedding(text) {
       if (res.ok) {
         const data = await res.json();
         const embedding = data.data?.[0]?.embedding || [];
-        console.log(chalk.green('\n  \u2713 Embedding generated\n'));
+        console.log(chalk.hex('#7dd3fc')('\n  \u2713 Embedding generated\n'));
         console.log(chalk.gray('  Dimensions: ') + chalk.white(embedding.length));
         console.log(chalk.gray('  Vector    : ') + chalk.gray('[' + embedding.slice(0, 5).map(v => v.toFixed(4)).join(', ') + ', ...]'));
         console.log('');
@@ -924,7 +924,7 @@ async function inferList() {
     const keyName = p.name + 'ApiKey';
     const keyNameAlt = p.name === 'fal' ? 'falKey' : null;
     const hasKey = config[keyName] || config[keyNameAlt] || process.env[keyName.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()];
-    const icon = hasKey ? chalk.green('\u25CF') : chalk.gray('\u25CB');
+    const icon = hasKey ? chalk.hex('#7dd3fc')('\u25CF') : chalk.gray('\u25CB');
     console.log('  ' + icon + ' ' + chalk.white(p.name.padEnd(14)) + chalk.gray(p.description));
   }
 
@@ -959,7 +959,7 @@ async function inferInspect(provider) {
   console.log(chalk.cyan('\n  Provider: ' + p.name + '\n'));
   console.log(chalk.gray('  ' + '\u2500'.repeat(48)));
   console.log(chalk.gray('  Name        : ') + chalk.white(p.name));
-  console.log(chalk.gray('  API Key     : ') + (p.key ? chalk.green('\u2713 configured') : chalk.gray('not set')));
+  console.log(chalk.gray('  API Key     : ') + (p.key ? chalk.hex('#7dd3fc')('\u2713 configured') : chalk.gray('not set')));
   console.log(chalk.gray('  API URL     : ') + chalk.white(p.url || '(no model list endpoint)'));
   console.log(chalk.gray('  Docs        : ') + chalk.cyan(p.docs));
   console.log();
@@ -974,7 +974,7 @@ async function inferInspect(provider) {
       if (res.ok) {
         const data = await res.json();
         const models = (data.data || data.models || []).map(m => m.id || m);
-        console.log(chalk.green('  \u2713 ' + models.length + ' models available\n'));
+        console.log(chalk.hex('#7dd3fc')('  \u2713 ' + models.length + ' models available\n'));
         for (const m of models.slice(0, 10)) {
           console.log(chalk.white('    - ' + m));
         }
@@ -1065,7 +1065,7 @@ async function inferModelInspect(model) {
   const allFeatures = [...new Set(matchedFeatures.flat())];
 
   console.log(chalk.gray('  Name       : ') + chalk.white(model));
-  console.log(chalk.gray('  Capabilities: ') + (allFeatures.length > 0 ? chalk.green(allFeatures.join(', ')) : chalk.gray('generic model')));
+  console.log(chalk.gray('  Capabilities: ') + (allFeatures.length > 0 ? chalk.hex('#7dd3fc')(allFeatures.join(', ')) : chalk.gray('generic model')));
   console.log();
 
   const config = getConfig();
@@ -1082,7 +1082,7 @@ async function inferModelInspect(model) {
         signal: AbortSignal.timeout(8000),
       });
       if (res.ok) {
-        console.log(chalk.green('  \u2713 Model responds\n'));
+        console.log(chalk.hex('#7dd3fc')('  \u2713 Model responds\n'));
       } else if (res.status === 404) {
         console.log(chalk.yellow('  \u26A0 Model not found or not accessible\n'));
       } else {
@@ -1102,7 +1102,7 @@ async function inferModelAuthLogin(provider) {
   const config = getConfig();
   const key = config[provider + 'ApiKey'] || process.env[provider.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase() + '_API_KEY'];
   if (key) {
-    console.log(chalk.green('\n  \u2713 Already authenticated with ' + provider + '\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  \u2713 Already authenticated with ' + provider + '\n'));
     return;
   }
   console.log(chalk.cyan('\n  Authenticating with ' + provider + '...\n'));
@@ -1135,8 +1135,8 @@ async function inferModelAuthStatus() {
   ];
 
   for (const p of providers) {
-    const icon = p.key ? chalk.green('\u25CF') : chalk.gray('\u25CB');
-    const status = p.key ? chalk.green('authenticated') : chalk.gray('not configured');
+    const icon = p.key ? chalk.hex('#7dd3fc')('\u25CF') : chalk.gray('\u25CB');
+    const status = p.key ? chalk.hex('#7dd3fc')('authenticated') : chalk.gray('not configured');
     console.log('  ' + icon + ' ' + chalk.white(p.name.padEnd(14)) + status);
   }
   console.log();
@@ -1266,7 +1266,7 @@ async function inferTtsStatus() {
   const provider = state.ttsProvider || 'elevenlabs';
   console.log(chalk.cyan('\n  TTS Status\n'));
   console.log(chalk.gray('  ' + '\u2500'.repeat(48)));
-  console.log(chalk.gray('  Enabled : ') + (enabled ? chalk.green('yes') : chalk.red('no')));
+  console.log(chalk.gray('  Enabled : ') + (enabled ? chalk.hex('#7dd3fc')('yes') : chalk.red('no')));
   console.log(chalk.gray('  Provider: ') + chalk.white(provider));
   console.log();
 }
@@ -1275,7 +1275,7 @@ async function inferTtsEnable() {
   const state = readState();
   state.ttsEnabled = true;
   writeState(state);
-  console.log(chalk.green('\n  \u2713 TTS enabled\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  \u2713 TTS enabled\n'));
 }
 
 async function inferTtsDisable() {
@@ -1294,7 +1294,7 @@ async function inferTtsSetProvider(name) {
   const state = readState();
   state.ttsProvider = name.toLowerCase();
   writeState(state);
-  console.log(chalk.green('\n  \u2713 TTS provider set to ' + name.toLowerCase() + '\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  \u2713 TTS provider set to ' + name.toLowerCase() + '\n'));
 }
 
 // ---------------------------------------------------------------------------
@@ -1348,7 +1348,7 @@ async function inferWebFetch(url) {
     if (res.ok) {
       const text = await res.text();
       const preview = text.replace(/<[^>]+>/g, '').trim().slice(0, 500);
-      console.log(chalk.green('\n  \u2713 Fetched ' + (text.length + ' bytes')));
+      console.log(chalk.hex('#7dd3fc')('\n  \u2713 Fetched ' + (text.length + ' bytes')));
       console.log(chalk.gray('\n  Preview:\n'));
       console.log(chalk.white('  ' + preview));
       console.log();
@@ -1457,7 +1457,7 @@ async function inferAuthOrderSet(providers) {
   const state = readState();
   state.authOrder = providers;
   writeState(state);
-  console.log(chalk.green('\n  \u2713 Auth order set\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  \u2713 Auth order set\n'));
   providers.forEach((p, i) => {
     console.log('  ' + chalk.white((i + 1) + '.') + ' ' + chalk.cyan(p));
   });
@@ -1468,7 +1468,7 @@ async function inferAuthOrderClear() {
   const state = readState();
   delete state.authOrder;
   writeState(state);
-  console.log(chalk.green('\n  \u2713 Auth order reset to default\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  \u2713 Auth order reset to default\n'));
 }
 
 module.exports = infer;

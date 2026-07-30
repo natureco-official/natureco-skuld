@@ -78,7 +78,7 @@ async function connectSignal() {
   config.signalBotId = botId;
   saveConfig(config);
 
-  console.log(chalk.green(L('\n✅ Signal bağlantısı kaydedildi!\n', '\n✅ Signal connection saved!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ Signal bağlantısı kaydedildi!\n', '\n✅ Signal connection saved!\n')));
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   console.log(chalk.cyan('REST API URL:'), chalk.white(config.signalHttpUrl));
   console.log(chalk.cyan(L('Hesap:', 'Account:')), chalk.white(config.signalAccount));
@@ -121,7 +121,7 @@ async function disconnectSignal() {
   delete config.signalDmPolicy;
   delete config.signalBotId;
   saveConfig(config);
-  console.log(chalk.green('\n✅ Signal disconnected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ Signal disconnected\n'));
 }
 
 async function statusSignal() {
@@ -135,7 +135,7 @@ async function statusSignal() {
   const daemonRunning = isDaemonRunning();
   const apiReachable = await probeHttp(config);
 
-  console.log(chalk.green('\n✅ Signal connected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ Signal connected\n'));
   console.log(chalk.cyan('Bot ID:'), chalk.white(config.signalBotId));
   console.log(chalk.cyan('REST API URL:'), chalk.white(config.signalHttpUrl));
   console.log(chalk.cyan(L('Hesap:', 'Account:')), chalk.white(config.signalAccount));
@@ -143,8 +143,8 @@ async function statusSignal() {
   console.log(chalk.cyan(L('DM Politikası:', 'DM Policy:')), chalk.white(config.signalDmPolicy || 'pairing'));
 
   console.log('');
-  console.log(chalk.cyan(L('Daemon Durumu:', 'Daemon Status:')), daemonRunning ? chalk.green(L('✓ Çalışıyor', '✓ Running')) : chalk.gray(L('✗ Durduruldu', '✗ Stopped')));
-  console.log(chalk.cyan(L('API Erişilebilirlik:', 'API Reachability:')), apiReachable ? chalk.green(L('✓ Ulaşılabilir', '✓ Reachable')) : chalk.red(L('✗ Ulaşılamıyor', '✗ Unreachable')));
+  console.log(chalk.cyan(L('Daemon Durumu:', 'Daemon Status:')), daemonRunning ? chalk.hex('#7dd3fc')(L('✓ Çalışıyor', '✓ Running')) : chalk.gray(L('✗ Durduruldu', '✗ Stopped')));
+  console.log(chalk.cyan(L('API Erişilebilirlik:', 'API Reachability:')), apiReachable ? chalk.hex('#7dd3fc')(L('✓ Ulaşılabilir', '✓ Reachable')) : chalk.red(L('✗ Ulaşılamıyor', '✗ Unreachable')));
 
   if (config.signalCliPath) {
     console.log(chalk.gray(`\nsignal-cli: ${config.signalCliPath}`));
@@ -190,7 +190,7 @@ async function installSignalCli() {
     const config = getConfig();
     config.signalCliPath = path.join(extractDir, 'bin', 'signal-cli' + (platform === 'win32' ? '.bat' : ''));
     saveConfig(config);
-    console.log(chalk.green(L('✅ Hazır\n', '✅ Ready\n')));
+    console.log(chalk.hex('#7dd3fc')(L('✅ Hazır\n', '✅ Ready\n')));
     return;
   }
 
@@ -202,14 +202,14 @@ async function installSignalCli() {
     }
     const buffer = Buffer.from(await response.arrayBuffer());
     fs.writeFileSync(archivePath, buffer);
-    console.log(chalk.green(`✓ ${L('İndirildi', 'Downloaded')} (${(buffer.length / 1024 / 1024).toFixed(1)} MB)`));
+    console.log(chalk.hex('#7dd3fc')(`✓ ${L('İndirildi', 'Downloaded')} (${(buffer.length / 1024 / 1024).toFixed(1)} MB)`));
 
     // Extract
     console.log(chalk.cyan(L('Ayıklanıyor...', 'Extracting...')));
     const tar = require('tar');
     fs.mkdirSync(extractDir, { recursive: true });
     await tar.x({ file: archivePath, cwd: SIGNAL_DIR });
-    console.log(chalk.green(L('✓ Ayıklandı', '✓ Extracted')));
+    console.log(chalk.hex('#7dd3fc')(L('✓ Ayıklandı', '✓ Extracted')));
 
     // Clean up archive
     fs.unlinkSync(archivePath);
@@ -227,7 +227,7 @@ async function installSignalCli() {
     config.signalCliPath = path.join(extractDir, 'bin', 'signal-cli' + (platform === 'win32' ? '.bat' : ''));
     saveConfig(config);
 
-    console.log(chalk.green(`\n✅ signal-cli ${SIGNAL_CLI_VERSION} ${L('kuruldu', 'installed')}!\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n✅ signal-cli ${SIGNAL_CLI_VERSION} ${L('kuruldu', 'installed')}!\n`));
     console.log(chalk.cyan('Binary:'), chalk.white(config.signalCliPath));
     console.log(chalk.gray(L('\nDaemon\'ı başlatmak için: nskuld signal daemon start\n', '\nTo start the daemon: nskuld signal daemon start\n')));
 
@@ -310,7 +310,7 @@ async function startDaemon(config) {
   child.unref();
   fs.writeFileSync(SIGNAL_PID_FILE, String(child.pid), 'utf-8');
 
-  console.log(chalk.green(L('✅ Daemon başlatıldı', '✅ Daemon started')));
+  console.log(chalk.hex('#7dd3fc')(L('✅ Daemon başlatıldı', '✅ Daemon started')));
   console.log(chalk.cyan('PID:'), chalk.white(child.pid));
   console.log(chalk.cyan('Log:'), chalk.white(SIGNAL_LOG_FILE));
 
@@ -319,7 +319,7 @@ async function startDaemon(config) {
   for (let i = 0; i < 30; i++) {
     await new Promise(r => setTimeout(r, 1000));
     if (await probeHttp(config)) {
-      console.log(chalk.green(L('✓ API hazır\n', '✓ API ready\n')));
+      console.log(chalk.hex('#7dd3fc')(L('✓ API hazır\n', '✓ API ready\n')));
       return;
     }
     process.stdout.write('.');
@@ -346,7 +346,7 @@ function stopDaemon() {
     if (fs.existsSync(SIGNAL_PID_FILE)) {
       fs.unlinkSync(SIGNAL_PID_FILE);
     }
-    console.log(chalk.green(L('\n✅ Daemon durduruldu\n', '\n✅ Daemon stopped\n')));
+    console.log(chalk.hex('#7dd3fc')(L('\n✅ Daemon durduruldu\n', '\n✅ Daemon stopped\n')));
   } catch (err) {
     console.log(chalk.red(`\n❌ ${L('Hata', 'Error')}: ${err.message}\n`));
   }
@@ -371,7 +371,7 @@ function stopDaemonProcess() {
 function daemonStatus() {
   const running = isDaemonRunning();
   console.log(running
-    ? chalk.green(`\n✅ Daemon is running (PID: ${fs.readFileSync(SIGNAL_PID_FILE, 'utf-8').trim()})\n`)
+    ? chalk.hex('#7dd3fc')(`\n✅ Daemon is running (PID: ${fs.readFileSync(SIGNAL_PID_FILE, 'utf-8').trim()})\n`)
     : chalk.gray('\n⚠️  Daemon is not running\n'));
 }
 
@@ -410,7 +410,7 @@ async function probeSignalCli() {
     nativeOk = res.ok;
     if (nativeOk) {
       const text = await res.text();
-      console.log(chalk.green('✓ Native JSON-RPC API:'), chalk.white(res.status, text.slice(0, 100)));
+      console.log(chalk.hex('#7dd3fc')('✓ Native JSON-RPC API:'), chalk.white(res.status, text.slice(0, 100)));
     }
   } catch (err) {
     console.log(chalk.gray(`✗ Native JSON-RPC API: ${err.message}`));
@@ -422,7 +422,7 @@ async function probeSignalCli() {
     containerOk = res.ok;
     if (containerOk) {
       const data = await res.json();
-      console.log(chalk.green('✓ Container REST API:'), chalk.white(JSON.stringify(data).slice(0, 100)));
+      console.log(chalk.hex('#7dd3fc')('✓ Container REST API:'), chalk.white(JSON.stringify(data).slice(0, 100)));
     }
   } catch (err) {
     console.log(chalk.gray(`✗ Container REST API: ${err.message}`));

@@ -48,7 +48,7 @@ async function connectTelegram() {
   // v5.4.21: Eğer zaten token kaydedilmişse, kullanıcıya sor — değiştirmek ister mi?
   if (config.telegramToken) {
     const masked = maskToken(config.telegramToken);
-    console.log(chalk.green(L('\n✓ Telegram token zaten kayıtlı: ', '\n✓ Telegram token already saved: ') + masked));
+    console.log(chalk.hex('#7dd3fc')(L('\n✓ Telegram token zaten kayıtlı: ', '\n✓ Telegram token already saved: ') + masked));
     console.log(chalk.gray('  Bot ID: ' + (config.telegramBotId || L('yok', 'none'))));
     console.log(chalk.gray(L('  İzinli chat: ', '  Allowed chat: ') + (config.telegramAllowedChats || []).join(', ') + '\n'));
     const ans = await inquirer.prompt([{
@@ -58,7 +58,7 @@ async function connectTelegram() {
       default: false,
     }]);
     if (!ans.change) {
-      console.log(chalk.green(L('\n✅ Mevcut token kullanılacak.\n', '\n✅ Existing token will be used.\n')));
+      console.log(chalk.hex('#7dd3fc')(L('\n✅ Mevcut token kullanılacak.\n', '\n✅ Existing token will be used.\n')));
       console.log(chalk.gray(L('Gateway başlat: nskuld gateway start\n', 'Start gateway: nskuld gateway start\n')));
       return;
     }
@@ -115,14 +115,14 @@ async function connectTelegram() {
   config.telegramAllowedChats = [chatIdAnswer.chatId.trim()];
   saveConfig(config);
   
-  console.log(chalk.green(L('✅ Telegram bot token kaydedildi!\n', '✅ Telegram bot token saved!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('✅ Telegram bot token kaydedildi!\n', '✅ Telegram bot token saved!\n')));
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(answers.token)));
   console.log(chalk.cyan(L('İzin verilen chat:', 'Allowed chat:')), chalk.white(chatIdAnswer.chatId.trim()));
   console.log(chalk.gray(L('\nSession kaydedildi: ~/.nskuld/config.json', '\nSession saved: ~/.nskuld/config.json')));
   console.log(chalk.gray(L('Başka chat eklemek için: nskuld telegram allow <chatId>', 'To add another chat: nskuld telegram allow <chatId>')));
   
-  console.log(chalk.green(L('\n✅ Kurulum tamamlandı!\n', '\n✅ Setup complete!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ Kurulum tamamlandı!\n', '\n✅ Setup complete!\n')));
   console.log(chalk.yellow(L('Gateway ile başlatmak için:', 'To start with the gateway:')), chalk.cyan('nskuld gateway start'));
   console.log(chalk.gray(L('Gateway, Telegram botunu otomatik olarak başlatacak.\n', 'The gateway will start the Telegram bot automatically.\n')));
 }
@@ -157,7 +157,7 @@ async function disconnectTelegram() {
   delete config.telegramAllowedChats;
   saveConfig(config);
   
-  console.log(chalk.green('\n✅ Telegram disconnected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ Telegram disconnected\n'));
   console.log(chalk.gray('Note: The bot is still active on Telegram.'));
   console.log(chalk.gray('You may need to manually delete it via @BotFather.\n'));
 }
@@ -171,7 +171,7 @@ function statusTelegram() {
     return;
   }
   
-  console.log(chalk.green('\n✅ Telegram connected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ Telegram connected\n'));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(config.telegramToken)));
   
   if (config.telegramBotId) {
@@ -219,7 +219,7 @@ function allowChat(chatId) {
   config.telegramAllowedChats = allowedChats;
   saveConfig(config);
   
-  console.log(chalk.green(L('\n✅ Chat ID izin listesine eklendi\n', '\n✅ Chat ID added to allowlist\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ Chat ID izin listesine eklendi\n', '\n✅ Chat ID added to allowlist\n')));
   console.log(chalk.cyan('Chat ID:'), chalk.white(normalized));
   console.log(chalk.cyan(L('Toplam:', 'Total:')), chalk.white(`${allowedChats.length} chat`));
   console.log(chalk.gray(L('\nGateway\'i yeniden başlatın: nskuld gateway stop && nskuld gateway start\n', '\nRestart the gateway: nskuld gateway stop && nskuld gateway start\n')));
@@ -255,7 +255,7 @@ async function autoDetectChatId() {
     const chatId = String(msg.chat.id);
     const name = msg.from?.first_name || msg.from?.username || L('Bilinmeyen', 'Unknown');
 
-    console.log(chalk.green(L('\n✓ Mesaj alindi!', '\n✓ Message received!')));
+    console.log(chalk.hex('#7dd3fc')(L('\n✓ Mesaj alindi!', '\n✓ Message received!')));
     console.log(chalk.cyan(`  ${L('Kullanici', 'User')}: ${name}`));
     console.log(chalk.cyan(`  Chat ID: ${chatId}`));
 
@@ -266,7 +266,7 @@ async function autoDetectChatId() {
     }
     saveConfig(config);
 
-    console.log(chalk.green(L('\n✅ Chat ID kaydedildi: ', '\n✅ Chat ID saved: ') + chatId + '\n'));
+    console.log(chalk.hex('#7dd3fc')(L('\n✅ Chat ID kaydedildi: ', '\n✅ Chat ID saved: ') + chatId + '\n'));
     bot.stopPolling();
     process.exit(0);
   });

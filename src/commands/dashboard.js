@@ -50,7 +50,7 @@ async function cmdStart(openBrowser = true) {
   const existingPid = getRunningPid();
 
   if (inUse || existingPid) {
-    console.log(chalk.green(`\n  ✓ Dashboard zaten çalışıyor: ${DASHBOARD_URL}`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ Dashboard zaten çalışıyor: ${DASHBOARD_URL}`));
     console.log(chalk.gray(`    PID: ${existingPid || 'unknown'}`));
     if (openBrowser) openInBrowser(DASHBOARD_URL);
     return;
@@ -92,7 +92,7 @@ async function cmdStatus() {
   const pid = getRunningPid();
 
   if (inUse || pid) {
-    console.log(chalk.green(`\n  ✓ Dashboard çalışıyor`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ Dashboard çalışıyor`));
     console.log(chalk.gray(`    URL: ${DASHBOARD_URL}`));
     if (pid) console.log(chalk.gray(`    PID: ${pid}`));
   } else {
@@ -115,7 +115,7 @@ function cmdStop() {
   try {
     process.kill(pid, 'SIGTERM');
     try { fs.unlinkSync(PID_FILE); } catch {}
-    console.log(chalk.green(`\n  ✓ Dashboard durduruldu (PID ${pid})\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ Dashboard durduruldu (PID ${pid})\n`));
   } catch (e) {
     console.log(chalk.red(`\n  ❌ Durdurulamadı: ${e.message}\n`));
   }

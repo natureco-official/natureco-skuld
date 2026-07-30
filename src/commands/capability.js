@@ -2,6 +2,7 @@ const chalk = require('chalk');
 const { getConfig } = require('../utils/config');
 const { getLang: _gl } = require('../utils/i18n');
 const L = (tr, en) => (_gl() === 'en' ? en : tr);
+const { getProviderModels } = require('../utils/model-catalog');
 
 const CAPABILITY_MODEL_PATTERNS = {
   chat: { patterns: ['llama', 'gpt', 'claude', 'mixtral', 'gemma', 'deepseek', 'mistral', 'grok', 'command'] },
@@ -98,7 +99,7 @@ async function listCapabilities() {
   }
 
   for (const [cap, info] of Object.entries(capabilities)) {
-    const icon = info.status ? chalk.green('●') : chalk.gray('○');
+    const icon = info.status ? chalk.hex('#7dd3fc')('●') : chalk.gray('○');
     const detail = info.status && info.models
       ? chalk.gray('(' + info.models.join(', ') + ')')
       : '';
@@ -123,11 +124,10 @@ function getKnownProviderModels(providerUrl) {
     'fireworks.ai': ['accounts/fireworks/models/llama-v3p1-70b-instruct', 'accounts/fireworks/models/llama-v3p1-8b-instruct'],
     'openrouter.ai': ['openrouter/auto'],
   };
+  const current = getProviderModels(providerUrl).map(model => model.id);
+  if (current.length) return current;
   for (const [domain, models] of Object.entries(providerModels)) {
     if (providerUrl.includes(domain)) return models;
-  }
-  if (providerUrl.includes('openai') || providerUrl.includes('v1')) {
-    return providerModels['api.openai.com'];
   }
   return [];
 }
@@ -183,7 +183,7 @@ async function inferCapabilities(provider) {
     if (res.ok) {
       const data = await res.json();
       models = (data.data || data.models || []).map(m => m.id || m);
-      console.log(`  ${chalk.green('✓')} ${chalk.white('models')}: ${chalk.gray(`${models.length} model found`)}`);
+      console.log(`  ${chalk.hex('#7dd3fc')('✓')} ${chalk.white('models')}: ${chalk.gray(`${models.length} model found`)}`);
     } else if (res.status === 401) {
       probeError = 'Geçersiz API key';
       console.log(`  ${chalk.red('✗')} ${chalk.white('models')}: ${chalk.red(probeError)}`);
@@ -201,7 +201,7 @@ async function inferCapabilities(provider) {
     const def = CAPABILITY_MODEL_PATTERNS[cap];
     const matched = models.filter(m => def.patterns.some(p => m.toLowerCase().includes(p)));
     if (matched.length > 0) {
-      console.log(`  ${chalk.green('✓')} ${chalk.white(cap.padEnd(12))}: ${chalk.gray(matched.slice(0, 3).join(', '))}`);
+      console.log(`  ${chalk.hex('#7dd3fc')('✓')} ${chalk.white(cap.padEnd(12))}: ${chalk.gray(matched.slice(0, 3).join(', '))}`);
     } else if (!probeError && models.length > 0) {
       console.log(`  ${chalk.gray('○')} ${chalk.white(cap.padEnd(12))}: ${chalk.gray('not detected')}`);
     } else if (probeError) {
@@ -210,7 +210,7 @@ async function inferCapabilities(provider) {
   }
 
   if (models.length > 0) {
-    console.log(`\n  ${chalk.green('✓')} ${chalk.white('chat')}:       ${chalk.green('confirmed')}`);
+    console.log(`\n  ${chalk.hex('#7dd3fc')('✓')} ${chalk.white('chat')}:       ${chalk.hex('#7dd3fc')('confirmed')}`);
     try {
       const chatUrl = baseUrl.replace(/\/$/, '') + '/v1/chat/completions';
       const testRes = await fetch(chatUrl, {
@@ -224,7 +224,7 @@ async function inferCapabilities(provider) {
         signal: AbortSignal.timeout(5000),
       });
       if (testRes.ok) {
-        console.log(`  ${chalk.green('✓')} ${chalk.white('chat_test')}:   ${chalk.green('working')}`);
+        console.log(`  ${chalk.hex('#7dd3fc')('✓')} ${chalk.white('chat_test')}:   ${chalk.hex('#7dd3fc')('working')}`);
       } else {
         console.log(`  ${chalk.yellow('⚠')} ${chalk.white('chat_test')}:   ${chalk.gray(`HTTP ${testRes.status}`)}`);
       }

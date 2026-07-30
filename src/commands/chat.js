@@ -209,7 +209,7 @@ async function chat(botName, options = {}) {
 
   // ── Header ──────────────────────────────────────────────────────────────────
   console.clear();
-  console.log(centerText(ASCII_LOGO.map((line, i) => i < 5 ? chalk.green(line) : chalk.gray(line)).join('\n')));
+  console.log(centerText(ASCII_LOGO.map((line, i) => i < 5 ? chalk.hex('#7dd3fc')(line) : chalk.gray(line)).join('\n')));
   console.log();
   console.log(centerText(chalk.cyan(`(\\_/)  ${L('Hoş geldin', 'Welcome')}, ${userName}  ·  ${displayBotName} ${L('hazır', 'ready')}  ·  v${version}`)));
   console.log(chalk.gray('─'.repeat(process.stdout.columns || 120)));
@@ -280,7 +280,7 @@ async function chat(botName, options = {}) {
           if (!args.length) {
             console.log(chalk.yellow('Aktif bot: ') + bot.name);
             botList.bots.forEach(b => {
-              const mark = b.id === bot.id ? chalk.green('✓ ') : '  ';
+              const mark = b.id === bot.id ? chalk.hex('#7dd3fc')('✓ ') : '  ';
               console.log(mark + chalk.cyan(b.name));
             });
           } else {
@@ -290,7 +290,7 @@ async function chat(botName, options = {}) {
               bot = newBot;
               conversationId = null;
               session = createSession(bot.id, bot.name);
-              console.log(chalk.green(`${L('Bot değişti', 'Bot changed')}: ${newBot.name}`));
+              console.log(chalk.hex('#7dd3fc')(`${L('Bot değişti', 'Bot changed')}: ${newBot.name}`));
             } else {
               console.log(chalk.red(`${L('Bot bulunamadı', 'Bot not found')}: ${newName}`));
             }
@@ -306,7 +306,7 @@ async function chat(botName, options = {}) {
         case 'memory':
           if (args[0] === 'clear') {
             clearMemory(bot.id);
-            console.log(chalk.green(L('✓ Hafıza temizlendi', '✓ Memory cleared')));
+            console.log(chalk.hex('#7dd3fc')(L('✓ Hafıza temizlendi', '✓ Memory cleared')));
           } else {
             const m = loadMemory(bot.id);
             if (m.botName) console.log(chalk.cyan('Bot: ') + m.botName);
@@ -424,8 +424,8 @@ async function chat(botName, options = {}) {
     }
     if (filesChanged > 0 || commandsRun > 0 || messagesCount > 0) {
       console.log(chalk.gray(L('\n─── Session Özeti ───', '\n─── Session Summary ───')));
-      if (filesChanged > 0) console.log(chalk.green(`  ✓ ${filesChanged} ${L('dosya değiştirildi', 'files changed')}`));
-      if (commandsRun > 0) console.log(chalk.green(`  ✓ ${commandsRun} ${L('komut çalıştırıldı', 'commands run')}`));
+      if (filesChanged > 0) console.log(chalk.hex('#7dd3fc')(`  ✓ ${filesChanged} ${L('dosya değiştirildi', 'files changed')}`));
+      if (commandsRun > 0) console.log(chalk.hex('#7dd3fc')(`  ✓ ${commandsRun} ${L('komut çalıştırıldı', 'commands run')}`));
       console.log(chalk.cyan(`  ✓ ${messagesCount} ${L('mesaj gönderildi', 'messages sent')}`));
       console.log();
     }

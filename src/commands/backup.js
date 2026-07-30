@@ -41,14 +41,14 @@ function createBackup() {
       });
       try { fs.chmodSync(backupFile, 0o600); } catch { /* best-effort */ }
       const size = fs.statSync(backupFile).size;
-      console.log(chalk.green(`  ✅ Backup created: ${backupFile}`));
+      console.log(chalk.hex('#7dd3fc')(`  ✅ Backup created: ${backupFile}`));
       console.log(chalk.gray(`  Size: ${(size / 1024).toFixed(1)} KB`));
     } catch (err) {
       console.log(chalk.yellow('  ⚠️  tar backup failed, trying copy...'));
       const fallbackFile = backupFile.replace('.tar.gz', '.json');
       const config = require('../utils/config').getConfig();
       writePrivateFile(fallbackFile, JSON.stringify(config, null, 2));
-      console.log(chalk.green(`  ✅ Config backup: ${fallbackFile}`));
+      console.log(chalk.hex('#7dd3fc')(`  ✅ Config backup: ${fallbackFile}`));
     }
   } else {
     console.log(chalk.yellow('  ⚠️  No NatureCo directory found\n'));
@@ -101,7 +101,7 @@ function restoreBackup(file) {
   console.log(chalk.yellow(`\n  ⚠️  Restoring ${file}...\n`));
   try {
     execFileSync('tar', ['-xzf', backupFile, '-C', os.homedir()], { stdio: 'pipe', timeout: 15000 });
-    console.log(chalk.green('  ✅ Restore complete\n'));
+    console.log(chalk.hex('#7dd3fc')('  ✅ Restore complete\n'));
   } catch {
     console.log(chalk.red('  ❌ Restore failed\n'));
     process.exit(1);
@@ -123,7 +123,7 @@ function verifyBackup(file) {
   }
 
   const stat = fs.statSync(backupFile);
-  console.log(chalk.green(`\n  ✅ Backup verified: ${file} (${(stat.size / 1024).toFixed(1)} KB)\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✅ Backup verified: ${file} (${(stat.size / 1024).toFixed(1)} KB)\n`));
 }
 
 module.exports = backup;

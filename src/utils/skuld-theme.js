@@ -40,7 +40,11 @@ const VURGU = [125, 211, 252];
 // Durum renkleri bilinçli olarak SOLGUN: gümüşün yanında doygun yeşil/kırmızı
 // ucuz görünür.
 const DURUM = {
-  basari: [134, 239, 172],
+  // "Başarı" rengi YEŞİL DEĞİL, buz mavisi. Kullanıcı isteği: yeşil yazı olan
+  // her yerde açık mavi kullanılsın. Gümüş bir paletin yanında doygun yeşil
+  // ucuz görünüyordu; buz mavisi aynı ailenin içinden geliyor ve vurgu rengiyle
+  // aynı — yani arayüzde tek bir "canlı" ton var, iki değil.
+  basari: [125, 211, 252],
   uyari: [252, 211, 77],
   hata: [253, 164, 175],
 };
@@ -273,56 +277,90 @@ module.exports = {
  *    bırakan bir animasyon, kullanıcının terminalini bozar.
  *  - Toplam süre kısa: açılış ekranı gösteri değil, karşılama.
  */
-async function acilis({ surum, sure = 900 } = {}) {
-  const canli = CAPS.isTTY && renkVar() && !process.env.CI;
+/**
+ * Açılış — SÜREKLİ döner, bir kez hareket edip durmaz.
+ *
+ * Kullanıcı: *"animasyon sürekli çalışmalı, bir kez hareket edip durmasın."*
+ *
+ * Ama sonsuza dek dönen bir açılış, açılış değil bekleme olur. Bu yüzden
+ * animasyon bir ŞEYE bağlandı: `bitis` sözü çözülene kadar süpürme döngüsü
+ * devam ediyor. `bitis` gerçek işi temsil ediyor — araç tanımlarının
+ * yüklenmesi, proje indeksi, MCP sunucuları; ölçüldü, ~400 ms.
+ *
+ * Böylece animasyon gecikmeyi KAPLIYOR, ona eklenmiyor. İş erken biterse
+ * animasyon kısa sürüyor; makine yavaşsa uzun. Kullanıcı her iki durumda da
+ * bir şeyin olduğunu görüyor.
+ *
+ * İki çıkış daha var:
+ *   · tuşa basmak (sabırsız kullanıcı beklemek zorunda değil)
+ *   · güvenlik tavanı (bir söz hiç çözülmezse ekran kilitlenmesin)
+ *
+ * @param {object} opt
+ * @param {string} opt.surum
+ * @param {number} [opt.sure] tek süpürmenin süresi (ms)
+ * @param {Promise<any>} [opt.bitis] çözülünce animasyon oturur
+ * @param {number} [opt.tavanMs] güvenlik tavanı
+ */
+async function acilis({ surum, sure = 900, bitis, tavanMs = 8000 } = {}) {
+  const canli = CAPS.isTTY && renkVar() && !process.env.CI && process.env.SKULD_NO_ANIM !== '1';
   if (!canli) {
     process.stdout.write(hero({ surum }) + '\n');
+    if (bitis) { try { await bitis; } catch { /* çağıran ele alır */ } }
     return;
   }
 
   const isaret = CAPS.unicode ? KELIME_ISARETI : KELIME_ISARETI_ASCII;
-  const kare = 12;
-  const bekle = Math.max(20, Math.floor(sure / kare));
   let imlecGizli = false;
-
   const imleciAc = () => {
     if (imlecGizli) {
       process.stdout.write('\x1b[?25h');
       imlecGizli = false;
     }
   };
-  // Ctrl+C animasyonun ortasında gelirse imleç gizli kalmasın.
-  process.once('SIGINT', () => {
-    imleciAc();
-    process.exit(130);
-  });
+  process.once('SIGINT', () => { imleciAc(); process.exit(130); });
+
+  // ── Durma koşulları ───────────────────────────────────────────────────
+  let dur = false;
+  const durdur = () => { dur = true; };
+  if (bitis) Promise.resolve(bitis).then(durdur, durdur);
+  const tavan = setTimeout(durdur, tavanMs);
+
+  // Tuşa basınca da duruyor. `raw` moda alınıyor ki Enter beklemeden görsün;
+  // eski durum geri yükleniyor — terminali bıraktığımız gibi bırakmak zorunlu.
+  const stdin = process.stdin;
+  const eskiRaw = stdin.isRaw;
+  const tusDinleyici = () => durdur();
+  let dinleniyor = false;
+  try {
+    if (stdin.isTTY && typeof stdin.setRawMode === 'function') {
+      stdin.setRawMode(true);
+      stdin.resume();
+      stdin.once('data', tusDinleyici);
+      dinleniyor = true;
+    }
+  } catch { /* raw mod yoksa tuşla çıkış olmaz, gerisi çalışır */ }
+
+  const kareSuresi = 22;
+  const kareBasinaSupurme = Math.max(14, Math.round(sure / kareSuresi));
 
   try {
     process.stdout.write('\x1b[?25l');
     imlecGizli = true;
     process.stdout.write('\n');
 
-    // ── Üç fazlı açılış ───────────────────────────────────────────────────
-    //
-    // Tek fazlı parıltı yeterince canlı değildi: harfler zaten görünürken
-    // üzerinden bir bant geçiyordu, yani "beliriyor" hissi yoktu. Kullanıcı
-    // renk geçişi istedi; tek renk rampasında süpürme yapmak parlaklık
-    // değişimi verir, renk değişimi vermez.
-    //
-    //   1. DOĞUŞ    — harfler karanlıktan yükselir, sol üstten sağ alta.
-    //   2. SÜPÜRME  — dar bir bant üzerlerinden geçer ve TEPEDE gümüşten buz
-    //                 mavisine sapar: ışık soğuk bir metalden yansıyor gibi.
-    //                 Renk geçişi burada.
-    //   3. OTURMA   — bant çıkar, harfler dinlenme gradyanına yerleşir.
-    //
-    // Kare sayısı `sure`den TÜRETİLİYOR: yavaş makinede kare düşer, süre
-    // uzamaz. Bir açılış animasyonunun en kötü hâli beklemeye dönüşmesidir.
-    const kareler = Math.max(18, Math.min(48, Math.round(sure / 22)));
-    const bekleKare = Math.max(12, Math.floor(sure / kareler));
+    let k = 0;
+    let ilkSupurmeBitti = false;
+    // Döngü: en az BİR tam süpürme, sonra `dur` olana kadar devam.
+    for (;;) {
+      const yerelK = k % kareBasinaSupurme;
+      const t = yerelK / kareBasinaSupurme;
+      if (yerelK === 0 && k > 0) ilkSupurmeBitti = true;
+      if (dur && ilkSupurmeBitti && yerelK === 0) break;
 
-    for (let k = 0; k <= kareler; k++) {
-      const t = k / kareler;
-      const dogus = Math.min(1, t / 0.35);
+      // Doğuş yalnızca ilk süpürmede; sonraki turlarda harfler zaten oturmuş
+      // ve üzerlerinden ışık geçiyor. Her turda yeniden "belirmek" titreme
+      // gibi görünürdü.
+      const dogus = ilkSupurmeBitti ? 1 : Math.min(1, t / 0.35);
       const supurmeT = t < 0.2 ? -0.2 : (t - 0.2) / 0.6;
       const bantYeri = -0.2 + supurmeT * 1.4;
 
@@ -332,26 +370,15 @@ async function acilis({ surum, sure = 900 } = {}) {
         for (let x = 0; x < karakterler.length; x++) {
           const ch = karakterler[x];
           if (ch === ' ') { cikti += ' '; continue; }
-
           const yer = karakterler.length === 1 ? 0 : x / (karakterler.length - 1);
-
-          // Sol üstten sağ alta yayılan dalga. Henüz gelmemiş karakter en koyu
-          // tonda duruyor — silinmiş değil, karanlıkta.
           const gecikme = yer * 0.6 + (i / Math.max(1, isaret.length - 1)) * 0.4;
           const belirme = Math.max(0, Math.min(1, (dogus - gecikme * 0.8) / 0.35));
-
           const uzaklik = Math.abs(yer - bantYeri);
           const parla = Math.max(0, 1 - uzaklik * 5.5);
-
           const dinlenme = 200 + i * 100;
           const taban = 700 - (700 - dinlenme) * belirme;
           const ton = Math.round(taban - parla * 260);
-
-          // Bandın tepesi soğuk vurguya sapıyor.
-          if (parla > 0.72 && renkVar()) {
-            cikti += kalin(vurgu(ch));
-            continue;
-          }
+          if (parla > 0.72 && renkVar()) { cikti += kalin(vurgu(ch)); continue; }
           const en = ton <= 120 ? 100 : ton <= 220 ? 200 : ton <= 320 ? 300
             : ton <= 430 ? 400 : ton <= 540 ? 500 : ton <= 640 ? 600 : 700;
           cikti += gumus(en, ch);
@@ -361,11 +388,14 @@ async function acilis({ surum, sure = 900 } = {}) {
 
       if (k > 0) process.stdout.write(`\x1b[${isaret.length}A`);
       process.stdout.write(satirlar.join('\n') + '\n');
-      await new Promise((r) => setTimeout(r, bekleKare));
+      await new Promise((r) => setTimeout(r, kareSuresi));
+      k += 1;
     }
 
-    // Slogan KELİME kelime aydınlanıyor, harf harf değil: harf harf yazmak
-    // daktilo taklidi olurdu.
+    // Oturma karesi: bant yok, saf dinlenme gradyanı.
+    process.stdout.write(`\x1b[${isaret.length}A`);
+    process.stdout.write(isaret.map((satir, i) => '  ' + gumus(200 + i * 100, satir)).join('\n') + '\n');
+
     const kelimeler = 'ne olacaksa, doğrulanmış olarak'.split(' ');
     process.stdout.write('\n  ');
     for (let i = 0; i < kelimeler.length; i++) {
@@ -374,6 +404,12 @@ async function acilis({ surum, sure = 900 } = {}) {
     }
     process.stdout.write('  ' + soluk(gumus(600, '·')) + '  ' + soluk(gumus(600, surum)) + '\n\n');
   } finally {
+    clearTimeout(tavan);
+    if (dinleniyor) {
+      stdin.removeListener('data', tusDinleyici);
+      try { if (!eskiRaw && typeof stdin.setRawMode === 'function') stdin.setRawMode(false); } catch { /* yoksay */ }
+      stdin.pause();
+    }
     imleciAc();
   }
 }

@@ -51,7 +51,7 @@ function flag(text) {
 }
 
 function success(text) {
-  console.log(chalk.green('  ✓ ' + text));
+  console.log(chalk.hex('#7dd3fc')('  ✓ ' + text));
 }
 
 function error(text) {
@@ -126,7 +126,7 @@ function table(headers, rows, options = {}) {
 }
 
 function dot(enabled, label) {
-  const d = enabled ? chalk.green('●') : chalk.dim('○');
+  const d = enabled ? chalk.hex('#7dd3fc')('●') : chalk.dim('○');
   console.log('  ' + d + ' ' + chalk.white(label));
 }
 

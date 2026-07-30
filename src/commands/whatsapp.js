@@ -107,7 +107,7 @@ async function startWhatsAppConnection(sessionDir, botId, selectedBot, config) {
       const { connection, lastDisconnect, qr } = update;
       
       if (qr && !qrDisplayed) {
-        console.log(chalk.green(L('✅ QR kod hazır!\n', '✅ QR code ready!\n')));
+        console.log(chalk.hex('#7dd3fc')(L('✅ QR kod hazır!\n', '✅ QR code ready!\n')));
         
         // Display QR code in terminal
         qrcode.generate(qr, { small: true });
@@ -121,7 +121,7 @@ async function startWhatsAppConnection(sessionDir, botId, selectedBot, config) {
             margin: 4,
             color: { dark: '#000000', light: '#FFFFFF' }
           });
-          console.log(chalk.green(L('\n📸 QR PNG kaydedildi: ', '\n📸 QR PNG saved: ') + qrPngPath));
+          console.log(chalk.hex('#7dd3fc')(L('\n📸 QR PNG kaydedildi: ', '\n📸 QR PNG saved: ') + qrPngPath));
           console.log(chalk.cyan(L('🔗 Browserda acmak icin: open ', '🔗 To open in browser: open ') + qrPngPath));
         } catch (e) {
           // Sessizce gec, terminal QR yeterli
@@ -160,7 +160,7 @@ async function startWhatsAppConnection(sessionDir, botId, selectedBot, config) {
         }
       } else if (connection === 'open') {
         isConnected = true;
-        console.log(chalk.green(L('✅ WhatsApp bağlandı!\n', '✅ WhatsApp connected!\n')));
+        console.log(chalk.hex('#7dd3fc')(L('✅ WhatsApp bağlandı!\n', '✅ WhatsApp connected!\n')));
         console.log(chalk.cyan('Bot:'), chalk.white(selectedBot.name));
         console.log(chalk.cyan(L('Telefon:', 'Phone:')), chalk.white(sock.user?.id || 'Unknown'));
         console.log(chalk.gray(L('\nSession kaydedildi: ~/.nskuld/whatsapp-sessions/', '\nSession saved: ~/.nskuld/whatsapp-sessions/')));
@@ -179,7 +179,7 @@ async function startWhatsAppConnection(sessionDir, botId, selectedBot, config) {
         console.log(chalk.cyan(L('\nİzin verilen numara:', '\nAllowed number:')), chalk.white(`+${ownNumber} ${L('(kendi numaranız)', '(your own number)')}`));
         console.log(chalk.gray(L('Başka numara eklemek için: nskuld whatsapp allow <numara>', 'To add another number: nskuld whatsapp allow <number>')));
         
-        console.log(chalk.green(L('\n✅ Kurulum tamamlandı!\n', '\n✅ Setup complete!\n')));
+        console.log(chalk.hex('#7dd3fc')(L('\n✅ Kurulum tamamlandı!\n', '\n✅ Setup complete!\n')));
         console.log(chalk.yellow(L('Gateway ile başlatmak için:', 'To start with the gateway:')), chalk.cyan('nskuld gateway start'));
         console.log(chalk.gray(L('Gateway, WhatsApp\'ı otomatik olarak başlatacak.\n', 'The gateway will start WhatsApp automatically.\n')));
         
@@ -242,7 +242,7 @@ async function disconnectWhatsApp() {
     const sessionDir = path.join(WHATSAPP_SESSION_DIR, config.whatsappBotId);
     if (fs.existsSync(sessionDir)) {
       fs.rmSync(sessionDir, { recursive: true, force: true });
-      console.log(chalk.green(L('\n✅ Session dosyaları silindi\n', '\n✅ Session files deleted\n')));
+      console.log(chalk.hex('#7dd3fc')(L('\n✅ Session dosyaları silindi\n', '\n✅ Session files deleted\n')));
     }
     
     // Remove from config
@@ -251,7 +251,7 @@ async function disconnectWhatsApp() {
     delete config.whatsappPhone;
     saveConfig(config);
     
-    console.log(chalk.green('✅ WhatsApp disconnected\n'));
+    console.log(chalk.hex('#7dd3fc')('✅ WhatsApp disconnected\n'));
     console.log(chalk.gray('Note: You may need to manually remove the device from WhatsApp settings.\n'));
   } catch (err) {
     console.log(chalk.red(`\n❌ Error: ${err.message}\n`));
@@ -267,7 +267,7 @@ function statusWhatsApp() {
     return;
   }
   
-  console.log(chalk.green('\n✅ WhatsApp connected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ WhatsApp connected\n'));
   
   if (config.whatsappBotId) {
     console.log(chalk.cyan('Bot ID:'), chalk.white(config.whatsappBotId));
@@ -327,7 +327,7 @@ function allowNumber(number) {
   config.whatsappAllowedNumbers = allowedNumbers;
   saveConfig(config);
   
-  console.log(chalk.green(L('\n✅ Numara izin listesine eklendi\n', '\n✅ Number added to allowlist\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ Numara izin listesine eklendi\n', '\n✅ Number added to allowlist\n')));
   console.log(chalk.cyan(L('Numara:', 'Number:')), chalk.white(`+${normalized}`));
   console.log(chalk.cyan(L('Toplam:', 'Total:')), chalk.white(`${allowedNumbers.length} numara`));
   console.log(chalk.gray(L('\nGateway\'i yeniden başlatın: nskuld gateway stop && nskuld gateway start\n', '\nRestart the gateway: nskuld gateway stop && nskuld gateway start\n')));

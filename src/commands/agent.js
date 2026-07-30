@@ -202,7 +202,7 @@ function bindAgent(opts) {
   if (!bindings[agentId]) bindings[agentId] = [];
   if (!bindings[agentId].includes(channel)) bindings[agentId].push(channel);
   saveBindings(bindings);
-  console.log(chalk.green('\nAgent "' + agentId + '" bound to ' + channel + '\n'));
+  console.log(chalk.hex('#7dd3fc')('\nAgent "' + agentId + '" bound to ' + channel + '\n'));
 }
 
 function unbindAgent(opts) {
@@ -219,7 +219,7 @@ function unbindAgent(opts) {
     if (bindings[agentId].length === 0) delete bindings[agentId];
   }
   saveBindings(bindings);
-  console.log(chalk.green('\nAgent "' + agentId + '" unbound from ' + channel + '\n'));
+  console.log(chalk.hex('#7dd3fc')('\nAgent "' + agentId + '" unbound from ' + channel + '\n'));
 }
 
 // ── identities ────────────────────────────────────────────────────────
@@ -245,11 +245,11 @@ function setIdentity(opts) {
   const ids = loadIdentities();
   ids[agentId] = identity;
   saveIdentities(ids);
-  console.log(chalk.green('\nIdentity set for agent "' + agentId + '": ' + identity + '\n'));
+  console.log(chalk.hex('#7dd3fc')('\nIdentity set for agent "' + agentId + '": ' + identity + '\n'));
 }
 
 function statusColor(s) {
-  const m = { succeeded: chalk.green('✓'), failed: chalk.red('✗'), running: chalk.yellow('●'), queued: chalk.cyan('○'), cancelled: chalk.gray('−'), timed_out: chalk.red('⚠'), lost: chalk.magenta('?') };
+  const m = { succeeded: chalk.hex('#7dd3fc')('✓'), failed: chalk.red('✗'), running: chalk.yellow('●'), queued: chalk.cyan('○'), cancelled: chalk.gray('−'), timed_out: chalk.red('⚠'), lost: chalk.magenta('?') };
   return m[s] || chalk.gray('○');
 }
 

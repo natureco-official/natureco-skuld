@@ -56,7 +56,7 @@ function proxy(args) {
 function statusProxy() {
   console.log(chalk.cyan('\n  🔍 Debug Proxy\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
-  console.log(`  ${chalk.white('Status:')}  ${proxyInstance ? chalk.green('Running') : chalk.red('Stopped')}`);
+  console.log(`  ${chalk.white('Status:')}  ${proxyInstance ? chalk.hex('#7dd3fc')('Running') : chalk.red('Stopped')}`);
   if (proxyInstance) {
     console.log(`  ${chalk.white('Port:')}    ${proxyInstance.port}`);
     console.log(`  ${chalk.white('Forward:')} ${forwardUrl ? chalk.cyan(forwardUrl) : chalk.gray('(none)')}`);
@@ -146,7 +146,7 @@ function startProxy(params) {
   proxyInstance = server;
   proxyInstance.port = port;
   server.listen(port, () => {
-    console.log(chalk.green(`\n  🔍 Debug proxy on http://localhost:${port}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  🔍 Debug proxy on http://localhost:${port}\n`));
     if (forwardUrl) console.log(chalk.gray(`  Forwarding to: ${forwardUrl}\n`));
     console.log(chalk.gray('  Captured requests shown below. Press Ctrl+C to stop.\n'));
   });
@@ -190,7 +190,7 @@ function clearCapture() {
 }
 
 function cmdRun() {
-  console.log(chalk.green('\n  ▶️  Proxy run would start proxy server\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  ▶️  Proxy run would start proxy server\n'));
   console.log(chalk.gray('  (Stub — implement actual proxy server startup here)\n'));
 }
 
@@ -302,7 +302,7 @@ function cmdPurge() {
   state.queryLogs = [];
   saveState(state);
 
-  console.log(chalk.green('\n  🧹 Proxy cache purged\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  🧹 Proxy cache purged\n'));
 }
 
 module.exports = proxy;

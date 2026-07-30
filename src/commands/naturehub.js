@@ -102,7 +102,7 @@ async function cmdPost(args) {
       token,
       body: { message: text, user_id: 'cli' },
     });
-    console.log(chalk.green(L('  ✓ Gönderildi!\n', '  ✓ Sent!\n')));
+    console.log(chalk.hex('#7dd3fc')(L('  ✓ Gönderildi!\n', '  ✓ Sent!\n')));
     if (result.reply) console.log(chalk.cyan(`  💬 Bot: ${result.reply}\n`));
     audit.log(audit.ACTIONS.INFO, { source: 'naturehub', action: 'post', botId });
   } catch (e) {
@@ -179,8 +179,8 @@ async function cmdConfig() {
   const { getConfig } = require('../utils/config');
   const cfg = getConfig();
   console.log(chalk.cyan(L('\n  ⚙️  NatureCo API Ayarları\n', '\n  ⚙️  NatureCo API Settings\n')));
-  console.log(chalk.gray('  API Key: ') + (cfg.apiKey ? chalk.green(L('✓ ayarlı', '✓ set')) : chalk.yellow(L('yok', 'none'))));
-  console.log(chalk.gray('  Bot ID:  ') + (cfg.naturecoBotId ? chalk.green(cfg.naturecoBotId) : chalk.yellow(L('ayarlanmamış', 'not set'))));
+  console.log(chalk.gray('  API Key: ') + (cfg.apiKey ? chalk.hex('#7dd3fc')(L('✓ ayarlı', '✓ set')) : chalk.yellow(L('yok', 'none'))));
+  console.log(chalk.gray('  Bot ID:  ') + (cfg.naturecoBotId ? chalk.hex('#7dd3fc')(cfg.naturecoBotId) : chalk.yellow(L('ayarlanmamış', 'not set'))));
   console.log(chalk.gray(L('\n  Giriş:    ', '\n  Login:    ')) + chalk.cyan('nskuld login'));
   console.log(chalk.gray('  Bot ID:   ') + chalk.cyan('nskuld config set naturecoBotId <id>'));
   console.log(chalk.gray(L('  Botlar:   ', '  Bots:     ')) + chalk.cyan('nskuld naturehub list'));

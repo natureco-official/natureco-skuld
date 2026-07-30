@@ -60,19 +60,19 @@ async function cmdRun() {
   if (fs.existsSync(BASE_DIR)) {
     console.log(chalk.gray('  Removing ~/.nskuld/...'));
     fs.rmSync(BASE_DIR, { recursive: true, force: true });
-    console.log(chalk.green('  ✓ Removed ~/.nskuld/'));
+    console.log(chalk.hex('#7dd3fc')('  ✓ Removed ~/.nskuld/'));
   }
 
   console.log(chalk.gray('  Uninstalling global package...'));
   try {
     execSync('npm uninstall -g natureco-skuld', { stdio: 'inherit' });
-    console.log(chalk.green('  ✓ Global package uninstalled'));
+    console.log(chalk.hex('#7dd3fc')('  ✓ Global package uninstalled'));
   } catch (e) {
     console.log(chalk.yellow('  Could not uninstall package: ' + e.message));
     console.log(chalk.gray('  Try manually: npm uninstall -g natureco-skuld'));
   }
 
-  console.log(chalk.green('\n  Uninstall complete.\n'));
+  console.log(chalk.hex('#7dd3fc')('\n  Uninstall complete.\n'));
 }
 
 module.exports = uninstall;

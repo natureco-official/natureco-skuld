@@ -25,7 +25,7 @@ function startSpinner(label) {
 function stopSpinner(timer, label, success = true) {
   clearInterval(timer);
   if (success) {
-    process.stdout.write(`\r${chalk.green('✓')} ${chalk.gray(label)}\n`);
+    process.stdout.write(`\r${chalk.hex('#7dd3fc')('✓')} ${chalk.gray(label)}\n`);
   } else {
     process.stdout.write(`\r${chalk.red('✗')} ${chalk.gray(label)}\n`);
   }
@@ -38,7 +38,7 @@ function showDiff(oldContent, newContent, filepath) {
   console.log(chalk.gray(`\n  📄 ${filepath}`));
   newLines.forEach(line => {
     if (line && !oldLines.includes(line)) {
-      console.log(chalk.green('  + ' + line));
+      console.log(chalk.hex('#7dd3fc')('  + ' + line));
     }
   });
   oldLines.forEach(line => {
@@ -180,7 +180,7 @@ async function executeTool(toolName, params, opts = {}) {
           console.log(chalk.red('  - ' + line));
         }
         for (const line of String(safeParams.new_string || '').split('\n')) {
-          console.log(chalk.green('  + ' + line));
+          console.log(chalk.hex('#7dd3fc')('  + ' + line));
         }
         if (safeParams.replace_all) console.log(chalk.yellow('  (replace_all: TÜM eşleşmeler değişecek)'));
         console.log();

@@ -26,6 +26,7 @@
  */
 
 const tema = require('../utils/skuld-theme');
+const { gezgin } = require('../utils/gezgin');
 const { getConfig } = require('../utils/config');
 const { getLang } = require('../utils/i18n');
 
@@ -132,52 +133,30 @@ function bolumler() {
   ];
 }
 
-function help() {
+async function help() {
   const config = getConfig() || {};
   const surum = require('../../package.json').version;
-  const genislik = 74;
-
-  const s = [];
-  s.push('');
-  // Kelime işareti + sürüm. Kutu YOK: natureco-cli çerçeveli tablo kullanıyor,
-  // ayrım ilk bakışta görünmeli.
-  // `KELIME_ISARETI` bir DİZİ (satır başına bir eleman), dize değil.
-  for (const satir of tema.KELIME_ISARETI) {
-    s.push('  ' + tema.gradyan(satir, 200, 500));
-  }
-  s.push('');
-  s.push('  ' + tema.soluk(tema.gumus(500, L(
-    `v${surum} · terminal kodlama ajanı · kanıtsız "bitti" demez`,
-    `v${surum} · terminal coding agent · never claims done without evidence`,
-  ))));
-
   const saglayici = providerHostname(config.providerUrl);
-  if (saglayici) {
-    s.push('  ' + tema.soluk(tema.gumus(600,
-      `${saglayici}${config.providerModel ? ` · ${config.providerModel}` : ''}`)));
-  } else {
-    s.push('  ' + tema.uyari(L('sağlayıcı ayarlı değil — `nskuld setup`', 'no provider configured — `nskuld setup`')));
-  }
-  s.push('');
 
-  for (const bolum of bolumler()) {
-    s.push('  ' + tema.kalin(tema.vurgu(bolum.baslik)));
-    for (const [komut, aciklama] of bolum.satirlar) {
-      const sol = `nskuld ${komut}`;
-      s.push('    ' + tema.gumus(200, sol.padEnd(26)) + tema.soluk(tema.gumus(500, aciklama)));
-    }
-    s.push('');
-  }
+  // Düz liste YERİNE gezgin. Nokta doldurma bir listeyi güzelleştiriyor ama
+  // liste olmaktan çıkarmıyor; 73 komutu dikey dökmek kullanıcıya "sen ara"
+  // demek. Gezginde solda alanlar, sağda içerik; ok tuşlarıyla geçiliyor,
+  // yazmaya başlayınca süzülüyor, ekran KAYMIYOR.
+  //
+  // Boruya yazıldığında (`nskuld help | grep`) gezinme kapanıyor ve iki
+  // kolonlu harita basılıyor — grep'lenebilirlik bir yardım ekranının en çok
+  // kullanılan özelliği, kaybedilemez.
+  const alanlar = bolumler().map((b) => ({
+    ad: b.baslik,
+    ogeler: b.satirlar.map(([k, d]) => [k ? `nskuld ${k}` : 'nskuld', d]),
+  }));
 
-  s.push('  ' + tema.ayrac(genislik));
-  s.push('  ' + tema.soluk(tema.gumus(600, L(
-    'Tüm komutlar: nskuld --help   ·   Bir komutun ayrıntısı: nskuld <komut> --help',
-    'All commands: nskuld --help   ·   Details for one: nskuld <command> --help',
-  ))));
-  s.push('  ' + tema.soluk(tema.gumus(600, 'github.com/natureco-official/natureco-skuld')));
-  s.push('');
-
-  console.log(s.join('\n'));
+  await gezgin({
+    baslik: L('komutlar', 'commands'),
+    altBaslik: `v${surum}`
+      + (saglayici ? `  ·  ${saglayici}${config.providerModel ? `  ·  ${config.providerModel}` : ''}` : `  ·  ${L('sağlayıcı ayarlı değil', 'no provider configured')}`),
+    alanlar,
+  });
 }
 
 module.exports = help;

@@ -105,7 +105,7 @@ async function skills(args) {
       process.exit(1);
     }
     detector.rejectProposal(proposalId);
-    console.log(chalk.green(`\n✅ Proposal reddedildi: ${proposalId}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n✅ Proposal reddedildi: ${proposalId}\n`));
     return;
   }
 
@@ -172,7 +172,7 @@ async function installFromMarketplace(skillName) {
   if (!mp) return;
   const result = await mp.execute({ action: 'install', skillName });
   if (result.success) {
-    console.log(chalk.green('\n  ✓ ' + skillName + L(' kuruldu: ', ' installed: ') + result.path + '\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  ✓ ' + skillName + L(' kuruldu: ', ' installed: ') + result.path + '\n'));
   } else {
     console.log(chalk.red('\n  ✗ ' + result.error + '\n'));
   }
@@ -197,7 +197,7 @@ function uninstallMarketplace(skillName) {
   const skillDir = path.join(os.homedir(), '.nskuld', 'skills', skillName);
   if (fs.existsSync(skillDir)) {
     fs.rmSync(skillDir, { recursive: true });
-    console.log(chalk.green('\n  ✓ ' + skillName + L(' kaldirildi\n', ' removed\n')));
+    console.log(chalk.hex('#7dd3fc')('\n  ✓ ' + skillName + L(' kaldirildi\n', ' removed\n')));
   } else {
     console.log(chalk.yellow('\n  ' + skillName + L(' zaten yok\n', ' already gone\n')));
   }
@@ -241,7 +241,7 @@ async function installSkillCommand(slug) {
 
   try {
     await installSkill(slug);
-    console.log(chalk.green(`✅ "${slug}" ${L('başarıyla yüklendi', 'installed successfully')}!\n`));
+    console.log(chalk.hex('#7dd3fc')(`✅ "${slug}" ${L('başarıyla yüklendi', 'installed successfully')}!\n`));
   } catch (err) {
     console.log(chalk.red(`\n❌ ${L('Hata', 'Error')}: ${err.message}\n`));
     process.exit(1);
@@ -265,7 +265,7 @@ async function removeSkillCommand(slug) {
 
   try {
     removeSkill(slug);
-    console.log(chalk.green(`\n✅ "${slug}" ${L('silindi.', 'deleted.')}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n✅ "${slug}" ${L('silindi.', 'deleted.')}\n`));
   } catch (err) {
     console.log(chalk.red(`\n❌ ${L('Hata', 'Error')}: ${err.message}\n`));
     process.exit(1);
@@ -280,7 +280,7 @@ async function updateAllSkillsCommand() {
     if (updated.length === 0) {
       console.log(chalk.gray(L('Güncellenecek skill bulunamadı.\n', 'No skills to update.\n')));
     } else {
-      console.log(chalk.green(`✅ ${updated.length} skill ${L('güncellendi', 'updated')}:\n`));
+      console.log(chalk.hex('#7dd3fc')(`✅ ${updated.length} skill ${L('güncellendi', 'updated')}:\n`));
       updated.forEach(s => console.log(chalk.cyan(`  - ${s}`)));
       console.log('');
     }
@@ -295,7 +295,7 @@ async function createSkillCommand(name) {
 
   try {
     const skillPath = createSkillTemplate(name);
-    console.log(chalk.green(`✅ ${L('Skill şablonu oluşturuldu', 'Skill template created')}:\n`));
+    console.log(chalk.hex('#7dd3fc')(`✅ ${L('Skill şablonu oluşturuldu', 'Skill template created')}:\n`));
     console.log(chalk.cyan(`   ${skillPath}\n`));
     console.log(chalk.gray(L('SKILL.md dosyasını düzenleyerek skill\'i özelleştirin.\n', 'Customize the skill by editing SKILL.md.\n')));
   } catch (err) {
@@ -367,7 +367,7 @@ async function browseSkillsCommand() {
     return;
   }
   
-  console.log(chalk.green.bold(L('\n╭─ Popüler Skill\'ler ─╮\n', '\n╭─ Popular Skills ─╮\n')));
+  console.log(chalk.hex('#7dd3fc').bold(L('\n╭─ Popüler Skill\'ler ─╮\n', '\n╭─ Popular Skills ─╮\n')));
 
   process.stdin.resume();
   const { selectedSkills } = await inquirer.prompt([
@@ -393,13 +393,13 @@ async function browseSkillsCommand() {
   for (const slug of selectedSkills) {
     try {
       await installSkill(slug);
-      console.log(chalk.green(`✅ ${slug} ${L('kuruldu', 'installed')}`));
+      console.log(chalk.hex('#7dd3fc')(`✅ ${slug} ${L('kuruldu', 'installed')}`));
     } catch (err) {
       console.log(chalk.red(`❌ ${slug} ${L('kurulamadı', 'could not be installed')}: ${err.message}`));
     }
   }
 
-  console.log(chalk.green(L('\n✅ Kurulum tamamlandı!\n', '\n✅ Installation complete!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ Kurulum tamamlandı!\n', '\n✅ Installation complete!\n')));
 }
 
 async function infoSkill(slug) {
@@ -441,16 +441,16 @@ async function checkSkills() {
     const skillPath = path.join(os.homedir(), '.nskuld', 'skills', skill.slug || skill.name);
     const hasSkillMd = fs.existsSync(path.join(skillPath, 'SKILL.md'));
     const hasPackage = fs.existsSync(path.join(skillPath, 'package.json'));
-    const status = hasSkillMd ? chalk.green('✓') : chalk.yellow('⚠ missing SKILL.md');
+    const status = hasSkillMd ? chalk.hex('#7dd3fc')('✓') : chalk.yellow('⚠ missing SKILL.md');
     console.log(`  ${status} ${chalk.white(skill.name)}`);
     console.log(chalk.gray(`     Path: ${skillPath}`));
-    console.log(chalk.gray(`     Package: ${hasPackage ? chalk.green('✓') : chalk.gray('none')}`));
+    console.log(chalk.gray(`     Package: ${hasPackage ? chalk.hex('#7dd3fc')('✓') : chalk.gray('none')}`));
     if (!hasSkillMd) issues++;
   }
   if (issues > 0) {
     console.log(chalk.yellow(`\n  ⚠ ${issues} skills have issues\n`));
   } else {
-    console.log(chalk.green(`\n  ✓ All ${skills.length} skills healthy\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ All ${skills.length} skills healthy\n`));
   }
 }
 
@@ -494,7 +494,7 @@ async function acceptProposalCommand(proposalId) {
     console.log(chalk.red(`\n❌ ${result.reason}\n`));
     process.exit(1);
   }
-  console.log(chalk.green(`✅ ${L('Yeni skill oluşturuldu', 'New skill created')}: ${result.skillName}\n`));
+  console.log(chalk.hex('#7dd3fc')(`✅ ${L('Yeni skill oluşturuldu', 'New skill created')}: ${result.skillName}\n`));
   console.log(chalk.gray(`   ${L('Yol', 'Path')}: ${result.path}\n`));
   console.log(chalk.gray(L('   SKILL.md dosyasını düzenleyerek özelleştirebilirsin.\n', '   You can customize it by editing SKILL.md.\n')));
   audit.log(audit.ACTIONS.SKILL_AUTO, { proposalId, skillName: result.skillName });

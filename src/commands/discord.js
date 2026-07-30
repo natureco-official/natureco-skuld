@@ -55,7 +55,7 @@ async function connectDiscord() {
   config.discordBotId = botId;
   saveConfig(config);
   
-  console.log(chalk.green(L('✅ Discord token kaydedildi!\n', '✅ Discord token saved!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('✅ Discord token kaydedildi!\n', '✅ Discord token saved!\n')));
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(answers.token)));
   console.log(chalk.gray(L('\nNot: Discord botunuzu Discord Developer Portal\'dan yapılandırmanız gerekiyor.', '\nNote: You need to configure your Discord bot from the Discord Developer Portal.')));
@@ -91,7 +91,7 @@ async function disconnectDiscord() {
   delete config.discordBotId;
   saveConfig(config);
   
-  console.log(chalk.green('\n✅ Discord disconnected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ Discord disconnected\n'));
   console.log(chalk.gray('Note: The bot is still registered on Discord.'));
   console.log(chalk.gray('You may need to manually remove it from Discord Developer Portal.\n'));
 }
@@ -105,7 +105,7 @@ function statusDiscord() {
     return;
   }
   
-  console.log(chalk.green('\n✅ Discord connected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ Discord connected\n'));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(config.discordToken)));
   
   if (config.discordBotId) {

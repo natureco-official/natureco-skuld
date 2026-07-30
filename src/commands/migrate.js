@@ -322,7 +322,7 @@ async function migrate(options) {
         }
         
         if (memoryFiles.length > 0) {
-          console.log(chalk.green(`✅ Memory ${memoryFiles.length} ${L('bot dosyasına da kopyalandı', 'files also copied to bots')}`));
+          console.log(chalk.hex('#7dd3fc')(`✅ Memory ${memoryFiles.length} ${L('bot dosyasına da kopyalandı', 'files also copied to bots')}`));
         }
       } catch (err) {
         // Silently fail if can't read memory directory
@@ -397,7 +397,7 @@ async function migrate(options) {
       for (const envSource of envSources) {
         if (fs.existsSync(envSource)) {
           fs.copyFileSync(envSource, envDest);
-          console.log(chalk.green(L('✅ .env dosyası kopyalandı', '✅ .env file copied')));
+          console.log(chalk.hex('#7dd3fc')(L('✅ .env dosyası kopyalandı', '✅ .env file copied')));
           break;
         }
       }
@@ -406,7 +406,7 @@ async function migrate(options) {
       console.log(chalk.yellow(L('\n📦 Workspace npm paketleri kuruluyor...\n', '\n📦 Installing workspace npm packages...\n')));
       try {
         execSync('npm install', { cwd: workspaceDir, stdio: 'inherit' });
-        console.log(chalk.green(L('\n✅ npm paketleri kuruldu\n', '\n✅ npm packages installed\n')));
+        console.log(chalk.hex('#7dd3fc')(L('\n✅ npm paketleri kuruldu\n', '\n✅ npm packages installed\n')));
       } catch (err) {
         console.log(chalk.yellow(L('\n⚠️  npm install başarısız, manuel olarak çalıştırın:\n', '\n⚠️  npm install failed, run manually:\n')));
         console.log(chalk.cyan(`  cd ${workspaceDir} && npm install\n`));
@@ -563,7 +563,7 @@ async function migrate(options) {
       }
       
       if (report.skills > 0) {
-        console.log(chalk.green(`✅ Skills: ${report.skills} ${L('skill migrate edildi', 'skills migrated')}`));
+        console.log(chalk.hex('#7dd3fc')(`✅ Skills: ${report.skills} ${L('skill migrate edildi', 'skills migrated')}`));
         console.log(chalk.gray(L('   Konum: ~/.nskuld/skills/', '   Location: ~/.nskuld/skills/')));
       }
     }
@@ -572,7 +572,7 @@ async function migrate(options) {
   }
   
   // Print migration report
-  console.log(chalk.green(L('\n✅ Migration tamamlandı!\n', '\n✅ Migration complete!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ Migration tamamlandı!\n', '\n✅ Migration complete!\n')));
   
   if (report.memory) {
     // Extract string facts for display (handle both string and object formats)
@@ -582,25 +582,25 @@ async function migrate(options) {
       .slice(0, 3);  // Show first 3 facts
     
     const factsDisplay = factStrings.length > 0 ? `, ${factStrings.join(', ')}` : '';
-    console.log(chalk.green('✅ Memory:'), chalk.white(`${report.memory.name || 'N/A'}${factsDisplay}`));
+    console.log(chalk.hex('#7dd3fc')('✅ Memory:'), chalk.white(`${report.memory.name || 'N/A'}${factsDisplay}`));
   }
   
   if (report.scripts > 0) {
-    console.log(chalk.green('✅ Scripts:'), chalk.white(`${report.scripts} ${L("script kopyalandı ve path'ler güncellendi", 'scripts copied and paths updated')}`));
+    console.log(chalk.hex('#7dd3fc')('✅ Scripts:'), chalk.white(`${report.scripts} ${L("script kopyalandı ve path'ler güncellendi", 'scripts copied and paths updated')}`));
   }
   
   if (report.crons.total > 0) {
-    console.log(chalk.green('✅ Cron jobs:'), chalk.white(`${report.crons.total} ${L('job bulundu', 'jobs found')} (${report.crons.active} ${L('aktif migrate edildi', 'active migrated')}, ${report.crons.inactive} ${L('pasif atlandı', 'inactive skipped')})`));
+    console.log(chalk.hex('#7dd3fc')('✅ Cron jobs:'), chalk.white(`${report.crons.total} ${L('job bulundu', 'jobs found')} (${report.crons.active} ${L('aktif migrate edildi', 'active migrated')}, ${report.crons.inactive} ${L('pasif atlandı', 'inactive skipped')})`));
   }
   
   if (report.telegram && report.telegram.length > 0) {
-    console.log(chalk.green('✅ Telegram allowFrom:'), chalk.white(report.telegram.join(', ')));
+    console.log(chalk.hex('#7dd3fc')('✅ Telegram allowFrom:'), chalk.white(report.telegram.join(', ')));
   } else if (report.telegram !== null) {
     console.log(chalk.gray(L('⚠️  Telegram allowFrom: Bulunamadı', '⚠️  Telegram allowFrom: Not found')));
   }
   
   if (report.whatsapp) {
-    console.log(chalk.green(L('✅ WhatsApp session kopyalandı', '✅ WhatsApp session copied')));
+    console.log(chalk.hex('#7dd3fc')(L('✅ WhatsApp session kopyalandı', '✅ WhatsApp session copied')));
   }
   
   console.log('');
@@ -655,7 +655,7 @@ async function migrateClaudeCode() {
         if (!config.policies) config.policies = {};
         config.policies.claudeAllowedTools = settings.allowList;
         setConfigValue('policies', config.policies);
-        console.log(chalk.green(`  ✅ ${settings.allowList.length} ${L('izinli araç migrate edildi', 'allowed tools migrated')}`));
+        console.log(chalk.hex('#7dd3fc')(`  ✅ ${settings.allowList.length} ${L('izinli araç migrate edildi', 'allowed tools migrated')}`));
       }
 
       // Migrate permissions
@@ -663,7 +663,7 @@ async function migrateClaudeCode() {
         const config = getConfig();
         config.claudePermissions = settings.permissions;
         setConfigValue('claudePermissions', settings.permissions);
-        console.log(chalk.green(L('  ✅ Claude izinleri migrate edildi', '  ✅ Claude permissions migrated')));
+        console.log(chalk.hex('#7dd3fc')(L('  ✅ Claude izinleri migrate edildi', '  ✅ Claude permissions migrated')));
       }
     } catch (err) {
       console.log(chalk.red(`  ❌ ${L('Claude settings okuma hatası', 'Claude settings read error')}: ${err.message}`));
@@ -688,7 +688,7 @@ async function migrateClaudeCode() {
           const dst = path.join(projectsDir, project);
           if (!fs.existsSync(dst)) {
             fs.cpSync(src, dst, { recursive: true });
-            console.log(chalk.green(`  ✅ ${L('Proje kopyalandı', 'Project copied')}: ${project}`));
+            console.log(chalk.hex('#7dd3fc')(`  ✅ ${L('Proje kopyalandı', 'Project copied')}: ${project}`));
           } else {
             console.log(chalk.yellow(`  ⚠ ${L('Proje zaten var, atlandı', 'Project already exists, skipped')}: ${project}`));
           }
@@ -725,13 +725,13 @@ async function migrateClaudeCode() {
       const memoryDir = path.join(os.homedir(), '.nskuld', 'memory');
       fs.mkdirSync(memoryDir, { recursive: true });
       fs.writeFileSync(path.join(memoryDir, 'universal-provider.json'), JSON.stringify(memory, null, 2));
-      console.log(chalk.green(L('  ✅ Claude MEMORY.md migrate edildi', '  ✅ Claude MEMORY.md migrated')));
+      console.log(chalk.hex('#7dd3fc')(L('  ✅ Claude MEMORY.md migrate edildi', '  ✅ Claude MEMORY.md migrated')));
     } catch (err) {
       console.log(chalk.yellow(`  ⚠ ${L('Memory migrasyonu atlandı', 'Memory migration skipped')}: ${err.message}`));
     }
   }
 
-  console.log(chalk.green(L('\n✅ Claude Code migration tamamlandı!\n', '\n✅ Claude Code migration complete!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ Claude Code migration tamamlandı!\n', '\n✅ Claude Code migration complete!\n')));
 }
 
 // ── Hermes Migration ──────────────────────────────────────────────────────────
@@ -768,7 +768,7 @@ async function migrateHermes() {
       if (config.temperature !== undefined) setConfigValue('temperature', ncConfig.temperature);
 
       migrated.config = true;
-      console.log(chalk.green(L('  ✅ Hermes config migrate edildi', '  ✅ Hermes config migrated')));
+      console.log(chalk.hex('#7dd3fc')(L('  ✅ Hermes config migrate edildi', '  ✅ Hermes config migrated')));
     } catch (err) {
       console.log(chalk.red(`  ❌ ${L('Config okuma hatası', 'Config read error')}: ${err.message}`));
     }
@@ -791,7 +791,7 @@ async function migrateHermes() {
       }
 
       if (migrated.sessions > 0) {
-        console.log(chalk.green(`  ✅ ${migrated.sessions} ${L('Hermes oturumu migrate edildi', 'Hermes sessions migrated')}`));
+        console.log(chalk.hex('#7dd3fc')(`  ✅ ${migrated.sessions} ${L('Hermes oturumu migrate edildi', 'Hermes sessions migrated')}`));
       }
     } catch (err) {
       console.log(chalk.yellow(`  ⚠ ${L('Session migrasyonu atlandı', 'Session migration skipped')}: ${err.message}`));
@@ -823,7 +823,7 @@ async function migrateHermes() {
 
       fs.writeFileSync(path.join(ncMemoryDir, 'hermes-migrated.json'), JSON.stringify(ncMem, null, 2));
       migrated.memory = true;
-      console.log(chalk.green(L('  ✅ Hermes hafızası migrate edildi', '  ✅ Hermes memory migrated')));
+      console.log(chalk.hex('#7dd3fc')(L('  ✅ Hermes hafızası migrate edildi', '  ✅ Hermes memory migrated')));
     } catch (err) {
       console.log(chalk.yellow(`  ⚠ ${L('Memory migrasyonu atlandı', 'Memory migration skipped')}: ${err.message}`));
     }
@@ -834,7 +834,7 @@ async function migrateHermes() {
     return;
   }
 
-  console.log(chalk.green(L('\n✅ Hermes migration tamamlandı!\n', '\n✅ Hermes migration complete!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ Hermes migration tamamlandı!\n', '\n✅ Hermes migration complete!\n')));
 }
 
 module.exports = migrate;

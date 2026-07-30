@@ -45,7 +45,7 @@ async function dna(pathArg, opts = {}) {
     const n = Math.round(p / 5);
     return '█'.repeat(n) + '░'.repeat(20 - n);
   };
-  const tone = (p) => (p >= 60 ? chalk.red : p >= 30 ? chalk.yellow : chalk.green);
+  const tone = (p) => (p >= 60 ? chalk.red : p >= 30 ? chalk.yellow : chalk.hex('#7dd3fc'));
 
   console.log('');
   console.log('  ' + chalk.bold.cyan('🧬 CodeDNA') + chalk.gray('  ·  ' + (data.repo || target)));

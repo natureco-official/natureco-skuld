@@ -95,7 +95,7 @@ async function cmdSpawn(args) {
 
   try {
     const { result, usage, duration } = await subAgent.spawnSubAgent(type, task);
-    console.log(chalk.green(`  ✓ ${L('Tamamlandı', 'Completed')} (${duration}ms)\n`));
+    console.log(chalk.hex('#7dd3fc')(`  ✓ ${L('Tamamlandı', 'Completed')} (${duration}ms)\n`));
     console.log(chalk.gray('  ' + '─'.repeat(50)));
     console.log(result);
     console.log(chalk.gray('  ' + '─'.repeat(50)));
@@ -132,7 +132,7 @@ async function cmdParallel(args) {
 
   try {
     const { results, failed } = await subAgent.spawnParallel(agents);
-    console.log(chalk.green(`\n  ✓ ${results.length - failed.length}/${results.length} agent ${L('tamamlandı', 'completed')}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${results.length - failed.length}/${results.length} agent ${L('tamamlandı', 'completed')}\n`));
 
     for (let i = 0; i < results.length; i++) {
       const r = results[i];
@@ -140,7 +140,7 @@ async function cmdParallel(args) {
       console.log(chalk.bold(`\n  ── Agent ${i+1}: ${a.type} ──`));
       if (r.status === 'fulfilled') {
         console.log(chalk.gray(`  ${L('Görev', 'Task')}: ${a.task.slice(0, 60)}`));
-        console.log(chalk.green(L('  ✓ Sonuç:', '  ✓ Result:')));
+        console.log(chalk.hex('#7dd3fc')(L('  ✓ Sonuç:', '  ✓ Result:')));
         console.log('  ' + (r.value?.result || '').slice(0, 500));
       } else {
         console.log(chalk.red(`  ✗ ${L('Hata', 'Error')}: ${r.reason}`));

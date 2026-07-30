@@ -41,7 +41,7 @@ function statusDaemon() {
   console.log(chalk.cyan('\n  ⚙️  Gateway Daemon\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   if (running) {
-    console.log(`  ${chalk.white('Status:')} ${chalk.green('running')}`);
+    console.log(`  ${chalk.white('Status:')} ${chalk.hex('#7dd3fc')('running')}`);
     console.log(`  ${chalk.white('PID:')}    ${pid}`);
   } else {
     console.log(`  ${chalk.white('Status:')} ${chalk.yellow('not running')}`);
@@ -60,7 +60,7 @@ function startDaemon() {
       cwd: path.join(__dirname, '..', '..')
     });
     child.unref();
-    console.log(chalk.green('  ✅ Gateway daemon started\n'));
+    console.log(chalk.hex('#7dd3fc')('  ✅ Gateway daemon started\n'));
   } catch (err) {
     console.log(chalk.red(`  ❌ ${err.message}\n`));
   }

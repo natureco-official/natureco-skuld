@@ -69,7 +69,7 @@ async function connectIrc() {
   config.ircBotId = botId;
   saveConfig(config);
 
-  console.log(chalk.green(L('\n✅ IRC bağlantısı kaydedildi!\n', '\n✅ IRC connection saved!\n')));
+  console.log(chalk.hex('#7dd3fc')(L('\n✅ IRC bağlantısı kaydedildi!\n', '\n✅ IRC connection saved!\n')));
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   console.log(chalk.cyan(L('Sunucu:', 'Server:')), chalk.white(`${answers.host.trim()}:${answers.port}`));
   console.log(chalk.cyan('Nick:'), chalk.white(answers.nick.trim()));
@@ -95,7 +95,7 @@ async function disconnectIrc() {
   delete config.ircChannels; delete config.ircNickservEnabled; delete config.ircNickservPassword;
   delete config.ircDmPolicy; delete config.ircBotId;
   saveConfig(config);
-  console.log(chalk.green('\n✅ IRC disconnected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ IRC disconnected\n'));
 }
 
 function statusIrc() {
@@ -105,7 +105,7 @@ function statusIrc() {
     console.log(chalk.gray('Connect with: nskuld irc connect\n'));
     return;
   }
-  console.log(chalk.green('\n✅ IRC connected\n'));
+  console.log(chalk.hex('#7dd3fc')('\n✅ IRC connected\n'));
   console.log(chalk.cyan('Bot ID:'), chalk.white(config.ircBotId));
   console.log(chalk.cyan(L('Sunucu:', 'Server:')), chalk.white(`${config.ircHost}:${config.ircPort}`));
   console.log(chalk.cyan('TLS:'), chalk.white(config.ircTls ? L('Evet', 'Yes') : L('Hayır', 'No')));

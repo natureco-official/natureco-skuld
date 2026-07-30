@@ -24,7 +24,7 @@ async function lang(arg) {
 
   setConfigValue('language', val);
   setLangCache(val);
-  console.log('\n  ' + chalk.green(t('lang.set', { lang: label(val) })));
+  console.log('\n  ' + chalk.hex('#7dd3fc')(t('lang.set', { lang: label(val) })));
   console.log('  ' + chalk.gray(t('lang.restartHint')) + '\n');
 }
 

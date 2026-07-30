@@ -3,6 +3,7 @@ const { getLang: _gl } = require('../utils/i18n');
 const L = (tr, en) => (_gl() === 'en' ? en : tr);
 const { getConfig, saveConfig } = require('../utils/config');
 const { NatureCoError, handleError } = require('../utils/errors');
+const { PROVIDERS, getProviderModels, providerKeyFromUrl } = require('../utils/model-catalog');
 
 const PROVIDER_MODELS = {
   'api.groq.com': [
@@ -84,9 +85,12 @@ const PROVIDER_MODELS = {
 
 const PROVIDER_API_PATTERNS = [
   { match: 'openai.com', modelsEndpoint: 'https://api.openai.com/v1/models', type: 'openai' },
-  { match: 'groq.com', modelsEndpoint: null, type: 'groq' },
-  { match: 'anthropic.com', modelsEndpoint: null, type: 'anthropic' },
-  { match: 'together.xyz', modelsEndpoint: null, type: 'openai' },
+  { match: 'groq.com', modelsEndpoint: 'https://api.groq.com/openai/v1/models', type: 'groq' },
+  { match: 'anthropic.com', modelsEndpoint: 'https://api.anthropic.com/v1/models', type: 'anthropic' },
+  { match: 'generativelanguage.googleapis.com', modelsEndpoint: 'https://generativelanguage.googleapis.com/v1beta/models', type: 'gemini' },
+  { match: 'together.xyz', modelsEndpoint: 'https://api.together.xyz/v1/models', type: 'openai' },
+  { match: 'minimax.io', modelsEndpoint: 'https://api.minimax.io/v1/models', type: 'openai' },
+  { match: 'minimaxi.com', modelsEndpoint: 'https://api.minimaxi.com/v1/models', type: 'openai' },
   { match: 'deepseek.com', modelsEndpoint: 'https://api.deepseek.com/v1/models', type: 'openai' },
   { match: 'mistral.ai', modelsEndpoint: 'https://api.mistral.ai/v1/models', type: 'openai' },
   { match: 'perplexity.ai', modelsEndpoint: 'https://api.perplexity.ai/v1/models', type: 'openai' },
@@ -94,6 +98,11 @@ const PROVIDER_API_PATTERNS = [
   { match: 'deepinfra.com', modelsEndpoint: 'https://api.deepinfra.com/v1/models', type: 'openai' },
   { match: 'fireworks.ai', modelsEndpoint: 'https://api.fireworks.ai/v1/models', type: 'openai' },
   { match: 'openrouter.ai', modelsEndpoint: 'https://openrouter.ai/api/v1/models', type: 'openrouter' },
+  { match: 'cohere.ai', modelsEndpoint: 'https://api.cohere.ai/v1/models', type: 'cohere' },
+  { match: 'localhost:11434', modelsEndpoint: 'http://localhost:11434/api/tags', type: 'ollama' },
+  { match: 'api.moonshot.ai', modelsEndpoint: 'https://api.moonshot.ai/v1/models', type: 'openai' },
+  { match: 'api.moonshot.cn', modelsEndpoint: 'https://api.moonshot.cn/v1/models', type: 'openai' },
+  { match: 'api.z.ai', modelsEndpoint: 'https://api.z.ai/api/paas/v4/models', type: 'openai' },
   { match: 'natureco.me', modelsEndpoint: null, type: 'natureco' },
 ];
 
@@ -144,8 +153,12 @@ function extractFlag(params, name) {
 
 async function listModels(opts) {
   const config = getConfig();
-  const providerUrl = config.providerUrl || '';
-  const currentModel = config.providerModel || '';
+  const requestedKey = opts.provider ? String(opts.provider).toLowerCase() : null;
+  const requestedProvider = requestedKey ? PROVIDERS[requestedKey] : null;
+  const providerUrl = requestedProvider?.url || config.providerUrl || '';
+  const currentModel = !requestedKey || requestedKey === providerKeyFromUrl(config.providerUrl || '')
+    ? config.providerModel || ''
+    : '';
   const fallbackModel = config.fallbackModel || '';
   const count = opts.refresh ? 50 : 0;
 
@@ -197,7 +210,7 @@ async function listModels(opts) {
   if (liveModels.length > 0) {
     console.log(chalk.cyan.bold(`\n  ${L('Canlı Modeller', 'Live Models')} (${liveModels.length})\n`));
     liveModels.slice(0, count || 30).forEach(m => {
-      const active = m.id === currentModel ? chalk.green(L(' ← aktif', ' ← active')) : '';
+      const active = m.id === currentModel ? chalk.hex('#7dd3fc')(L(' ← aktif', ' ← active')) : '';
       const fallback = m.id === fallbackModel ? chalk.yellow(L(' ← yedek', ' ← fallback')) : '';
       console.log(chalk.white(`  ${m.id}`) + active + fallback);
     });
@@ -209,7 +222,7 @@ async function listModels(opts) {
     if (knownModels.length > 0) {
       console.log(chalk.cyan.bold(L('\n  Bilinen Modeller\n', '\n  Known Models\n')));
       knownModels.forEach(m => {
-        const active = m.id === currentModel ? chalk.green(L(' ← aktif', ' ← active')) : '';
+        const active = m.id === currentModel ? chalk.hex('#7dd3fc')(L(' ← aktif', ' ← active')) : '';
         const fallback = m.id === fallbackModel ? chalk.yellow(L(' ← yedek', ' ← fallback')) : '';
         const featureIcons = (m.features || []).map(f => FEATURE_ICONS[f] || '').join(' ');
         console.log(chalk.white(`  ${m.id}`) + active + fallback);
@@ -253,7 +266,7 @@ async function setModel(modelId) {
 
   config.providerModel = modelId;
   saveConfig(config);
-  console.log(chalk.green(`\n  ✓ ${L('Model güncellendi', 'Model updated')}: ${modelId}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Model güncellendi', 'Model updated')}: ${modelId}\n`));
 }
 
 async function scanModels(opts) {
@@ -412,14 +425,14 @@ function manageAliases(params) {
     aliases[alias] = modelId;
     config.modelAliases = aliases;
     saveConfig(config);
-    console.log(chalk.green(`\n  ✓ ${L('Takma ad eklendi', 'Alias added')}: ${alias} → ${modelId}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Takma ad eklendi', 'Alias added')}: ${alias} → ${modelId}\n`));
     return;
   }
 
   if (params.length === 1 && (params[0] === 'clear' || params[0] === '--clear')) {
     config.modelAliases = {};
     saveConfig(config);
-    console.log(chalk.green(L('\n  ✓ Tüm takma adlar temizlendi.\n', '\n  ✓ All aliases cleared.\n')));
+    console.log(chalk.hex('#7dd3fc')(L('\n  ✓ Tüm takma adlar temizlendi.\n', '\n  ✓ All aliases cleared.\n')));
     return;
   }
 
@@ -427,7 +440,7 @@ function manageAliases(params) {
     delete aliases[params[0]];
     config.modelAliases = aliases;
     saveConfig(config);
-    console.log(chalk.green(`\n  ✓ ${L('Takma ad silindi', 'Alias removed')}: ${params[0]}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Takma ad silindi', 'Alias removed')}: ${params[0]}\n`));
     return;
   }
 
@@ -459,14 +472,14 @@ function manageFallbacks(params) {
   if (params[0] === 'set' && params[1]) {
     config.fallbackModel = params[1];
     saveConfig(config);
-    console.log(chalk.green(`\n  ✓ ${L('Yedek model ayarlandı', 'Fallback model set')}: ${params[1]}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ ${L('Yedek model ayarlandı', 'Fallback model set')}: ${params[1]}\n`));
     return;
   }
 
   if (params[0] === 'clear') {
     delete config.fallbackModel;
     saveConfig(config);
-    console.log(chalk.green(L('\n  ✓ Yedek model temizlendi.\n', '\n  ✓ Fallback model cleared.\n')));
+    console.log(chalk.hex('#7dd3fc')(L('\n  ✓ Yedek model temizlendi.\n', '\n  ✓ Fallback model cleared.\n')));
     return;
   }
 
@@ -482,7 +495,7 @@ function setImageModel(modelId) {
   const config = getConfig();
   config.imageModel = modelId;
   saveConfig(config);
-  console.log(chalk.green(`\n  ✓ Image model set: ${modelId}\n`));
+  console.log(chalk.hex('#7dd3fc')(`\n  ✓ Image model set: ${modelId}\n`));
 }
 
 function manageImageFallbacks(params) {
@@ -498,13 +511,13 @@ function manageImageFallbacks(params) {
   if (params[0] === 'set' && params[1]) {
     config.imageFallbackModel = params[1];
     saveConfig(config);
-    console.log(chalk.green(`\n  ✓ Image fallback set: ${params[1]}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n  ✓ Image fallback set: ${params[1]}\n`));
     return;
   }
   if (params[0] === 'clear') {
     delete config.imageFallbackModel;
     saveConfig(config);
-    console.log(chalk.green('\n  ✓ Image fallback cleared\n'));
+    console.log(chalk.hex('#7dd3fc')('\n  ✓ Image fallback cleared\n'));
     return;
   }
 }
@@ -523,12 +536,14 @@ function resolveModel(input) {
 }
 
 function getKnownModels(providerUrl) {
+  const current = getProviderModels(providerUrl);
+  if (current.length > 0) return current;
   for (const [domain, list] of Object.entries(PROVIDER_MODELS)) {
     if (providerUrl.includes(domain)) {
       return list;
     }
   }
-  if (providerUrl.includes('openai') || providerUrl.includes('v1')) {
+  if (providerUrl.includes('openai')) {
     return PROVIDER_MODELS['api.openai.com'];
   }
   return [];
@@ -538,22 +553,29 @@ function findModelsEndpoint(providerUrl) {
   if (!providerUrl) return null;
   for (const pattern of PROVIDER_API_PATTERNS) {
     if (providerUrl.includes(pattern.match)) {
-      return pattern.modelsEndpoint || (providerUrl.replace(/\/v1\/.*$|\/$/, '') + '/v1/models');
+      return pattern.modelsEndpoint || (providerUrl.replace(/\/+$/, '').replace(/\/v1$/, '') + '/v1/models');
     }
   }
   if (providerUrl.includes('/v1')) {
-    return providerUrl.replace(/\/v1\/.*$/, '/v1/models');
+    return providerUrl.replace(/\/v1(?:\/.*)?$/, '/v1/models');
   }
   return null;
 }
 
 async function fetchLiveModels(endpoint, apiKey, opts) {
   const headers = { 'Content-Type': 'application/json' };
-  if (apiKey) {
+  let requestEndpoint = endpoint;
+  if (endpoint.includes('generativelanguage.googleapis.com') && apiKey) {
+    const separator = endpoint.includes('?') ? '&' : '?';
+    requestEndpoint += `${separator}key=${encodeURIComponent(apiKey)}`;
+  } else if (endpoint.includes('anthropic.com') && apiKey) {
+    headers['x-api-key'] = apiKey;
+    headers['anthropic-version'] = '2023-06-01';
+  } else if (apiKey) {
     headers['Authorization'] = `Bearer ${apiKey}`;
   }
 
-  const res = await fetch(endpoint, {
+  const res = await fetch(requestEndpoint, {
     headers,
     signal: AbortSignal.timeout(opts.timeout || 10000),
   });
@@ -571,12 +593,51 @@ async function fetchLiveModels(endpoint, apiKey, opts) {
   const data = await res.json();
   const rawModels = data.data || data.models || [];
 
-  return rawModels.map(m => ({
-    id: m.id || m.name || String(m),
+  return rawModels
+    .filter(m => !Array.isArray(m.supportedGenerationMethods) || m.supportedGenerationMethods.includes('generateContent'))
+    .map(m => ({
+    id: String(m.id || m.name || m).replace(/^models\//, ''),
     label: m.name || m.id || String(m),
     context: m.context_length || m.max_tokens || m.context_window || null,
     features: [],
   }));
+}
+
+function isTextModel(model) {
+  const id = String(model?.id || '').toLowerCase();
+  return id && !/(embedding|moderation|whisper|transcri|speech|tts|audio|image|dall-e|video|music|guard)/.test(id);
+}
+
+async function discoverProviderModels(config = {}, opts = {}) {
+  const known = getKnownModels(config.providerUrl || '');
+  let live = [];
+  let warning = null;
+  const endpoint = findModelsEndpoint(config.providerUrl || '');
+  if (endpoint) {
+    try {
+      live = await fetchLiveModels(endpoint, config.providerApiKey, { timeout: opts.timeout || 5000 });
+    } catch (error) {
+      warning = error.message;
+    }
+  }
+  const merged = [];
+  const seen = new Set();
+  const add = model => {
+    if (!model?.id || seen.has(model.id) || !isTextModel(model)) return;
+    seen.add(model.id);
+    merged.push(model);
+  };
+  if (config.providerModel) add({ id: config.providerModel, label: config.providerModel, features: [] });
+  live.forEach(add);
+  known.forEach(add);
+  return { models: merged, source: live.length ? 'live' : 'static', warning };
+}
+
+function resolveModelSelection(input, availableModels) {
+  const value = String(input || '').trim();
+  if (!value) return null;
+  if (/^\d+$/.test(value)) return availableModels[Number(value) - 1] || null;
+  return availableModels.find(model => model.id === value) || { id: value, label: value, features: [] };
 }
 
 async function probeProvider(providerUrl, apiKey, modelId, opts) {
@@ -603,7 +664,7 @@ async function probeProvider(providerUrl, apiKey, modelId, opts) {
 
     const ms = Date.now() - start;
     if (res.ok) {
-      console.log(chalk.green(`  ✓ ${testModel}: ${ms}ms ${L('(yanıt alındı)', '(response received)')}`));
+      console.log(chalk.hex('#7dd3fc')(`  ✓ ${testModel}: ${ms}ms ${L('(yanıt alındı)', '(response received)')}`));
     } else if (res.status === 401 || res.status === 403) {
       console.log(chalk.red(`  ✗ ${testModel}: ${L('Yetkisiz', 'Unauthorized')} (${res.status})`));
     } else if (res.status === 429) {
@@ -622,3 +683,8 @@ async function probeProvider(providerUrl, apiKey, modelId, opts) {
 }
 
 module.exports = models;
+module.exports.getKnownModels = getKnownModels;
+module.exports.findModelsEndpoint = findModelsEndpoint;
+module.exports.fetchLiveModels = fetchLiveModels;
+module.exports.discoverProviderModels = discoverProviderModels;
+module.exports.resolveModelSelection = resolveModelSelection;

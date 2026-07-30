@@ -26,8 +26,8 @@ const os = require('os');
 
 const XP_FILE = path.join(os.homedir(), '.nskuld', 'xp.json');
 const LEVELS = [
-  { level: 1, minXP: 0,    title: L('🌱 Tohum', '🌱 Seed'),      color: chalk.green },
-  { level: 2, minXP: 100,  title: L('🌿 Filiz', '🌿 Sprout'),      color: chalk.green },
+  { level: 1, minXP: 0,    title: L('🌱 Tohum', '🌱 Seed'),      color: chalk.hex('#7dd3fc') },
+  { level: 2, minXP: 100,  title: L('🌿 Filiz', '🌿 Sprout'),      color: chalk.hex('#7dd3fc') },
   { level: 3, minXP: 300,  title: L('🍃 Yaprak', '🍃 Leaf'),     color: chalk.cyan },
   { level: 4, minXP: 700,  title: L('🌳 Ağaç', '🌳 Tree'),       color: chalk.blue },
   { level: 5, minXP: 1500, title: L('🌲 Orman', '🌲 Forest'),      color: chalk.yellow },

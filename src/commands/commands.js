@@ -34,7 +34,7 @@ function listCommands() {
   console.log(chalk.yellow('\nCustom Commands:\n'));
   
   commands.forEach(cmd => {
-    const sourceLabel = cmd.source === 'user' ? chalk.blue('[global]') : chalk.green('[project]');
+    const sourceLabel = cmd.source === 'user' ? chalk.blue('[global]') : chalk.hex('#7dd3fc')('[project]');
     console.log(`  ${sourceLabel} ${chalk.cyan('/' + cmd.name)}`);
     const preview = cmd.content.split('\n').find(line => line.trim() && !line.startsWith('#'));
     if (preview) {
@@ -63,7 +63,7 @@ async function createCommandInteractive(name) {
   
   try {
     const filePath = createCommand(name, answers.scope);
-    console.log(chalk.green(`\n✅ Command created: ${filePath}\n`));
+    console.log(chalk.hex('#7dd3fc')(`\n✅ Command created: ${filePath}\n`));
     console.log(chalk.gray(`Edit the file and use it in chat with: /${name}\n`));
   } catch (err) {
     console.log(chalk.red(`\n❌ Error: ${err.message}\n`));
