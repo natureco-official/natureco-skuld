@@ -50,11 +50,43 @@ describe('shared model catalogue', () => {
     }
   });
 
+  // Referans listesi DONDURULMUS halde burada duruyor.
+  //
+  // Eskiden bu test natureco-cli deposunu diskteki MUTLAK yoldan require
+  // ediyordu (`C:/Projects/...`). O yol yalnizca tek bir makinede vardi:
+  // CI'da ve baska her gelistiricide test "modul bulunamadi" ile dusuyordu.
+  // Skuld zaten natureco-cli bagini kasten kesti; bir testin baska bir deponun
+  // diskte durmasina bagli olmasi o karari da delik birakiyordu.
+  //
+  // Liste boylece bir MANDAL olur: Skuld katalogundan bu kimliklerden biri
+  // dusarse test dusiyor. Referansa yeni model eklenirse buraya da bilerek
+  // eklenir.
+  const REFERANS_MODELLER = {
+    "openai": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.6"],
+    "anthropic": ["claude-fable-5", "claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5", "claude-haiku-4-5-20251001"],
+    "gemini": ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.1-pro-preview"],
+    "groq": ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.6-27b", "groq/compound", "groq/compound-mini"],
+    "deepseek": ["deepseek-chat", "deepseek-reasoner"],
+    "ollama": ["qwen3-coder", "llama4", "deepseek-r1", "gemma3"],
+    "minimax": ["MiniMax-M2.7", "MiniMax-M2.7-highspeed", "MiniMax-M2.5", "MiniMax-M2.5-highspeed", "MiniMax-M2.1", "MiniMax-M2.1-highspeed", "MiniMax-M2"],
+    "openrouter": ["openrouter/auto", "~openai/gpt-latest", "x-ai/grok-4.5"],
+    "mistral": ["mistral-medium-latest", "mistral-small-latest", "mistral-large-latest", "codestral-latest"],
+    "cohere": ["command-a-03-2025", "command-r7b-12-2024", "command-r-plus-08-2024", "command-r-08-2024"],
+    "xai": ["grok-4.5"],
+    "together": ["MiniMaxAI/MiniMax-M3", "Qwen/Qwen3.7-Max", "Qwen/Qwen3.6-Plus", "moonshotai/Kimi-K3", "moonshotai/Kimi-K2.7-Code", "deepseek-ai/DeepSeek-V4-Pro", "openai/gpt-oss-120b"],
+    "perplexity": ["sonar-pro", "sonar", "sonar-reasoning-pro", "sonar-deep-research"],
+    "deepinfra": ["Qwen/Qwen3-Coder-480B-A35B-Instruct-Turbo", "openai/gpt-oss-120b", "deepseek-ai/DeepSeek-V3.1-Terminus", "zai-org/GLM-4.6"],
+    "fireworks": ["accounts/fireworks/models/gpt-oss-120b", "accounts/fireworks/models/gpt-oss-20b"],
+    "natureco": ["natureco-default", "natureco-fast", "natureco-reasoner"],
+    "kimi": ["kimi-k3", "kimi-k2.5", "kimi-k2-thinking"],
+    "glm": ["glm-5.1", "glm-5", "glm-5-turbo", "glm-4.7", "glm-4.7-flashx", "glm-4.7-flash", "glm-4.6", "glm-4.5-flash"],
+  };
+
   it('contains every model ID from the NatureCo Code reference catalogue', () => {
-    const natureco = require('C:/Projects/natureco_improvements/natureco-cli/src/utils/model-catalog').PROVIDERS;
-    for (const [provider, reference] of Object.entries(natureco)) {
+    for (const [provider, ids] of Object.entries(REFERANS_MODELLER)) {
+      expect(PROVIDERS[provider], `saglayici eksik: ${provider}`).toBeDefined();
       const skuldIds = new Set(PROVIDERS[provider].models.map(model => model[0]));
-      expect(reference.models.map(model => model[0]).filter(id => !skuldIds.has(id))).toEqual([]);
+      expect(ids.filter(id => !skuldIds.has(id))).toEqual([]);
     }
   });
 

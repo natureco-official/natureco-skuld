@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import path from 'path';
 import bridge from '../../src/utils/cupertino-bridge.js';
 
 describe('Cupertino Terminal bridge', () => {
@@ -15,9 +16,17 @@ describe('Cupertino Terminal bridge', () => {
       .toMatchObject({ kind: 'zerolink', label: 'Studio', session: 'peer-1' });
   });
 
+  // Bir Windows yolu yalnızca Windows'ta mutlaktır. `path.resolve` bunu
+  // Linux'ta göreli sayıp çalışma dizininin önüne ekliyor, yani sabit
+  // `terminal:///C:/...` beklentisi CI'da düşüyordu — testin kendisi tek bir
+  // makineye bağlıydı. Dönüşüm platformun kendi mutlak yoluyla doğrulanır.
   it('creates the terminal deep link expected by Cupertino', () => {
-    const link = bridge.directoryDeepLink('C:\\Projects\\natureco-skuld');
-    expect(link).toBe('terminal:///C:/Projects/natureco-skuld');
+    const absolute = path.resolve('projects', 'natureco-skuld');
+    const expected = `terminal://${absolute.replace(/\\/g, '/').replace(/^(?!\/)/, '/')}`;
+    expect(bridge.directoryDeepLink(absolute)).toBe(expected);
+    // Sözleşmenin özü: ters bölü yok, tek kök eğik çizgi var.
+    expect(bridge.directoryDeepLink(absolute)).not.toContain('\\');
+    expect(bridge.directoryDeepLink(absolute).startsWith('terminal:///')).toBe(true);
   });
 
   it('opens Windows links through the execution gateway without shell interpolation', async () => {
