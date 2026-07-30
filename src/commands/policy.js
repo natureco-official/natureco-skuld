@@ -15,7 +15,7 @@ function policy(args) {
   if (action === 'remove') return removePolicy(params[0]);
 
   console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco policy [check|set|list|remove]\n', '  Usage: natureco policy [check|set|list|remove]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld policy [check|set|list|remove]\n', '  Usage: nskuld policy [check|set|list|remove]\n')));
   process.exit(1);
 }
 
@@ -36,13 +36,13 @@ const POLICY_CHECKS = [
     check: () => {
       const configFile = path.join(os.homedir(), '.nskuld', 'config.json');
       if (!fs.existsSync(configFile)) {
-        return { status: 'fail', message: L('config.json bulunamadı', 'config.json not found'), fix: L('natureco setup çalıştırın', 'run natureco setup') };
+        return { status: 'fail', message: L('config.json bulunamadı', 'config.json not found'), fix: L('nskuld setup çalıştırın', 'run nskuld setup') };
       }
       try {
         JSON.parse(fs.readFileSync(configFile, 'utf-8'));
         return { status: 'pass', message: L('Config geçerli JSON', 'Config valid JSON') };
       } catch {
-        return { status: 'fail', message: L('Config bozuk JSON', 'Config broken JSON'), fix: L('~/.natureco/config.json düzeltin', 'fix ~/.natureco/config.json') };
+        return { status: 'fail', message: L('Config bozuk JSON', 'Config broken JSON'), fix: L('~/.nskuld/config.json düzeltin', 'fix ~/.nskuld/config.json') };
       }
     }
   },
@@ -54,7 +54,7 @@ const POLICY_CHECKS = [
       if (config.providerApiKey || config.apiKey || process.env.GROQ_API_KEY) {
         return { status: 'pass', message: L('API key mevcut', 'API key present') };
       }
-      return { status: 'warn', message: L('API key eksik', 'API key missing'), fix: L('natureco login veya GROQ_API_KEY env', 'natureco login or GROQ_API_KEY env') };
+      return { status: 'warn', message: L('API key eksik', 'API key missing'), fix: L('nskuld login veya GROQ_API_KEY env', 'nskuld login or GROQ_API_KEY env') };
     }
   },
   {
@@ -65,7 +65,7 @@ const POLICY_CHECKS = [
       if (config.providerUrl) {
         return { status: 'pass', message: config.providerUrl };
       }
-      return { status: 'warn', message: L('Provider ayarlanmamış', 'Provider not set'), fix: 'natureco setup' };
+      return { status: 'warn', message: L('Provider ayarlanmamış', 'Provider not set'), fix: 'nskuld setup' };
     }
   },
   {

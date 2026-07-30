@@ -30,7 +30,7 @@ async function signal(action, subAction) {
 async function connectSignal() {
   const config = getConfig();
   if (!config.providerUrl) {
-    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "natureco setup" çalıştırın.\n', '\n❌ Setup not done. Run "natureco setup" first.\n')));
+    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "nskuld setup" çalıştırın.\n', '\n❌ Setup not done. Run "nskuld setup" first.\n')));
     process.exit(1);
   }
   console.log(chalk.yellow(L('\n⏳ Signal bağlantısı hazırlanıyor...\n', '\n⏳ Preparing Signal connection...\n')));
@@ -91,10 +91,10 @@ async function connectSignal() {
       console.log(chalk.gray(`\n${L('signal-cli bulundu', 'signal-cli found')}: ${signalCliPath}`));
     } else {
       console.log(chalk.yellow(L('\n⚠️  signal-cli bulunamadı. İndirmek için:', '\n⚠️  signal-cli not found. To download:')));
-      console.log(chalk.cyan('  natureco signal install'));
+      console.log(chalk.cyan('  nskuld signal install'));
     }
   }
-  console.log(chalk.gray(L('\nGateway ile başlatmak için: natureco gateway start\n', '\nTo start with the gateway: natureco gateway start\n')));
+  console.log(chalk.gray(L('\nGateway ile başlatmak için: nskuld gateway start\n', '\nTo start with the gateway: nskuld gateway start\n')));
 }
 
 async function disconnectSignal() {
@@ -128,7 +128,7 @@ async function statusSignal() {
   const config = getConfig();
   if (!config.signalBotId) {
     console.log(chalk.gray('\n⚠️  Signal not connected\n'));
-    console.log(chalk.gray('Connect with: natureco signal connect\n'));
+    console.log(chalk.gray('Connect with: nskuld signal connect\n'));
     return;
   }
 
@@ -229,7 +229,7 @@ async function installSignalCli() {
 
     console.log(chalk.green(`\n✅ signal-cli ${SIGNAL_CLI_VERSION} ${L('kuruldu', 'installed')}!\n`));
     console.log(chalk.cyan('Binary:'), chalk.white(config.signalCliPath));
-    console.log(chalk.gray(L('\nDaemon\'ı başlatmak için: natureco signal daemon start\n', '\nTo start the daemon: natureco signal daemon start\n')));
+    console.log(chalk.gray(L('\nDaemon\'ı başlatmak için: nskuld signal daemon start\n', '\nTo start the daemon: nskuld signal daemon start\n')));
 
   } catch (err) {
     console.log(chalk.red(`\n❌ ${L('Kurulum hatası', 'Installation error')}: ${err.message}\n`));
@@ -253,7 +253,7 @@ async function manageDaemon(subAction) {
     return daemonStatus();
   } else {
     console.log(chalk.red('\n❌ Unknown daemon action\n'));
-    console.log(chalk.gray('Usage: natureco signal daemon <start|stop|status>\n'));
+    console.log(chalk.gray('Usage: nskuld signal daemon <start|stop|status>\n'));
     process.exit(1);
   }
 }
@@ -268,7 +268,7 @@ async function startDaemon(config) {
   const cliPath = config.signalCliPath || findSignalCli();
   if (!cliPath) {
     console.log(chalk.red(L('\n❌ signal-cli bulunamadı\n', '\n❌ signal-cli not found\n')));
-    console.log(chalk.yellow(L('Önce indirin:', 'Download first:')), chalk.cyan('natureco signal install\n'));
+    console.log(chalk.yellow(L('Önce indirin:', 'Download first:')), chalk.cyan('nskuld signal install\n'));
     process.exit(1);
   }
 
@@ -393,7 +393,7 @@ async function probeSignalCli() {
   const config = getConfig();
   if (!config.signalHttpUrl) {
     console.log(chalk.red(L('\n❌ Signal bağlantısı yapılmamış\n', '\n❌ Signal connection not set up\n')));
-    console.log(chalk.gray(L('Önce: natureco signal connect\n', 'First: natureco signal connect\n')));
+    console.log(chalk.gray(L('Önce: nskuld signal connect\n', 'First: nskuld signal connect\n')));
     process.exit(1);
   }
 

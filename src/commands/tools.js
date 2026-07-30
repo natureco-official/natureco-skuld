@@ -1,11 +1,11 @@
 /**
- * natureco tools — Tool registry management (Hermes-style)
+ * nskuld tools — Tool registry management (Hermes-style)
  *
  * Kullanım:
- *   natureco tools            List toolset groups
- *   natureco tools list       Detailed tool list
- *   natureco tools enable <name>    Enable a tool
- *   natureco tools disable <name>   Disable a tool
+ *   nskuld tools            List toolset groups
+ *   nskuld tools list       Detailed tool list
+ *   nskuld tools enable <name>    Enable a tool
+ *   nskuld tools disable <name>   Disable a tool
  */
 
 const chalk = require('chalk');
@@ -28,10 +28,10 @@ function main(args) {
       return cmdDisable(args[1]);
     default:
       console.log(chalk.yellow(L('Kullanım:', 'Usage:')));
-      console.log(chalk.gray('  natureco tools                Grup listesi'));
-      console.log(chalk.gray(L('  natureco tools list           Detaylı liste', '  natureco tools list           Detailed list')));
-      console.log(chalk.gray(L('  natureco tools enable <name>  Tool etkinleştir', '  natureco tools enable <name>  Enable tool')));
-      console.log(chalk.gray(L('  natureco tools disable <name> Tool devre dışı', '  natureco tools disable <name> Disable tool')));
+      console.log(chalk.gray('  nskuld tools                Grup listesi'));
+      console.log(chalk.gray(L('  nskuld tools list           Detaylı liste', '  nskuld tools list           Detailed list')));
+      console.log(chalk.gray(L('  nskuld tools enable <name>  Tool etkinleştir', '  nskuld tools enable <name>  Enable tool')));
+      console.log(chalk.gray(L('  nskuld tools disable <name> Tool devre dışı', '  nskuld tools disable <name> Disable tool')));
       console.log('');
   }
 }
@@ -72,7 +72,7 @@ function getDisabledTools() {
 }
 
 function cmdEnable(name) {
-  if (!name) return console.log(chalk.red(L('Tool adı gerekli: natureco tools enable <name>', 'Tool name required: natureco tools enable <name>')));
+  if (!name) return console.log(chalk.red(L('Tool adı gerekli: nskuld tools enable <name>', 'Tool name required: nskuld tools enable <name>')));
   const disabled = getDisabledTools();
   if (!disabled.has(name)) return console.log(chalk.yellow(name + ' zaten etkin.'));
   disabled.delete(name);
@@ -81,7 +81,7 @@ function cmdEnable(name) {
 }
 
 function cmdDisable(name) {
-  if (!name) return console.log(chalk.red(L('Tool adı gerekli: natureco tools disable <name>', 'Tool name required: natureco tools disable <name>')));
+  if (!name) return console.log(chalk.red(L('Tool adı gerekli: nskuld tools disable <name>', 'Tool name required: nskuld tools disable <name>')));
   const allTools = loadToolDefinitions();
   const tool = allTools.find(t => t.name === name);
   if (!tool) return console.log(chalk.red(L('Tool bulunamadı: ', 'Tool not found: ') + name));

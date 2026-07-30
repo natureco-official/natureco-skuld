@@ -5,7 +5,7 @@
  * Felsefe: "bilgi saklama" değil "hızlı bilgi bulma". Düz liste zamanla çöplüğe döner;
  * ağaç logaritmik arama sağlar (kök seç → dal seç → yaprak oku, <300 token).
  *
- * Yapı: ~/.natureco/memory/tree/<user>/
+ * Yapı: ~/.nskuld/memory/tree/<user>/
  *   0-index.md   — yönlendirme (hangi konu hangi kökte)
  *   1-kisisel.md — Kişisel & Tercihler (## dallar altında yapraklar)
  *   2-teknik.md  — Teknik & Projeler

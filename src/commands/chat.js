@@ -88,7 +88,7 @@ async function chat(botName, options = {}) {
   const version = require('../../package.json').version;
 
   // v4.6+ Modern: chat komutu doğrudan REPL'i başlatır
-  // Eski NatureCo backend (api.natureco.me) yerine provider URL kullanılır
+  // Eski NatureCo backend (api.nskuld.me) yerine provider URL kullanılır
   // Avantajlar: TUI engine, cross-session memory, /resume, /sessions
   // Önceki v2.23 davranışı: ASCII art, bot seçimi, inquirer prompt, vb.
   // Bu refactor, eski tüm komutları (session, memory, hooks, custom commands) korur
@@ -132,7 +132,7 @@ async function chat(botName, options = {}) {
   }
 
   if (!botList?.bots?.length) {
-    console.log(chalk.gray('No bots found. Create one at https://developers.natureco.me\n'));
+    console.log(chalk.gray('No bots found. Create one at https://developers.nskuld.me\n'));
     process.exit(1);
   }
 

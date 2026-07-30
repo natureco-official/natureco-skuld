@@ -1,5 +1,5 @@
 /**
- * natureco repl — Persistent Interactive REPL
+ * nskuld repl — Persistent Interactive REPL
  *
  * Özellikler:
  *   ✅ Cross-session hafıza (memory dosyası)
@@ -8,7 +8,7 @@
  *   ✅ Tüm CLI komutları REPL içinden (/doctor, /cost, /audit, /team...)
  *   ✅ Slash komutlar (/help, /memory, /model, /system, /exit)
  *   ✅ Ctrl+C temiz çıkış, konuşma otomatik kayıt
- *   ✅ Persistent session list (~/.natureco/sessions.json)
+ *   ✅ Persistent session list (~/.nskuld/sessions.json)
  *   ✅ Token tracking
  *
  *   v4.6.0 — Persistent Memory Edition
@@ -158,7 +158,7 @@ const CLI_COMMANDS = {
   '/dashboard': { desc: L('Web panelini başlat (port 7421)', 'Start web dashboard (port 7421)'), run: ['dashboard', 'start'] },
 };
 
-// Profil desteği: --profile <ad> ile ~/.natureco-<ad> kullanılır (config ile tutarlı)
+// Profil desteği: --profile <ad> ile ~/.nskuld-<ad> kullanılır (config ile tutarlı)
 const { CONFIG_DIR: PROFILE_DIR } = require('../utils/config');
 const MEMORY_DIR = path.join(PROFILE_DIR, 'memory');
 const SESSION_DIR = path.join(PROFILE_DIR, 'sessions');
@@ -1135,7 +1135,7 @@ async function startRepl(args) {
   }
 
   if (!providerUrl || !providerApiKey) {
-    console.log(chalk.red(L('\n  ❌ Provider ayarlı değil. Önce: natureco setup\n', '\n  ❌ Provider not configured. First: natureco setup\n')));
+    console.log(chalk.red(L('\n  ❌ Provider ayarlı değil. Önce: nskuld setup\n', '\n  ❌ Provider not configured. First: nskuld setup\n')));
     process.exit(1);
   }
 
@@ -1340,13 +1340,13 @@ async function startRepl(args) {
       }
 
       // v5.46: oturum-sonu hafıza-sağlığı ipucu (gürültüsüz). Yinelenen/çelişen kayıt varsa
-      // tek satır hatırlat — kullanıcı çoğu zaman "natureco memory lint"i hiç çalıştırmaz,
+      // tek satır hatırlat — kullanıcı çoğu zaman "nskuld memory lint"i hiç çalıştırmaz,
       // hafıza sessizce bozulur. Sadece bulgu varsa yazılır; hata asla oturumu bozmaz.
       try {
         const { lintUser } = require('../utils/memory-lint');
         const { flatFindings, treeFindings } = lintUser(cfg.userName);
         const n = (flatFindings.length + treeFindings.length);
-        if (n > 0) console.log(chalk.gray(`  💡 ${L('Hafızada', 'In memory')} ${n} ${L('olası yinelenen/çelişen kayıt —', 'possible duplicate/conflicting records —')} "natureco memory lint" ${L('ile gözden geçir.', 'to review.')}`));
+        if (n > 0) console.log(chalk.gray(`  💡 ${L('Hafızada', 'In memory')} ${n} ${L('olası yinelenen/çelişen kayıt —', 'possible duplicate/conflicting records —')} "nskuld memory lint" ${L('ile gözden geçir.', 'to review.')}`));
       } catch {}
 
       const sessId = saveSession(messages, {
@@ -1441,7 +1441,7 @@ async function startRepl(args) {
 
       // Decay: soft-cap. v5.40: memory_write ile UYUMLU (eski 15 sert limiti yeni
       // fact'leri sessizce kesiyordu — recall kaybina yol aciyordu). 50 = MAX_FACTS.
-      const CAP = (() => { const r = parseInt(process.env.NATURECO_MAX_FACTS || '', 10); return Number.isFinite(r) && r > 0 ? r : 50; })();
+      const CAP = (() => { const r = parseInt(process.env.SKULD_MAX_FACTS || '', 10); return Number.isFinite(r) && r > 0 ? r : 50; })();
       if (memory.facts && memory.facts.length > CAP) {
         // En yuksek skor + en yeni once; dusukleri sil.
         memory.facts.sort((a, b) => ((b.score || 5) - (a.score || 5)) || String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')));
@@ -1669,7 +1669,7 @@ async function startRepl(args) {
       // model call to classify the request, then a second call to answer it or
       // to emit an up-front JSON plan. That is one wasted request per turn on
       // an agent that already has its own tool loop below. It is now opt-in
-      // (`natureco config set chatWorkflow true`) for models that need the
+      // (`nskuld config set chatWorkflow true`) for models that need the
       // scaffolding; on non-tool-calling providers it still engages
       // automatically, since there the XML agentic runner IS the tool loop.
       const wantStream = !!(process.stdout && process.stdout.isTTY);

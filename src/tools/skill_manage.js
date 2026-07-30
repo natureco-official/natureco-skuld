@@ -2,7 +2,7 @@
  * skill_manage — Create, patch, or delete skills (Hermes-style)
  *
  * Model can create new skills, patch existing ones, or delete them.
- * Skills are SKILL.md files in ~/.natureco/skills/<name>/SKILL.md
+ * Skills are SKILL.md files in ~/.nskuld/skills/<name>/SKILL.md
  */
 
 const fs = require('fs');

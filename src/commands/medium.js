@@ -1,14 +1,14 @@
 /**
- * natureco medium — Medium makale yayınlama (Phase 6)
+ * nskuld medium — Medium makale yayınlama (Phase 6)
  *
  * Medium entegrasyonu — makale yayinlama.
  * Bu komut CLI'dan taslak yayınlamayı sağlar.
  *
  * Kullanım:
- *   natureco medium draft <file.md>     Dosyadan taslak oluştur
- *   natureco medium publish <file.md>   Doğrudan yayınla
- *   natureco medium list                Taslak/yayınlanan makaleler
- *   natureco medium stats               Performans istatistikleri
+ *   nskuld medium draft <file.md>     Dosyadan taslak oluştur
+ *   nskuld medium publish <file.md>   Doğrudan yayınla
+ *   nskuld medium list                Taslak/yayınlanan makaleler
+ *   nskuld medium stats               Performans istatistikleri
  *
  * Not: Medium API resmi değil, integration token gerektirir.
  */
@@ -42,7 +42,7 @@ async function apiCall(endpoint, options = {}) {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'User-Agent': 'natureco-cli/3.5',
+        'User-Agent': 'natureco-skuld/3.5',
       },
       timeout: 15000,
     }, (res) => {
@@ -82,7 +82,7 @@ function parseMarkdown(content) {
 async function cmdDraft(args) {
   const filePath = args[0];
   if (!filePath) {
-    console.log(chalk.red(L('\n  Kullanım: natureco medium draft <dosya.md>\n', '\n  Usage: natureco medium draft <file.md>\n')));
+    console.log(chalk.red(L('\n  Kullanım: nskuld medium draft <dosya.md>\n', '\n  Usage: nskuld medium draft <file.md>\n')));
     return;
   }
   if (!fs.existsSync(filePath)) {
@@ -100,7 +100,7 @@ async function cmdDraft(args) {
   const token = getToken();
   if (!token) {
     console.log(chalk.yellow(L('\n  ⚠️  Medium token tanımlı değil.', '\n  ⚠️  Medium token not set.')));
-    console.log(chalk.gray(L('  Ayarlamak için: ', '  To set: ')) + chalk.cyan('natureco config set mediumIntegrationToken <token>'));
+    console.log(chalk.gray(L('  Ayarlamak için: ', '  To set: ')) + chalk.cyan('nskuld config set mediumIntegrationToken <token>'));
     console.log(chalk.gray(L('\n  Token almak için: ', '\n  To get a token: ')) + chalk.cyan('https://medium.com/me/settings/tokens'));
     console.log('');
     // Yerel taslak kaydet
@@ -133,7 +133,7 @@ async function cmdDraft(args) {
 async function cmdPublish(args) {
   const filePath = args[0];
   if (!filePath) {
-    console.log(chalk.red(L('\n  Kullanım: natureco medium publish <dosya.md>\n', '\n  Usage: natureco medium publish <file.md>\n')));
+    console.log(chalk.red(L('\n  Kullanım: nskuld medium publish <dosya.md>\n', '\n  Usage: nskuld medium publish <file.md>\n')));
     return;
   }
   if (!fs.existsSync(filePath)) {
@@ -192,10 +192,10 @@ async function medium(args) {
   const [action, ...params] = args || [];
   if (!action || action === 'help') {
     console.log(chalk.yellow(L('\n  Kullanım:', '\n  Usage:')));
-    console.log(chalk.gray(L('    natureco medium draft <file.md>      Taslak oluştur', '    natureco medium draft <file.md>      Create draft')));
-    console.log(chalk.gray(L('    natureco medium publish <file.md>    Doğrudan yayınla', '    natureco medium publish <file.md>    Publish directly')));
-    console.log(chalk.gray(L('    natureco medium list                 Taslaklar', '    natureco medium list                 Drafts')));
-    console.log(chalk.gray(L('\n  Token ayarla: ', '\n  Set token: ')) + chalk.cyan('natureco config set mediumIntegrationToken <token>'));
+    console.log(chalk.gray(L('    nskuld medium draft <file.md>      Taslak oluştur', '    nskuld medium draft <file.md>      Create draft')));
+    console.log(chalk.gray(L('    nskuld medium publish <file.md>    Doğrudan yayınla', '    nskuld medium publish <file.md>    Publish directly')));
+    console.log(chalk.gray(L('    nskuld medium list                 Taslaklar', '    nskuld medium list                 Drafts')));
+    console.log(chalk.gray(L('\n  Token ayarla: ', '\n  Set token: ')) + chalk.cyan('nskuld config set mediumIntegrationToken <token>'));
     console.log('');
     return;
   }

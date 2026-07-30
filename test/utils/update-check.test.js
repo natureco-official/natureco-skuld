@@ -33,7 +33,7 @@ describe('compareVersions — basit semver', () => {
 
 describe('maybeNotify — güvenlik kapıları', () => {
   afterEach(() => {
-    delete process.env.NATURECO_NO_UPDATE_CHECK;
+    delete process.env.SKULD_NO_UPDATE_CHECK;
     vi.restoreAllMocks();
   });
 
@@ -46,9 +46,9 @@ describe('maybeNotify — güvenlik kapıları', () => {
     expect(spy).not.toHaveBeenCalled();
   });
 
-  it('NATURECO_NO_UPDATE_CHECK=1 ile tamamen susar', () => {
+  it('SKULD_NO_UPDATE_CHECK=1 ile tamamen susar', () => {
     const spy = vi.spyOn(console, 'log');
-    process.env.NATURECO_NO_UPDATE_CHECK = '1';
+    process.env.SKULD_NO_UPDATE_CHECK = '1';
     const origTTY = process.stdout.isTTY;
     Object.defineProperty(process.stdout, 'isTTY', { value: true, configurable: true });
     maybeNotify('0.0.1');

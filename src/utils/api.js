@@ -1,4 +1,4 @@
-// NatureCo CLI v2.10.1 - Universal LLM Provider Support + MCP Integration
+// NatureCo Skuld v2.10.1 - Universal LLM Provider Support + MCP Integration
 // Supports: OpenAI, Groq, Together, Fireworks, Perplexity, Mistral, DeepSeek, OpenRouter, Ollama, LM Studio, Anthropic
 
 const fs = require('fs');
@@ -183,7 +183,7 @@ function buildProviderRequest(providerConfig, messages, tools, options = {}) {
   const anthropic = providerConfig.isAnthropic ||
     detectProvider(providerConfig.url, providerConfig.model) === 'anthropic';
   const provider = anthropic ? 'anthropic' : 'openai';
-  let usableTools = !anthropic && providerConfig.url.includes('api.natureco.me')
+  let usableTools = !anthropic && providerConfig.url.includes('api.nskuld.me')
     ? []
     : (tools || []);
   if (anthropic) {
@@ -616,7 +616,7 @@ function allKnownTools() {
 /**
  * Trim the advertised set the same way the coding agent does.
  *
- * `natureco chat` was serializing all 90 tool schemas — ~14.7k tokens — into
+ * `nskuld chat` was serializing all 90 tool schemas — ~14.7k tokens — into
  * every single request, on a default 16k context budget. The user pays for that
  * on every message whether the turn touches a tool or not.
  */
@@ -672,7 +672,7 @@ async function sendMessageOpenAICompatible(providerConfig, messages, tools) {
   const requestBody = request.body;
 
   // NatureCo için tool calling desteklenmiyor
-  if (!providerConfig.url.includes('api.natureco.me')) {
+  if (!providerConfig.url.includes('api.nskuld.me')) {
     if (tools && tools.length > 0) {
       requestBody.tools = tools;
       requestBody.tool_choice = 'auto';
@@ -696,7 +696,7 @@ async function sendMessageOpenAICompatible(providerConfig, messages, tools) {
     || data.response
     || data.content
     || '';
-  // Maliyet takibi — usage döndüren her çağrı kaydedilir (natureco cost)
+  // Maliyet takibi — usage döndüren her çağrı kaydedilir (nskuld cost)
   recordUsageSafe(providerConfig, data.usage);
   return {
     role: 'assistant',
@@ -784,9 +784,9 @@ async function sendMessageToProvider(apiKey, message, conversationId = null, sys
   if (!providerConfig) {
     throw new Error(
       'Provider not configured. Set with:\n' +
-      '  natureco config set providerUrl https://api.groq.com/openai/v1\n' +
-      '  natureco config set providerApiKey gsk_xxx\n' +
-      '  natureco config set providerModel llama-3.3-70b-versatile'
+      '  nskuld config set providerUrl https://api.groq.com/openai/v1\n' +
+      '  nskuld config set providerApiKey gsk_xxx\n' +
+      '  nskuld config set providerModel llama-3.3-70b-versatile'
     );
   }
 
@@ -856,7 +856,7 @@ async function sendMessageToProvider(apiKey, message, conversationId = null, sys
   const maxIterations = 10;
   let finalResponse = null;
   const stream = (options.stream ?? options.noStream === undefined) !== false && 
-    !providerConfig.url.includes('api.natureco.me');
+    !providerConfig.url.includes('api.nskuld.me');
 
   while (iteration < maxIterations) {
     iteration++;
@@ -1090,7 +1090,7 @@ async function sendMessage(apiKey, botId, message, conversationId = null, chatSy
   const config = getConfig();
 
   // NatureCo — minimal system prompt, skip tool descriptions/MCP
-  if (providerConfig && providerConfig.url.includes('api.natureco.me')) {
+  if (providerConfig && providerConfig.url.includes('api.nskuld.me')) {
     const prompt = chatSystemPrompt || 'Sen yardımcı bir AI asistansın.';
     return sendMessageToProvider(apiKey, message, conversationId, prompt, options);
   }
@@ -1119,7 +1119,7 @@ async function validateApiKey(apiKey) {
     return result;
   }
   try {
-    const res = await fetch('https://api.natureco.me/api/v1/user/me', {
+    const res = await fetch('https://api.nskuld.me/api/v1/user/me', {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
@@ -1151,7 +1151,7 @@ async function getBots(apiKey) {
   // NatureCo provider — gerçek bot listesini API'den çek
   if (config.providerUrl && config.providerUrl.includes('natureco.me')) {
     try {
-      const res = await fetch('https://api.natureco.me/api/v1/bots', {
+      const res = await fetch('https://api.nskuld.me/api/v1/bots', {
         headers: {
           'Authorization': `Bearer ${config.providerApiKey || apiKey}`,
           'Content-Type': 'application/json',

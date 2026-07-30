@@ -6,13 +6,13 @@
  * kullanıcılar "skill'ler yok" sanıyor). CLI hiç güncelleme uyarısı vermiyordu.
  *
  * TASARIM:
- * - Registry'ye en fazla 24 saatte bir sorulur; sonuç ~/.natureco/update-check.json
+ * - Registry'ye en fazla 24 saatte bir sorulur; sonuç ~/.nskuld/update-check.json
  *   içinde saklanır.
  * - Bildirim SENKRON olarak önbellekten basılır (ağ beklenmez, CLI yavaşlamaz);
  *   arka plandaki tazeleme isteği socket.unref() ile süreci canlı tutmaz.
  * - Ağ hatası sessizce yutulur — güncelleme kontrolü asla komutu bozamaz.
  * - Yalnız TTY'de basılır (pipe/script çıktısı kirlenmez).
- * - NATURECO_NO_UPDATE_CHECK=1 ile tamamen kapatılır.
+ * - SKULD_NO_UPDATE_CHECK=1 ile tamamen kapatılır.
  */
 
 const fs = require('fs');
@@ -22,7 +22,7 @@ const https = require('https');
 
 const CACHE_FILE = path.join(os.homedir(), '.nskuld', 'update-check.json');
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 saat
-const REGISTRY_URL = 'https://registry.npmjs.org/natureco-cli/latest';
+const REGISTRY_URL = 'https://registry.npmjs.org/natureco-skuld/latest';
 
 /** "5.47.1" > "5.13.0" gibi basit semver karşılaştırması (a > b → 1, a < b → -1). */
 function compareVersions(a, b) {
@@ -72,7 +72,7 @@ function refreshInBackground() {
  * bildirim basar; önbellek bayatsa arka planda tazeler.
  */
 function maybeNotify(currentVersion) {
-  if (process.env.NATURECO_NO_UPDATE_CHECK === '1') return;
+  if (process.env.SKULD_NO_UPDATE_CHECK === '1') return;
   if (!process.stdout.isTTY) return;
 
   const cache = readCache();
@@ -80,7 +80,7 @@ function maybeNotify(currentVersion) {
   if (cache && cache.latest && compareVersions(cache.latest, currentVersion) > 0) {
     // chalk'a bağımlı olmadan soluk sarı bildirim
     const dim = '\x1b[2m', yellow = '\x1b[33m', cyan = '\x1b[36m', reset = '\x1b[0m';
-    console.log(`${yellow}⬆ Yeni sürüm: v${currentVersion} → v${cache.latest}${reset} ${dim}—${reset} ${cyan}npm install -g natureco-cli${reset} ${dim}(yeni skill'ler ve araçlar içerir)${reset}`);
+    console.log(`${yellow}⬆ Yeni sürüm: v${currentVersion} → v${cache.latest}${reset} ${dim}—${reset} ${cyan}npm install -g natureco-skuld${reset} ${dim}(yeni skill'ler ve araçlar içerir)${reset}`);
   }
 
   if (!cache || (Date.now() - (cache.lastCheck || 0)) > CHECK_INTERVAL_MS) {

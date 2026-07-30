@@ -32,14 +32,14 @@ function terminal(args) {
   if (action === 'list') return listSessions();
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco terminal [exec|connect|disconnect|list]\n', '  Usage: natureco terminal [exec|connect|disconnect|list]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld terminal [exec|connect|disconnect|list]\n', '  Usage: nskuld terminal [exec|connect|disconnect|list]\n')));
   process.exit(1);
 }
 
 function execCmd(cmd) {
   if (!cmd) {
     console.log(chalk.red(L('\n  ❌ Komut gerekli\n', '\n  ❌ Command required\n')));
-    console.log(chalk.gray(L('  Örnek: natureco terminal exec "ls -la"\n', '  Example: natureco terminal exec "ls -la"\n')));
+    console.log(chalk.gray(L('  Örnek: nskuld terminal exec "ls -la"\n', '  Example: nskuld terminal exec "ls -la"\n')));
     process.exit(1);
   }
   console.log(chalk.cyan(`\n  🖥️  $ ${cmd}\n`));
@@ -126,16 +126,16 @@ function listSessions() {
 function showHelp() {
   console.log(chalk.cyan('\n  🖥️  Terminal\n'));
   console.log(chalk.gray('  Execute commands and manage terminal sessions.\n'));
-  console.log(chalk.gray('  Usage: natureco terminal <action> [params]'));
+  console.log(chalk.gray('  Usage: nskuld terminal <action> [params]'));
   console.log(chalk.gray('\n  Actions:'));
   console.log(chalk.cyan('    exec <cmd>') + chalk.gray('              Run a shell command'));
   console.log(chalk.cyan('    connect <target> [shell]') + chalk.gray('  Start a session'));
   console.log(chalk.cyan('    disconnect <id>') + chalk.gray('         Close a session'));
   console.log(chalk.cyan('    list') + chalk.gray('                    List sessions'));
   console.log(chalk.gray('\n  Examples:'));
-  console.log(chalk.gray('    natureco terminal exec "dir"'));
-  console.log(chalk.gray('    natureco terminal connect local'));
-  console.log(chalk.gray('    natureco terminal list\n'));
+  console.log(chalk.gray('    nskuld terminal exec "dir"'));
+  console.log(chalk.gray('    nskuld terminal connect local'));
+  console.log(chalk.gray('    nskuld terminal list\n'));
 }
 
 module.exports = terminal;

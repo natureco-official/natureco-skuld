@@ -62,8 +62,8 @@ async function connect(descriptor) {
   const config = getConfig();
   if (!config.providerUrl) {
     console.log(chalk.red(L(
-      '\n❌ Setup yapılmamış. Önce "natureco setup" çalıştırın.\n',
-      '\n❌ Setup not done. Run "natureco setup" first.\n',
+      '\n❌ Setup yapılmamış. Önce "nskuld setup" çalıştırın.\n',
+      '\n❌ Setup not done. Run "nskuld setup" first.\n',
     )));
     process.exitCode = 1;
     return;
@@ -126,7 +126,7 @@ async function connect(descriptor) {
   }
 
   console.log(chalk.gray(`\n${L('Doğrulamak için', 'To verify')}: natureco ${descriptor.id} probe`));
-  console.log(chalk.gray(`${L('Başlatmak için', 'To start')}: natureco gateway start\n`));
+  console.log(chalk.gray(`${L('Başlatmak için', 'To start')}: nskuld gateway start\n`));
 }
 
 async function disconnect(descriptor) {

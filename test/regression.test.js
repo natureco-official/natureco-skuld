@@ -42,12 +42,12 @@ describe('regression: all commands', () => {
     }
   });
 
-  it('natureco --help renders without error', () => {
+  it('nskuld --help renders without error', () => {
     const result = require('child_process').execSync(
       `node "${BIN_PATH}" --help`,
       { encoding: 'utf8', timeout: 60000 }
     );
-    expect(result).toContain('natureco');
+    expect(result).toContain('nskuld');
     expect(result).toContain('chat');
     expect(result).toContain('agent');
     expect(result).toContain('completion');

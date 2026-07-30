@@ -22,7 +22,7 @@ async function voice(args) {
   if (action === 'set') return setVoiceProvider(params);
 
   console.log(chalk.red(`\n  ❌ Unknown command: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco voice [status|providers|set]\n'));
+  console.log(chalk.gray('  Usage: nskuld voice [status|providers|set]\n'));
   process.exit(1);
 }
 
@@ -39,8 +39,8 @@ function statusVoice() {
   console.log(`  ${chalk.white('Voice ID:')}      ${chalk.cyan(voiceId || '(default)')}`);
   console.log(`  ${chalk.white('API Key:')}       ${chalk.gray(mask(apiKey))}`);
   console.log(chalk.gray('\n  Commands:'));
-  console.log(chalk.cyan('    natureco voice providers') + chalk.gray('  List available providers'));
-  console.log(chalk.cyan('    natureco voice set <provider> [voiceId]') + chalk.gray('  Set voice provider'));
+  console.log(chalk.cyan('    nskuld voice providers') + chalk.gray('  List available providers'));
+  console.log(chalk.cyan('    nskuld voice set <provider> [voiceId]') + chalk.gray('  Set voice provider'));
   console.log();
 }
 
@@ -53,8 +53,8 @@ function listProviders() {
   }
 
   console.log(chalk.gray('\n  Set provider:'));
-  console.log(chalk.cyan('    natureco voice set openai'));
-  console.log(chalk.cyan('    natureco voice set elevenlabs [voiceId]'));
+  console.log(chalk.cyan('    nskuld voice set openai'));
+  console.log(chalk.cyan('    nskuld voice set elevenlabs [voiceId]'));
   console.log();
 }
 

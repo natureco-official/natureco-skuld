@@ -186,7 +186,7 @@ async function workflow(params) {
   const model = cfg.providerModel || 'default';
 
   if ((action === 'run' || action === 'plan') && (!providerUrl || !providerApiKey)) {
-    return { success: false, error: 'Provider ayarli degil. Once: natureco setup' };
+    return { success: false, error: 'Provider ayarli degil. Once: nskuld setup' };
   }
 
   const skillsIndexBlock = buildSkillIndex();
@@ -230,7 +230,7 @@ async function workflow(params) {
       let treeIndex = '', treeDigest = '';
       try { const mt = require('./memory_tree')._internal; treeDigest = mt.buildDigest(memUser); treeIndex = mt.buildIndex(memUser); } catch {}
       // Tam mod (sahibin opt-in'i): tum arac+skill'ler acilir, keyfi shell (yikici haric).
-      const execFull = cfg.agentExec === 'full' || cfg.computerUse === true || String(process.env.NATURECO_AGENT_EXEC || '').toLowerCase() === 'full';
+      const execFull = cfg.agentExec === 'full' || cfg.computerUse === true || String(process.env.SKULD_AGENT_EXEC || '').toLowerCase() === 'full';
       let fullToolsBlock = '';
       if (execFull) {
         const allNames = tools.filter(t => t !== 'workflow');
@@ -249,7 +249,7 @@ async function workflow(params) {
         ].join('\n');
       }
       // Oz-bilgi: ajan "kac skill'in/aracin var, nerede kayitli" sorularinda dosya
-      // sistemini kesfe cikip YANLIS sayiyordu (~/.natureco/skills yalniz kullanici
+      // sistemini kesfe cikip YANLIS sayiyordu (~/.nskuld/skills yalniz kullanici
       // skill'leridir; yerlesikler paketin icindedir). Gercek sayilari ve konumlari
       // sistem mesajina gomuyoruz ki ajan kendi kurulumunu dogru anlatsin.
       // Kompakt tutulur (~85 token): harita sysMsg'e GOMULMEZ, gerektiginde okunur
@@ -258,7 +258,7 @@ async function workflow(params) {
         const skillCount = require('../utils/skill-index')._discoverSkills().length;
         const pkgRoot = path.join(__dirname, '..', '..');
         selfInfo = '\nKurulumun: kok=' + pkgRoot
-          + ' | skill sayin TAM OLARAK ' + skillCount + ' (kok/skills = ~/.natureco/skills-builtin; ~/.natureco/skills YALNIZ kullanici skill\'leri)'
+          + ' | skill sayin TAM OLARAK ' + skillCount + ' (kok/skills = ~/.nskuld/skills-builtin; ~/.nskuld/skills YALNIZ kullanici skill\'leri)'
           + ' | arac sayin TAM OLARAK ' + tools.length + ' (kok/src/tools).'
           + ' Oz-bilgi/onarim haritan: kok/SELF.md — "kendini incele/onar/nasil calisiyorsun" istenirse ONCE onu read_file ile oku;'
           + ' onarim: read_file→edit_file→node --check, sonucu durustce raporla.';
@@ -293,7 +293,7 @@ async function workflow(params) {
         '- Yarim kalan is / "sonra yapalim" → memory_tree(append, root:"3-kararlar", branch:"Bekleyen İşler") — yeni oturumda otomatik hatirlatilir; tamamlaninca memory_tree(remove) ile kaldir.',
         '- Guncel/internet bilgisi → ONCE duckduckgo_search ("internet erisimim yok" DEME).',
         '- Gorev listesi/todo → todo_write (memory_tree DEGIL).',
-        '- Zamanlanmis/tekrarlayan is → SADECE cron_create (bash ile crontab/schtasks DUZENLEME — "natureco cron list"te gorunmez). Sonrasinda kullaniciya MUTLAKA soyle: fiilen calismasi icin "natureco daemon start" (veya install) gerekir; bunu soylemeden kesin basari iddia etme.',
+        '- Zamanlanmis/tekrarlayan is → SADECE cron_create (bash ile crontab/schtasks DUZENLEME — "nskuld cron list"te gorunmez). Sonrasinda kullaniciya MUTLAKA soyle: fiilen calismasi icin "nskuld daemon start" (veya install) gerekir; bunu soylemeden kesin basari iddia etme.',
         '- Dosya degistirmeden ONCE read_file ile oku, edit_file ile hedefli degistir. Yerini bilmiyorsan file_search/grep_search ile kesfet.',
         '- Kod yazinca/degistirince bash ile calistir/test et, hata varsa duzelt. Coklu dosya = her biri icin AYRI write_file. Hep TAM yol; "masaustu" = ' + desktop + '.',
         '- Arac sonuclari <tool_results> icinde doner; is bitince arac cagirmadan tek cumlelik ozet yaz. Basit sohbette arac cagirma, dogrudan yanitla.',

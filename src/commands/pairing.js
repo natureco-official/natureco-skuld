@@ -10,7 +10,7 @@ function pairing(args) {
   if (action === 'generate') return cmdGenerate();
 
   console.log(chalk.red(`\n  Unknown pairing action: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco pairing <action> [params]'));
+  console.log(chalk.gray('  Usage: nskuld pairing <action> [params]'));
   console.log(chalk.gray('  Actions: list, approve <id>, reject <id>, generate\n'));
   process.exit(1);
 }
@@ -37,7 +37,7 @@ function cmdList() {
 }
 
 function cmdApprove(id) {
-  if (!id) { console.log(chalk.red('\n  Usage: natureco pairing approve <id>\n')); process.exit(1); }
+  if (!id) { console.log(chalk.red('\n  Usage: nskuld pairing approve <id>\n')); process.exit(1); }
 
   const pairings = loadPairings();
   const p = pairings.find(x => x.id === id && x.status === 'pending');
@@ -51,7 +51,7 @@ function cmdApprove(id) {
 }
 
 function cmdReject(id) {
-  if (!id) { console.log(chalk.red('\n  Usage: natureco pairing reject <id>\n')); process.exit(1); }
+  if (!id) { console.log(chalk.red('\n  Usage: nskuld pairing reject <id>\n')); process.exit(1); }
 
   const pairings = loadPairings();
   const idx = pairings.findIndex(x => x.id === id && x.status === 'pending');

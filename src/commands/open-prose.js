@@ -11,7 +11,7 @@ function openProse(args) {
   if (action === 'info') return showInfo();
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco open-prose [list|info]\n', '  Usage: natureco open-prose [list|info]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld open-prose [list|info]\n', '  Usage: nskuld open-prose [list|info]\n')));
   process.exit(1);
 }
 
@@ -44,13 +44,13 @@ function listBundles() {
 
   console.log(chalk.gray('\n  OpenProse, NatureCo\'nun prose skills paketidir.\n'));
   console.log(chalk.gray(L('  Skills yüklemek için:', '  To install skills:')));
-  console.log(chalk.cyan('    natureco skills install <name>\n'));
+  console.log(chalk.cyan('    nskuld skills install <name>\n'));
 }
 
 function showInfo() {
   console.log(chalk.cyan('\n  📖 OpenProse\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
-  console.log(chalk.gray('  OpenProse — Prose skills bundle for NatureCo CLI.'));
+  console.log(chalk.gray('  OpenProse — Prose skills bundle for NatureCo Skuld.'));
   console.log(chalk.gray('  Provides writing, review, documentation, and prompt'));
   console.log(chalk.gray('  engineering skill definitions.'));
   console.log();

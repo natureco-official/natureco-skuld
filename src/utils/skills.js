@@ -50,12 +50,29 @@ function parseSkillMetadata(content) {
   return metadata;
 }
 
+/**
+ * Skill manifest bloğunu okur — YENİ ve ESKİ anahtar adıyla.
+ *
+ * `metadata.natureco` bir VERİ BİÇİMİ, marka değil: yüklü ve yayınlanmış
+ * skill dosyalarında yazılı. Marka temizliğinde otomatik olarak
+ * `metadata.nskuld`'a çevrilmiş ve bu, mevcut her skill manifestini sessizce
+ * geçersiz kılıyordu — gereksinim kontrolü hiçbir şey bulamayınca "gereksinim
+ * yok" diyor, yani eksik binary'ler artık RAPORLANMIYORDU.
+ *
+ * Bir dize değiştirmek bir sözleşmeyi bozabilir. `nskuld` tercih edilir,
+ * `natureco` okunmaya devam eder.
+ */
+function manifestBlogu(metadata) {
+  return metadata?.metadata?.nskuld || metadata?.metadata?.natureco || null;
+}
+
 // Skill gating - requirements check
 function checkSkillRequirements(metadata) {
   const errors = [];
+  const blok = manifestBlogu(metadata);
 
-  if (metadata?.metadata?.natureco?.requires?.bins) {
-    const bins = metadata.metadata.natureco.requires.bins;
+  if (blok?.requires?.bins) {
+    const bins = blok.requires.bins;
     for (const bin of bins) {
       if (typeof bin !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(bin)) {
         errors.push(`Binary gerekli: ${bin}`);
@@ -69,8 +86,8 @@ function checkSkillRequirements(metadata) {
     }
   }
 
-  if (metadata?.metadata?.natureco?.requires?.env) {
-    const envVars = metadata.metadata.natureco.requires.env;
+  if (blok?.requires?.env) {
+    const envVars = blok.requires.env;
     for (const envVar of envVars) {
       if (!process.env[envVar]) {
         errors.push(`Environment variable gerekli: ${envVar}`);
@@ -78,8 +95,8 @@ function checkSkillRequirements(metadata) {
     }
   }
 
-  if (metadata?.metadata?.natureco?.os) {
-    const supportedOS = metadata.metadata.natureco.os;
+  if (blok?.os) {
+    const supportedOS = blok.os;
     if (!supportedOS.includes(os.platform())) {
       errors.push(`Platform desteklenmiyor. Desteklenen: ${supportedOS.join(', ')}`);
     }

@@ -3,7 +3,7 @@
  *
  * Skills marketplace — skill paylasimi ve otomatik yukleme
  *
- * Format: ~/.natureco/marketplace/<skill_name>.json
+ * Format: ~/.nskuld/marketplace/<skill_name>.json
  * Source: NatureCo GitHub repo (community-contributed) veya local
  */
 
@@ -66,7 +66,7 @@ const BUILTIN_SKILLS = {
     author: "NatureCo Team",
     version: "1.0.0",
     tags: ["telegram", "integration", "tutorial"],
-    instructions: "Kullanici 'Telegram bot kur' dediginde, sirasiyla: 1) @BotFather'a git, 2) /newbot, 3) isim ve username, 4) token al, 5) natureco telegram connect ile gir, 6) @userinfobot'tan user ID al, 7) natureco gateway start. Adim adim Turkce yonlendir.",
+    instructions: "Kullanici 'Telegram bot kur' dediginde, sirasiyla: 1) @BotFather'a git, 2) /newbot, 3) isim ve username, 4) token al, 5) nskuld telegram connect ile gir, 6) @userinfobot'tan user ID al, 7) nskuld gateway start. Adim adim Turkce yonlendir.",
   },
   "morning-briefing": {
     name: "Morning Briefing",
@@ -74,12 +74,12 @@ const BUILTIN_SKILLS = {
     author: "NatureCo Team",
     version: "1.0.0",
     tags: ["productivity", "cron", "daily"],
-    instructions: "cron_create ile her sabah 9'da calisan bir setup kur. natureco weather, natureco calendar today, natureco todo_write list, natureco memory_search - tum bunlari ozetleyen bir gunluk briefing ver.",
+    instructions: "cron_create ile her sabah 9'da calisan bir setup kur. nskuld weather, nskuld calendar today, nskuld todo_write list, nskuld memory_search - tum bunlari ozetleyen bir gunluk briefing ver.",
   },
 };
 
 /**
- * Local skill yukle (skill dosyasi -> ~/.natureco/skills/<name>/)
+ * Local skill yukle (skill dosyasi -> ~/.nskuld/skills/<name>/)
  */
 function installLocal(skillData, skillName = skillData.name) {
   if (!skillData.name) return { success: false, error: "Skill name gerekli" };
@@ -156,7 +156,7 @@ async function listMarketplace() {
  */
 module.exports = {
   name: "skills_marketplace",
-  description: "Skill marketplace - topluluk tarafindan paylasilan NatureCo CLI skill'leri. action: list, install, uninstall, search.",
+  description: "Skill marketplace - topluluk tarafindan paylasilan NatureCo Skuld skill'leri. action: list, install, uninstall, search.",
   inputSchema: {
     type: "object",
     properties: {

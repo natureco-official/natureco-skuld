@@ -88,7 +88,7 @@ function adminRpc(args) {
   if (action === 'methods') return listMethods();
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco admin-rpc [status|start|stop|call|methods]\n', '  Usage: natureco admin-rpc [status|start|stop|call|methods]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld admin-rpc [status|start|stop|call|methods]\n', '  Usage: nskuld admin-rpc [status|start|stop|call|methods]\n')));
   process.exit(1);
 }
 
@@ -118,7 +118,7 @@ function listMethods() {
 async function callMethod(method, jsonParams) {
   if (!method) {
     console.log(chalk.red(L('\n  ❌ Method adı gerekli\n', '\n  ❌ Method name required\n')));
-    console.log(chalk.cyan('    natureco admin-rpc call health\n'));
+    console.log(chalk.cyan('    nskuld admin-rpc call health\n'));
     process.exit(1);
   }
 
@@ -285,7 +285,7 @@ function startAdmin(portStr, opts = {}) {
     const auth = req.headers['authorization'] || '';
     if (auth !== `Bearer ${adminToken}`) {
       res.writeHead(401, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: false, error: 'Unauthorized: Authorization: Bearer <token> gerekli (~/.natureco/admin-token)' }));
+      res.end(JSON.stringify({ ok: false, error: 'Unauthorized: Authorization: Bearer <token> gerekli (~/.nskuld/admin-token)' }));
       return;
     }
 
@@ -356,7 +356,7 @@ function startAdmin(portStr, opts = {}) {
     if (expose) {
       console.log(chalk.red('  ⚠️  --expose ile TÜM ağ arayüzlerinde (0.0.0.0) dinliyor. Bearer token ZORUNLU; yine de yalnızca güvendiğin ağda kullan.'));
     }
-    console.log(chalk.gray('  Bearer token stored at ~/.natureco/admin-token (value hidden).'));
+    console.log(chalk.gray('  Bearer token stored at ~/.nskuld/admin-token (value hidden).'));
     console.log(chalk.gray('  Örnek istek:'));
     console.log(chalk.white(`    curl -H "Authorization: Bearer <token-from-file>" -d '{"method":"health"}' http://127.0.0.1:${port}`));
     console.log(chalk.gray('\n  Press Ctrl+C to stop\n'));

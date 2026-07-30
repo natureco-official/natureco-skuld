@@ -250,7 +250,7 @@ describe('chat-style input box', () => {
     expect(canUseInputBox({
       stdin: { isTTY: true },
       stdout: { isTTY: true, columns: 80 },
-      env: { NATURECO_PLAIN_INPUT: '1' },
+      env: { SKULD_PLAIN_INPUT: '1' },
     })).toBe(false);
 
     const readlineModule = { createInterface: vi.fn(() => ({

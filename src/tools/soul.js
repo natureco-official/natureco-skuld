@@ -9,7 +9,7 @@
  *   3. AGENTS.md  - CALISMA ORTAMI (kurallar, tools, heartbeats)
  *
  * 3 seviyede arar:
- *   1. ~/.natureco/soul/{SOUL,IDENTITY,AGENTS}.md (kullanici kendi)
+ *   1. ~/.nskuld/soul/{SOUL,IDENTITY,AGENTS}.md (kullanici kendi)
  *   2. <cwd>/{SOUL,IDENTITY,AGENTS}.md (proje seviyesi)
  *   3. <install>/soul/{SOUL,IDENTITY,AGENTS}.md (default)
  */

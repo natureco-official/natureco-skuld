@@ -19,7 +19,7 @@ function daemon(args) {
   if (action === 'uninstall') return uninstallDaemon();
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco daemon [status|start|stop|restart|install|uninstall]\n', '  Usage: natureco daemon [status|start|stop|restart|install|uninstall]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld daemon [status|start|stop|restart|install|uninstall]\n', '  Usage: nskuld daemon [status|start|stop|restart|install|uninstall]\n')));
   process.exit(1);
 }
 
@@ -47,7 +47,7 @@ function statusDaemon() {
     console.log(`  ${chalk.white('Status:')} ${chalk.yellow('not running')}`);
     console.log(`  ${chalk.white('PID:')}    ${chalk.gray('N/A')}`);
   }
-  console.log(chalk.gray('\n  Manage with:') + chalk.cyan(' natureco gateway start|stop|status'));
+  console.log(chalk.gray('\n  Manage with:') + chalk.cyan(' nskuld gateway start|stop|status'));
   console.log();
 }
 

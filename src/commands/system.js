@@ -11,7 +11,7 @@ function system(args) {
   if (action === 'presence') return systemPresence();
 
   console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco system [status|events|presence]\n', '  Usage: natureco system [status|events|presence]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld system [status|events|presence]\n', '  Usage: nskuld system [status|events|presence]\n')));
   process.exit(1);
 }
 
@@ -48,7 +48,7 @@ function systemPresence() {
   console.log(`  ${chalk.white('Status:')}   ${chalk.green('online')}`);
   console.log(`  ${chalk.white('Since:')}    ${new Date(Date.now() - process.uptime() * 1000).toISOString()}`);
   console.log(`  ${chalk.white('Host:')}     ${os.hostname()}`);
-  console.log(`  ${chalk.white('Version:')} NatureCo CLI`);
+  console.log(`  ${chalk.white('Version:')} NatureCo Skuld`);
   console.log();
 }
 

@@ -16,7 +16,7 @@ function getProvider(name) {
 }
 
 function resolveProviderConfig(cfg) {
-  const env = process.env.NATURECO_SEARCH_PROVIDER || '';
+  const env = process.env.SKULD_SEARCH_PROVIDER || '';
   if (env && _registry.has(env)) return env;
   if (cfg && cfg[PROVIDER_CONFIG_KEY] && _registry.has(cfg[PROVIDER_CONFIG_KEY])) {
     return cfg[PROVIDER_CONFIG_KEY];

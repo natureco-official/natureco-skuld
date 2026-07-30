@@ -45,7 +45,7 @@ describe('approvals file permissions', () => {
     expect(stat.mode & 0o777).toBe(0o600);
   });
 
-  it.skipIf(!isPosix)('writes ~/.natureco dir with mode 0o700 (owner-only)', () => {
+  it.skipIf(!isPosix)('writes ~/.nskuld dir with mode 0o700 (owner-only)', () => {
     approvals.saveApprovals({ version: 1 });
     const dir = path.dirname(approvals.APPROVALS_FILE);
     const stat = fs.statSync(dir);

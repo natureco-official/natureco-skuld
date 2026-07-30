@@ -12,7 +12,7 @@ function dnsCmd(args) {
   if (action === 'services') return discoverServices();
 
   console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco dns [discover|resolve <host>|services]\n', '  Usage: natureco dns [discover|resolve <host>|services]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld dns [discover|resolve <host>|services]\n', '  Usage: nskuld dns [discover|resolve <host>|services]\n')));
   process.exit(1);
 }
 
@@ -49,9 +49,9 @@ function discoverNetwork() {
     console.log(`  ${chalk.green('●')} ${chalk.white('ZeroTier')}: ${chalk.cyan(zerotier)}`);
   }
 
-  console.log(chalk.gray('\n  mDNS: ') + chalk.cyan('natureco bonjour scan'));
-  console.log(chalk.gray('  Resolve: ') + chalk.cyan('natureco dns resolve <hostname>'));
-  console.log(chalk.gray('  Services: ') + chalk.cyan('natureco dns services\n'));
+  console.log(chalk.gray('\n  mDNS: ') + chalk.cyan('nskuld bonjour scan'));
+  console.log(chalk.gray('  Resolve: ') + chalk.cyan('nskuld dns resolve <hostname>'));
+  console.log(chalk.gray('  Services: ') + chalk.cyan('nskuld dns services\n'));
 }
 
 function detectTailscale() {
@@ -95,7 +95,7 @@ function detectZeroTier() {
 function resolveHost(hostname) {
   if (!hostname) {
     console.log(chalk.red('\n  ❌ Hostname gerekli\n'));
-    console.log(chalk.gray(L('  Kullanım: natureco dns resolve <hostname>\n', '  Usage: natureco dns resolve <hostname>\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld dns resolve <hostname>\n', '  Usage: nskuld dns resolve <hostname>\n')));
     process.exit(1);
   }
 
@@ -182,8 +182,8 @@ function discoverServices() {
       pending--;
       if (pending === 0 && !found) {
         console.log(chalk.gray('  No NatureCo services discovered via DNS-SD.\n'));
-        console.log(chalk.gray('  Try: ') + chalk.cyan('natureco bonjour discover'));
-        console.log(chalk.gray('  Try: ') + chalk.cyan('natureco dns discover\n'));
+        console.log(chalk.gray('  Try: ') + chalk.cyan('nskuld bonjour discover'));
+        console.log(chalk.gray('  Try: ') + chalk.cyan('nskuld dns discover\n'));
       }
     });
   }

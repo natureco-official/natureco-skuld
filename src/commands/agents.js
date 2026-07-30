@@ -50,7 +50,7 @@ async function agents(args) {
   if (action === 'set-identity') return setIdentity(params[0], params.slice(1).join(' '));
 
   console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco agents [list|set|info|add|bindings|bind|unbind|set-identity]\n', '  Usage: natureco agents [list|set|info|add|bindings|bind|unbind|set-identity]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld agents [list|set|info|add|bindings|bind|unbind|set-identity]\n', '  Usage: nskuld agents [list|set|info|add|bindings|bind|unbind|set-identity]\n')));
   process.exit(1);
 }
 
@@ -70,7 +70,7 @@ async function listAgents() {
 
   if (!botList.bots?.length) {
     console.log('\n  ' + tui.C.muted(L('Agent bulunamadı.', 'No agents found.')));
-    console.log('  ' + tui.C.muted(L('Oluşturmak için: ', 'To create: ')) + tui.C.brand('developers.natureco.me'));
+    console.log('  ' + tui.C.muted(L('Oluşturmak için: ', 'To create: ')) + tui.C.brand('developers.nskuld.me'));
     console.log('');
     return;
   }
@@ -95,7 +95,7 @@ async function listAgents() {
     { key: 'model', label: 'Model', minWidth: 18, render: r => tui.C.muted(r.model) },
   ], { borderStyle: 'round', zebra: true }));
 
-  console.log('\n  ' + tui.C.muted(L('Değiştirmek için: ', 'To switch: ')) + tui.C.brand(L('natureco agents set <bot-adı>', 'natureco agents set <bot-name>')));
+  console.log('\n  ' + tui.C.muted(L('Değiştirmek için: ', 'To switch: ')) + tui.C.brand(L('nskuld agents set <bot-adı>', 'nskuld agents set <bot-name>')));
   console.log('');
 }
 
@@ -141,7 +141,7 @@ async function agentInfo(botName) {
   const name = botName || config.botName;
 
   if (!name) {
-    F.error(L('Agent adı belirtin: natureco agents info <bot-adı>', 'Specify agent name: natureco agents info <bot-name>'));
+    F.error(L('Agent adı belirtin: nskuld agents info <bot-adı>', 'Specify agent name: nskuld agents info <bot-name>'));
     return;
   }
 
@@ -178,8 +178,8 @@ async function agentInfo(botName) {
 async function addAgent() {
   console.log('');
   console.log(chalk.gray(L('  Yeni agent oluşturmak için Developers Portal\'ı kullanın:', '  Use the Developers Portal to create a new agent:')));
-  console.log(chalk.cyan('  developers.natureco.me\n'));
-  console.log(chalk.gray(L('  Oluşturduktan sonra: ', '  After creating: ')) + chalk.cyan('natureco agents list\n'));
+  console.log(chalk.cyan('  developers.nskuld.me\n'));
+  console.log(chalk.gray(L('  Oluşturduktan sonra: ', '  After creating: ')) + chalk.cyan('nskuld agents list\n'));
 }
 
 // ── Bindings ──────────────────────────────────────────────────────────────────
@@ -204,7 +204,7 @@ function listBindings() {
 
 function bindAgent(agentId, channel) {
   if (!agentId || !channel) {
-    F.error(L('Kullanım: natureco agents bind <agentId> <channel>', 'Usage: natureco agents bind <agentId> <channel>'));
+    F.error(L('Kullanım: nskuld agents bind <agentId> <channel>', 'Usage: nskuld agents bind <agentId> <channel>'));
     return;
   }
   const bindings = loadBindings();
@@ -216,7 +216,7 @@ function bindAgent(agentId, channel) {
 
 function unbindAgent(agentId, channel) {
   if (!agentId || !channel) {
-    F.error(L('Kullanım: natureco agents unbind <agentId> <channel>', 'Usage: natureco agents unbind <agentId> <channel>'));
+    F.error(L('Kullanım: nskuld agents unbind <agentId> <channel>', 'Usage: nskuld agents unbind <agentId> <channel>'));
     return;
   }
   const bindings = loadBindings();
@@ -232,7 +232,7 @@ function unbindAgent(agentId, channel) {
 
 function setIdentity(agentId, identity) {
   if (!agentId) {
-    F.error(L('Kullanım: natureco agents set-identity <agentId> <identity>', 'Usage: natureco agents set-identity <agentId> <identity>'));
+    F.error(L('Kullanım: nskuld agents set-identity <agentId> <identity>', 'Usage: nskuld agents set-identity <agentId> <identity>'));
     return;
   }
   const identities = loadIdentities();

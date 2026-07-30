@@ -16,10 +16,10 @@ const MEMORY_DIR = path.join(os.homedir(), ".nskuld", "memory");
 
 // Soft cap on per-user fact count. Decay already prunes old/low-importance
 // facts; this just bounds the worst-case file size and prompt-injection
-// surface. Configurable via NATURECO_MAX_FACTS (default 50, was a hard 15
+// surface. Configurable via SKULD_MAX_FACTS (default 50, was a hard 15
 // that was silently truncating new writes when full).
 const MAX_FACTS_PER_USER = (() => {
-  const raw = parseInt(process.env.NATURECO_MAX_FACTS || "", 10);
+  const raw = parseInt(process.env.SKULD_MAX_FACTS || "", 10);
   return Number.isFinite(raw) && raw > 0 ? raw : 50;
 })();
 
@@ -90,11 +90,11 @@ function enforceFactLimit(memory, opts = {}) {
   });
   memory.facts = memory.facts.slice(0, MAX_FACTS_PER_USER);
   const dropped = before - memory.facts.length;
-  if (dropped > 0 && !process.env.NATURECO_QUIET_MEMORY) {
+  if (dropped > 0 && !process.env.SKULD_QUIET_MEMORY) {
     // eslint-disable-next-line no-console
     console.warn(
       `[memory] cap ${MAX_FACTS_PER_USER} aşıldı, en düşük skorlu ${dropped} fact düşürüldü ` +
-      `(NATURECO_MAX_FACTS ile değiştir, NATURECO_QUIET_MEMORY=1 ile sustur)`
+      `(SKULD_MAX_FACTS ile değiştir, SKULD_QUIET_MEMORY=1 ile sustur)`
     );
   }
   return memory;

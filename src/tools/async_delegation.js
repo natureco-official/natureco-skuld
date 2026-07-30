@@ -18,7 +18,7 @@ async function asyncDelegation(params) {
     const child = spawn(process.execPath, [naturecoBin, ...args], {
       stdio: ['ignore', 'pipe', 'pipe'],
       detached: true,
-      env: { ...process.env, NATURECO_ASYNC: '1' },
+      env: { ...process.env, SKULD_ASYNC: '1' },
     });
 
     let output = '';

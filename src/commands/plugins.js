@@ -26,7 +26,7 @@ async function plugins(args) {
     if (action === 'marketplace') return marketplaceHandler(opts);
 
     console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-    console.log(chalk.gray(L('  Kullanım: natureco plugins [list|install|uninstall|enable|disable|info|update|search|doctor|registry|marketplace]\n', '  Usage: natureco plugins [list|install|uninstall|enable|disable|info|update|search|doctor|registry|marketplace]\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld plugins [list|install|uninstall|enable|disable|info|update|search|doctor|registry|marketplace]\n', '  Usage: nskuld plugins [list|install|uninstall|enable|disable|info|update|search|doctor|registry|marketplace]\n')));
     process.exit(1);
   } catch (err) {
     handleError(err);
@@ -82,8 +82,8 @@ function listPlugins(opts) {
 
   if (filtered.length === 0) {
     console.log(chalk.gray(L('  Yüklü plugin yok.\n', '  No plugins installed.\n')));
-    console.log(chalk.gray(L('  Yüklemek için: ', '  To install: ')) + chalk.cyan('natureco plugins install <paket-adı|./path|git:url>'));
-    console.log(chalk.gray(L('  Aramak için: ', '  To search: ')) + chalk.cyan('natureco plugins search <query>\n'));
+    console.log(chalk.gray(L('  Yüklemek için: ', '  To install: ')) + chalk.cyan('nskuld plugins install <paket-adı|./path|git:url>'));
+    console.log(chalk.gray(L('  Aramak için: ', '  To search: ')) + chalk.cyan('nskuld plugins search <query>\n'));
     return;
   }
 
@@ -102,20 +102,20 @@ function listPlugins(opts) {
 
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   console.log(chalk.gray(`  ${L('Toplam', 'Total')}: ${filtered.length} plugin (${allPlugins.length - filtered.length} ${L('pasif', 'inactive')})`));
-  console.log(chalk.gray(L('  Detay: ', '  Details: ')) + chalk.cyan('natureco plugins list --verbose'));
-  console.log(chalk.gray('  JSON:  ') + chalk.cyan('natureco plugins list --json\n'));
+  console.log(chalk.gray(L('  Detay: ', '  Details: ')) + chalk.cyan('nskuld plugins list --verbose'));
+  console.log(chalk.gray('  JSON:  ') + chalk.cyan('nskuld plugins list --json\n'));
 }
 
 async function installHandler(spec, opts) {
   if (!spec) {
     console.log(chalk.red(L('\n  ❌ Paket adı gerekli\n', '\n  ❌ Package name required\n')));
-    console.log(chalk.gray(L('  Kullanım: natureco plugins install <paket-adı|./path|git:url|clawhub:<id>>\n', '  Usage: natureco plugins install <package-name|./path|git:url|clawhub:<id>>\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld plugins install <paket-adı|./path|git:url|clawhub:<id>>\n', '  Usage: nskuld plugins install <package-name|./path|git:url|clawhub:<id>>\n')));
     console.log(chalk.gray(L('  Örnekler:', '  Examples:')));
-    console.log(chalk.gray('    natureco plugins install my-plugin'));
-    console.log(chalk.gray('    natureco plugins install npm:my-plugin'));
-    console.log(chalk.gray(L('    natureco plugins install ./yerel-klasor', '    natureco plugins install ./local-folder')));
-    console.log(chalk.gray('    natureco plugins install git:github.com/user/repo'));
-    console.log(chalk.gray('    natureco plugins install clawhub:plugin-id\n'));
+    console.log(chalk.gray('    nskuld plugins install my-plugin'));
+    console.log(chalk.gray('    nskuld plugins install npm:my-plugin'));
+    console.log(chalk.gray(L('    nskuld plugins install ./yerel-klasor', '    nskuld plugins install ./local-folder')));
+    console.log(chalk.gray('    nskuld plugins install git:github.com/user/repo'));
+    console.log(chalk.gray('    nskuld plugins install clawhub:plugin-id\n'));
     process.exit(1);
   }
 
@@ -140,7 +140,7 @@ async function installHandler(spec, opts) {
 async function uninstallHandler(slug, opts) {
   if (!slug) {
     console.log(chalk.red(L('\n  ❌ Plugin adı gerekli\n', '\n  ❌ Plugin name required\n')));
-    console.log(chalk.gray(L('  Kullanım: natureco plugins uninstall <slug>\n', '  Usage: natureco plugins uninstall <slug>\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld plugins uninstall <slug>\n', '  Usage: nskuld plugins uninstall <slug>\n')));
     process.exit(1);
   }
 
@@ -181,7 +181,7 @@ function toggleHandler(slug, enable) {
 function infoHandler(slug, opts) {
   if (!slug && !opts.all) {
     console.log(chalk.red(L('\n  ❌ Plugin adı gerekli\n', '\n  ❌ Plugin name required\n')));
-    console.log(chalk.gray(L('  Kullanım: natureco plugins info <slug>\n', '  Usage: natureco plugins info <slug>\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld plugins info <slug>\n', '  Usage: nskuld plugins info <slug>\n')));
     process.exit(1);
   }
 
@@ -243,8 +243,8 @@ function showPluginDetail(p) {
 async function updateHandler(slug, opts) {
   if (!slug && !opts.all) {
     console.log(chalk.red(L('\n  ❌ Plugin adı gerekli\n', '\n  ❌ Plugin name required\n')));
-    console.log(chalk.gray(L('  Kullanım: natureco plugins update <slug>', '  Usage: natureco plugins update <slug>')));
-    console.log(chalk.gray(L('  Tümü: natureco plugins update --all\n', '  All: natureco plugins update --all\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld plugins update <slug>', '  Usage: nskuld plugins update <slug>')));
+    console.log(chalk.gray(L('  Tümü: nskuld plugins update --all\n', '  All: nskuld plugins update --all\n')));
     process.exit(1);
   }
 
@@ -279,7 +279,7 @@ async function updateHandler(slug, opts) {
 async function searchHandler(query, opts) {
   if (!query) {
     console.log(chalk.red(L('\n  ❌ Arama sorgusu gerekli\n', '\n  ❌ Search query required\n')));
-    console.log(chalk.gray(L('  Kullanım: natureco plugins search <query>\n', '  Usage: natureco plugins search <query>\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld plugins search <query>\n', '  Usage: nskuld plugins search <query>\n')));
     process.exit(1);
   }
 
@@ -337,7 +337,7 @@ async function searchHandler(query, opts) {
     console.log(`  ${sourceIcon} ${chalk.white(p.name)} ${chalk.gray(`v${p.version}`)}`);
     if (p.description) console.log(chalk.gray(`    ${p.description.slice(0, 80)}`));
     const installHint = p.source === 'clawhub' ? `clawhub:${p.id}` : p.source === 'naturehub' ? p.id : p.id;
-    console.log(chalk.gray(`    ${L('Yüklemek', 'Install')}: natureco plugins install ${installHint}\n`));
+    console.log(chalk.gray(`    ${L('Yüklemek', 'Install')}: nskuld plugins install ${installHint}\n`));
   });
 }
 
@@ -435,16 +435,16 @@ async function marketplaceHandler(opts) {
       for (const p of plugins.slice(0, opts.limit || 20)) {
         console.log(chalk.cyan('  ' + (p.name || p.id)));
         if (p.description) console.log(chalk.gray('    ' + p.description.slice(0, 80)));
-        console.log(chalk.gray('    Install: natureco plugins install ' + (p.id || p.name)));
+        console.log(chalk.gray('    Install: nskuld plugins install ' + (p.id || p.name)));
         console.log('');
       }
     } else {
       console.log(chalk.yellow('  Marketplace unavailable (HTTP ' + res.status + ')\n'));
-      console.log(chalk.gray('  Try: natureco plugins search <query>\n'));
+      console.log(chalk.gray('  Try: nskuld plugins search <query>\n'));
     }
   } catch (err) {
     console.log(chalk.yellow('  Marketplace unavailable: ' + err.message + '\n'));
-    console.log(chalk.gray('  Try: natureco plugins search <query>\n'));
+    console.log(chalk.gray('  Try: nskuld plugins search <query>\n'));
   }
 }
 

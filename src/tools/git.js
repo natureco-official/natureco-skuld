@@ -148,7 +148,7 @@ module.exports = {
     // 2. Bilinen yaygin konumlari kontrol et
     const home = os.homedir();
     const candidates = [
-      path.join(home, 'Projects', 'natureco-cli'),
+      path.join(home, 'Projects', 'natureco-skuld'),
       path.join(home, 'Projects'),
       path.join(home, 'projects'),
       path.join(home, 'code'),
@@ -200,10 +200,10 @@ function findGitRepo(startDir = '') {
   const home = os.homedir();
   const candidates = [
     // v5.38: makineden bagimsiz — env ipuclari once (repo dizini disindan calisilsa bile bulunur)
-    process.env.NATURECO_PROJECT_DIR,
+    process.env.SKULD_PROJECT_DIR,
     process.env.INIT_CWD,
     process.env.PWD,
-    path.join(home, 'Projects', 'natureco-cli'),
+    path.join(home, 'Projects', 'natureco-skuld'),
     path.join(home, 'Projects'),
     path.join(home, 'projects'),
     path.join(home, 'code'),

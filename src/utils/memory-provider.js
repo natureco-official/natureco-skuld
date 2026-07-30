@@ -31,10 +31,10 @@ function getProvider(name) {
 
 /**
  * Resolve active provider from config + env + defaults.
- * Priority: env NATURECO_MEMORY_PROVIDER > config.memoryProvider > 'file'
+ * Priority: env SKULD_MEMORY_PROVIDER > config.memoryProvider > 'file'
  */
 function resolveProviderConfig(cfg) {
-  const env = process.env.NATURECO_MEMORY_PROVIDER || '';
+  const env = process.env.SKULD_MEMORY_PROVIDER || '';
   if (env && _registry.has(env)) return env;
   if (cfg && cfg[PROVIDER_CONFIG_KEY] && _registry.has(cfg[PROVIDER_CONFIG_KEY])) {
     return cfg[PROVIDER_CONFIG_KEY];

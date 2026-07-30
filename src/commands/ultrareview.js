@@ -11,7 +11,7 @@ async function ultrareview(filePath) {
   const apiKey = getApiKey();
   
   if (!apiKey) {
-    console.log(chalk.red('\n❌ Not logged in. Run "natureco login" first.\n'));
+    console.log(chalk.red('\n❌ Not logged in. Run "nskuld login" first.\n'));
     process.exit(1);
   }
   

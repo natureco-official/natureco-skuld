@@ -7,7 +7,7 @@ const SENSITIVE_READ = [
   /(^|[\\/])\.ssh[\\/]/i, /id_rsa|id_ed25519|id_ecdsa|id_dsa/i,
   /\.pem$|\.ppk$|\.key$/i, /(^|[\\/])\.aws[\\/]/i,
   /gcloud[\\/].*(credential|token)/i, /(^|[\\/])\.npmrc$/i,
-  /(^|[\\/])\.git-credentials$/i, /\.natureco[\\/]config\.json$/i,
+  /(^|[\\/])\.git-credentials$/i, /\.nskuld[\\/]config\.json$/i,
   /(^|[\\/])\.netrc$/i,
   // `.env` — en yaygın sır dosyası ve listede yoktu (Codex tur 3, bulgu 5).
   // `.env.example`, `.env.sample`, `.env.template` KASTEN dışarıda: onlar

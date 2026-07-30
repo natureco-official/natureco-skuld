@@ -68,7 +68,7 @@ async function tasks(args) {
   if (action === 'sub-status') return subStatusHandler();
 
   console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco tasks [list|show|cancel|audit|maintenance|flow|summary|notify|delegate|delegate-parallel|sub-status]\n', '  Usage: natureco tasks [list|show|cancel|audit|maintenance|flow|summary|notify|delegate|delegate-parallel|sub-status]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld tasks [list|show|cancel|audit|maintenance|flow|summary|notify|delegate|delegate-parallel|sub-status]\n', '  Usage: nskuld tasks [list|show|cancel|audit|maintenance|flow|summary|notify|delegate|delegate-parallel|sub-status]\n')));
   process.exit(1);
 }
 
@@ -101,13 +101,13 @@ function listTasksHandler(opts) {
   const summary = getTaskSummary();
   F.meta(L('Toplam: ', 'Total: ') + tasks.length + L(' (gösterilen) | Aktif: ', ' (shown) | Active: ') + summary.active + L(' | Hata: ', ' | Errors: ') + summary.failures);
   F.meta(L('Filtre: --runtime <type> --status <status>', 'Filter: --runtime <type> --status <status>'));
-  F.meta('JSON: natureco tasks list --json');
+  F.meta('JSON: nskuld tasks list --json');
 }
 
 function showTaskHandler(id, opts) {
   if (!id) {
     F.error(L('Task ID gerekli', 'Task ID required'));
-    F.meta(L('Kullanım: natureco tasks show <id>', 'Usage: natureco tasks show <id>'));
+    F.meta(L('Kullanım: nskuld tasks show <id>', 'Usage: nskuld tasks show <id>'));
     process.exit(1);
   }
 
@@ -155,7 +155,7 @@ function showTaskHandler(id, opts) {
 function cancelTaskHandler(id) {
   if (!id) {
     F.error(L('Task ID gerekli', 'Task ID required'));
-    F.meta(L('Kullanım: natureco tasks cancel <id>', 'Usage: natureco tasks cancel <id>'));
+    F.meta(L('Kullanım: nskuld tasks cancel <id>', 'Usage: nskuld tasks cancel <id>'));
     process.exit(1);
   }
 
@@ -206,7 +206,7 @@ function auditHandler(opts) {
   F.table(['ID', 'Code', 'Severity', 'Message'], rows);
 
   F.meta(L('Toplam: ', 'Total: ') + filtered.length + L(' bulgu', ' findings'));
-  F.meta(L('Bakım: natureco tasks maintenance --apply', 'Maintenance: natureco tasks maintenance --apply'));
+  F.meta(L('Bakım: nskuld tasks maintenance --apply', 'Maintenance: nskuld tasks maintenance --apply'));
 }
 
 function maintenanceHandler(opts) {
@@ -226,7 +226,7 @@ function maintenanceHandler(opts) {
 
   if (result.pruned > 0 || result.reconciled > 0 || result.cleaned > 0) {
     if (dryRun) {
-      F.meta(L('Uygulamak için: natureco tasks maintenance --apply', 'To apply: natureco tasks maintenance --apply'));
+      F.meta(L('Uygulamak için: nskuld tasks maintenance --apply', 'To apply: nskuld tasks maintenance --apply'));
     } else {
       F.success(L('Bakım uygulandı.', 'Maintenance applied.'));
     }
@@ -316,7 +316,7 @@ function formatTime(dateStr) {
 function notifyTaskHandler(id, message) {
   if (!id) {
     F.error(L('Task ID gerekli', 'Task ID required'));
-    F.meta(L('Kullanım: natureco tasks notify <id> [message]', 'Usage: natureco tasks notify <id> [message]'));
+    F.meta(L('Kullanım: nskuld tasks notify <id> [message]', 'Usage: nskuld tasks notify <id> [message]'));
     process.exit(1);
   }
   const task = getTask(id);
@@ -333,7 +333,7 @@ function notifyTaskHandler(id, message) {
 
 async function delegateHandler(type, task) {
   if (!type || !task) {
-    F.error(L('Kullanım: natureco tasks delegate <type> <task>', 'Usage: natureco tasks delegate <type> <task>'));
+    F.error(L('Kullanım: nskuld tasks delegate <type> <task>', 'Usage: nskuld tasks delegate <type> <task>'));
     F.meta(L('Tipler: explore, general, review', 'Types: explore, general, review'));
     process.exit(1);
   }
@@ -361,7 +361,7 @@ async function delegateHandler(type, task) {
 
 async function delegateParallelHandler(input) {
   if (!input) {
-    F.error(L('Kullanım: natureco tasks delegate-parallel <type1> <task1> | <type2> <task2>', 'Usage: natureco tasks delegate-parallel <type1> <task1> | <type2> <task2>'));
+    F.error(L('Kullanım: nskuld tasks delegate-parallel <type1> <task1> | <type2> <task2>', 'Usage: nskuld tasks delegate-parallel <type1> <task1> | <type2> <task2>'));
     F.meta(L('Birden çok agent\'ı " | " (pipe) ile ayırın', 'Separate multiple agents with " | " (pipe)'));
     process.exit(1);
   }

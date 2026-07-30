@@ -122,7 +122,7 @@ async function models(args) {
   if (action === 'image-fallbacks') return manageImageFallbacks(params);
 
   console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco models [list|set|scan|aliases|fallbacks|set-image|image-fallbacks]\n', '  Usage: natureco models [list|set|scan|aliases|fallbacks|set-image|image-fallbacks]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld models [list|set|scan|aliases|fallbacks|set-image|image-fallbacks]\n', '  Usage: nskuld models [list|set|scan|aliases|fallbacks|set-image|image-fallbacks]\n')));
   process.exit(1);
 }
 
@@ -225,10 +225,10 @@ async function listModels(opts) {
 
   console.log('');
   console.log(chalk.gray('  ' + '─'.repeat(48)));
-  console.log(chalk.gray(L('  Değiştirmek  : ', '  Change       : ')) + chalk.cyan('natureco models set <model-id>'));
-  console.log(chalk.gray(L('  Taramak      : ', '  Scan         : ')) + chalk.cyan('natureco models scan'));
-  console.log(chalk.gray(L('  Yedek model  : ', '  Fallback     : ')) + chalk.cyan('natureco models fallbacks set <model-id>'));
-  console.log(chalk.gray(L('  Canlı sınama : ', '  Live probe   : ')) + chalk.cyan('natureco models list --probe\n'));
+  console.log(chalk.gray(L('  Değiştirmek  : ', '  Change       : ')) + chalk.cyan('nskuld models set <model-id>'));
+  console.log(chalk.gray(L('  Taramak      : ', '  Scan         : ')) + chalk.cyan('nskuld models scan'));
+  console.log(chalk.gray(L('  Yedek model  : ', '  Fallback     : ')) + chalk.cyan('nskuld models fallbacks set <model-id>'));
+  console.log(chalk.gray(L('  Canlı sınama : ', '  Live probe   : ')) + chalk.cyan('nskuld models list --probe\n'));
 }
 
 async function setModel(modelId) {
@@ -238,7 +238,7 @@ async function setModel(modelId) {
     const knownModels = getKnownModels(config.providerUrl || '');
     if (knownModels.length === 0) {
       console.log(chalk.red(L('\n  ❌ Bu provider için bilinen model yok. Model ID\'sini parametre olarak verin.\n', '\n  ❌ No known models for this provider. Pass the model ID as a parameter.\n')));
-      console.log(chalk.gray(L('  Kullanım: natureco models set <model-id>\n', '  Usage: natureco models set <model-id>\n')));
+      console.log(chalk.gray(L('  Kullanım: nskuld models set <model-id>\n', '  Usage: nskuld models set <model-id>\n')));
       process.exit(1);
     }
     console.log(chalk.cyan(L('\n  Mevcut Modeller\n', '\n  Available Models\n')));
@@ -247,7 +247,7 @@ async function setModel(modelId) {
       console.log(chalk.gray(`     ${m.label}`));
     });
     console.log('');
-    console.log(chalk.gray(L('  Kullanım: natureco models set <model-id>\n', '  Usage: natureco models set <model-id>\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld models set <model-id>\n', '  Usage: nskuld models set <model-id>\n')));
     return;
   }
 
@@ -383,7 +383,7 @@ async function scanModels(opts) {
   const currentModel = config.providerModel || '';
   if (currentModel && !allModels.some(m => m.id === currentModel)) {
     console.log(chalk.yellow(`\n  ⚠  ${L('Mevcut model', 'Current model')} "${currentModel}" ${L('bu provider için bulunamadı.', 'was not found for this provider.')}`));
-    console.log(chalk.gray(L('     Güncellemek için: ', '     To update: ')) + chalk.cyan('natureco models set <model-id>'));
+    console.log(chalk.gray(L('     Güncellemek için: ', '     To update: ')) + chalk.cyan('nskuld models set <model-id>'));
   }
 
   console.log('');
@@ -397,7 +397,7 @@ function manageAliases(params) {
     console.log(chalk.cyan.bold(L('\n  Model Takma Adları\n', '\n  Model Aliases\n')));
     if (Object.keys(aliases).length === 0) {
       console.log(chalk.gray(L('  Takma ad yok.\n', '  No aliases.\n')));
-      console.log(chalk.gray(L('  Eklemek için: ', '  To add: ')) + chalk.cyan('natureco models aliases <alias> <model-id>\n'));
+      console.log(chalk.gray(L('  Eklemek için: ', '  To add: ')) + chalk.cyan('nskuld models aliases <alias> <model-id>\n'));
       return;
     }
     Object.entries(aliases).forEach(([alias, model]) => {
@@ -441,7 +441,7 @@ function manageAliases(params) {
     return;
   }
 
-  console.log(chalk.gray(L('\n  Kullanım: natureco models aliases [<takma-ad> <model-id>]\n', '\n  Usage: natureco models aliases [<alias> <model-id>]\n')));
+  console.log(chalk.gray(L('\n  Kullanım: nskuld models aliases [<takma-ad> <model-id>]\n', '\n  Usage: nskuld models aliases [<alias> <model-id>]\n')));
 }
 
 function manageFallbacks(params) {
@@ -452,7 +452,7 @@ function manageFallbacks(params) {
     console.log(chalk.gray(L('  Birincil : ', '  Primary  : ')) + chalk.white(config.providerModel || L('ayarlanmamış', 'not set')));
     console.log(chalk.gray(L('  Yedek    : ', '  Fallback : ')) + chalk.white(config.fallbackModel || L('ayarlanmamış', 'not set')));
     console.log('');
-    console.log(chalk.gray(L('  Ayarlamak için: ', '  To set: ')) + chalk.cyan('natureco models fallbacks set <model-id>\n'));
+    console.log(chalk.gray(L('  Ayarlamak için: ', '  To set: ')) + chalk.cyan('nskuld models fallbacks set <model-id>\n'));
     return;
   }
 
@@ -470,13 +470,13 @@ function manageFallbacks(params) {
     return;
   }
 
-  console.log(chalk.gray(L('\n  Kullanım: natureco models fallbacks [list|set <model-id>|clear]\n', '\n  Usage: natureco models fallbacks [list|set <model-id>|clear]\n')));
+  console.log(chalk.gray(L('\n  Kullanım: nskuld models fallbacks [list|set <model-id>|clear]\n', '\n  Usage: nskuld models fallbacks [list|set <model-id>|clear]\n')));
 }
 
 function setImageModel(modelId) {
   if (!modelId) {
     console.log(chalk.cyan('\n  Current image model: ') + chalk.white(getConfig().imageModel || 'not set'));
-    console.log(chalk.gray('\n  Usage: natureco models set-image <model-id>\n'));
+    console.log(chalk.gray('\n  Usage: nskuld models set-image <model-id>\n'));
     return;
   }
   const config = getConfig();
@@ -491,8 +491,8 @@ function manageImageFallbacks(params) {
     console.log(chalk.cyan.bold('\n  Image Model Fallbacks\n'));
     console.log(chalk.gray('  Primary    : ') + chalk.white(config.imageModel || 'not set'));
     console.log(chalk.gray('  Fallback   : ') + chalk.white(config.imageFallbackModel || 'not set'));
-    console.log(chalk.gray('\n  Set: natureco models image-fallbacks set <model-id>'));
-    console.log(chalk.gray('  Clear: natureco models image-fallbacks clear\n'));
+    console.log(chalk.gray('\n  Set: nskuld models image-fallbacks set <model-id>'));
+    console.log(chalk.gray('  Clear: nskuld models image-fallbacks clear\n'));
     return;
   }
   if (params[0] === 'set' && params[1]) {

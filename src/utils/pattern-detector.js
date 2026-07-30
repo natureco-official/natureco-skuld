@@ -1,5 +1,5 @@
 /**
- * NatureCo CLI — Self-Evolving Skill Detector (Phase 3)
+ * NatureCo Skuld — Self-Evolving Skill Detector (Phase 3)
  *
  * Kullanıcının tool çağrı dizilerini izler, tekrar eden pattern'leri tespit eder
  * ve otomatik olarak yeni bir SKILL.md oluşturmayı önerir.
@@ -231,7 +231,7 @@ ${proposal.pattern}
 Bu skill çağrıldığında, yukarıdaki tool dizisi otomatik olarak sırayla çalıştırılır.
 
 \`\`\`
-natureco skills run ${name}
+nskuld skills run ${name}
 \`\`\`
 
 ## Detaylar
@@ -244,8 +244,8 @@ natureco skills run ${name}
 
 Bu skill otomatik oluşturuldu. Daha iyi çalışması için:
 1. SKILL.md içeriğini düzenle (description, kullanım notları)
-2. Skill'in artık gerekmediğine karar verirsen: \`natureco skills remove ${name}\`
-3. Yeniden oluşturmak için: \`natureco skills forget ${proposal.hash}\`
+2. Skill'in artık gerekmediğine karar verirsen: \`nskuld skills remove ${name}\`
+3. Yeniden oluşturmak için: \`nskuld skills forget ${proposal.hash}\`
 `;
 }
 

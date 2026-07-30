@@ -24,7 +24,7 @@ function qr(args) {
     console.log(`  ${chalk.white('Expires:')}     ${chalk.gray(expiresAt.toLocaleString())}`);
     console.log();
     console.log(chalk.gray('  To pair a device, run on the device:'));
-    console.log(chalk.cyan('    natureco device-pair verify ') + chalk.yellow(code));
+    console.log(chalk.cyan('    nskuld device-pair verify ') + chalk.yellow(code));
     console.log();
     console.log(chalk.gray('  Or scan the QR code with the NatureCo mobile app.'));
     console.log();

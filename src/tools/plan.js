@@ -29,7 +29,7 @@ function isMiniMax(url) {
 async function planTask({ task, depth = "detailed" }) {
   const cfg = loadConfig();
   if (!cfg.providerUrl || !cfg.providerApiKey) {
-    return { success: false, error: "Provider ayarli degil. Once: natureco setup" };
+    return { success: false, error: "Provider ayarli degil. Once: nskuld setup" };
   }
 
   const prompt = `Asagidaki gorev icin ${depth === "minimal" ? "kisa" : "detayli"} bir PLAN olustur. Sadece plan, hicbir islem yapma.

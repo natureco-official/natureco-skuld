@@ -126,7 +126,7 @@ function abortAgent(taskId) {
 function tailAgent(taskId) {
   const { getTask } = require('../utils/background');
   if (!taskId) {
-    console.log(chalk.red(L('\n  ❌ Task ID gerekli. Kullanım: natureco agent tail <id>\n', '\n  ❌ Task ID required. Usage: natureco agent tail <id>\n')));
+    console.log(chalk.red(L('\n  ❌ Task ID gerekli. Kullanım: nskuld agent tail <id>\n', '\n  ❌ Task ID required. Usage: nskuld agent tail <id>\n')));
     process.exit(1);
   }
   const task = getTask(taskId);
@@ -195,7 +195,7 @@ function bindAgent(opts) {
   const agentId = pos[0];
   const channel = pos[1] || opts.channel;
   if (!agentId || !channel) {
-    console.log(chalk.red('\nUsage: natureco agents bind <agentId> <channel>\n'));
+    console.log(chalk.red('\nUsage: nskuld agents bind <agentId> <channel>\n'));
     process.exit(1);
   }
   const bindings = loadBindings();
@@ -210,7 +210,7 @@ function unbindAgent(opts) {
   const agentId = pos[0];
   const channel = pos[1] || opts.channel;
   if (!agentId || !channel) {
-    console.log(chalk.red('\nUsage: natureco agents unbind <agentId> <channel>\n'));
+    console.log(chalk.red('\nUsage: nskuld agents unbind <agentId> <channel>\n'));
     process.exit(1);
   }
   const bindings = loadBindings();
@@ -239,7 +239,7 @@ function setIdentity(opts) {
   const agentId = pos[0];
   const identity = pos.slice(1).join(' ') || opts.message;
   if (!agentId || !identity) {
-    console.log(chalk.red('\nUsage: natureco agents set-identity <agentId> <identity>\n'));
+    console.log(chalk.red('\nUsage: nskuld agents set-identity <agentId> <identity>\n'));
     process.exit(1);
   }
   const ids = loadIdentities();
@@ -256,7 +256,7 @@ function statusColor(s) {
 function showHelp() {
   console.log(chalk.cyan('\n  🤖 Agent\n'));
   console.log(chalk.gray('  Run, manage, and monitor agent tasks.\n'));
-  console.log(chalk.gray('  Usage: natureco agent <action> [options]'));
+  console.log(chalk.gray('  Usage: nskuld agent <action> [options]'));
   console.log(chalk.gray('\n  Actions:'));
   console.log(chalk.cyan('    run') + chalk.gray('                     Run an agent turn'));
   console.log(chalk.cyan('    abort [id]') + chalk.gray('             Cancel a running task'));
@@ -274,10 +274,10 @@ function showHelp() {
   console.log(chalk.cyan('    --model <model>') + chalk.gray('        Model override'));
   console.log(chalk.cyan('    --provider <name>') + chalk.gray('     Provider override'));
   console.log(chalk.gray('\n  Examples:'));
-  console.log(chalk.gray(L('    natureco agent run --message "Merhaba"', '    natureco agent run --message "Hello"')));
-  console.log(chalk.gray('    natureco agent abort'));
-  console.log(chalk.gray('    natureco agent tail <id>'));
-  console.log(chalk.gray('    natureco agent logs running\n'));
+  console.log(chalk.gray(L('    nskuld agent run --message "Merhaba"', '    nskuld agent run --message "Hello"')));
+  console.log(chalk.gray('    nskuld agent abort'));
+  console.log(chalk.gray('    nskuld agent tail <id>'));
+  console.log(chalk.gray('    nskuld agent logs running\n'));
 }
 
 module.exports = agent;

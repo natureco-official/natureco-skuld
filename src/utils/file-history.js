@@ -1,7 +1,7 @@
 /**
  * file-history — File change history with undo support
  *
- * Snapshots files before edits and stores them in .natureco/history/
+ * Snapshots files before edits and stores them in .nskuld/history/
  * Supports undo via `file-restore` CLI command.
  */
 

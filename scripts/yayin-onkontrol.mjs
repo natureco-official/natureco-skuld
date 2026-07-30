@@ -106,7 +106,7 @@ try {
   const bulunan = devralinan.filter((d) => existsSync(path.join(kok, d)));
   if (bulunan.length > 0) {
     console.log(`  · uyarı: fork'tan devralınan belgeler pakette: ${bulunan.join(", ")}`);
-    console.log("           (engellemiyor — ama Skuld'u değil natureco-cli'yi anlatıyorlar)");
+    console.log("           (engellemiyor — ama Skuld'u değil natureco-skuld'yi anlatıyorlar)");
   }
 
   console.log("  " + "─".repeat(58));

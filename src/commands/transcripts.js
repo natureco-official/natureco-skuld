@@ -13,7 +13,7 @@ function transcripts(args) {
   if (action === 'delete') return deleteTranscript(params[0]);
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco transcripts [list|show|delete]\n', '  Usage: natureco transcripts [list|show|delete]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld transcripts [list|show|delete]\n', '  Usage: nskuld transcripts [list|show|delete]\n')));
   process.exit(1);
 }
 

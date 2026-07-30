@@ -80,7 +80,7 @@ module.exports = {
       if (!apiKey) {
         return {
           success: false,
-          error: `${providerConfig.name} API key gerekli.\nKur: natureco config set runwayApiKey <key>`
+          error: `${providerConfig.name} API key gerekli.\nKur: nskuld config set runwayApiKey <key>`
         };
       }
 

@@ -36,7 +36,7 @@ function workboard(args) {
   if (action === 'import') return importBoard(params[0]);
 
   console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco workboard [show|add|move|remove|clear|columns|export|import]\n', '  Usage: natureco workboard [show|add|move|remove|clear|columns|export|import]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld workboard [show|add|move|remove|clear|columns|export|import]\n', '  Usage: nskuld workboard [show|add|move|remove|clear|columns|export|import]\n')));
   process.exit(1);
 }
 
@@ -83,7 +83,7 @@ function showBoard() {
 function addItem(text) {
   if (!text) {
     console.log(chalk.red(L('\n  ❌ Text gerekli\n', '\n  ❌ Text required\n')));
-    console.log(chalk.cyan('    natureco workboard add "Task description"\n'));
+    console.log(chalk.cyan('    nskuld workboard add "Task description"\n'));
     process.exit(1);
   }
 
@@ -103,7 +103,7 @@ function addItem(text) {
 function moveItem(id, column) {
   if (!id || !column) {
     console.log(chalk.red(L('\n  ❌ id ve column gerekli\n', '\n  ❌ id and column required\n')));
-    console.log(chalk.cyan('    natureco workboard move <id> done\n'));
+    console.log(chalk.cyan('    nskuld workboard move <id> done\n'));
     process.exit(1);
   }
 
@@ -169,7 +169,7 @@ function manageColumns(params) {
     console.log(`  ${chalk.white(col)} ${chalk.gray(`(${count} items)`)}`);
   }
   console.log(chalk.gray('\n  Set columns:'));
-  console.log(chalk.cyan('    natureco workboard columns set todo in-progress review done'));
+  console.log(chalk.cyan('    nskuld workboard columns set todo in-progress review done'));
   console.log();
 }
 

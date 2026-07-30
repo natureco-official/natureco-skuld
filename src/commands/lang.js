@@ -3,8 +3,8 @@ const { setConfigValue } = require('../utils/config');
 const { t, getLang, setLangCache } = require('../utils/i18n');
 
 /**
- * `natureco lang [tr|en]` — arayüz dilini görüntüle/ayarla.
- * Ayar `~/.natureco/config.json` içindeki `language` alanına yazılır ve
+ * `nskuld lang [tr|en]` — arayüz dilini görüntüle/ayarla.
+ * Ayar `~/.nskuld/config.json` içindeki `language` alanına yazılır ve
  * i18n katmanı + ajanın system-prompt'u bunu okur (EN → İngilizce deneyim).
  */
 async function lang(arg) {

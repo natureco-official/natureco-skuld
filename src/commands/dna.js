@@ -3,9 +3,9 @@ const { spawnSync } = require('child_process');
 const { t } = require('../utils/i18n');
 
 /**
- * `natureco dna [path]` — CodeDNA ile kod şeffaflığı.
+ * `nskuld dna [path]` — CodeDNA ile kod şeffaflığı.
  *
- * Ekosistem entegrasyonu: NatureCo CLI, yazılan/incelenen kodun "DNA"sını
+ * Ekosistem entegrasyonu: NatureCo Skuld, yazılan/incelenen kodun "DNA"sını
  * (ne kadarı yapay zekâ olası, anlama skoru) CodeDNA aracıyla raporlar.
  * CodeDNA'yı `codedna scan --json` ile çağırıp özetini gösterir.
  *

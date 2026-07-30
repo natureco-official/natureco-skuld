@@ -82,7 +82,7 @@ function defaultIsDangerous(cmd) {
 // Ajan exec politikasi (deny-by-default): ajan yalnizca guvenli komut SINIFLARINI
 // otonom calistirir. Ag/yayin/sistem/ayricalik komutlari (curl, wget, ssh, sudo,
 // git push, npm publish, docker, systemctl...) engellenir — model urettigi komut
-// milyonlarca cihazda kontrolsuz calismasin. Power-user: NATURECO_AGENT_EXEC=full.
+// milyonlarca cihazda kontrolsuz calismasin. Power-user: SKULD_AGENT_EXEC=full.
 // Interaktif y/n yerine bunu sectik: pipe/CI/non-TTY'de calisir, readline cakismaz,
 // deterministik + test edilebilir (kullanici tikla-gec etmez).
 const AGENT_EXEC_ALLOW = new Set([
@@ -115,7 +115,7 @@ const AGENT_EXEC_BLOCK_PATTERNS = [
 const FULL_TOOLS = ['browser', 'browser_use', 'mac_app_open', 'mac_app_quit', 'social_open', 'computer_use', 'computer_use_loop', 'macos_screenshot'];
 function agentExecAllowed(command, opts) {
   if (opts && opts.full) return true;
-  if (String(process.env.NATURECO_AGENT_EXEC || '').toLowerCase() === 'full') return true;
+  if (String(process.env.SKULD_AGENT_EXEC || '').toLowerCase() === 'full') return true;
   const cmd = String(command || '').trim();
   if (!cmd) return false;
   if (AGENT_EXEC_BLOCK_PATTERNS.some(re => re.test(cmd))) return false;
@@ -438,7 +438,7 @@ async function executeCall(call, opts = {}) {
   // Full modda (sahibin opt-in'i) TUM araclar acik; safe modda sadece allowlist.
   if (!opts.execFull && !allowed.has(norm)) {
     records.push({ tool: rawTool, status: 'error', error: 'Guvenli modda kapali arac: ' + rawTool });
-    return { records, feedback: `${rawTool}: guvenli modda kapali. Tum arac+skill'ler icin tam mod: "natureco config set agentExec full" (veya NATURECO_AGENT_EXEC=full). Guvenli modda acik: ${[...allowed].join(', ')}` };
+    return { records, feedback: `${rawTool}: guvenli modda kapali. Tum arac+skill'ler icin tam mod: "nskuld config set agentExec full" (veya SKULD_AGENT_EXEC=full). Guvenli modda acik: ${[...allowed].join(', ')}` };
   }
 
   const args = { ...(call.args || {}) };
@@ -454,7 +454,7 @@ async function executeCall(call, opts = {}) {
     const wantsRead = (norm === 'read_file');
     if ((wantsWrite && sensitivePathBlocked(args.path, 'write')) || (wantsRead && sensitivePathBlocked(args.path, 'read'))) {
       records.push({ tool: norm, status: 'error', args: { path: args.path }, error: 'Hassas dosya yolu (guvenli modda engellendi)' });
-      return { records, feedback: `${norm}: "${args.path}" hassas bir yol (SSH anahtari/credential/secret) — guvenli modda ERISILEMEZ. Gerekirse kullanici manuel yapabilir ya da tam mod: NATURECO_AGENT_EXEC=full.` };
+      return { records, feedback: `${norm}: "${args.path}" hassas bir yol (SSH anahtari/credential/secret) — guvenli modda ERISILEMEZ. Gerekirse kullanici manuel yapabilir ya da tam mod: SKULD_AGENT_EXEC=full.` };
     }
   }
 
@@ -473,7 +473,7 @@ async function executeCall(call, opts = {}) {
     const execOk = opts.agentExecAllowed || ((c) => agentExecAllowed(c, { full: opts.execFull }));
     if (!execOk(cmd)) {
       records.push({ tool: 'bash', status: 'error', args: { command: cmd }, error: 'Guvenli mod exec politikasi disinda' });
-      return { records, feedback: `bash: "${cmd.slice(0, 80)}" guvenli mod politikasi disinda (ag/yayin/sistem). Tam kontrol icin: "natureco config set agentExec full" (veya NATURECO_AGENT_EXEC=full). Yikici komutlar (rm -rf) tam modda bile bloklu.` };
+      return { records, feedback: `bash: "${cmd.slice(0, 80)}" guvenli mod politikasi disinda (ag/yayin/sistem). Tam kontrol icin: "nskuld config set agentExec full" (veya SKULD_AGENT_EXEC=full). Yikici komutlar (rm -rf) tam modda bile bloklu.` };
     }
   }
 

@@ -1,16 +1,16 @@
 /**
- * natureco cost — cost tracking and budget management (Phase 4)
+ * nskuld cost — cost tracking and budget management (Phase 4)
  *
  * Usage:
- *   natureco cost                  Show today's cost
- *   natureco cost today            Today's cost
- *   natureco cost week             This week's cost
- *   natureco cost month            This month's cost
- *   natureco cost all              All time
- *   natureco cost budget           Budget status and warnings
- *   natureco cost set <key> <val>  Set a budget (dailyLimit 5, monthlyLimit 100, warnAt 0.75)
- *   natureco cost model <prompt>   Show the suggested model for a prompt
- *   natureco cost prices           List all prices
+ *   nskuld cost                  Show today's cost
+ *   nskuld cost today            Today's cost
+ *   nskuld cost week             This week's cost
+ *   nskuld cost month            This month's cost
+ *   nskuld cost all              All time
+ *   nskuld cost budget           Budget status and warnings
+ *   nskuld cost set <key> <val>  Set a budget (dailyLimit 5, monthlyLimit 100, warnAt 0.75)
+ *   nskuld cost model <prompt>   Show the suggested model for a prompt
+ *   nskuld cost prices           List all prices
  */
 
 const chalk = require('chalk');
@@ -101,16 +101,16 @@ function showBudget() {
     console.log('\n' + tui.styled('  ⬇️  ' + L('Otomatik downgrade önerilir — basit soruları ucuz modele yönlendir.', 'Auto-downgrade recommended — route simple questions to a cheaper model.'), { color: tui.PALETTE.warning, bold: true }));
   }
 
-  console.log('\n' + tui.C.muted('  ' + L('Ayarlamak için: ', 'To configure: ')) + tui.C.brand('natureco cost set <key> <value>'));
+  console.log('\n' + tui.C.muted('  ' + L('Ayarlamak için: ', 'To configure: ')) + tui.C.brand('nskuld cost set <key> <value>'));
   console.log('');
 }
 
 function setBudget(args) {
   const [key, value] = args;
   if (!key || value === undefined) {
-    console.log(chalk.red('\n  ' + L('Kullanım: natureco cost set <key> <value>', 'Usage: natureco cost set <key> <value>') + '\n'));
+    console.log(chalk.red('\n  ' + L('Kullanım: nskuld cost set <key> <value>', 'Usage: nskuld cost set <key> <value>') + '\n'));
     console.log(chalk.gray('  ' + L('Anahtarlar: dailyLimit, monthlyLimit, warnAt, downgradeAt', 'Keys: dailyLimit, monthlyLimit, warnAt, downgradeAt')));
-    console.log(chalk.gray('  ' + L('Örnek:     natureco cost set dailyLimit 3.00', 'Example:   natureco cost set dailyLimit 3.00')));
+    console.log(chalk.gray('  ' + L('Örnek:     nskuld cost set dailyLimit 3.00', 'Example:   nskuld cost set dailyLimit 3.00')));
     console.log('');
     return;
   }
@@ -129,7 +129,7 @@ function setBudget(args) {
 function suggestModel(args) {
   const prompt = args.join(' ');
   if (!prompt) {
-    console.log(chalk.red('\n  ' + L('Kullanım: natureco cost model "<prompt>"', 'Usage: natureco cost model "<prompt>"') + '\n'));
+    console.log(chalk.red('\n  ' + L('Kullanım: nskuld cost model "<prompt>"', 'Usage: nskuld cost model "<prompt>"') + '\n'));
     return;
   }
   const suggestion = cost.suggestModel(prompt);
@@ -148,8 +148,8 @@ function suggestModel(args) {
     console.log(chalk.green('\n  ✓ ' + L('Mevcut model zaten optimal.', 'Current model is already optimal.') + '\n'));
   } else {
     console.log(chalk.yellow('\n  ⚠️  ' + L('Mevcut model optimal değil. Değiştirmek için:', 'Current model is not optimal. To change it:')));
-    console.log(chalk.cyan(`     natureco config set providerUrl <url>`));
-    console.log(chalk.cyan(`     natureco config set providerModel ${suggestion.model}`));
+    console.log(chalk.cyan(`     nskuld config set providerUrl <url>`));
+    console.log(chalk.cyan(`     nskuld config set providerModel ${suggestion.model}`));
     console.log('');
   }
 }
@@ -199,14 +199,14 @@ function cost_cmd(args) {
 
   // Help
   console.log(chalk.yellow('\n  ' + L('Kullanım:', 'Usage:')));
-  console.log(chalk.gray('    natureco cost                  ' + L('Bugünün maliyeti', "Today's cost")));
-  console.log(chalk.gray('    natureco cost week             ' + L('Bu hafta', 'This week')));
-  console.log(chalk.gray('    natureco cost month            ' + L('Bu ay', 'This month')));
-  console.log(chalk.gray('    natureco cost all              ' + L('Tüm zamanlar', 'All time')));
-  console.log(chalk.gray('    natureco cost budget           ' + L('Bütçe durumu', 'Budget status')));
-  console.log(chalk.gray('    natureco cost set <k> <v>      ' + L('Bütçe ayarla', 'Set a budget')));
-  console.log(chalk.gray('    natureco cost model "<p>"      ' + L('Model önerisi', 'Model suggestion')));
-  console.log(chalk.gray('    natureco cost prices           ' + L('Fiyat listesi', 'Price list')));
+  console.log(chalk.gray('    nskuld cost                  ' + L('Bugünün maliyeti', "Today's cost")));
+  console.log(chalk.gray('    nskuld cost week             ' + L('Bu hafta', 'This week')));
+  console.log(chalk.gray('    nskuld cost month            ' + L('Bu ay', 'This month')));
+  console.log(chalk.gray('    nskuld cost all              ' + L('Tüm zamanlar', 'All time')));
+  console.log(chalk.gray('    nskuld cost budget           ' + L('Bütçe durumu', 'Budget status')));
+  console.log(chalk.gray('    nskuld cost set <k> <v>      ' + L('Bütçe ayarla', 'Set a budget')));
+  console.log(chalk.gray('    nskuld cost model "<p>"      ' + L('Model önerisi', 'Model suggestion')));
+  console.log(chalk.gray('    nskuld cost prices           ' + L('Fiyat listesi', 'Price list')));
   console.log('');
 }
 

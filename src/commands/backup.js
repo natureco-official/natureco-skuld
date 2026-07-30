@@ -7,7 +7,7 @@ const os = require('os');
 const { execFileSync } = require('child_process');
 const { writePrivateFile } = require('../utils/config');
 
-const NATURECO_DIR = path.join(os.homedir(), '.nskuld');
+const SKULD_DIR = path.join(os.homedir(), '.nskuld');
 
 function backup(args) {
   const [action, ...params] = args || [];
@@ -18,7 +18,7 @@ function backup(args) {
   if (action === 'verify') return verifyBackup(params.join(' '));
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco backup [create|list|restore|verify]\n', '  Usage: natureco backup [create|list|restore|verify]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld backup [create|list|restore|verify]\n', '  Usage: nskuld backup [create|list|restore|verify]\n')));
   process.exit(1);
 }
 
@@ -32,9 +32,9 @@ function createBackup() {
 
   console.log(chalk.cyan('\n  💾 Creating backup...\n'));
 
-  if (fs.existsSync(NATURECO_DIR)) {
+  if (fs.existsSync(SKULD_DIR)) {
     try {
-      execFileSync('tar', ['-czf', backupFile, '-C', path.dirname(NATURECO_DIR), path.basename(NATURECO_DIR)], {
+      execFileSync('tar', ['-czf', backupFile, '-C', path.dirname(SKULD_DIR), path.basename(SKULD_DIR)], {
         stdio: 'pipe',
         encoding: 'utf8',
         timeout: 30000
@@ -63,7 +63,7 @@ function listBackups() {
 
   if (!fs.existsSync(backupDir)) {
     console.log(chalk.gray('  No backups found.\n'));
-    console.log(chalk.gray('  Create one: ') + chalk.cyan('natureco backup create\n'));
+    console.log(chalk.gray('  Create one: ') + chalk.cyan('nskuld backup create\n'));
     return;
   }
 
@@ -85,8 +85,8 @@ function listBackups() {
 function restoreBackup(file) {
   if (!file) {
     console.log(chalk.red(L('\n  ❌ Backup file gerekli\n', '\n  ❌ Backup file required\n')));
-    console.log(chalk.cyan('    natureco backup list'));
-    console.log(chalk.cyan('    natureco backup restore <filename>\n'));
+    console.log(chalk.cyan('    nskuld backup list'));
+    console.log(chalk.cyan('    nskuld backup restore <filename>\n'));
     process.exit(1);
   }
 

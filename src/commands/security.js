@@ -21,7 +21,7 @@ async function security(args) {
   if (action === 'secrets') return scanSecrets(args);
 
   console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco security [audit|allowlist|policy|secrets]\n', '  Usage: natureco security [audit|allowlist|policy|secrets]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld security [audit|allowlist|policy|secrets]\n', '  Usage: nskuld security [audit|allowlist|policy|secrets]\n')));
   process.exit(1);
 }
 
@@ -34,7 +34,7 @@ async function allowlistAction(args) {
     console.log('');
     console.log(chalk.cyan.bold('\n  Exec Allowlist\n'));
     if (entries.length === 0) {
-      console.log(chalk.gray('  No entries. Add with: natureco security allowlist add "<command>"'));
+      console.log(chalk.gray('  No entries. Add with: nskuld security allowlist add "<command>"'));
     } else {
       entries.forEach((e, i) => {
         console.log(chalk.gray(`  ${i + 1}. `) + chalk.white(e.lastUsedCommand || e.pattern));
@@ -62,9 +62,9 @@ async function allowlistAction(args) {
   }
 
   console.log(chalk.gray(L('\n  Kullanım:', '\n  Usage:')));
-  console.log(chalk.gray('    natureco security allowlist list'));
-  console.log(chalk.gray('    natureco security allowlist add "<command>"'));
-  console.log(chalk.gray('    natureco security allowlist remove <id>\n'));
+  console.log(chalk.gray('    nskuld security allowlist list'));
+  console.log(chalk.gray('    nskuld security allowlist add "<command>"'));
+  console.log(chalk.gray('    nskuld security allowlist remove <id>\n'));
 }
 
 async function policyAction(args) {
@@ -83,7 +83,7 @@ async function policyAction(args) {
   }
 
   console.log(chalk.gray(L('\n  Kullanım:', '\n  Usage:')));
-  console.log(chalk.gray('    natureco security policy set deny|allowlist|full'));
+  console.log(chalk.gray('    nskuld security policy set deny|allowlist|full'));
   console.log(chalk.gray('\n  Policy levels:'));
   console.log(chalk.gray('    deny       - Block all command execution'));
   console.log(chalk.gray('    allowlist  - Only allowlisted commands'));
@@ -285,7 +285,7 @@ async function audit(args) {
       }
     });
   } else if (issues.length > 0) {
-    console.log(chalk.gray(L('\n  Otomatik düzeltmek için: ', '\n  To auto-fix: ')) + chalk.cyan('natureco security audit --fix'));
+    console.log(chalk.gray(L('\n  Otomatik düzeltmek için: ', '\n  To auto-fix: ')) + chalk.cyan('nskuld security audit --fix'));
   }
   console.log('');
 }

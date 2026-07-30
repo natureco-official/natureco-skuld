@@ -31,7 +31,7 @@ function execPolicy(args) {
   if (action === 'set') return cmdSet(params[0], params.slice(1).join(' '));
 
   console.log(chalk.red(`\n  Unknown exec-policy action: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco exec-policy <action> [params]'));
+  console.log(chalk.gray('  Usage: nskuld exec-policy <action> [params]'));
   console.log(chalk.gray('  Actions: show, preset <name>, set <key> <value>\n'));
   process.exit(1);
 }
@@ -62,7 +62,7 @@ function cmdPreset(name) {
 
 function cmdSet(key, value) {
   if (!key || value === undefined) {
-    console.log(chalk.red('\n  Usage: natureco exec-policy set <key> <value>\n'));
+    console.log(chalk.red('\n  Usage: nskuld exec-policy set <key> <value>\n'));
     process.exit(1);
   }
 

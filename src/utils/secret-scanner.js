@@ -1,5 +1,5 @@
 /**
- * NatureCo CLI — Secret Scanner (Phase 2)
+ * NatureCo Skuld — Secret Scanner (Phase 2)
  *
  * Kod metinlerinde veya dosya içeriklerinde hardcoded API key,
  * token, password gibi hassas verilerin sızmasını önceden tespit eder.
@@ -10,7 +10,7 @@
  * Bu modül:
  * - Statik metin tarama (regex)
  * - Entropy analizi (rastgele yüksek entropi = muhtemelen secret)
- * - Dosya tarama (skip: .git, node_modules, .natureco, lock dosyaları)
+ * - Dosya tarama (skip: .git, node_modules, .nskuld, lock dosyaları)
  * - Pre-commit hook entegrasyonu için tasarlandı
  */
 

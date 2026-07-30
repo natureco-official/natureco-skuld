@@ -87,7 +87,7 @@ module.exports = {
       if (!apiKey) {
         return {
           success: false,
-          error: `${providerConfig.name} API key required.\nSet: natureco config set ${provider}ApiKey <key>`
+          error: `${providerConfig.name} API key required.\nSet: nskuld config set ${provider}ApiKey <key>`
         };
       }
 

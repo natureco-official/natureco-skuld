@@ -6,7 +6,7 @@ const { executeTool } = requireCjs('../src/utils/tool-runner.js');
 const TB = requireCjs('../src/utils/token-budget.js');
 
 /**
- * `natureco chat` / `ask` / `run` / channels all execute through
+ * `nskuld chat` / `ask` / `run` / channels all execute through
  * tool-runner.executeTool. That path consulted permission rules and pre-hooks
  * only — and both default to "allow" when the user has configured nothing — so
  * a destructive command reached the shell with no prompt and no refusal. The
@@ -61,21 +61,21 @@ describe('trimMessages is a pure function, so its result must be used', () => {
 });
 
 /**
- * NATURECO_FORCE=1 is the documented "I know what I am doing" opt-out. It must
+ * SKULD_FORCE=1 is the documented "I know what I am doing" opt-out. It must
  * ALLOW without prompting — not be confused with a non-TTY origin, which
  * refuses.
  */
-describe('NATURECO_FORCE opt-out', () => {
+describe('SKULD_FORCE opt-out', () => {
   it('lets a risky call through instead of refusing it', async () => {
-    const previous = process.env.NATURECO_FORCE;
-    process.env.NATURECO_FORCE = '1';
+    const previous = process.env.SKULD_FORCE;
+    process.env.SKULD_FORCE = '1';
     try {
       const result = await executeTool('definitely_not_a_real_tool', { command: 'rm -rf /tmp/x' }, { agentMode: false });
       // Past the risk gate: it fails on tool lookup, not on approval.
       expect(result.error).toMatch(/not found/i);
     } finally {
-      if (previous === undefined) delete process.env.NATURECO_FORCE;
-      else process.env.NATURECO_FORCE = previous;
+      if (previous === undefined) delete process.env.SKULD_FORCE;
+      else process.env.SKULD_FORCE = previous;
     }
   });
 });

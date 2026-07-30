@@ -11,12 +11,12 @@ const { ensureTree, buildIndex, readRoot, search, append, treeDir } = mod._inter
 const U = 'test-tree-user';
 let previousEngine;
 beforeAll(() => {
-  previousEngine = process.env.NATURECO_MEMORY_ENGINE;
-  process.env.NATURECO_MEMORY_ENGINE = 'legacy';
+  previousEngine = process.env.SKULD_MEMORY_ENGINE;
+  process.env.SKULD_MEMORY_ENGINE = 'legacy';
 });
 afterAll(() => {
-  if (previousEngine === undefined) delete process.env.NATURECO_MEMORY_ENGINE;
-  else process.env.NATURECO_MEMORY_ENGINE = previousEngine;
+  if (previousEngine === undefined) delete process.env.SKULD_MEMORY_ENGINE;
+  else process.env.SKULD_MEMORY_ENGINE = previousEngine;
 });
 afterEach(() => { try { fs.rmSync(treeDir(U), { recursive: true, force: true }); } catch {} });
 

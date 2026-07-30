@@ -1,7 +1,7 @@
 /**
- * builtin-links — yerleşiklerin ~/.natureco altında görünürlüğü (v5.49).
+ * builtin-links — yerleşiklerin ~/.nskuld altında görünürlüğü (v5.49).
  *
- * Saha raporu: kullanıcılar skill/araçları ~/.natureco'da göremiyordu (npm
+ * Saha raporu: kullanıcılar skill/araçları ~/.nskuld'da göremiyordu (npm
  * paketinin içinde yaşıyorlar). ensureBuiltinLinks junction/symlink kurar.
  * Bu testler: kurulum, idempotentlik, kırık bağlantı onarımı ve kullanıcı
  * verisine (gerçek klasör) dokunmama garantisini kilitler.

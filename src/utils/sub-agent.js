@@ -10,13 +10,13 @@ const SUB_AGENTS_FILE = path.join(os.homedir(), '.nskuld', 'sub-agents.json');
 /**
  * Sub-agent personas.
  *
- * These are both shown in `natureco team list` and sent to the model as the
+ * These are both shown in `nskuld team list` and sent to the model as the
  * sub-agent's system prompt. Five of the eight were Turkish-only while the rest
  * were English, so `team list` printed a mix and a sub-agent's working language
  * depended on which type you picked rather than on the interface language.
  *
  * Exposed as a getter so the language is resolved at call time, not at require
- * time (`natureco lang` can change it within a process).
+ * time (`nskuld lang` can change it within a process).
  */
 function buildSystemPrompts() {
   const L = (tr, en) => (_gl() === 'en' ? en : tr);
@@ -118,7 +118,7 @@ async function spawnSubAgent(type, task, options = {}) {
     const executeAgent = async (workspace = null) => {
     const providerConfig = getProviderConfig();
     if (!providerConfig) {
-      throw new Error('Provider not configured. Run: natureco configure');
+      throw new Error('Provider not configured. Run: nskuld configure');
     }
 
     const systemPrompt = (options.systemPrompt || SYSTEM_PROMPTS[type]) + (workspace ? `\n\nIsolated workspace: ${workspace.cwd}\nOnly operate inside this workspace.` : '');

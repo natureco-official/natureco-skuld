@@ -29,7 +29,7 @@ module.exports = {
           if (!token || !user) {
             return {
               success: false,
-              error: 'Pushover token ve user gerekli.\nKur: natureco config set pushoverToken <token>\nnatureco config set pushoverUser <user>'
+              error: 'Pushover token ve user gerekli.\nKur: nskuld config set pushoverToken <token>\nnatureco config set pushoverUser <user>'
             };
           }
 
@@ -57,7 +57,7 @@ module.exports = {
           if (!topic) {
             return {
               success: false,
-              error: 'ntfy topic gerekli.\nKur: natureco config set ntfyTopic <topic>'
+              error: 'ntfy topic gerekli.\nKur: nskuld config set ntfyTopic <topic>'
             };
           }
 

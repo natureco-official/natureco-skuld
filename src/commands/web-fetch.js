@@ -3,7 +3,7 @@ const chalk = require('chalk');
 
 async function webFetch(url) {
   if (!url) {
-    console.log(chalk.yellow('\n  Usage: natureco web-fetch <url>\n'));
+    console.log(chalk.yellow('\n  Usage: nskuld web-fetch <url>\n'));
     console.log(chalk.gray('  Fetches a URL and converts it to clean markdown.\n'));
     return;
   }

@@ -12,7 +12,7 @@ const CHECKS = {
   config: { label: 'Configuration', desc: 'Check if config file exists and is valid' },
   gateway: { label: 'Gateway', desc: 'Check if gateway is running' },
   nodes: { label: 'Nodes', desc: 'Check node connectivity' },
-  disk: { label: 'Disk', desc: 'Check disk space for ~/.natureco' },
+  disk: { label: 'Disk', desc: 'Check disk space for ~/.nskuld' },
 };
 
 function health(args) {
@@ -23,7 +23,7 @@ function health(args) {
   if (action === 'check') return cmdCheck(params[0]);
 
   console.log(chalk.red(`\n  Unknown health action: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco health <action> [params]'));
+  console.log(chalk.gray('  Usage: nskuld health <action> [params]'));
   console.log(chalk.gray('  Actions: run, list, check <name>\n'));
   process.exit(1);
 }
@@ -86,8 +86,8 @@ function cmdList() {
     { key: 'label', label: 'Label', minWidth: 14, render: r => tui.C.text(r.label) },
     { key: 'desc', label: 'Açıklama', minWidth: 30, render: r => tui.C.muted(r.desc) },
   ], { borderStyle: 'round', zebra: true }));
-  console.log('\n  ' + tui.C.muted('Hepsi: ') + tui.C.brand('natureco health run'));
-  console.log('  ' + tui.C.muted('Tek:   ') + tui.C.brand('natureco health check <name>'));
+  console.log('\n  ' + tui.C.muted('Hepsi: ') + tui.C.brand('nskuld health run'));
+  console.log('  ' + tui.C.muted('Tek:   ') + tui.C.brand('nskuld health check <name>'));
   console.log('');
 }
 
@@ -119,7 +119,7 @@ function checkConfig() {
   const configDir = path.join(os.homedir(), '.nskuld');
   const configFile = path.join(configDir, 'config.json');
 
-  if (!fs.existsSync(configDir)) return { status: 'fail', message: '~/.natureco directory does not exist' };
+  if (!fs.existsSync(configDir)) return { status: 'fail', message: '~/.nskuld directory does not exist' };
   if (!fs.existsSync(configFile)) return { status: 'fail', message: 'config.json not found' };
 
   try {
@@ -159,13 +159,13 @@ function checkNodes() {
 
 function checkDisk() {
   const dir = path.join(os.homedir(), '.nskuld');
-  if (!fs.existsSync(dir)) return { status: 'warn', message: '~/.natureco does not exist' };
+  if (!fs.existsSync(dir)) return { status: 'warn', message: '~/.nskuld does not exist' };
 
   try {
     const stat = fs.statSync(dir);
     return { status: 'pass', message: `Directory exists, last modified: ${stat.mtime.toISOString().slice(0, 10)}` };
   } catch {
-    return { status: 'fail', message: 'Cannot access ~/.natureco' };
+    return { status: 'fail', message: 'Cannot access ~/.nskuld' };
   }
 }
 

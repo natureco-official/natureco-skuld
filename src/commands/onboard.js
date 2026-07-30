@@ -32,7 +32,7 @@ function onboard(params) {
     if (action === 'health') return cmdHealth();
 
     console.log(chalk.red(`\n  Unknown onboard action: ${action}\n`));
-    console.log(chalk.gray('  Usage: natureco onboard [gateway|auth|workspace|channels|skills|health|status]\n'));
+    console.log(chalk.gray('  Usage: nskuld onboard [gateway|auth|workspace|channels|skills|health|status]\n'));
   } catch (err) {
     console.log(chalk.red(`\n  Onboard error: ${err.message}\n`));
   }
@@ -62,9 +62,9 @@ function cmdGateway() {
   const cfg = getConfig();
   console.log(chalk.cyan('\n  Gateway Setup\n'));
   console.log(chalk.gray('  To configure the gateway, run:'));
-  console.log(chalk.cyan('    natureco configure gateway'));
+  console.log(chalk.cyan('    nskuld configure gateway'));
   console.log(chalk.gray('  Or start the gateway:'));
-  console.log(chalk.cyan('    natureco gateway start\n'));
+  console.log(chalk.cyan('    nskuld gateway start\n'));
   cfg.gatewayUrl = 'ws://localhost:3848';
   saveConfig(cfg);
   console.log(chalk.green('  Gateway step marked as done.\n'));
@@ -74,7 +74,7 @@ function cmdAuth() {
   const cfg = getConfig();
   console.log(chalk.cyan('\n  Auth Setup\n'));
   console.log(chalk.gray('  To configure authentication, run:'));
-  console.log(chalk.cyan('    natureco configure auth'));
+  console.log(chalk.cyan('    nskuld configure auth'));
   console.log(chalk.gray('  Or set your API key in config.\n'));
   cfg.authConfigured = true;
   saveConfig(cfg);
@@ -103,8 +103,8 @@ function cmdChannels() {
 function cmdSkills() {
   console.log(chalk.cyan('\n  Skills Setup\n'));
   console.log(chalk.gray('  To manage skills, run:'));
-  console.log(chalk.cyan('    natureco skills list'));
-  console.log(chalk.cyan('    natureco skills add <name>\n'));
+  console.log(chalk.cyan('    nskuld skills list'));
+  console.log(chalk.cyan('    nskuld skills add <name>\n'));
 }
 
 function cmdHealth() {

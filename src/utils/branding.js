@@ -1,7 +1,7 @@
 /**
  * Skuld — marka ve ekranlar.
  *
- * Fork edilen natureco-cli'de bu dosya NatureCo kimliğini taşıyordu: yeşil
+ * Fork edilen natureco-skuld'de bu dosya NatureCo kimliğini taşıyordu: yeşil
  * palet, yaprak emojisi, tavşan maskotu, kalın blok ASCII logo ve NatureCo
  * ürünlerine (seo, naturehub, cron) yönlendiren ipuçları. Skuld ayrı bir
  * ürün, o yüzden içerik baştan yazıldı.

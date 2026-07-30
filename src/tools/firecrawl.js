@@ -42,7 +42,7 @@ module.exports = {
       if (!apiKey) {
         return {
           success: false,
-          error: 'Firecrawl API key gerekli. Kur: natureco config set firecrawlApiKey <key>\nKey al: https://www.firecrawl.dev'
+          error: 'Firecrawl API key gerekli. Kur: nskuld config set firecrawlApiKey <key>\nKey al: https://www.firecrawl.dev'
         };
       }
 

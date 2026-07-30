@@ -9,7 +9,7 @@ describe('worktree', () => {
   let originalCwd;
 
   beforeEach(() => {
-    // Gerçek proje dizinini kirletme — worktree'ler cwd/.natureco altına yazar;
+    // Gerçek proje dizinini kirletme — worktree'ler cwd/.nskuld altına yazar;
     // yarıda kesilen bir test koşusu repo köküne artık bırakıyordu.
     originalCwd = process.cwd();
     sandboxDir = fs.mkdtempSync(path.join(os.tmpdir(), 'natureco-wt-'));

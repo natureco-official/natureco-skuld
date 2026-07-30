@@ -8,7 +8,7 @@ function measure(args, runs = 7) {
   const samples = [];
   for (let i = 0; i < runs; i++) {
     const start = process.hrtime.bigint();
-    const result = spawnSync(process.execPath, [bin, ...args], { encoding: 'utf8', env: { ...process.env, NATURECO_NO_UPDATE_CHECK: '1', FORCE_COLOR: '0' } });
+    const result = spawnSync(process.execPath, [bin, ...args], { encoding: 'utf8', env: { ...process.env, SKULD_NO_UPDATE_CHECK: '1', FORCE_COLOR: '0' } });
     const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
     if (result.status !== 0) throw new Error(`${args.join(' ')} failed: ${result.stderr}`);
     samples.push(durationMs);

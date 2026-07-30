@@ -2,9 +2,9 @@ const chalk = require('chalk');
 const { foldTr } = require('../utils/tr-text');
 
 const DOC_SOURCES = [
-  { name: 'NatureCo API', url: 'https://api.natureco.me/api/v1/docs/search?q=' },
-  { name: 'NatureCo CLI', url: 'https://natureco.me/cli/' },
-  { name: 'NatureCo Developers', url: 'https://developers.natureco.me/' },
+  { name: 'NatureCo API', url: 'https://api.nskuld.me/api/v1/docs/search?q=' },
+  { name: 'NatureCo Skuld', url: 'https://natureco.me/cli/' },
+  { name: 'NatureCo Developers', url: 'https://developers.nskuld.me/' },
   { name: 'OpenClaw Docs', url: 'https://docs.openclaw.ai/' },
 ];
 
@@ -100,7 +100,7 @@ async function docs(args) {
         const lines = html.split('\n').filter(l => foldTr(l).includes(foldTr(query)));
         if (lines.length > 0) {
           found = true;
-          console.log(chalk.cyan('  NatureCo CLI Docs Page\n'));
+          console.log(chalk.cyan('  NatureCo Skuld Docs Page\n'));
           console.log(chalk.gray('  ' + '─'.repeat(48)));
           for (const line of lines.slice(0, 5)) {
             const clean = line.replace(/<[^>]*>/g, '').trim();
@@ -117,7 +117,7 @@ async function docs(args) {
     console.log(chalk.gray('  No documentation found for this query.'));
     console.log(chalk.gray('\n  Try browsing:'));
     console.log(chalk.cyan('    https://natureco.me/cli/'));
-    console.log(chalk.cyan('    https://developers.natureco.me/'));
+    console.log(chalk.cyan('    https://developers.nskuld.me/'));
     console.log();
   }
 }
@@ -127,11 +127,11 @@ function showHelp() {
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   console.log(chalk.gray('  Search NatureCo documentation from multiple sources.\n'));
   console.log(chalk.gray('  Usage:'));
-  console.log(chalk.cyan('    natureco docs <search query>'));
+  console.log(chalk.cyan('    nskuld docs <search query>'));
   console.log(chalk.gray('\n  Examples:'));
-  console.log(chalk.gray('    natureco docs gateway setup'));
-  console.log(chalk.gray('    natureco docs telegram channel'));
-  console.log(chalk.gray('    natureco docs api reference'));
+  console.log(chalk.gray('    nskuld docs gateway setup'));
+  console.log(chalk.gray('    nskuld docs telegram channel'));
+  console.log(chalk.gray('    nskuld docs api reference'));
   console.log();
 }
 

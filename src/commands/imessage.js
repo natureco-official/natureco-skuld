@@ -37,7 +37,7 @@ async function allowNumber(number) {
   }
   if (!number) {
     console.log(chalk.red(L('\n❌ Numara belirtilmedi\n', '\n❌ Number not specified\n')));
-    console.log(chalk.gray(L('Kullanım: natureco imessage allow <numara|email>\n', 'Usage: natureco imessage allow <number|email>\n')));
+    console.log(chalk.gray(L('Kullanım: nskuld imessage allow <numara|email>\n', 'Usage: nskuld imessage allow <number|email>\n')));
     process.exit(1);
   }
 
@@ -74,14 +74,14 @@ async function sendMessage(recipient, message) {
   const config = getConfig();
 
   if (!config.imessageCliPath) {
-    console.log(chalk.red(L('\n❌ iMessage bağlı değil. Önce "natureco imessage connect" çalıştırın.\n', '\n❌ iMessage not connected. Run "natureco imessage connect" first.\n')));
+    console.log(chalk.red(L('\n❌ iMessage bağlı değil. Önce "nskuld imessage connect" çalıştırın.\n', '\n❌ iMessage not connected. Run "nskuld imessage connect" first.\n')));
     process.exit(1);
   }
 
   if (!recipient) {
     console.log(chalk.red(L('\n❌ Alıcı belirtilmedi\n', '\n❌ Recipient not specified\n')));
-    console.log(chalk.gray(L('Kullanım: natureco imessage send <numara|email> <mesaj>\n', 'Usage: natureco imessage send <number|email> <message>\n')));
-    console.log(chalk.gray(L('Örnek:   natureco imessage send +905551234567 Merhaba!\n', 'Example: natureco imessage send +905551234567 Hello!\n')));
+    console.log(chalk.gray(L('Kullanım: nskuld imessage send <numara|email> <mesaj>\n', 'Usage: nskuld imessage send <number|email> <message>\n')));
+    console.log(chalk.gray(L('Örnek:   nskuld imessage send +905551234567 Merhaba!\n', 'Example: nskuld imessage send +905551234567 Hello!\n')));
     process.exit(1);
   }
 
@@ -118,7 +118,7 @@ async function sendMessage(recipient, message) {
 async function connectImessage() {
   const config = getConfig();
   if (!config.providerUrl) {
-    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "natureco setup" çalıştırın.\n', '\n❌ Setup not done. Run "natureco setup" first.\n')));
+    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "nskuld setup" çalıştırın.\n', '\n❌ Setup not done. Run "nskuld setup" first.\n')));
     process.exit(1);
   }
 
@@ -167,7 +167,7 @@ async function connectImessage() {
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   if (config.imessageCliPath) console.log(chalk.cyan(L('CLI Yolu:', 'CLI Path:')), chalk.white(config.imessageCliPath));
   console.log(chalk.cyan(L('Servis:', 'Service:')), chalk.white(answers.service));
-  console.log(chalk.gray(L('\nGateway ile başlatmak için: natureco gateway start\n', '\nTo start with the gateway: natureco gateway start\n')));
+  console.log(chalk.gray(L('\nGateway ile başlatmak için: nskuld gateway start\n', '\nTo start with the gateway: nskuld gateway start\n')));
 }
 
 async function disconnectImessage() {
@@ -193,7 +193,7 @@ async function statusImessage() {
   const config = getConfig();
   if (!config.imessageBotId) {
     console.log(chalk.gray('\n⚠️  iMessage not connected\n'));
-    console.log(chalk.gray('Connect with: natureco imessage connect\n'));
+    console.log(chalk.gray('Connect with: nskuld imessage connect\n'));
     return;
   }
   console.log(chalk.green('\n✅ iMessage connected\n'));
@@ -209,14 +209,14 @@ async function statusImessage() {
     console.log(chalk.yellow(L('\n⚠️  iMessage sadece macOS\'te çalışır', '\n⚠️  iMessage only works on macOS')));
   }
 
-  console.log(chalk.gray('\nDisconnect with: natureco imessage disconnect\n'));
+  console.log(chalk.gray('\nDisconnect with: nskuld imessage disconnect\n'));
 }
 
 async function probeImessage() {
   const config = getConfig();
   if (!config.imessageBotId) {
     console.log(chalk.red(L('\n❌ iMessage bağlantısı yapılmamış\n', '\n❌ iMessage connection not set up\n')));
-    console.log(chalk.gray(L('Önce: natureco imessage connect\n', 'First: natureco imessage connect\n')));
+    console.log(chalk.gray(L('Önce: nskuld imessage connect\n', 'First: nskuld imessage connect\n')));
     process.exit(1);
   }
 

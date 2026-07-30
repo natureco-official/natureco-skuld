@@ -16,7 +16,7 @@ function threadOwnership(args) {
   if (action === 'agent') return setDefaultAgent(params[0]);
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco thread-ownership [status|list|assign|release|check|agent]\n', '  Usage: natureco thread-ownership [status|list|assign|release|check|agent]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld thread-ownership [status|list|assign|release|check|agent]\n', '  Usage: nskuld thread-ownership [status|list|assign|release|check|agent]\n')));
   process.exit(1);
 }
 
@@ -32,7 +32,7 @@ function statusOwnership() {
   console.log(`  ${chalk.white('Default Agent:')} ${chalk.cyan(agents.default || 'default')}`);
   console.log(`  ${chalk.white('Assigned:')}      ${chalk.cyan(totalAssigned)} threads`);
   console.log(`  ${chalk.white('Slack Forwarder:')} ${chalk.gray(to.forwarderUrl || process.env.SLACK_FORWARDER_URL || 'not configured')}`);
-  console.log(`  ${chalk.white('Config Path:')}   ${chalk.gray('~/.natureco/config.json → threadOwnership')}`);
+  console.log(`  ${chalk.white('Config Path:')}   ${chalk.gray('~/.nskuld/config.json → threadOwnership')}`);
   console.log(chalk.gray('\n  Commands:'));
   console.log(chalk.cyan('    list') + chalk.gray('                        List assignments'));
   console.log(chalk.cyan('    assign <thread> <agent> [channel]') + chalk.gray('  Assign thread'));
@@ -70,7 +70,7 @@ function listOwnership() {
 function assignOwnership(threadId, agentName, channel) {
   if (!threadId || !agentName) {
     console.log(chalk.red(L('\n  ❌ threadId ve agentName gerekli\n', '\n  ❌ threadId and agentName required\n')));
-    console.log(chalk.cyan('    natureco thread-ownership assign C012345 "agent-bob" slack\n'));
+    console.log(chalk.cyan('    nskuld thread-ownership assign C012345 "agent-bob" slack\n'));
     process.exit(1);
   }
 
@@ -107,7 +107,7 @@ function releaseOwnership(threadId, channel) {
 function checkOwnership(threadId, channel, agentName) {
   if (!threadId || !channel || !agentName) {
     console.log(chalk.red(L('\n  ❌ threadId, channel ve agentName gerekli\n', '\n  ❌ threadId, channel and agentName required\n')));
-    console.log(chalk.cyan('    natureco thread-ownership check C012345 slack agent-bob\n'));
+    console.log(chalk.cyan('    nskuld thread-ownership check C012345 slack agent-bob\n'));
     process.exit(1);
   }
 

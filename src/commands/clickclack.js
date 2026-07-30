@@ -33,7 +33,7 @@ async function clickclack(args) {
   if (action === 'notify') return sendNotification(params.join(' '));
 
   console.log(chalk.red(`\n  ❌ Unknown command: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco clickclack [status|test|enable|disable|listen|notify]\n'));
+  console.log(chalk.gray('  Usage: nskuld clickclack [status|test|enable|disable|listen|notify]\n'));
   process.exit(1);
 }
 
@@ -47,11 +47,11 @@ function statusClickclack() {
   console.log(`  ${chalk.white('Speak on msg:')}  ${cc.speakOnMessage ? chalk.green('Yes') : chalk.gray('No')}`);
   console.log(`  ${chalk.white('Webhook port:')}  ${chalk.cyan(cc.webhookPort || 3888)}`);
   console.log(chalk.gray('\n  Commands:'));
-  console.log(chalk.cyan('    natureco clickclack test') + chalk.gray('     Test beep/speak'));
-  console.log(chalk.cyan('    natureco clickclack enable') + chalk.gray('   Enable notifications'));
-  console.log(chalk.cyan('    natureco clickclack disable') + chalk.gray('  Disable notifications'));
-  console.log(chalk.cyan('    natureco clickclack listen') + chalk.gray('  Listen for webhook'));
-  console.log(chalk.cyan('    natureco clickclack notify') + chalk.gray('  Send notification'));
+  console.log(chalk.cyan('    nskuld clickclack test') + chalk.gray('     Test beep/speak'));
+  console.log(chalk.cyan('    nskuld clickclack enable') + chalk.gray('   Enable notifications'));
+  console.log(chalk.cyan('    nskuld clickclack disable') + chalk.gray('  Disable notifications'));
+  console.log(chalk.cyan('    nskuld clickclack listen') + chalk.gray('  Listen for webhook'));
+  console.log(chalk.cyan('    nskuld clickclack notify') + chalk.gray('  Send notification'));
   console.log();
 }
 
@@ -83,7 +83,7 @@ function disableClickclack() {
 function sendNotification(message) {
   if (!message) {
     console.log(chalk.red('\n  ❌ Message required\n'));
-    console.log(chalk.cyan('    natureco clickclack notify "Your message here"\n'));
+    console.log(chalk.cyan('    nskuld clickclack notify "Your message here"\n'));
     process.exit(1);
   }
   beep();

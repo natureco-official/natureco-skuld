@@ -7,8 +7,8 @@ const { foldTr } = require('../utils/tr-text');
 const L = (tr, en) => (getLang() === 'en' ? en : tr);
 
 /**
- * `natureco account [login|logout|whoami]` — one NatureCo account (SSO).
- * Separate from the developers.natureco.me API-KEY login (`natureco login`):
+ * `nskuld account [login|logout|whoami]` — one NatureCo account (SSO).
+ * Separate from the developers.nskuld.me API-KEY login (`nskuld login`):
  * this is your personal identity with your natureco.me account, shared
  * across the whole ecosystem.
  */
@@ -76,7 +76,7 @@ async function doLogin() {
   const me = await acc.whoami();
   console.log(chalk.green('\n  ✓ ' + L('Giriş başarılı!', 'Signed in!')));
   if (me && me.email) console.log(chalk.gray('  ' + L('Hoş geldin, ', 'Welcome, ')) + chalk.white(me.email));
-  console.log(chalk.gray('  ' + L('Oturum: ', 'Session: ') + '~/.natureco/auth.json'));
+  console.log(chalk.gray('  ' + L('Oturum: ', 'Session: ') + '~/.nskuld/auth.json'));
   console.log('');
 }
 
@@ -93,13 +93,13 @@ async function doLogout() {
 async function doWhoami() {
   if (!acc.isLoggedIn()) {
     console.log(chalk.gray('\n  ' + L('NatureCo hesabına giriş yapılmamış.', 'Not signed in to a NatureCo account.')));
-    console.log(chalk.gray('  ' + L('Giriş: ', 'Sign in: ')) + chalk.cyan('natureco account login') + '\n');
+    console.log(chalk.gray('  ' + L('Giriş: ', 'Sign in: ')) + chalk.cyan('nskuld account login') + '\n');
     return;
   }
   console.log(chalk.gray('\n  ' + L('Doğrulanıyor...', 'Verifying...')));
   const me = await acc.whoami();
   if (!me) {
-    console.log(chalk.yellow('\n  ⚠ ' + L('Oturum süresi dolmuş görünüyor. Tekrar giriş yap: ', 'Your session looks expired. Sign in again: ')) + chalk.cyan('natureco account login') + '\n');
+    console.log(chalk.yellow('\n  ⚠ ' + L('Oturum süresi dolmuş görünüyor. Tekrar giriş yap: ', 'Your session looks expired. Sign in again: ')) + chalk.cyan('nskuld account login') + '\n');
     return;
   }
   console.log(chalk.green.bold('\n  ⬡ ' + L('NatureCo Hesabı', 'NatureCo Account')));

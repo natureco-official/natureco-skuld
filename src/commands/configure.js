@@ -37,7 +37,7 @@ async function configure(params) {
     if (action === 'skills') return cmdSkills();
 
     console.log(chalk.red(`\n  Unknown configure action: ${action}\n`));
-    console.log(chalk.gray('  Usage: natureco configure [gateway|auth|channels|plugins|skills]\n'));
+    console.log(chalk.gray('  Usage: nskuld configure [gateway|auth|channels|plugins|skills]\n'));
   } catch (err) {
     console.log(chalk.red(`\n  Configure error: ${err.message}\n`));
   }
@@ -46,11 +46,11 @@ async function configure(params) {
 function cmdMenu() {
   console.log(chalk.cyan('\n  Configure\n'));
   console.log(chalk.gray('  Run with an action:'));
-  console.log(chalk.gray('    natureco configure gateway   Update gateway config'));
-  console.log(chalk.gray('    natureco configure auth      Update provider keys'));
-  console.log(chalk.gray('    natureco configure channels   Re-run channels setup'));
-  console.log(chalk.gray('    natureco configure plugins    Re-run plugin setup'));
-  console.log(chalk.gray('    natureco configure skills     Re-run skills setup\n'));
+  console.log(chalk.gray('    nskuld configure gateway   Update gateway config'));
+  console.log(chalk.gray('    nskuld configure auth      Update provider keys'));
+  console.log(chalk.gray('    nskuld configure channels   Re-run channels setup'));
+  console.log(chalk.gray('    nskuld configure plugins    Re-run plugin setup'));
+  console.log(chalk.gray('    nskuld configure skills     Re-run skills setup\n'));
 }
 
 async function cmdGateway() {
@@ -96,15 +96,15 @@ function cmdChannels() {
 function cmdPlugins() {
   console.log(chalk.cyan('\n  Plugin Setup\n'));
   console.log(chalk.gray('  To manage plugins:'));
-  console.log(chalk.cyan('    natureco plugins list'));
-  console.log(chalk.cyan('    natureco plugins add <url>\n'));
+  console.log(chalk.cyan('    nskuld plugins list'));
+  console.log(chalk.cyan('    nskuld plugins add <url>\n'));
 }
 
 function cmdSkills() {
   console.log(chalk.cyan('\n  Skills Setup\n'));
   console.log(chalk.gray('  To manage skills:'));
-  console.log(chalk.cyan('    natureco skills list'));
-  console.log(chalk.cyan('    natureco skills add <name>\n'));
+  console.log(chalk.cyan('    nskuld skills list'));
+  console.log(chalk.cyan('    nskuld skills add <name>\n'));
 }
 
 module.exports = configure;

@@ -31,7 +31,7 @@ async function memoryCmd(args) {
   if (action === 'wiki-search') return wikiSearchCmd(params.join(' '));
 
   console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco memory [status|list|search|show|clear|index|export|import|semantic|wiki|wiki-create|wiki-list|wiki-search]\n', '  Usage: natureco memory [status|list|search|show|clear|index|export|import|semantic|wiki|wiki-create|wiki-list|wiki-search]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld memory [status|list|search|show|clear|index|export|import|semantic|wiki|wiki-create|wiki-list|wiki-search]\n', '  Usage: nskuld memory [status|list|search|show|clear|index|export|import|semantic|wiki|wiki-create|wiki-list|wiki-search]\n')));
   process.exit(1);
 }
 
@@ -89,7 +89,7 @@ function statusMemory() {
   });
 
   console.log(line);
-  console.log(chalk.gray(`  ${files.length} bot  ·  ${totalFacts} ${L('toplam bilgi', 'total facts')}  ·  natureco memory search <sorgu>`));
+  console.log(chalk.gray(`  ${files.length} bot  ·  ${totalFacts} ${L('toplam bilgi', 'total facts')}  ·  nskuld memory search <sorgu>`));
   console.log(line);
   console.log('');
 }
@@ -114,7 +114,7 @@ function listMemory() {
 function searchMemory(query) {
   if (!query) {
     console.log(chalk.red(L('\n  ❌ Arama sorgusu gerekli\n', '\n  ❌ A search query is required\n')));
-    console.log(chalk.gray(L('  Kullanım: natureco memory search <sorgu>\n', '  Usage: natureco memory search <query>\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld memory search <sorgu>\n', '  Usage: nskuld memory search <query>\n')));
     process.exit(1);
   }
 
@@ -238,7 +238,7 @@ function exportMemoryCmd(botId, outputFile) {
 function importMemoryCmd(botId, sourceFile) {
   if (!sourceFile) {
     console.log(chalk.red(L('\n  ❌ Kaynak dosya gerekli\n', '\n  ❌ A source file is required\n')));
-    console.log(chalk.gray(L('  Kullanım: natureco memory import <botId> <dosya.json>\n', '  Usage: natureco memory import <botId> <file.json>\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld memory import <botId> <dosya.json>\n', '  Usage: nskuld memory import <botId> <file.json>\n')));
     return;
   }
   const resolvedPath = path.resolve(sourceFile.replace(/^~/, os.homedir()));
@@ -295,7 +295,7 @@ function wikiCmd(action, params) {
     const slug = params?.[0];
     const content = params?.slice(1).join(' ');
     if (!slug || !content) {
-      console.log(chalk.red(L('\n  ❌ Kullanım: natureco memory wiki create <slug> <içerik>\n', '\n  ❌ Usage: natureco memory wiki create <slug> <content>\n')));
+      console.log(chalk.red(L('\n  ❌ Kullanım: nskuld memory wiki create <slug> <içerik>\n', '\n  ❌ Usage: nskuld memory wiki create <slug> <content>\n')));
       return;
     }
     saveWikiPage(slug, content);
@@ -319,7 +319,7 @@ function wikiCmd(action, params) {
 
 function wikiCreateCmd(slug, content) {
   if (!slug || !content) {
-    console.log(chalk.red(L('\n  ❌ Kullanım: natureco memory wiki-create <slug> <içerik>\n', '\n  ❌ Usage: natureco memory wiki-create <slug> <content>\n')));
+    console.log(chalk.red(L('\n  ❌ Kullanım: nskuld memory wiki-create <slug> <içerik>\n', '\n  ❌ Usage: nskuld memory wiki-create <slug> <content>\n')));
     return;
   }
   saveWikiPage(slug, content);
@@ -331,7 +331,7 @@ function wikiListCmd() {
   console.log(chalk.cyan.bold(`\n  ${L('Wiki Sayfaları', 'Wiki Pages')} (${pages.length})\n`));
   if (pages.length === 0) {
     console.log(chalk.gray(L('  Henüz sayfa yok.\n', '  No pages yet.\n')));
-    console.log(chalk.gray(L('  Oluşturmak: ', '  Create: ')) + chalk.cyan(L('natureco memory wiki create <slug> <içerik>\n', 'natureco memory wiki create <slug> <content>\n')));
+    console.log(chalk.gray(L('  Oluşturmak: ', '  Create: ')) + chalk.cyan(L('nskuld memory wiki create <slug> <içerik>\n', 'nskuld memory wiki create <slug> <content>\n')));
     return;
   }
   pages.forEach(p => {
@@ -452,7 +452,7 @@ function lintMemoryCmd(user) {
     console.log(chalk.red(`\n  ⚠ ${conflicts.length} ${L('olası ÇELİŞKİ (aynı konu, farklı değer)', 'likely CONFLICT (same subject, different value)')}:`));
     for (const f of conflicts.slice(0, 10)) printFinding(f, '↔');
   }
-  console.log(chalk.gray(`\n  ${L('Öneri: eskiyen/yanlış kaydı düzeltin — "natureco memory clear" veya elle. Tek doğru kalsın.', 'Tip: fix the stale/wrong record — "natureco memory clear" or manually. Keep only the correct one.')}\n`));
+  console.log(chalk.gray(`\n  ${L('Öneri: eskiyen/yanlış kaydı düzeltin — "nskuld memory clear" veya elle. Tek doğru kalsın.', 'Tip: fix the stale/wrong record — "nskuld memory clear" or manually. Keep only the correct one.')}\n`));
 }
 
 module.exports = memoryCmd;

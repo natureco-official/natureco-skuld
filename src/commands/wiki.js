@@ -68,7 +68,7 @@ function wiki(args) {
   if (action === 'obsidian') return cmdObsidian(params);
 
   console.log(chalk.red(`\n  Unknown wiki action: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco wiki <action> [params]'));
+  console.log(chalk.gray('  Usage: nskuld wiki <action> [params]'));
   console.log(chalk.gray('  Actions: status, doctor, init, ingest, compile, lint, search, get, apply\n'));
   process.exit(1);
 }
@@ -81,7 +81,7 @@ function cmdStatus() {
   console.log(chalk.cyan('\n  Wiki Vault Status\n'));
 
   if (!exists) {
-    console.log(chalk.yellow('  Not initialized. Run') + chalk.cyan(' natureco wiki init') + chalk.yellow(' to create.\n'));
+    console.log(chalk.yellow('  Not initialized. Run') + chalk.cyan(' nskuld wiki init') + chalk.yellow(' to create.\n'));
     return;
   }
 
@@ -157,7 +157,7 @@ function cmdDoctor() {
   console.log(chalk.gray(`  ${passed} passed, ${warnings} warnings, ${failed} failed out of ${total} checks`));
 
   if (failed > 0) {
-    console.log(chalk.red(`\n  Some checks failed. Run ${chalk.cyan('natureco wiki init')} to fix.\n`));
+    console.log(chalk.red(`\n  Some checks failed. Run ${chalk.cyan('nskuld wiki init')} to fix.\n`));
   } else {
     console.log(chalk.green('\n  Vault is healthy.\n'));
   }
@@ -193,13 +193,13 @@ function cmdInit() {
   console.log(chalk.gray('    cache/     — compiled digests'));
   console.log(chalk.gray('    vault.json — vault metadata'));
   console.log('');
-  console.log(chalk.cyan('  Run') + chalk.white(' natureco wiki ingest <path>') + chalk.cyan(' to add content.\n'));
+  console.log(chalk.cyan('  Run') + chalk.white(' nskuld wiki ingest <path>') + chalk.cyan(' to add content.\n'));
 }
 
 // ── ingest ──────────────────────────────────────────────────────────────────
 function cmdIngest(srcPath) {
   if (!srcPath) {
-    console.log(chalk.red('\n  Usage: natureco wiki ingest <path>\n'));
+    console.log(chalk.red('\n  Usage: nskuld wiki ingest <path>\n'));
     process.exit(1);
   }
 
@@ -209,7 +209,7 @@ function cmdIngest(srcPath) {
   }
 
   if (!vaultExists()) {
-    console.log(chalk.yellow('\n  Wiki vault not initialized. Run') + chalk.cyan(' natureco wiki init') + chalk.yellow(' first.\n'));
+    console.log(chalk.yellow('\n  Wiki vault not initialized. Run') + chalk.cyan(' nskuld wiki init') + chalk.yellow(' first.\n'));
     process.exit(1);
   }
 
@@ -414,7 +414,7 @@ function cmdLint() {
 // ── search ──────────────────────────────────────────────────────────────────
 function cmdSearch(query) {
   if (!query) {
-    console.log(chalk.red('\n  Usage: natureco wiki search <query>\n'));
+    console.log(chalk.red('\n  Usage: nskuld wiki search <query>\n'));
     process.exit(1);
   }
 
@@ -477,7 +477,7 @@ function cmdSearch(query) {
 // ── get ─────────────────────────────────────────────────────────────────────
 function cmdGet(identifier) {
   if (!identifier) {
-    console.log(chalk.red('\n  Usage: natureco wiki get <path-or-id>\n'));
+    console.log(chalk.red('\n  Usage: nskuld wiki get <path-or-id>\n'));
     process.exit(1);
   }
 
@@ -525,7 +525,7 @@ function cmdGet(identifier) {
 // ── apply ──────────────────────────────────────────────────────────────────
 function cmdApply(subcommand, params) {
   if (!subcommand || (subcommand !== 'synthesis' && subcommand !== 'metadata')) {
-    console.log(chalk.red('\n  Usage: natureco wiki apply synthesis|metadata [args]\n'));
+    console.log(chalk.red('\n  Usage: nskuld wiki apply synthesis|metadata [args]\n'));
     process.exit(1);
   }
 
@@ -583,7 +583,7 @@ function applySynthesis(params) {
 
 function applyMetadata(params) {
   if (params.length < 2) {
-    console.log(chalk.red('\n  Usage: natureco wiki apply metadata <file|id> <key=value> [key=value...]\n'));
+    console.log(chalk.red('\n  Usage: nskuld wiki apply metadata <file|id> <key=value> [key=value...]\n'));
     process.exit(1);
   }
 
@@ -699,7 +699,7 @@ function extractTitle(content) {
 // ── bridge import ──────────────────────────────────────────────────────
 function cmdBridgeImport(url) {
   if (!url) {
-    console.log(chalk.red('\n  Usage: natureco wiki bridge import <url>\n'));
+    console.log(chalk.red('\n  Usage: nskuld wiki bridge import <url>\n'));
     process.exit(1);
   }
   console.log(chalk.yellow(`\n  Bridge import from ${url} not yet implemented\n`));
@@ -708,7 +708,7 @@ function cmdBridgeImport(url) {
 // ── unsafe-local import ──────────────────────────────────────────────
 function cmdUnsafeLocalImport(filePath) {
   if (!filePath) {
-    console.log(chalk.red('\n  Usage: natureco wiki unsafe-local import <path>\n'));
+    console.log(chalk.red('\n  Usage: nskuld wiki unsafe-local import <path>\n'));
     process.exit(1);
   }
   console.log(chalk.yellow(`\n  Unsafe local import from ${filePath} not yet implemented\n`));
@@ -724,7 +724,7 @@ function cmdObsidian(params) {
   if (sub === 'command') return cmdObsidianCommand(rest);
   if (sub === 'daily') return cmdObsidianDaily();
   console.log(chalk.red(`\n  Unknown obsidian action: ${sub || ''}\n`));
-  console.log(chalk.gray('  Usage: natureco wiki obsidian status|search|open|command|daily\n'));
+  console.log(chalk.gray('  Usage: nskuld wiki obsidian status|search|open|command|daily\n'));
   process.exit(1);
 }
 
@@ -749,7 +749,7 @@ function cmdObsidianStatus() {
 
 function cmdObsidianSearch(query) {
   if (!query) {
-    console.log(chalk.red('\n  Usage: natureco wiki obsidian search <query>\n'));
+    console.log(chalk.red('\n  Usage: nskuld wiki obsidian search <query>\n'));
     process.exit(1);
   }
   const obsidianFile = path.join(WIKI_DIR, 'obsidian.json');
@@ -763,7 +763,7 @@ function cmdObsidianSearch(query) {
 
 function cmdObsidianOpen(note) {
   if (!note) {
-    console.log(chalk.red('\n  Usage: natureco wiki obsidian open <note>\n'));
+    console.log(chalk.red('\n  Usage: nskuld wiki obsidian open <note>\n'));
     process.exit(1);
   }
   console.log(chalk.yellow(`\n  Would open ${note} in Obsidian\n`));
@@ -771,7 +771,7 @@ function cmdObsidianOpen(note) {
 
 function cmdObsidianCommand(cmd) {
   if (!cmd) {
-    console.log(chalk.red('\n  Usage: natureco wiki obsidian command <cmd>\n'));
+    console.log(chalk.red('\n  Usage: nskuld wiki obsidian command <cmd>\n'));
     process.exit(1);
   }
   console.log(chalk.yellow(`\n  Would run Obsidian command: ${cmd}\n`));

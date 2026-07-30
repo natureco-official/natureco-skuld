@@ -1,12 +1,12 @@
 /**
- * natureco naturehub — NatureCo Bot API iletişimi
+ * nskuld naturehub — NatureCo Bot API iletişimi
  *
  * natureco.me/api/v1/bots endpoint'lerini kullanır.
  * Kullanım:
- *   natureco naturehub post <text>         Bota mesaj gönder
- *   natureco naturehub list                Botları listele
- *   natureco naturehub info [bot_id]       Bot detayı
- *   natureco naturehub config              Ayarları göster
+ *   nskuld naturehub post <text>         Bota mesaj gönder
+ *   nskuld naturehub list                Botları listele
+ *   nskuld naturehub info [bot_id]       Bot detayı
+ *   nskuld naturehub config              Ayarları göster
  *
  * API: https://natureco.me/api/v1/bots
  */
@@ -18,7 +18,7 @@ const https = require('https');
 const { URL } = require('url');
 const audit = require('../utils/audit');
 
-const API_BASE = 'https://api.natureco.me';
+const API_BASE = 'https://api.nskuld.me';
 const API_PREFIX = '/api/v1';
 const CONFIG_KEY = 'naturehub';
 
@@ -47,7 +47,7 @@ async function apiCall(path, options = {}) {
       method: options.method || 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': 'natureco-cli/5.20',
+        'User-Agent': 'natureco-skuld/5.20',
         ...(options.token ? { 'Authorization': `Bearer ${options.token}` } : {}),
         ...options.headers,
       },
@@ -74,21 +74,21 @@ async function apiCall(path, options = {}) {
 async function cmdPost(args) {
   const text = args.join(' ').trim();
   if (!text) {
-    console.log(chalk.red(L('\n  Kullanım: natureco naturehub post "<mesaj>"\n', '\n  Usage: natureco naturehub post "<message>"\n')));
+    console.log(chalk.red(L('\n  Kullanım: nskuld naturehub post "<mesaj>"\n', '\n  Usage: nskuld naturehub post "<message>"\n')));
     return;
   }
 
   const token = getApiKey();
   if (!token) {
-    console.log(chalk.yellow(L('\n  ⚠️  API key tanımlı değil. Önce `natureco login` ile giriş yapın.\n', '\n  ⚠️  API key not set. Log in first with `natureco login`.\n')));
+    console.log(chalk.yellow(L('\n  ⚠️  API key tanımlı değil. Önce `nskuld login` ile giriş yapın.\n', '\n  ⚠️  API key not set. Log in first with `nskuld login`.\n')));
     saveLocal(text);
     return;
   }
 
   const botId = getBotId();
   if (!botId) {
-    console.log(chalk.yellow(L('\n  ⚠️  Bot ID tanımlı değil. `natureco naturehub list` ile botlarınızı görün.\n', '\n  ⚠️  Bot ID not set. See your bots with `natureco naturehub list`.\n')));
-    console.log(chalk.gray(L('  Ayarlamak için: natureco config set naturecoBotId <bot_id>\n', '  To set: natureco config set naturecoBotId <bot_id>\n')));
+    console.log(chalk.yellow(L('\n  ⚠️  Bot ID tanımlı değil. `nskuld naturehub list` ile botlarınızı görün.\n', '\n  ⚠️  Bot ID not set. See your bots with `nskuld naturehub list`.\n')));
+    console.log(chalk.gray(L('  Ayarlamak için: nskuld config set naturecoBotId <bot_id>\n', '  To set: nskuld config set naturecoBotId <bot_id>\n')));
     saveLocal(text);
     return;
   }
@@ -143,7 +143,7 @@ async function cmdList() {
       if (b.description) console.log(`    ${chalk.gray(b.description)}`);
       console.log('');
     }
-    console.log(chalk.gray(L('  Bot ID ayarlamak için: natureco config set naturecoBotId <id>\n', '  To set Bot ID: natureco config set naturecoBotId <id>\n')));
+    console.log(chalk.gray(L('  Bot ID ayarlamak için: nskuld config set naturecoBotId <id>\n', '  To set Bot ID: nskuld config set naturecoBotId <id>\n')));
   } catch (e) {
     console.log(chalk.red(`  ✗ ${L('Hata', 'Error')}: ${e.message}\n`));
   }
@@ -158,7 +158,7 @@ async function cmdInfo(botId) {
 
   const id = botId || getBotId();
   if (!id) {
-    console.log(chalk.yellow(L('\n  Bot ID gerekli: natureco naturehub info <bot_id>\n', '\n  Bot ID required: natureco naturehub info <bot_id>\n')));
+    console.log(chalk.yellow(L('\n  Bot ID gerekli: nskuld naturehub info <bot_id>\n', '\n  Bot ID required: nskuld naturehub info <bot_id>\n')));
     return;
   }
 
@@ -181,9 +181,9 @@ async function cmdConfig() {
   console.log(chalk.cyan(L('\n  ⚙️  NatureCo API Ayarları\n', '\n  ⚙️  NatureCo API Settings\n')));
   console.log(chalk.gray('  API Key: ') + (cfg.apiKey ? chalk.green(L('✓ ayarlı', '✓ set')) : chalk.yellow(L('yok', 'none'))));
   console.log(chalk.gray('  Bot ID:  ') + (cfg.naturecoBotId ? chalk.green(cfg.naturecoBotId) : chalk.yellow(L('ayarlanmamış', 'not set'))));
-  console.log(chalk.gray(L('\n  Giriş:    ', '\n  Login:    ')) + chalk.cyan('natureco login'));
-  console.log(chalk.gray('  Bot ID:   ') + chalk.cyan('natureco config set naturecoBotId <id>'));
-  console.log(chalk.gray(L('  Botlar:   ', '  Bots:     ')) + chalk.cyan('natureco naturehub list'));
+  console.log(chalk.gray(L('\n  Giriş:    ', '\n  Login:    ')) + chalk.cyan('nskuld login'));
+  console.log(chalk.gray('  Bot ID:   ') + chalk.cyan('nskuld config set naturecoBotId <id>'));
+  console.log(chalk.gray(L('  Botlar:   ', '  Bots:     ')) + chalk.cyan('nskuld naturehub list'));
   console.log('');
 }
 
@@ -191,10 +191,10 @@ async function naturehub(args) {
   const [action, ...params] = args || [];
   if (!action || action === 'help') {
     console.log(chalk.yellow(L('\n  Kullanım:', '\n  Usage:')));
-    console.log(chalk.gray(L('    natureco naturehub post "<mesaj>"    Bota mesaj gönder', '    natureco naturehub post "<message>"  Send message to bot')));
-    console.log(chalk.gray(L('    natureco naturehub list              Botları listele', '    natureco naturehub list              List bots')));
-    console.log(chalk.gray(L('    natureco naturehub info [bot_id]     Bot detayı', '    natureco naturehub info [bot_id]     Bot details')));
-    console.log(chalk.gray(L('    natureco naturehub config            Ayarlar', '    natureco naturehub config            Settings')));
+    console.log(chalk.gray(L('    nskuld naturehub post "<mesaj>"    Bota mesaj gönder', '    nskuld naturehub post "<message>"  Send message to bot')));
+    console.log(chalk.gray(L('    nskuld naturehub list              Botları listele', '    nskuld naturehub list              List bots')));
+    console.log(chalk.gray(L('    nskuld naturehub info [bot_id]     Bot detayı', '    nskuld naturehub info [bot_id]     Bot details')));
+    console.log(chalk.gray(L('    nskuld naturehub config            Ayarlar', '    nskuld naturehub config            Settings')));
     console.log('');
     return;
   }

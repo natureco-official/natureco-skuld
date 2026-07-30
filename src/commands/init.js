@@ -12,14 +12,14 @@ async function init() {
 
   const apiKey = getApiKey();
   if (!apiKey) {
-    console.log(chalk.red(L('❌ Giriş yapılmadı. Önce "natureco login" çalıştırın.\n', '❌ Not logged in. Run "natureco login" first.\n')));
+    console.log(chalk.red(L('❌ Giriş yapılmadı. Önce "nskuld login" çalıştırın.\n', '❌ Not logged in. Run "nskuld login" first.\n')));
     process.exit(1);
   }
 
-  // Mevcut klasörde .natureco var mı kontrol et
+  // Mevcut klasörde .nskuld var mı kontrol et
   const projectDir = path.join(process.cwd(), '.nskuld');
   if (fs.existsSync(projectDir)) {
-    console.log(chalk.yellow(L('⚠️  Bu klasörde zaten .natureco/ mevcut.\n', '⚠️  This folder already has .natureco/.\n')));
+    console.log(chalk.yellow(L('⚠️  Bu klasörde zaten .nskuld/ mevcut.\n', '⚠️  This folder already has .nskuld/.\n')));
     const { overwrite } = await inquirer.prompt([
       {
         type: 'confirm',
@@ -45,7 +45,7 @@ async function init() {
   }
 
   if (!botList || !botList.bots || botList.bots.length === 0) {
-    console.log(chalk.gray(L('Bot bulunamadı. Önce https://developers.natureco.me adresinden bot oluşturun.\n', 'No bots found. Create a bot at https://developers.natureco.me first.\n')));
+    console.log(chalk.gray(L('Bot bulunamadı. Önce https://developers.nskuld.me adresinden bot oluşturun.\n', 'No bots found. Create a bot at https://developers.nskuld.me first.\n')));
     process.exit(1);
   }
 
@@ -75,7 +75,7 @@ async function init() {
     },
   ]);
 
-  // .natureco klasörünü oluştur
+  // .nskuld klasörünü oluştur
   if (!fs.existsSync(projectDir)) {
     fs.mkdirSync(projectDir, { recursive: true });
   }
@@ -126,11 +126,11 @@ ${L('[Projenizi tanımlayın]', '[Describe your project]')}
 
   console.log(chalk.green(L('\n✅ Proje başlatıldı!\n', '\n✅ Project initialized!\n')));
   console.log(chalk.cyan(L('Oluşturulan dosyalar:', 'Created files:')));
-  console.log(chalk.gray(`  .natureco/config.json`));
-  console.log(chalk.gray(`  .natureco/AGENTS.md`));
-  console.log(chalk.gray(`  .natureco/skills/`));
+  console.log(chalk.gray(`  .nskuld/config.json`));
+  console.log(chalk.gray(`  .nskuld/AGENTS.md`));
+  console.log(chalk.gray(`  .nskuld/skills/`));
   console.log('');
-  console.log(chalk.yellow(L('Sonraki adım:', 'Next step:')), chalk.white(`natureco chat "${selectedBot.name}"`));
+  console.log(chalk.yellow(L('Sonraki adım:', 'Next step:')), chalk.white(`nskuld chat "${selectedBot.name}"`));
   console.log('');
 }
 

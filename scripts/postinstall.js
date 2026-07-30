@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * NatureCo CLI - Post-install script (v5.6.0)
+ * NatureCo Skuld - Post-install script (v5.6.0)
  * 
  * Bu script npm install sirasinda otomatik calisir.
  * Hatalari onceden duzeltir:
@@ -79,8 +79,8 @@ function checkHomebrewConflict() {
     return;
   }
   
-  const homebrewCli = '/opt/homebrew/lib/node_modules/natureco-cli';
-  const usrLocalCli = '/usr/local/lib/node_modules/natureco-cli';
+  const homebrewCli = '/opt/homebrew/lib/node_modules/natureco-skuld';
+  const usrLocalCli = '/usr/local/lib/node_modules/natureco-skuld';
   
   if (fs.existsSync(homebrewCli) && fs.existsSync(usrLocalCli)) {
     warn('Hem /opt/homebrew hem /usr/local var!');
@@ -98,7 +98,7 @@ function runDoctor() {
     if (ok) {
       success('Tum kontroller gecti');
     } else {
-      warn('Bazi kontroller basarisiz. Detay: natureco doctor');
+      warn('Bazi kontroller basarisiz. Detay: nskuld doctor');
     }
   } else {
     warn('Doctor calistirilamadi');
@@ -107,13 +107,13 @@ function runDoctor() {
 
 function main() {
   // CI'da atla \u2014 hiz + log gurultusu (kurulumun kendisi zaten test ediliyor)
-  if (process.env.CI || process.env.NATURECO_SKIP_POSTINSTALL) return;
-  log('\n\u{1F33F} NatureCo CLI - Post-install\n', '\x1b[35m');
+  if (process.env.CI || process.env.SKULD_SKIP_POSTINSTALL) return;
+  log('\n\u{1F33F} NatureCo Skuld - Post-install\n', '\x1b[35m');
   fixChalk();
   ensureHomeNatureco();
   checkHomebrewConflict();
   runDoctor();
-  log('\n\u2705 Tamamlandi!\n  Simdi: natureco setup\n', '\x1b[32m');
+  log('\n\u2705 Tamamlandi!\n  Simdi: nskuld setup\n', '\x1b[32m');
 }
 
 // Post-install KURULUMU ASLA KIRMAMALI \u2014 eski `|| true` cmd.exe'de calismiyordu
@@ -121,6 +121,6 @@ try {
   main();
 } catch (e) {
   warn('Post-install tamamlanamadi: ' + e.message);
-  warn('Kurulum yine de basarili. Sonra `natureco doctor` calistirin.');
+  warn('Kurulum yine de basarili. Sonra `nskuld doctor` calistirin.');
 }
 process.exit(0);

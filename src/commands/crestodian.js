@@ -35,10 +35,10 @@ async function crestodian(args) {
       name: 'Configuration',
       ok: !!(config.openaiApiKey || config.anthropicApiKey || config.provider),
       message: config.provider ? `Provider: ${config.provider}` : 'Not configured',
-      fix: 'Run: natureco configure'
+      fix: 'Run: nskuld configure'
     });
   } catch {
-    checks.push({ name: 'Configuration', ok: false, message: 'Config error', fix: 'Run: natureco setup' });
+    checks.push({ name: 'Configuration', ok: false, message: 'Config error', fix: 'Run: nskuld setup' });
   }
 
   // Check git
@@ -81,12 +81,12 @@ async function crestodian(args) {
       console.log(chalk.gray('\n  Running fixes...\n'));
       for (const f of failed) {
         if (f.name === 'Configuration') {
-          console.log(chalk.gray('  Run: natureco onboard'));
+          console.log(chalk.gray('  Run: nskuld onboard'));
         }
       }
     }
 
-    console.log(chalk.gray('\n  To auto-fix: ') + chalk.cyan('natureco crestodian --fix\n'));
+    console.log(chalk.gray('\n  To auto-fix: ') + chalk.cyan('nskuld crestodian --fix\n'));
   }
 }
 

@@ -22,7 +22,7 @@ function sandbox(args) {
   if (action === 'exec') return execSandbox(params[0], params.slice(1).join(' '));
 
   console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco sandbox [list|create|destroy|exec]\n', '  Usage: natureco sandbox [list|create|destroy|exec]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld sandbox [list|create|destroy|exec]\n', '  Usage: nskuld sandbox [list|create|destroy|exec]\n')));
   process.exit(1);
 }
 
@@ -62,7 +62,7 @@ function listSandboxes() {
 
   if (dirSandboxes.length === 0) {
     console.log(chalk.gray('  No sandboxes found.\n'));
-    console.log(chalk.gray('  Create one:') + chalk.cyan(' natureco sandbox create [name]\n'));
+    console.log(chalk.gray('  Create one:') + chalk.cyan(' nskuld sandbox create [name]\n'));
     return;
   }
   console.log();
@@ -86,7 +86,7 @@ function createSandbox(name) {
 
   console.log(chalk.green(`\n  ✅ Sandbox created: ${sandboxName}\n`));
   console.log(chalk.gray(`  Directory: ${dir}\n`));
-  console.log(chalk.gray('  Usage:') + chalk.cyan(` natureco sandbox exec ${sandboxName} "node -e 'console.log(\\"hello\\")'"`) + '\n');
+  console.log(chalk.gray('  Usage:') + chalk.cyan(` nskuld sandbox exec ${sandboxName} "node -e 'console.log(\\"hello\\")'"`) + '\n');
 }
 
 function destroySandbox(name) {
@@ -114,14 +114,14 @@ function destroySandbox(name) {
 function execSandbox(name, command) {
   if (!name || !command) {
     console.log(chalk.red(L('\n  ❌ Sandbox name ve command gerekli\n', '\n  ❌ Sandbox name and command required\n')));
-    console.log(chalk.gray(L('  Kullanım: natureco sandbox exec <name> <command>\n', '  Usage: natureco sandbox exec <name> <command>\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld sandbox exec <name> <command>\n', '  Usage: nskuld sandbox exec <name> <command>\n')));
     process.exit(1);
   }
 
   const dir = path.join(SANDBOX_DIR, name);
   if (!fs.existsSync(dir)) {
     console.log(chalk.red(`\n  ❌ Sandbox '${name}' not found\n`));
-    console.log(chalk.gray('  Create one:') + chalk.cyan(` natureco sandbox create ${name}`) + '\n');
+    console.log(chalk.gray('  Create one:') + chalk.cyan(` nskuld sandbox create ${name}`) + '\n');
     process.exit(1);
   }
 

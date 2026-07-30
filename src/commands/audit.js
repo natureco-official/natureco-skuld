@@ -1,14 +1,14 @@
 /**
- * natureco audit — Audit log görüntüleyici ve yönetimi (Phase 2)
+ * nskuld audit — Audit log görüntüleyici ve yönetimi (Phase 2)
  *
  * Kullanım:
- *   natureco audit               Bugünkü log'ları göster (son 50)
- *   natureco audit today         Bugünkü tüm loglar
- *   natureco audit stats         Son 24 saat istatistik
- *   natureco audit show <date>   Belirli bir günün logları (YYYY-MM-DD)
- *   natureco audit cleanup       30 günden eski logları sil
- *   natureco audit tail          Canlı log akışı
- *   natureco audit search <q>    Action veya data içinde ara
+ *   nskuld audit               Bugünkü log'ları göster (son 50)
+ *   nskuld audit today         Bugünkü tüm loglar
+ *   nskuld audit stats         Son 24 saat istatistik
+ *   nskuld audit show <date>   Belirli bir günün logları (YYYY-MM-DD)
+ *   nskuld audit cleanup       30 günden eski logları sil
+ *   nskuld audit tail          Canlı log akışı
+ *   nskuld audit search <q>    Action veya data içinde ara
  */
 
 const chalk = require('chalk');
@@ -170,7 +170,7 @@ function audit_cmd(args) {
   if (action === 'search') {
     const query = foldTr(params.join(' '));
     if (!query) {
-      console.log(chalk.red(L('\n  ❌ Arama terimi gerekli: natureco audit search <query>\n', '\n  ❌ Search term required: natureco audit search <query>\n')));
+      console.log(chalk.red(L('\n  ❌ Arama terimi gerekli: nskuld audit search <query>\n', '\n  ❌ Search term required: nskuld audit search <query>\n')));
       return;
     }
     const today = new Date().toISOString().slice(0, 10);
@@ -198,14 +198,14 @@ function audit_cmd(args) {
 
   // Yardım
   console.log(chalk.yellow(L('\n  Kullanım:', '\n  Usage:')));
-  console.log(chalk.gray(L('    natureco audit               Bugünkü logları göster', '    natureco audit               Show today\'s logs')));
-  console.log(chalk.gray(L('    natureco audit today         Bugünkü tüm loglar', '    natureco audit today         All of today\'s logs')));
-  console.log(chalk.gray(L('    natureco audit stats         24 saat istatistik', '    natureco audit stats         24-hour stats')));
-  console.log(chalk.gray(L('    natureco audit show <date>   Belirli gün (YYYY-MM-DD)', '    natureco audit show <date>   Specific day (YYYY-MM-DD)')));
-  console.log(chalk.gray(L('    natureco audit search <q>    Log ara', '    natureco audit search <q>    Search logs')));
-  console.log(chalk.gray(L('    natureco audit files         Dosya listesi', '    natureco audit files         File list')));
-  console.log(chalk.gray(L('    natureco audit cleanup       30 günden eski logları sil', '    natureco audit cleanup       Delete logs older than 30 days')));
-  console.log(chalk.gray(L('    natureco audit tail          Canlı akış', '    natureco audit tail          Live stream')));
+  console.log(chalk.gray(L('    nskuld audit               Bugünkü logları göster', '    nskuld audit               Show today\'s logs')));
+  console.log(chalk.gray(L('    nskuld audit today         Bugünkü tüm loglar', '    nskuld audit today         All of today\'s logs')));
+  console.log(chalk.gray(L('    nskuld audit stats         24 saat istatistik', '    nskuld audit stats         24-hour stats')));
+  console.log(chalk.gray(L('    nskuld audit show <date>   Belirli gün (YYYY-MM-DD)', '    nskuld audit show <date>   Specific day (YYYY-MM-DD)')));
+  console.log(chalk.gray(L('    nskuld audit search <q>    Log ara', '    nskuld audit search <q>    Search logs')));
+  console.log(chalk.gray(L('    nskuld audit files         Dosya listesi', '    nskuld audit files         File list')));
+  console.log(chalk.gray(L('    nskuld audit cleanup       30 günden eski logları sil', '    nskuld audit cleanup       Delete logs older than 30 days')));
+  console.log(chalk.gray(L('    nskuld audit tail          Canlı akış', '    nskuld audit tail          Live stream')));
   console.log('');
 }
 

@@ -189,7 +189,7 @@ describe('new TaskCreate-style features', () => {
 });
 
 describe('persistence', () => {
-  it('uses atomic write (no .tmp residue in ~/.natureco/)', async () => {
+  it('uses atomic write (no .tmp residue in ~/.nskuld/)', async () => {
     await mod.execute({ action: 'add', content: 'test' });
     const dir = path.join(tmpHome, '.nskuld');
     const entries = fs.readdirSync(dir);
@@ -199,7 +199,7 @@ describe('persistence', () => {
 });
 
 describe('module shape', () => {
-  it('preserves the natureco tool interface', () => {
+  it('preserves the nskuld tool interface', () => {
     expect(mod.name).toBe('todo_write');
     expect(typeof mod.execute).toBe('function');
     expect(mod.inputSchema.properties).toHaveProperty('activeForm');

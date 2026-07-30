@@ -26,8 +26,8 @@ const OUT_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'nc-selfedit-'));
 const OUT_FILE = path.join(OUT_DIR, 'serbest.txt');
 
 function cleanEnv() {
-  delete process.env.NATURECO_ALLOW_SELF_EDIT;
-  delete process.env.NATURECO_CHANNEL_ORIGIN;
+  delete process.env.SKULD_ALLOW_SELF_EDIT;
+  delete process.env.SKULD_CHANNEL_ORIGIN;
 }
 
 beforeEach(() => {
@@ -58,7 +58,7 @@ describe('2) kendi-kaynağını-düzenleme — varsayılan KAPALI, bayrakla aç�
   it('paket kökü altındaki dosyada edit_file bayraksız REDDEDİLİR', async () => {
     const r = await editFile.execute({ onayli: true, path: SELF_FILE, old_string: 'eski', new_string: 'yeni' });
     expect(r.success).toBe(false);
-    expect(String(r.error)).toMatch(/NATURECO_ALLOW_SELF_EDIT|kaynak kod/i);
+    expect(String(r.error)).toMatch(/SKULD_ALLOW_SELF_EDIT|kaynak kod/i);
     // dosya DEĞİŞMEMİŞ olmalı
     expect(fs.readFileSync(SELF_FILE, 'utf8')).toContain('eski icerik');
   });
@@ -69,8 +69,8 @@ describe('2) kendi-kaynağını-düzenleme — varsayılan KAPALI, bayrakla aç�
     expect(fs.readFileSync(SELF_FILE, 'utf8')).toContain('eski icerik');
   });
 
-  it('NATURECO_ALLOW_SELF_EDIT=1 ile bilinçli açılınca edit_file çalışır', async () => {
-    process.env.NATURECO_ALLOW_SELF_EDIT = '1';
+  it('SKULD_ALLOW_SELF_EDIT=1 ile bilinçli açılınca edit_file çalışır', async () => {
+    process.env.SKULD_ALLOW_SELF_EDIT = '1';
     const r = await editFile.execute({ onayli: true, path: SELF_FILE, old_string: 'eski', new_string: 'yeni' });
     expect(r.success).toBe(true);
     expect(fs.readFileSync(SELF_FILE, 'utf8')).toContain('yeni icerik');
@@ -83,9 +83,9 @@ describe('2) kendi-kaynağını-düzenleme — varsayılan KAPALI, bayrakla aç�
 });
 
 describe('3) kanal kaynaklı çağrı — bayrak açık olsa bile paket kaynağına ASLA yazamaz', () => {
-  it('NATURECO_CHANNEL_ORIGIN=1 iken allowSelfEdit bayrağı YOK SAYILIR', async () => {
-    process.env.NATURECO_CHANNEL_ORIGIN = '1';
-    process.env.NATURECO_ALLOW_SELF_EDIT = '1'; // trusted+bayrak bile olsa
+  it('SKULD_CHANNEL_ORIGIN=1 iken allowSelfEdit bayrağı YOK SAYILIR', async () => {
+    process.env.SKULD_CHANNEL_ORIGIN = '1';
+    process.env.SKULD_ALLOW_SELF_EDIT = '1'; // trusted+bayrak bile olsa
     const e = await editFile.execute({ onayli: true, path: SELF_FILE, old_string: 'eski', new_string: 'yeni' });
     const w = await writeFile.execute({ path: SELF_FILE, content: 'ezildi' });
     expect(e.success).toBe(false);
@@ -94,19 +94,19 @@ describe('3) kanal kaynaklı çağrı — bayrak açık olsa bile paket kaynağ�
   });
 
   it('kanal kaynağında paket DIŞI dosya yine düzenlenebilir (özellik korunur)', async () => {
-    process.env.NATURECO_CHANNEL_ORIGIN = '1';
+    process.env.SKULD_CHANNEL_ORIGIN = '1';
     const r = await editFile.execute({ onayli: true, path: OUT_FILE, old_string: 'eski', new_string: 'yeni' });
     expect(r.success).toBe(true);
   });
 
   it('channel-brain (runBrain) kanal-kaynağı işaretini koyar', async () => {
     const brain = (await import('../../src/utils/channel-brain.js')).default;
-    delete process.env.NATURECO_CHANNEL_ORIGIN;
+    delete process.env.SKULD_CHANNEL_ORIGIN;
     await brain.runBrain(
       { channel: 'testsec', chatKey: 'c1', text: 'merhaba' },
       { workflow: { execute: async () => ({ success: true, passthrough: true, reply: 'ok' }) }, getConfig: () => ({ botName: 'T' }) }
     );
-    expect(process.env.NATURECO_CHANNEL_ORIGIN).toBe('1');
+    expect(process.env.SKULD_CHANNEL_ORIGIN).toBe('1');
     try { fs.unlinkSync(path.join(os.homedir(), '.nskuld', 'channel-history', 'testsec_c1.json')); } catch {}
   });
 });

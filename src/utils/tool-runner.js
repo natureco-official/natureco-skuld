@@ -107,14 +107,14 @@ async function executeTool(toolName, params, opts = {}) {
   const tool = tools[toolName];
   // `agentMode` means "a human is present and can be prompted". No caller in
   // the repo ever set it, so the confirmation block below was unreachable and
-  // `natureco chat` wrote files and ran destructive commands with no prompt at
+  // `nskuld chat` wrote files and ran destructive commands with no prompt at
   // all. Default it to "there is a terminal"; a non-TTY origin (channel, API,
   // cron) keeps the fail-closed path instead of a prompt nobody can answer.
   const agentMode = opts.agentMode ?? Boolean(process.stdin.isTTY && process.stdout.isTTY);
-  // Explicit opt-out: run without prompting. NATURECO_FORCE is the existing
+  // Explicit opt-out: run without prompting. SKULD_FORCE is the existing
   // convention for this (see utils/dangerous.js). Unlike a non-TTY origin this
   // means "approved in advance", so it allows rather than refuses.
-  const preApproved = opts.approvalMode === 'preapproved' || process.env.NATURECO_FORCE === '1';
+  const preApproved = opts.approvalMode === 'preapproved' || process.env.SKULD_FORCE === '1';
   if (!tool) {
     return { success: false, error: `Tool '${toolName}' not found` };
   }

@@ -8,7 +8,7 @@ require('../providers/search/searxng');
 require('../providers/search/exa');
 
 const name = 'search_provider';
-const description = 'Unified search backend with pluggable providers. search/status/switch/list. Supports Tavily, DuckDuckGo, SearXNG, Exa. Switch via NATURECO_SEARCH_PROVIDER env or config.searchProvider. Default: tavily (falls back to others if no API key).';
+const description = 'Unified search backend with pluggable providers. search/status/switch/list. Supports Tavily, DuckDuckGo, SearXNG, Exa. Switch via SKULD_SEARCH_PROVIDER env or config.searchProvider. Default: tavily (falls back to others if no API key).';
 const inputSchema = {
   type: 'object',
   properties: {
@@ -31,7 +31,7 @@ async function execute(params) {
   switch (params.action) {
     case 'search': {
       if (!params.query) return { success: false, error: 'query gerekli' };
-      const providerName = params.provider || process.env.NATURECO_SEARCH_PROVIDER || cfg.searchProvider;
+      const providerName = params.provider || process.env.SKULD_SEARCH_PROVIDER || cfg.searchProvider;
       let Provider;
       if (providerName) Provider = getProvider(providerName);
       if (!Provider) Provider = getActiveProvider(cfg);
@@ -46,7 +46,7 @@ async function execute(params) {
         active,
         available: avail,
         config: cfg.searchProvider || '(not set, using default)',
-        env: process.env.NATURECO_SEARCH_PROVIDER || '(not set)',
+        env: process.env.SKULD_SEARCH_PROVIDER || '(not set)',
         default: 'tavily',
       };
     }

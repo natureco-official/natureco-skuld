@@ -27,7 +27,7 @@ function mcp(args) {
   if (action === 'unset') return cmdUnset(params[0]);
 
   console.log(chalk.red(`\n  Unknown mcp action: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco mcp <action> [params]'));
+  console.log(chalk.gray('  Usage: nskuld mcp <action> [params]'));
   console.log(chalk.gray('  Actions: serve, list, show <name>, set, unset <name>\n'));
   process.exit(1);
 }
@@ -49,7 +49,7 @@ function cmdList() {
 
   if (names.length === 0) {
     console.log(chalk.gray('  No MCP servers configured.\n'));
-    console.log(chalk.gray('  Add one: ') + chalk.cyan('natureco mcp set <name> <command> [args...]\n'));
+    console.log(chalk.gray('  Add one: ') + chalk.cyan('nskuld mcp set <name> <command> [args...]\n'));
     return;
   }
 
@@ -64,7 +64,7 @@ function cmdList() {
 
 function cmdShow(name) {
   if (!name) {
-    console.log(chalk.red('\n  Usage: natureco mcp show <name>\n'));
+    console.log(chalk.red('\n  Usage: nskuld mcp show <name>\n'));
     process.exit(1);
   }
 
@@ -87,7 +87,7 @@ function cmdShow(name) {
 
 function cmdSet(name, rest) {
   if (!name || rest.length === 0) {
-    console.log(chalk.red('\n  Usage: natureco mcp set <name> <command> [args...]\n'));
+    console.log(chalk.red('\n  Usage: nskuld mcp set <name> <command> [args...]\n'));
     process.exit(1);
   }
 
@@ -103,7 +103,7 @@ function cmdSet(name, rest) {
 
 function cmdUnset(name) {
   if (!name) {
-    console.log(chalk.red('\n  Usage: natureco mcp unset <name>\n'));
+    console.log(chalk.red('\n  Usage: nskuld mcp unset <name>\n'));
     process.exit(1);
   }
 

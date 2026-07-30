@@ -31,7 +31,7 @@ function pathCmd(args) {
   if (action === 'emit') return emitPath(params[0]);
 
   console.log(chalk.red(`\n  ❌ Unknown path action: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco path <resolve|find|set|validate|emit> [args]\n'));
+  console.log(chalk.gray('  Usage: nskuld path <resolve|find|set|validate|emit> [args]\n'));
   process.exit(1);
 }
 
@@ -45,7 +45,7 @@ function listPaths() {
   if (entries.length === 0) {
     console.log(chalk.gray('  No paths registered.\n'));
     console.log(chalk.gray('  Register a path:'));
-    console.log(chalk.cyan('    natureco path set <name> <path>\n'));
+    console.log(chalk.cyan('    nskuld path set <name> <path>\n'));
     return;
   }
 
@@ -62,7 +62,7 @@ function listPaths() {
 function resolvePath(uri) {
   if (!uri) {
     console.log(chalk.red(L('\n  ❌ URI gerekli\n', '\n  ❌ URI required\n')));
-    console.log(chalk.gray('  Usage: natureco path resolve nc://path\n'));
+    console.log(chalk.gray('  Usage: nskuld path resolve nc://path\n'));
     process.exit(1);
   }
 
@@ -113,7 +113,7 @@ function findPath(name) {
   if (!entry) {
     console.log(chalk.yellow(`\n  🔍 Path not found: ${name}\n`));
     console.log(chalk.gray('  Register it:'));
-    console.log(chalk.cyan(`    natureco path set ${name} <path>\n`));
+    console.log(chalk.cyan(`    nskuld path set ${name} <path>\n`));
     return;
   }
 

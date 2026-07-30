@@ -9,9 +9,9 @@ function normalizeWindowsPaths(str) {
   result = result.replace(/[A-Za-z]:\/Users\/[^/]+\//g, `${homeDir}/`);
 
   // Replace bare drive-letter references pointing to .openclaw
-  result = result.replace(/[A-Za-z]:\/\.openclaw\//g, `${homeDir}/.natureco/`);
+  result = result.replace(/[A-Za-z]:\/\.openclaw\//g, `${homeDir}/.nskuld/`);
 
-  // Migrate .openclaw paths to .natureco
+  // Migrate .openclaw paths to .nskuld
   result = result.replace(/\.openclaw\//g, '.nskuld/');
 
   // Normalize mixed path separators

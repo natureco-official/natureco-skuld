@@ -209,8 +209,8 @@ function createToolGate(deps = {}) {
   const interactive = typeof deps.confirm === 'function';
 
   const refuseUnattended = what => L(
-    `Onay gerektiren işlem otomatik modda reddedildi (${what}). Bu adımı etkileşimli \`natureco code\` oturumunda çalıştırın.`,
-    `An operation requiring approval was refused in unattended mode (${what}). Run this step in an interactive \`natureco code\` session.`,
+    `Onay gerektiren işlem otomatik modda reddedildi (${what}). Bu adımı etkileşimli \`nskuld code\` oturumunda çalıştırın.`,
+    `An operation requiring approval was refused in unattended mode (${what}). Run this step in an interactive \`nskuld code\` session.`,
   );
 
   return async function screenToolCall(name, args = {}) {

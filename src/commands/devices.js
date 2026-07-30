@@ -22,7 +22,7 @@ function devices(args) {
   if (action === 'clear') return clearDevices();
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco devices [list|pair|unpair|remove|token|regenerate-token|rotate|revoke|clear]\n', '  Usage: natureco devices [list|pair|unpair|remove|token|regenerate-token|rotate|revoke|clear]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld devices [list|pair|unpair|remove|token|regenerate-token|rotate|revoke|clear]\n', '  Usage: nskuld devices [list|pair|unpair|remove|token|regenerate-token|rotate|revoke|clear]\n')));
   process.exit(1);
 }
 
@@ -35,7 +35,7 @@ function listDevices() {
 
   if (devices.length === 0) {
     console.log('\n  ' + tui.C.muted(L('Eşleşmiş cihaz yok.', 'No paired devices.')));
-    console.log('  ' + tui.C.muted(L('Eşleştirmek için: ', 'To pair: ')) + tui.C.brand('natureco devices pair <ad> <tip>'));
+    console.log('  ' + tui.C.muted(L('Eşleştirmek için: ', 'To pair: ')) + tui.C.brand('nskuld devices pair <ad> <tip>'));
     console.log('');
     return;
   }

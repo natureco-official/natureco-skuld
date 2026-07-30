@@ -1,7 +1,7 @@
 /**
- * NatureCo CLI — Local Dashboard Server (Phase 5)
+ * NatureCo Skuld — Local Dashboard Server (Phase 5)
  *
- * `natureco dashboard` → http://localhost:7421
+ * `nskuld dashboard` → http://localhost:7421
  * Tüm NatureCo verilerini tek sayfada gösterir:
  *   - Sessions (chat geçmişi)
  *   - Costs (bugün/hafta/ay)
@@ -23,7 +23,7 @@ const { getDashboardPort, getDashboardHost } = require('./ports');
 const PORT = getDashboardPort();
 const HOST = getDashboardHost();
 
-const NATURECO_DIR = path.join(os.homedir(), '.nskuld');
+const SKULD_DIR = path.join(os.homedir(), '.nskuld');
 
 function safeReadJSON(filePath) {
   try {
@@ -37,19 +37,19 @@ function safeReadJSON(filePath) {
 function getDashboardData() {
   return {
     timestamp: new Date().toISOString(),
-    config: safeReadJSON(path.join(NATURECO_DIR, 'config.json')) || {},
-    skills: safeReadJSON(path.join(NATURECO_DIR, 'skills', '_index.json')) || { skills: [] },
-    proposals: safeReadJSON(path.join(NATURECO_DIR, 'skill-proposals.json')) || [],
-    crons: safeReadJSON(path.join(NATURECO_DIR, 'crons.json')) || [],
-    costs: safeReadJSON(path.join(NATURECO_DIR, 'cost-tracking.json')) || { entries: [] },
-    patterns: safeReadJSON(path.join(NATURECO_DIR, 'patterns.json')) || { sequences: [] },
+    config: safeReadJSON(path.join(SKULD_DIR, 'config.json')) || {},
+    skills: safeReadJSON(path.join(SKULD_DIR, 'skills', '_index.json')) || { skills: [] },
+    proposals: safeReadJSON(path.join(SKULD_DIR, 'skill-proposals.json')) || [],
+    crons: safeReadJSON(path.join(SKULD_DIR, 'crons.json')) || [],
+    costs: safeReadJSON(path.join(SKULD_DIR, 'cost-tracking.json')) || { entries: [] },
+    patterns: safeReadJSON(path.join(SKULD_DIR, 'patterns.json')) || { sequences: [] },
     audit: getAuditSummary(),
   };
 }
 
 function getAuditSummary() {
   const today = new Date().toISOString().slice(0, 10);
-  const auditDir = path.join(NATURECO_DIR, 'audit');
+  const auditDir = path.join(SKULD_DIR, 'audit');
   if (!fs.existsSync(auditDir)) return { today: 0, byAction: {} };
   const file = path.join(auditDir, `audit-${today}.jsonl`);
   if (!fs.existsSync(file)) return { today: 0, byAction: {} };
@@ -163,7 +163,7 @@ const HTML_PAGE = `<!DOCTYPE html>
   </div>
 </main>
 <div class="footer">
-  NatureCo CLI Dashboard · port ${PORT} · <a href="/api" style="color:#22c55e">/api</a> tam JSON için
+  NatureCo Skuld Dashboard · port ${PORT} · <a href="/api" style="color:#22c55e">/api</a> tam JSON için
 </div>
 <script>
 async function load() {

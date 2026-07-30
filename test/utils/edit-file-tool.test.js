@@ -125,7 +125,7 @@ describe('atomic write', () => {
 });
 
 describe('module shape', () => {
-  it('matches the natureco tool interface (name + execute + inputSchema)', () => {
+  it('matches the nskuld tool interface (name + execute + inputSchema)', () => {
     const mod = require('../../src/tools/edit_file');
     expect(mod.name).toBe('edit_file');
     expect(typeof mod.execute).toBe('function');

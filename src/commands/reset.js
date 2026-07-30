@@ -1,5 +1,5 @@
 /**
- * natureco reset - Her seyi sifirla (v5.6.0)
+ * nskuld reset - Her seyi sifirla (v5.6.0)
  *
  * Options:
  *   --all       Config, memory, sessions, soul hepsini sil
@@ -38,7 +38,7 @@ async function reset() {
     const argsObj = {
       flags: args.filter(a => a.startsWith('--') || a.startsWith('-'))
     };
-    const approved = await requireApproval('natureco reset', argsObj, risk, reason);
+    const approved = await requireApproval('nskuld reset', argsObj, risk, reason);
     if (!approved) {
       console.log(chalk.gray('\nIptal edildi.\n'));
       return;
@@ -114,7 +114,7 @@ async function reset() {
   }
 
   console.log(chalk.cyan('\n\u2705 Reset tamamlandi!'));
-  console.log(chalk.gray('  Yeniden kurmak icin: natureco setup\n'));
+  console.log(chalk.gray('  Yeniden kurmak icin: nskuld setup\n'));
 }
 
 module.exports = { reset };

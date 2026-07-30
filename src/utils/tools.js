@@ -1,5 +1,5 @@
 /**
- * NatureCo CLI — Tool Definitions for OpenAI-compatible APIs
+ * NatureCo Skuld — Tool Definitions for OpenAI-compatible APIs
  *
  * src/tools/*.js dosyalarını OpenAI uyumlu function calling format'ına dönüştürür.
  * v5.7.17: Emoji + toolset + check_fn + registry entegrasyonu.

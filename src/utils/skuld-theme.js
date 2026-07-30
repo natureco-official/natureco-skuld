@@ -114,7 +114,7 @@ function gradyan(metin, baslangic = 200, bitis = 500) {
 // ── Kelime işareti ───────────────────────────────────────────────────────
 //
 // Yarım blok karakterler: düz metinden belirgin biçimde iri, blok ASCII'den
-// belirgin biçimde ince. natureco-cli'nin altı satırlık gölgeli logosuyla
+// belirgin biçimde ince. natureco-skuld'nin altı satırlık gölgeli logosuyla
 // karıştırılacak bir şey değil.
 //
 // Harfler ayrı ayrı tanımlanıp birleştirme kodla yapılıyor. Tek satır olarak

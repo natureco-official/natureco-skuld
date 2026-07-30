@@ -40,7 +40,7 @@ async function bots() {
 
     if (!botList || !botList.bots || botList.bots.length === 0) {
       console.log('\n' + tui.C.muted(L('  Bot bulunamadı.', '  No bots found.')));
-      console.log('  ' + tui.C.muted(L('Oluşturmak için: ', 'To create: ')) + tui.C.brand('natureco setup') + ' ' + tui.C.muted(L('veya config\'e bot ekleyin.', 'or add a bot to config.')));
+      console.log('  ' + tui.C.muted(L('Oluşturmak için: ', 'To create: ')) + tui.C.brand('nskuld setup') + ' ' + tui.C.muted(L('veya config\'e bot ekleyin.', 'or add a bot to config.')));
       console.log('');
       return;
     }
@@ -69,7 +69,7 @@ async function bots() {
       { key: 'model', label: 'Model', minWidth: 20, render: r => tui.C.muted(r.model) },
     ], { borderStyle: 'round', zebra: true }));
 
-    console.log('\n  ' + tui.C.muted(L('Chat başlatmak için: ', 'To start chat: ')) + tui.C.brand('natureco chat') + ' ' + tui.C.muted(L('veya ', 'or ')) + tui.C.brand('natureco repl'));
+    console.log('\n  ' + tui.C.muted(L('Chat başlatmak için: ', 'To start chat: ')) + tui.C.brand('nskuld chat') + ' ' + tui.C.muted(L('veya ', 'or ')) + tui.C.brand('nskuld repl'));
     console.log('');
   } catch (err) {
     console.log('\n' + tui.C.red(L('  ❌ Hata: ', '  ❌ Error: ') + err.message) + '\n');

@@ -1,12 +1,12 @@
 /**
- * NatureCo CLI — Audit Log (Phase 2)
+ * NatureCo Skuld — Audit Log (Phase 2)
  *
  * Tüm kullanıcı işlemlerini (komut, onay, tool call, hata) JSONL olarak kaydeder.
  * Bu log güvenlik denetimi, hata ayıklama ve compliance için kullanılır.
  *
  * Format: Her satır bir JSON objesi. Sıralı append, async-non-blocking.
  *
- * Varsayılan: ~/.natureco/audit/audit-YYYY-MM-DD.jsonl
+ * Varsayılan: ~/.nskuld/audit/audit-YYYY-MM-DD.jsonl
  * 30 günden eski loglar otomatik temizlenir.
  */
 

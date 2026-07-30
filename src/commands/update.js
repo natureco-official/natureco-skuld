@@ -37,7 +37,7 @@ function getCurrentVersion() {
 
 function getLatestVersion() {
   try {
-    const result = execSync('npm view natureco-cli version', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+    const result = execSync('npm view natureco-skuld version', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
     return result.trim();
   } catch {
     return null;
@@ -53,7 +53,7 @@ async function update(params) {
     if (action === 'wizard') return await cmdWizard();
 
     console.log(chalk.red(`\n  Unknown update action: ${action}\n`));
-    console.log(chalk.gray('  Usage: natureco update [run|status|wizard]\n'));
+    console.log(chalk.gray('  Usage: nskuld update [run|status|wizard]\n'));
   } catch (err) {
     console.log(chalk.red(`\n  Update error: ${err.message}\n`));
   }
@@ -98,12 +98,12 @@ async function cmdRun() {
   console.log(chalk.cyan('\n  Updating: v' + current + ' → v' + latest + '\n'));
 
   try {
-    execSync('npm update -g natureco-cli', { stdio: 'inherit' });
+    execSync('npm update -g natureco-skuld', { stdio: 'inherit' });
     saveVersion({ installed: latest, updated: new Date().toISOString(), latest });
     console.log(chalk.green('\n  ✓ Updated to v' + latest + '\n'));
   } catch (e) {
     console.log(chalk.red('\n  Update failed: ' + e.message + '\n'));
-    console.log(chalk.gray('  Try: npm install -g natureco-cli@latest\n'));
+    console.log(chalk.gray('  Try: npm install -g natureco-skuld@latest\n'));
   }
 }
 
@@ -135,7 +135,7 @@ async function cmdWizard() {
   console.log(chalk.gray('\n  Installing...\n'));
 
   try {
-    execSync('npm install -g natureco-cli@latest', { stdio: 'inherit' });
+    execSync('npm install -g natureco-skuld@latest', { stdio: 'inherit' });
     saveVersion({ installed: latest, updated: new Date().toISOString(), latest });
     console.log(chalk.green('\n  ✓ Updated to v' + latest + '\n'));
   } catch (e) {

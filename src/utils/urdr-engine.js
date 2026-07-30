@@ -53,14 +53,14 @@ function loadUrdrSearch() {
 }
 
 function mode() {
-  const value = String(process.env.NATURECO_MEMORY_ENGINE || '').toLowerCase();
+  const value = String(process.env.SKULD_MEMORY_ENGINE || '').toLowerCase();
   return value === 'urdr' || value === 'legacy' ? value : 'auto';
 }
 
 async function resolveEngine() {
   const selected = mode();
   if (selected === 'legacy') {
-    return { mod: null, reason: 'forced by NATURECO_MEMORY_ENGINE=legacy' };
+    return { mod: null, reason: 'forced by SKULD_MEMORY_ENGINE=legacy' };
   }
   if (selected === 'auto' && NODE_MAJOR < 22) {
     return { mod: null, reason: 'Node.js 22+ required for automatic Urdr activation' };

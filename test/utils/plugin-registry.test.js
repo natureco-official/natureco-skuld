@@ -197,7 +197,7 @@ describe('plugin-registry', () => {
   });
 
   describe('PLUGINS_DIR', () => {
-    it('should point to .natureco/plugins', () => {
+    it('should point to .nskuld/plugins', () => {
       expect(mod.PLUGINS_DIR).toContain('.nskuld');
       expect(mod.PLUGINS_DIR).toContain('plugins');
     });

@@ -17,7 +17,7 @@ function tempHome(prefix) {
 function runNode(args, home) {
   return spawnSync(process.execPath, args, {
     cwd: repoRoot,
-    env: { ...process.env, HOME: home, USERPROFILE: home, FORCE_COLOR: '0', NATURECO_LANG: 'en' },
+    env: { ...process.env, HOME: home, USERPROFILE: home, FORCE_COLOR: '0', SKULD_LANG: 'en' },
     encoding: 'utf8',
     timeout: 15000,
   });
@@ -33,8 +33,8 @@ afterEach(() => {
 
 describe('AUDIT_FINDINGS_3 low-severity regressions', () => {
   const noArgCases = [
-    ['agent', 'Usage: natureco agent'],
-    ['config', 'Usage: natureco config'],
+    ['agent', 'Usage: nskuld agent'],
+    ['config', 'Usage: nskuld config'],
     ['crestodian', 'Crestodian'],
     ['docs', 'NatureCo Docs Search'],
     ['message', 'Usage: message send'],

@@ -2,7 +2,7 @@
 /**
  * Provenans kapısı.
  *
- * natureco-cli MIT lisanslı ve Skuld ondan kod alıyor. Lisans yükümlülüğü ve
+ * natureco-skuld MIT lisanslı ve Skuld ondan kod alıyor. Lisans yükümlülüğü ve
  * upstream güvenlik düzeltmelerini taşıyabilmek, hangi dosyanın nereden
  * geldiğini ve HANGİ COMMIT'ten geldiğini bilmeye bağlı. Bu bilgi bir
  * geliştiricinin hafızasında durursa altı ay sonra kaybolur.
@@ -10,7 +10,7 @@
  * Kural: taşınan her dosya başında bir provenans bloğu taşır ve aynı kayıt
  * docs/UPSTREAM_SYNC.md içinde bulunur. İkisi ayrışırsa bu betik düşer.
  *
- *   // @provenance natureco-cli src/tools/edit_file.js @40b4913
+ *   // @provenance natureco-skuld src/tools/edit_file.js @40b4913
  *
  * Kontrol iki yönlüdür: başlıkta olup kayıtta olmayan da, kayıtta olup
  * başlıkta olmayan da hatadır. Tek yönlü kontrol, sessizce çürüyen kayıt

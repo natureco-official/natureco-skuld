@@ -5,7 +5,7 @@
  * affecting the main working directory.
  *
  * Tools:
- *   EnterWorktree — create a temp branch + worktree at .natureco/worktrees/<id>
+ *   EnterWorktree — create a temp branch + worktree at .nskuld/worktrees/<id>
  *   ExitWorktree — merge/collapse worktree changes back
  *
  * Falls back to a copytree (non-git) strategy when not in a git repo.

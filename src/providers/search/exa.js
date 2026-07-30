@@ -9,7 +9,7 @@ class ExaProvider extends SearchProvider {
   async search(query, options = {}) {
     const apiKey = this.config.exaApiKey || process.env.EXA_API_KEY;
     if (!apiKey) {
-      return { success: false, error: 'Exa API key gerekli. Kur: natureco config set exaApiKey <key>', provider: this.name };
+      return { success: false, error: 'Exa API key gerekli. Kur: nskuld config set exaApiKey <key>', provider: this.name };
     }
 
     const response = await fetch('https://api.exa.ai/search', {

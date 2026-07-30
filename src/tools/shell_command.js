@@ -75,7 +75,7 @@ module.exports = {
     if (!isSafeCommand(command)) {
       const approval = await checkCommand(command, { agentId: (params && params.agentId) || 'default' });
       if (!approval.allowed) {
-        return { success: false, error: `Komut güvenlik politikasıyla reddedildi (${approval.reason}). "natureco security" ile politikayı görüntüle.` };
+        return { success: false, error: `Komut güvenlik politikasıyla reddedildi (${approval.reason}). "nskuld security" ile politikayı görüntüle.` };
       }
       if (isDangerousCommand(command)) {
         return { success: false, error: 'Tehlikeli komut engellendi. Gözden geçirip manuel çalıştırın.' };

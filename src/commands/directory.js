@@ -36,7 +36,7 @@ function directory(args) {
   if (action === 'groups') return groupsList();
 
   console.log(chalk.red(`\n  ❌ ${L('Bilinmeyen komut', 'Unknown command')}: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco directory [self|peers|search|register|remove|groups]\n', '  Usage: natureco directory [self|peers|search|register|remove|groups]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld directory [self|peers|search|register|remove|groups]\n', '  Usage: nskuld directory [self|peers|search|register|remove|groups]\n')));
   process.exit(1);
 }
 
@@ -74,7 +74,7 @@ function listPeers() {
     }
 
     if (!found) console.log(chalk.gray('  No channels configured.'));
-    console.log(chalk.gray('\n  Register peers: ') + chalk.cyan('natureco directory register <url> [name]'));
+    console.log(chalk.gray('\n  Register peers: ') + chalk.cyan('nskuld directory register <url> [name]'));
     console.log();
     return;
   }
@@ -93,7 +93,7 @@ function listPeers() {
 function searchPeers(query) {
   if (!query) {
     console.log(chalk.red(L('\n  ❌ Arama sorgusu gerekli\n', '\n  ❌ Search query required\n')));
-    console.log(chalk.gray(L('  Kullanım: natureco directory search <query>\n', '  Usage: natureco directory search <query>\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld directory search <query>\n', '  Usage: nskuld directory search <query>\n')));
     process.exit(1);
   }
 
@@ -123,7 +123,7 @@ function searchPeers(query) {
 function registerPeer(url, name) {
   if (!url) {
     console.log(chalk.red(L('\n  ❌ URL gerekli\n', '\n  ❌ URL required\n')));
-    console.log(chalk.gray(L('  Kullanım: natureco directory register <url> [name]\n', '  Usage: natureco directory register <url> [name]\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld directory register <url> [name]\n', '  Usage: nskuld directory register <url> [name]\n')));
     process.exit(1);
   }
 
@@ -141,7 +141,7 @@ function registerPeer(url, name) {
 function removePeer(urlOrName) {
   if (!urlOrName) {
     console.log(chalk.red(L('\n  ❌ URL veya isim gerekli\n', '\n  ❌ URL or name required\n')));
-    console.log(chalk.gray(L('  Kullanım: natureco directory remove <url|name>\n', '  Usage: natureco directory remove <url|name>\n')));
+    console.log(chalk.gray(L('  Kullanım: nskuld directory remove <url|name>\n', '  Usage: nskuld directory remove <url|name>\n')));
     process.exit(1);
   }
 

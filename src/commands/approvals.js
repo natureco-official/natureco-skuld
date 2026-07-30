@@ -53,7 +53,7 @@ function approvals(args) {
   if (action === 'allowlist') return listAllowlist();
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco approvals [list|pending|approve|reject|set-policy|set|add|get|allowlist]\n', '  Usage: natureco approvals [list|pending|approve|reject|set-policy|set|add|get|allowlist]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld approvals [list|pending|approve|reject|set-policy|set|add|get|allowlist]\n', '  Usage: nskuld approvals [list|pending|approve|reject|set-policy|set|add|get|allowlist]\n')));
   process.exit(1);
 }
 
@@ -123,7 +123,7 @@ function addReq(text) {
   saveQueue(queue);
   console.log(chalk.yellow(`\n  ⏳ ${L('Onay beklemede', 'Awaiting approval')}: ${r.id}\n`));
   console.log(`  ${chalk.white(text)}`);
-  console.log(chalk.gray(`  ${L('Onaylamak için', 'To approve')}: natureco approvals approve ${r.id}`));
+  console.log(chalk.gray(`  ${L('Onaylamak için', 'To approve')}: nskuld approvals approve ${r.id}`));
   console.log();
 }
 

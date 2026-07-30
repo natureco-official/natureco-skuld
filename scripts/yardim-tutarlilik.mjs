@@ -32,6 +32,13 @@ const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const GIRIS = path.join(KOK, "bin", "nskuld.js");
 const metin = readFileSync(GIRIS, "utf8");
 
+// `nskuld help` AYRI bir ekran ve ayrı bir liste tutuyor. Devralınan hâli
+// natureco-cli'nin menüsüydü ve komut kırpmadan sonra **var olmayan 13 komut**
+// tanıtmaya devam ediyordu. İki liste + bir kürasyonlu özet = üç kopya; üçü de
+// denetlenmezse biri kayar.
+const YARDIM_KOMUTU = path.join(KOK, "src", "commands", "help.js");
+const yardimKomutuMetni = readFileSync(YARDIM_KOMUTU, "utf8");
+
 /**
  * Yardım metninde tanıtılmamasını kabul ettiğimiz komutlar.
  *
@@ -63,7 +70,15 @@ if (kayitli.size === 0 || yardimda.size === 0) {
   process.exit(1);
 }
 
-const hayalet = [...yardimda].filter((k) => !kayitli.has(k)).sort();
+// `help.js` içindeki `['<komut>', '<açıklama>']` satırları.
+const yardimEkraninda = new Set();
+for (const m of yardimKomutuMetni.matchAll(/\[\s*['"]([a-z0-9-]+)(?:\s[^'"]*)?['"]\s*,\s*L\(/g)) {
+  yardimEkraninda.add(m[1]);
+}
+
+const hayalet = [...new Set([...yardimda, ...yardimEkraninda])]
+  .filter((k) => !kayitli.has(k))
+  .sort();
 const gizli = [...kayitli]
   .filter((k) => !yardimda.has(k) && !YARDIMDA_OLMAYABILIR.has(k))
   .sort();
@@ -77,8 +92,14 @@ if (gizli.length > 0) {
   console.log(`      ${gizli.join(", ")}`);
 }
 
+if (yardimEkraninda.size === 0) {
+  console.error("  ✗ `help.js` komut listesi ayrıştırılamadı — betiğin deseni kodla uyuşmuyor.");
+  process.exit(1);
+}
+
 console.log(
-  `Yardım tutarlılığı: ${kayitli.size} kayıtlı komut, ${yardimda.size} özette tanıtılan, ${hayalet.length} hayalet.`,
+  `Yardım tutarlılığı: ${kayitli.size} kayıtlı komut, ${yardimda.size} özette, `
+  + `${yardimEkraninda.size} help ekranında, ${hayalet.length} hayalet.`,
 );
 if (hayalet.length === 0) console.log("Yardım metni var olmayan komut tanıtmıyor.");
 // Yalnızca hayaletler kırar. Kürasyon eksiği bir tercih olabilir; onu hataya

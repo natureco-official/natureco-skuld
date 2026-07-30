@@ -212,7 +212,7 @@ async function runTests(projectIndex, conversationMessages, tools, providerConfi
 }
 
 function noBotSelected(setExitCode = false) {
-  const error = L('Bot seçilmedi. Önce `natureco bots` komutunu çalıştırın.', 'No bot selected. Run `natureco bots` first.');
+  const error = L('Bot seçilmedi. Önce `nskuld agents` komutunu çalıştırın.', 'No bot selected. Run `nskuld agents` first.');
   console.log(chalk.red(error + '\n'));
   if (setExitCode) process.exitCode = 1;
   return { success: false, error };
@@ -262,7 +262,7 @@ async function code(targetFile, options = {}) {
   const providerConfig = getProviderConfig();
 
   if (!providerConfig) {
-    console.log(chalk.red(L('\n❌ Provider yapılandırılmamış. natureco config set providerUrl ...\n', '\n❌ Provider not configured. natureco config set providerUrl ...\n')));
+    console.log(chalk.red(L('\n❌ Provider yapılandırılmamış. nskuld config set providerUrl ...\n', '\n❌ Provider not configured. nskuld config set providerUrl ...\n')));
     process.exit(1);
   }
 
@@ -298,7 +298,7 @@ ${indexPrompt}`);
   // ── Proje hafızası ────────────────────────────────────────────────────────
   const projectMemory = loadProjectMemory(workDir);
   if (projectMemory) {
-    systemPrompt += `\n\n## Proje Geçmişi (.natureco/project.md)\n${TB.trimProjectMemory(projectMemory)}`;
+    systemPrompt += `\n\n## Proje Geçmişi (.nskuld/project.md)\n${TB.trimProjectMemory(projectMemory)}`;
   }
 
   // Hedef dosya varsa context'e ekle

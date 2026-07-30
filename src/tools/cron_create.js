@@ -2,7 +2,7 @@
  * cron_create - Zamanlanmis gorev (v4.9.0)
  *
  * Hermes cronjob'una benzer. "Her gun 09:00'da calistir" gibi.
- * NatureCo CLI mevcut cron sistemine yazar (cron.js zaten var).
+ * NatureCo Skuld mevcut cron sistemine yazar (cron.js zaten var).
  */
 
 const fs = require("fs");
@@ -57,7 +57,7 @@ async function createCron({ name, schedule, command, description = "", allowSyst
   // (persistence — oturum kapansa bile suresiz calisir). Artik: (1) tehlikeli komut hic
   // kaydedilmez; (2) sistem crontab'ina yazma VARSAYILAN OLARAK KAPALI (schema'da param
   // yok → ajan tetikleyemez) ve ancak checkCommand onayindan gecerse yapilir; ajanin
-  // olusturdugu cron sadece uygulama-ici crons.json'a yazilir (natureco daemon calistirir).
+  // olusturdugu cron sadece uygulama-ici crons.json'a yazilir (nskuld daemon calistirir).
   const { isDangerousCommand, checkCommand } = require("../utils/approvals");
   if (isDangerousCommand(command)) {
     return { success: false, error: "Tehlikeli komut cron olarak eklenemez (guvenlik). Komutu gozden gecirin." };
@@ -110,7 +110,7 @@ async function createCron({ name, schedule, command, description = "", allowSyst
     cron: newCron,
     message: crontabUpdated
       ? `Cron olusturuldu VE sistem crontab'a eklendi: ${name} (${resolvedSchedule})`
-      : `Cron olusturuldu (uygulama-ici): ${name} (${resolvedSchedule}). Calismasi icin: natureco daemon start.${crontabError ? ` [sistem crontab: ${crontabError}]` : ""}`,
+      : `Cron olusturuldu (uygulama-ici): ${name} (${resolvedSchedule}). Calismasi icin: nskuld daemon start.${crontabError ? ` [sistem crontab: ${crontabError}]` : ""}`,
     crontabUpdated,
     crontabError,
     systemCrontab: allowSystemCrontab,

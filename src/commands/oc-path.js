@@ -76,7 +76,7 @@ function ocPath(args) {
   if (action === 'ls') return lsPath(params.join('/'));
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco oc-path [resolve|list|cat|ls] <path>\n', '  Usage: natureco oc-path [resolve|list|cat|ls] <path>\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld oc-path [resolve|list|cat|ls] <path>\n', '  Usage: nskuld oc-path [resolve|list|cat|ls] <path>\n')));
   process.exit(1);
 }
 
@@ -84,7 +84,7 @@ function resolvePath(uri) {
   const ncPath = normalizeNcPath(uri);
   if (!ncPath) {
     console.log(chalk.red(L('\n  ❌ Path gerekli\n', '\n  ❌ Path required\n')));
-    console.log(chalk.cyan('    natureco oc-path resolve nc://config\n'));
+    console.log(chalk.cyan('    nskuld oc-path resolve nc://config\n'));
     process.exit(1);
   }
 
@@ -113,8 +113,8 @@ function listScopes() {
     { alias: 'w', scope: 'workspace', desc: 'CWD altındaki dosyalar' },
     { alias: 'p', scope: 'project', desc: 'Proje kökü (CWD)' },
     { alias: 'h', scope: 'home', desc: 'Kullanıcı ana dizini (~)' },
-    { alias: 'c', scope: 'config', desc: '~/.natureco yapılandırma' },
-    { alias: 'd', scope: 'data', desc: '~/.natureco/data veri dizini' },
+    { alias: 'c', scope: 'config', desc: '~/.nskuld yapılandırma' },
+    { alias: 'd', scope: 'data', desc: '~/.nskuld/data veri dizini' },
     { alias: 't', scope: 'tmp', desc: 'Geçici dizin' },
     { alias: 's', scope: 'skills', desc: 'Skill dizini' },
     { alias: 'tool', scope: 'tools', desc: 'Araçlar dizini' },
@@ -126,9 +126,9 @@ function listScopes() {
   }
 
   console.log(chalk.gray('\n  Examples:'));
-  console.log(chalk.cyan('    natureco oc-path resolve nc://config'));
-  console.log(chalk.cyan('    natureco oc-path ls nc://tools'));
-  console.log(chalk.cyan('    natureco oc-path cat nc://c/settings.json'));
+  console.log(chalk.cyan('    nskuld oc-path resolve nc://config'));
+  console.log(chalk.cyan('    nskuld oc-path ls nc://tools'));
+  console.log(chalk.cyan('    nskuld oc-path cat nc://c/settings.json'));
   console.log();
 }
 

@@ -36,7 +36,7 @@ async function whatsapp(action, number) {
   if (action === 'allow') {
     if (!number) {
       console.log(chalk.red(L('\n❌ Numara belirtmelisiniz\n', '\n❌ You must specify a number\n')));
-      console.log(chalk.gray(L('Kullanım: natureco whatsapp allow <numara>\n', 'Usage: natureco whatsapp allow <number>\n')));
+      console.log(chalk.gray(L('Kullanım: nskuld whatsapp allow <numara>\n', 'Usage: nskuld whatsapp allow <number>\n')));
       process.exit(1);
     }
     return allowNumber(number);
@@ -51,7 +51,7 @@ async function connectWhatsApp() {
   const config = getConfig();
   
   if (!config.providerUrl) {
-    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "natureco setup" çalıştırın.\n', '\n❌ Setup not done. Run "natureco setup" first.\n')));
+    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "nskuld setup" çalıştırın.\n', '\n❌ Setup not done. Run "nskuld setup" first.\n')));
     process.exit(1);
   }
   
@@ -163,7 +163,7 @@ async function startWhatsAppConnection(sessionDir, botId, selectedBot, config) {
         console.log(chalk.green(L('✅ WhatsApp bağlandı!\n', '✅ WhatsApp connected!\n')));
         console.log(chalk.cyan('Bot:'), chalk.white(selectedBot.name));
         console.log(chalk.cyan(L('Telefon:', 'Phone:')), chalk.white(sock.user?.id || 'Unknown'));
-        console.log(chalk.gray(L('\nSession kaydedildi: ~/.natureco/whatsapp-sessions/', '\nSession saved: ~/.natureco/whatsapp-sessions/')));
+        console.log(chalk.gray(L('\nSession kaydedildi: ~/.nskuld/whatsapp-sessions/', '\nSession saved: ~/.nskuld/whatsapp-sessions/')));
         
         // Extract own number and add to allowed list
         const ownNumber = sock.user?.id?.split(':')[0].replace('@s.whatsapp.net', '') || '';
@@ -177,10 +177,10 @@ async function startWhatsAppConnection(sessionDir, botId, selectedBot, config) {
         saveConfig(config);
         
         console.log(chalk.cyan(L('\nİzin verilen numara:', '\nAllowed number:')), chalk.white(`+${ownNumber} ${L('(kendi numaranız)', '(your own number)')}`));
-        console.log(chalk.gray(L('Başka numara eklemek için: natureco whatsapp allow <numara>', 'To add another number: natureco whatsapp allow <number>')));
+        console.log(chalk.gray(L('Başka numara eklemek için: nskuld whatsapp allow <numara>', 'To add another number: nskuld whatsapp allow <number>')));
         
         console.log(chalk.green(L('\n✅ Kurulum tamamlandı!\n', '\n✅ Setup complete!\n')));
-        console.log(chalk.yellow(L('Gateway ile başlatmak için:', 'To start with the gateway:')), chalk.cyan('natureco gateway start'));
+        console.log(chalk.yellow(L('Gateway ile başlatmak için:', 'To start with the gateway:')), chalk.cyan('nskuld gateway start'));
         console.log(chalk.gray(L('Gateway, WhatsApp\'ı otomatik olarak başlatacak.\n', 'The gateway will start WhatsApp automatically.\n')));
         
         // Exit after setup
@@ -263,7 +263,7 @@ function statusWhatsApp() {
   
   if (!config.whatsappConnected) {
     console.log(chalk.gray('\n⚠️  WhatsApp not connected\n'));
-    console.log(chalk.gray('Connect with: natureco whatsapp connect\n'));
+    console.log(chalk.gray('Connect with: nskuld whatsapp connect\n'));
     return;
   }
   
@@ -295,7 +295,7 @@ function statusWhatsApp() {
     console.log(chalk.yellow('Session:'), chalk.gray('Not found (may need to reconnect)'));
   }
   
-  console.log(chalk.gray('\nDisconnect with: natureco whatsapp disconnect\n'));
+  console.log(chalk.gray('\nDisconnect with: nskuld whatsapp disconnect\n'));
 }
 
 function allowNumber(number) {
@@ -303,7 +303,7 @@ function allowNumber(number) {
   
   if (!config.whatsappConnected) {
     console.log(chalk.red('\n❌ WhatsApp not connected\n'));
-    console.log(chalk.gray('Connect first with: natureco whatsapp connect\n'));
+    console.log(chalk.gray('Connect first with: nskuld whatsapp connect\n'));
     process.exit(1);
   }
   
@@ -312,7 +312,7 @@ function allowNumber(number) {
   
   if (!/^\d+$/.test(normalized)) {
     console.log(chalk.red(L('\n❌ Geçersiz numara formatı\n', '\n❌ Invalid number format\n')));
-    console.log(chalk.gray(L('Örnek: natureco whatsapp allow 905551234567\n', 'Example: natureco whatsapp allow 905551234567\n')));
+    console.log(chalk.gray(L('Örnek: nskuld whatsapp allow 905551234567\n', 'Example: nskuld whatsapp allow 905551234567\n')));
     process.exit(1);
   }
   
@@ -330,7 +330,7 @@ function allowNumber(number) {
   console.log(chalk.green(L('\n✅ Numara izin listesine eklendi\n', '\n✅ Number added to allowlist\n')));
   console.log(chalk.cyan(L('Numara:', 'Number:')), chalk.white(`+${normalized}`));
   console.log(chalk.cyan(L('Toplam:', 'Total:')), chalk.white(`${allowedNumbers.length} numara`));
-  console.log(chalk.gray(L('\nGateway\'i yeniden başlatın: natureco gateway stop && natureco gateway start\n', '\nRestart the gateway: natureco gateway stop && natureco gateway start\n')));
+  console.log(chalk.gray(L('\nGateway\'i yeniden başlatın: nskuld gateway stop && nskuld gateway start\n', '\nRestart the gateway: nskuld gateway stop && nskuld gateway start\n')));
 }
 
 module.exports = whatsapp;

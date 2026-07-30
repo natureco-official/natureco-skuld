@@ -1,7 +1,7 @@
 /**
  * permissions — Granular tool-level allow/deny rules (Claude Code style)
  *
- * Config format (~/.natureco/config.json or .natureco/config.json):
+ * Config format (~/.nskuld/config.json or .nskuld/config.json):
  *   "permissions": {
  *     "Read(~/.ssh/**)": { "action": "deny", "reason": "SSH keys are sensitive" },
  *     "Read(~/.aws/**)": "deny",

@@ -18,7 +18,7 @@ async function mattermost(action) {
 async function connectMattermost() {
   const config = getConfig();
   if (!config.providerUrl) {
-    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "natureco setup" çalıştırın.\n', '\n❌ Setup not done. Run "natureco setup" first.\n')));
+    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "nskuld setup" çalıştırın.\n', '\n❌ Setup not done. Run "nskuld setup" first.\n')));
     process.exit(1);
   }
   console.log(chalk.yellow(L('\n⏳ Mattermost bağlantısı hazırlanıyor...\n', '\n⏳ Preparing Mattermost connection...\n')));
@@ -57,7 +57,7 @@ async function connectMattermost() {
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   console.log(chalk.cyan(L('Sunucu:', 'Server:')), chalk.white(config.mattermostBaseUrl));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(answers.token)));
-  console.log(chalk.gray(L('\nGateway ile başlatmak için: natureco gateway start\n', '\nTo start with the gateway: natureco gateway start\n')));
+  console.log(chalk.gray(L('\nGateway ile başlatmak için: nskuld gateway start\n', '\nTo start with the gateway: nskuld gateway start\n')));
 }
 
 async function disconnectMattermost() {
@@ -84,7 +84,7 @@ function statusMattermost() {
   const config = getConfig();
   if (!config.mattermostBotId) {
     console.log(chalk.gray('\n⚠️  Mattermost not connected\n'));
-    console.log(chalk.gray('Connect with: natureco mattermost connect\n'));
+    console.log(chalk.gray('Connect with: nskuld mattermost connect\n'));
     return;
   }
   console.log(chalk.green('\n✅ Mattermost connected\n'));
@@ -96,16 +96,16 @@ function statusMattermost() {
 
   // Optionally probe
   if (config.mattermostBaseUrl && config.mattermostToken) {
-    console.log(chalk.gray(L('\nProbe için: natureco mattermost probe\n', '\nFor probe: natureco mattermost probe\n')));
+    console.log(chalk.gray(L('\nProbe için: nskuld mattermost probe\n', '\nFor probe: nskuld mattermost probe\n')));
   }
-  console.log(chalk.gray('\nDisconnect with: natureco mattermost disconnect\n'));
+  console.log(chalk.gray('\nDisconnect with: nskuld mattermost disconnect\n'));
 }
 
 async function probeMattermost() {
   const config = getConfig();
   if (!config.mattermostBaseUrl || !config.mattermostToken) {
     console.log(chalk.red(L('\n❌ Mattermost bağlantısı yapılmamış\n', '\n❌ Mattermost connection not set up\n')));
-    console.log(chalk.gray(L('Önce: natureco mattermost connect\n', 'First: natureco mattermost connect\n')));
+    console.log(chalk.gray(L('Önce: nskuld mattermost connect\n', 'First: nskuld mattermost connect\n')));
     process.exit(1);
   }
 

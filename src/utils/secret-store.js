@@ -8,14 +8,14 @@ const { execFileSync } = require('child_process');
 const { writeJsonAtomicSync, readJsonSafeSync } = require('./atomic-file');
 
 class MacKeychainBackend {
-  constructor(service = 'natureco-cli', execFile = execFileSync) { this.service = service; this.execFile = execFile; }
+  constructor(service = 'natureco-skuld', execFile = execFileSync) { this.service = service; this.execFile = execFile; }
   set(key, value) { this.execFile('security', ['add-generic-password', '-U', '-a', key, '-s', this.service, '-w', value], { stdio: 'pipe' }); }
   get(key) { try { return this.execFile('security', ['find-generic-password', '-a', key, '-s', this.service, '-w'], { encoding: 'utf8', stdio: 'pipe' }).trim(); } catch { return null; } }
   delete(key) { try { this.execFile('security', ['delete-generic-password', '-a', key, '-s', this.service], { stdio: 'pipe' }); return true; } catch { return false; } }
 }
 
 class LinuxSecretServiceBackend {
-  constructor(service = 'natureco-cli', execFile = execFileSync) { this.service = service; this.execFile = execFile; }
+  constructor(service = 'natureco-skuld', execFile = execFileSync) { this.service = service; this.execFile = execFile; }
   set(key, value) { this.execFile('secret-tool', ['store', '--label', `NatureCo ${key}`, 'service', this.service, 'account', key], { input: value, stdio: ['pipe', 'pipe', 'pipe'] }); }
   get(key) { try { return this.execFile('secret-tool', ['lookup', 'service', this.service, 'account', key], { encoding: 'utf8', stdio: 'pipe' }).trim() || null; } catch { return null; } }
   delete(key) { try { this.execFile('secret-tool', ['clear', 'service', this.service, 'account', key], { stdio: 'pipe' }); return true; } catch { return false; } }
@@ -45,7 +45,7 @@ class WindowsDpapiBackend {
 
 class EncryptedFileBackend {
   constructor(options = {}) {
-    if (!options.masterKey) throw new Error('NATURECO_MASTER_KEY is required for encrypted file secret storage');
+    if (!options.masterKey) throw new Error('SKULD_MASTER_KEY is required for encrypted file secret storage');
     this.file = options.file || path.join(os.homedir(), '.nskuld', 'secrets.enc.json');
     this.key = crypto.scryptSync(String(options.masterKey), 'natureco-secret-store-v1', 32);
   }
@@ -82,8 +82,8 @@ function createSecretStore(options = {}) {
   if (process.platform === 'darwin') return new SecretStore(new MacKeychainBackend(options.service, options.execFile));
   if (process.platform === 'win32') return new SecretStore(new WindowsDpapiBackend({ file: options.file, execFile: options.execFile }));
   if (process.platform === 'linux' && options.useSecretService !== false) return new SecretStore(new LinuxSecretServiceBackend(options.service, options.execFile));
-  const masterKey = options.masterKey || process.env.NATURECO_MASTER_KEY;
-  if (!masterKey) throw new Error('No OS keychain backend available. Set NATURECO_MASTER_KEY for encrypted fallback.');
+  const masterKey = options.masterKey || process.env.SKULD_MASTER_KEY;
+  if (!masterKey) throw new Error('No OS keychain backend available. Set SKULD_MASTER_KEY for encrypted fallback.');
   return new SecretStore(new EncryptedFileBackend({ masterKey, file: options.file }));
 }
 

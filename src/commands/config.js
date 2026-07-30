@@ -16,7 +16,7 @@ function config(args) {
   const [action, key, ...valueParts] = args;
 
   if (!action) {
-    F.error(L('Kullanım: natureco config <get|set|unset|list|file|schema|validate|backups|restore> [key] [value]', 'Usage: natureco config <get|set|unset|list|file|schema|validate|backups|restore> [key] [value]'));
+    F.error(L('Kullanım: nskuld config <get|set|unset|list|file|schema|validate|backups|restore> [key] [value]', 'Usage: nskuld config <get|set|unset|list|file|schema|validate|backups|restore> [key] [value]'));
     process.exit(1);
   }
 
@@ -214,8 +214,8 @@ function config(args) {
       return [String(i + 1), ts, path.join(CONFIG_BACKUP_DIR, f)];
     });
     F.table(['#', L('Tarih', 'Date'), L('Dosya', 'File')], rows);
-    F.meta(L('Geri y\u00fcklemek i\u00e7in: natureco config restore <dosya-ad\u0131>', 'To restore: natureco config restore <file-name>'));
-    F.meta(`${L('Örnek', 'Example')}: natureco config restore ${backups[0] || 'config-....json'}`);
+    F.meta(L('Geri y\u00fcklemek i\u00e7in: nskuld config restore <dosya-ad\u0131>', 'To restore: nskuld config restore <file-name>'));
+    F.meta(`${L('Örnek', 'Example')}: nskuld config restore ${backups[0] || 'config-....json'}`);
     return;
   }
 
@@ -229,8 +229,8 @@ function config(args) {
       }
       F.section(L('Geri Y\u00fckleme', 'Restore'));
       F.kv(L('En son yedek', 'Latest backup'), backups[0]);
-      F.meta(`${L('Kullanım', 'Usage')}: natureco config restore ${backups[0]}`);
-      F.meta(L('Yedekleri listelemek i\u00e7in: natureco config backups', 'To list backups: natureco config backups'));
+      F.meta(`${L('Kullanım', 'Usage')}: nskuld config restore ${backups[0]}`);
+      F.meta(L('Yedekleri listelemek i\u00e7in: nskuld config backups', 'To list backups: nskuld config backups'));
       return;
     }
 
@@ -250,7 +250,7 @@ function config(args) {
   }
 
   F.error(`${L('Geçersiz action', 'Invalid action')}: ${action}`);
-  F.meta(L('Kullan\u0131m: natureco config <get|set|unset|list|file|schema|validate|backups|restore|budget> [key] [value]', 'Usage: natureco config <get|set|unset|list|file|schema|validate|backups|restore|budget> [key] [value]'));
+  F.meta(L('Kullan\u0131m: nskuld config <get|set|unset|list|file|schema|validate|backups|restore|budget> [key] [value]', 'Usage: nskuld config <get|set|unset|list|file|schema|validate|backups|restore|budget> [key] [value]'));
   process.exit(1);
 }
 
@@ -280,8 +280,8 @@ function configBudget(sub, args) {
     F.kv('Auto Compact', String(b.autoCompact));
     F.kv('Reserved Tokens', String(b.reservedTokens));
     F.meta('');
-    F.meta('Switch preset: natureco config budget preset <efficient|balanced|quality>');
-    F.meta('Set a value:   natureco config budget set <key> <value>');
+    F.meta('Switch preset: nskuld config budget preset <efficient|balanced|quality>');
+    F.meta('Set a value:   nskuld config budget set <key> <value>');
     return;
   }
 
@@ -301,7 +301,7 @@ function configBudget(sub, args) {
     const key = args[0];
     const val = args[1];
     if (!key || val === undefined) {
-      F.error(L('Kullan\u0131m: natureco config budget set <key> <value>', 'Usage: natureco config budget set <key> <value>'));
+      F.error(L('Kullan\u0131m: nskuld config budget set <key> <value>', 'Usage: nskuld config budget set <key> <value>'));
       return;
     }
     const budget = TB.load();
@@ -335,7 +335,7 @@ function configBudget(sub, args) {
   }
 
   F.error(L('Budget alt komutu: ', 'Budget sub-command: ') + sub);
-  F.meta(L('Kullan\u0131m: natureco config budget <show|preset|set|usage>', 'Usage: natureco config budget <show|preset|set|usage>'));
+  F.meta(L('Kullan\u0131m: nskuld config budget <show|preset|set|usage>', 'Usage: nskuld config budget <show|preset|set|usage>'));
 }
 
 module.exports = config;

@@ -16,7 +16,7 @@ function canUseInputBox({ stdin = process.stdin, stdout = process.stdout, env = 
     && stdout?.isTTY
     && Number.isFinite(columns)
     && columns >= MIN_BOX_COLUMNS
-    && env?.NATURECO_PLAIN_INPUT !== '1'
+    && env?.SKULD_PLAIN_INPUT !== '1'
   );
 }
 

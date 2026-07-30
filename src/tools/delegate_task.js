@@ -51,7 +51,7 @@ async function delegate({ task, agent = "general", timeoutMs = 60000 }) {
     proc.stderr.on("data", d => stderr += d.toString());
 
     proc.on("close", code => {
-      // natureco ask komutu genelde cevabi stdout'a yazar
+      // nskuld ask komutu genelde cevabi stdout'a yazar
       const output = stdout.split("\n").filter(l => !l.startsWith("[") && l.trim()).join("\n").trim();
       resolve({
         success: code === 0,

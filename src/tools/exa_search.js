@@ -23,7 +23,7 @@ module.exports = {
       if (!apiKey) {
         return {
           success: false,
-          error: 'Exa API key gerekli. Kur: natureco config set exaApiKey <key>\nKey al: https://dashboard.exa.ai/api-keys'
+          error: 'Exa API key gerekli. Kur: nskuld config set exaApiKey <key>\nKey al: https://dashboard.exa.ai/api-keys'
         };
       }
 

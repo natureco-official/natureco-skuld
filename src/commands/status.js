@@ -20,7 +20,7 @@ function status(args) {
   if (action === 'usage') return cmdUsage();
 
   F.error(`Unknown status action: ${action}`);
-  F.meta('Usage: natureco status <action>');
+  F.meta('Usage: nskuld status <action>');
   F.meta('Actions: run, simple, usage');
   process.exit(1);
 }
@@ -64,7 +64,7 @@ async function cmdRun() {
   lines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Channels         ') + tui.styled(String(channelCount).padEnd(36), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
 
   // Skill + araç görünürlüğü: "skill'ler görünmüyor" raporlarını tek bakışta
-  // teşhis edilir yapar (yerleşikler npm paketinin içinde yaşar, ~/.natureco'da değil)
+  // teşhis edilir yapar (yerleşikler npm paketinin içinde yaşar, ~/.nskuld'da değil)
   let skillInfo = '—';
   try {
     const { getSkills } = tryRequire('../utils/skills') || {};

@@ -46,7 +46,7 @@ async function checkExistingToken(config, channelKey, channelName) {
 
   if (!ans.change) {
     console.log(chalk.green(L('\n✅ Mevcut token kullanılacak.\n', '\n✅ Existing token will be used.\n')));
-    console.log(chalk.gray(L('Gateway başlatmak için: natureco gateway start\n', 'To start the gateway: natureco gateway start\n')));
+    console.log(chalk.gray(L('Gateway başlatmak için: nskuld gateway start\n', 'To start the gateway: nskuld gateway start\n')));
     return false; // Mevcut kullanilacak
   }
   return true; // Yeni alinacak

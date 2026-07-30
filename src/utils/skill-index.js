@@ -1,7 +1,7 @@
 /**
  * skill-index — Hermes-style skill index builder (progressive disclosure)
  *
- * Scans skills/ and ~/.natureco/skills/ for SKILL.md files with YAML frontmatter.
+ * Scans skills/ and ~/.nskuld/skills/ for SKILL.md files with YAML frontmatter.
  * Builds a compact index for system prompt injection.
  * Skills are loaded on-demand via skill_view(name) tool.
  */
@@ -51,7 +51,7 @@ function _discoverSkills() {
       const name = frontmatter.name || entry.name;
       const description = frontmatter.description || '';
       const category = path.basename(skillsDir) === 'skills' ? 'general' : path.basename(skillsDir);
-      const tags = frontmatter.metadata ? (() => { try { const m = JSON.parse(frontmatter.metadata); return m.natureco?.tags || m.hermes?.tags || []; } catch { return []; } })() : [];
+      const tags = frontmatter.metadata ? (() => { try { const m = JSON.parse(frontmatter.metadata); return m.nskuld?.tags || m.hermes?.tags || []; } catch { return []; } })() : [];
       skills.push({ name, description, fullName: entry.name, path: skillPath, category, tags, raw, body, frontmatter });
     }
   }
@@ -64,7 +64,7 @@ function _discoverSkills() {
  * (basit "merhaba" bile). Progressive-disclosure'a da aykiri: skill_view zaten tam
  * aciklama+icerik veriyor. Artik index'te KISA aciklama (cok skill varsa daha da kisa);
  * ajan ismi+ozeti gorur, ilgiliyse skill_view(name) ile tam detayi ceker.
- * NATURECO_SKILL_INDEX=names → sadece isimler (en dusuk token); =off → index yok.
+ * SKULD_SKILL_INDEX=names → sadece isimler (en dusuk token); =off → index yok.
  */
 function _shorten(d, max) {
   if (!d) return '';
@@ -74,7 +74,7 @@ function _shorten(d, max) {
 }
 
 function buildSkillIndex() {
-  const mode = String(process.env.NATURECO_SKILL_INDEX || '').toLowerCase();
+  const mode = String(process.env.SKULD_SKILL_INDEX || '').toLowerCase();
   if (mode === 'off') return '';
   const skills = _discoverSkills();
   if (skills.length === 0) return '';

@@ -1,5 +1,5 @@
 /**
- * natureco code — agentic coding mode.
+ * nskuld code — agentic coding mode.
  *
  * The single interactive coding agent. The v2.23 agent (src/commands/code.js,
  * still reachable via `--legacy`) is deprecated; its project indexing, project
@@ -519,11 +519,11 @@ async function codeV5(targetPath, cliOptions = {}) {
     || getConfig().codeWorkflow === true
     || !yerelAracCagrisi;
   if (!config.providerUrl || !config.providerApiKey) {
-    // Exit non-zero: a script or CI job that pipes `natureco code -p …` must be
+    // Exit non-zero: a script or CI job that pipes `nskuld code -p …` must be
     // able to tell "not configured" from "ran successfully".
     console.error(L(
-      "\n  ❌ Provider ayarlı değil. Önce: natureco setup\n  (Bot seçilmedi. Önce `natureco bots` komutunu çalıştırın.)\n",
-      "\n  ❌ Provider not configured. First: natureco setup\n  (No bot selected. Run `natureco bots` first.)\n",
+      "\n  ❌ Provider ayarlı değil. Önce: nskuld setup\n  (Bot seçilmedi. Önce `nskuld agents` komutunu çalıştırın.)\n",
+      "\n  ❌ Provider not configured. First: nskuld setup\n  (No bot selected. Run `nskuld agents` first.)\n",
     ));
     process.exitCode = 1;
     return;
@@ -1138,7 +1138,7 @@ async function codeV5(targetPath, cliOptions = {}) {
       case 'model':
         console.log("\n  " + tui.C.muted(L('Model', 'Model') + ': ') + tui.C.text(config.providerModel || '—'));
         console.log("  " + tui.C.muted(L('Sağlayıcı', 'Provider') + ': ') + tui.C.text(config.providerUrl || '—'));
-        console.log("  " + tui.C.muted(L('Değiştirmek için: natureco models', 'To change it: natureco models')));
+        console.log("  " + tui.C.muted(L('Değiştirmek için: nskuld models', 'To change it: nskuld models')));
         return true;
       case 'undo': {
         const target = arg || lastChangedFile;
@@ -1313,7 +1313,7 @@ async function codeV5(targetPath, cliOptions = {}) {
       // agent loop alone — and a pre-baked plan cannot adapt to what a tool
       // actually returns. The agent loop now drives by default; the pre-step
       // stays available for weaker models via `--workflow` or
-      // `natureco config set codeWorkflow true`.
+      // `nskuld config set codeWorkflow true`.
       let wf = {};
       if (useWorkflow) {
         activeTools.add('workflow');

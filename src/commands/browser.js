@@ -61,7 +61,7 @@ function browser(args) {
   if (action === 'delete-profile') return cmdDeleteProfile(params[0]);
 
   console.log(chalk.red(`\n  Unknown browser command: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco browser <command> [options]\n'));
+  console.log(chalk.gray('  Usage: nskuld browser <command> [options]\n'));
   console.log(chalk.gray('  Commands:'));
   console.log(chalk.gray('    status                          Show browser status'));
   console.log(chalk.gray('    doctor                          Check browser readiness'));

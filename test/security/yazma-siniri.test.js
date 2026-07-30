@@ -30,15 +30,29 @@ beforeAll(() => {
   // Etkileşimsiz ortamda onay sorulamaz → reddedilir.
   process.env.SKULD_AG_ONAYSIZ = '1';
   disariDizin = fs.mkdtempSync(path.join(os.tmpdir(), 'skuld-disari-'));
+  icerdeDizin = fs.mkdtempSync(path.join(os.tmpdir(), 'skuld-icerde-'));
+  eskiCwd = process.cwd();
 });
 
 afterAll(() => {
   if (eskiBayrak === undefined) delete process.env.SKULD_AG_ONAYSIZ;
   else process.env.SKULD_AG_ONAYSIZ = eskiBayrak;
+  process.chdir(eskiCwd);
   fs.rmSync(disariDizin, { recursive: true, force: true });
+  fs.rmSync(icerdeDizin, { recursive: true, force: true });
 });
 
-const icerdeYol = (ad) => path.join(process.cwd(), 'src', 'utils', ad);
+// "İçeri" durumu paket DIŞINDA bir workspace'te sınanıyor.
+//
+// Marka temizliği kendini-düzenleme korumasını onardı: koruma `natureco-cli`
+// adını arıyordu ve kendi paketini TANIMIYORDU. Artık tanıyor, yani deponun
+// içine yazmak doğru biçimde reddediliyor — Skuld'u Skuld ile geliştirmek
+// `SKULD_ALLOW_SELF_EDIT=1` istiyor (SELF.md).
+//
+// Bu test yazma SINIRINI ölçüyor, kendini-düzenleme korumasını değil. İkisini
+// aynı testte karıştırmak, birinin kırılmasını diğerinin arkasında gizler.
+let icerdeDizin;
+let eskiCwd;
 
 describe('yazma sınırı — write_file', () => {
   it('workspace DIŞINA onaysız yazamaz ve dosya OLUŞMAZ', async () => {
@@ -53,23 +67,32 @@ describe('yazma sınırı — write_file', () => {
   });
 
   it('workspace İÇİNE yazabilir', async () => {
-    const hedef = icerdeYol('__sinir-denemesi.txt');
+    // Sınır `process.cwd()`e göre; geçici workspace'e geçiliyor.
+    process.chdir(icerdeDizin);
     try {
+      const hedef = path.join(icerdeDizin, 'sinir-denemesi.txt');
       const r = await writeFile.execute({ path: hedef, content: 'merhaba' });
       expect(r.success).toBe(true);
       expect(fs.readFileSync(hedef, 'utf8')).toBe('merhaba');
     } finally {
-      fs.rmSync(hedef, { force: true });
+      process.chdir(eskiCwd);
     }
   });
 
   it('`..` ile workspace dışına çıkamaz', async () => {
-    const r = await writeFile.execute({
-      path: path.join(process.cwd(), '..', 'kacis-denemesi.txt'),
-      content: 'x',
-    });
-    expect(r.success).toBe(false);
-    expect(fs.existsSync(path.join(process.cwd(), '..', 'kacis-denemesi.txt'))).toBe(false);
+    process.chdir(icerdeDizin);
+    try {
+      const kacis = path.join(icerdeDizin, '..', 'kacis-denemesi.txt');
+      // Önceki bir koşumdan kalmış dosya testi yalancı kırmızıya düşürüyordu:
+      // "dosya var" iddiası sınırın kırıldığını değil, temizliğin
+      // yapılmadığını gösteriyordu. Test kendi ön koşulunu kurmalı.
+      fs.rmSync(kacis, { force: true });
+      const r = await writeFile.execute({ path: kacis, content: 'x' });
+      expect(r.success).toBe(false);
+      expect(fs.existsSync(kacis)).toBe(false);
+    } finally {
+      process.chdir(eskiCwd);
+    }
   });
 
   it('model `onayli` geçirerek sınırı aşamaz', async () => {

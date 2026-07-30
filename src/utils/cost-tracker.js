@@ -1,5 +1,5 @@
 /**
- * NatureCo CLI — Cost Tracker & Model Router (Phase 4)
+ * NatureCo Skuld — Cost Tracker & Model Router (Phase 4)
  *
  * Token kullanımını USD maliyete çevirir, model router ile
  * basit soruları ucuz modellere yönlendirir, bütçe aşımında uyarır.

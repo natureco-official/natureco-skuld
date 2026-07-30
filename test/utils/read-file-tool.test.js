@@ -124,7 +124,7 @@ describe('_formatNumbered helper', () => {
 });
 
 describe('module shape', () => {
-  it('matches the natureco tool interface', () => {
+  it('matches the nskuld tool interface', () => {
     expect(mod.name).toBe('read_file');
     expect(typeof mod.execute).toBe('function');
     expect(mod.inputSchema.required).toEqual(['path']);

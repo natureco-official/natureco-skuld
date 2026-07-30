@@ -78,20 +78,20 @@ function install(opts = {}) {
   const onRejection = (reason) => {
     const payload = { kind: 'unhandledRejection', error: _serializeError(reason) };
     try { audit?.logSync('error', payload); } catch { /* ignore */ }
-    if (process.env.NATURECO_DEBUG) {
+    if (process.env.SKULD_DEBUG) {
       stderr(`\n[DEBUG] stack:\n${payload.error.stack || '(stack yok)'}\n`);
     }
     stderr(
       `\n  ✗ Beklenmedik bir hata oluştu (unhandled promise rejection).\n` +
       `    Detay: ${payload.error.message}\n` +
       `    Log: ${ERROR_LOG_PATH}\n` +
-      `    Hata raporu için: github.com/natureco-official/natureco-cli/issues\n\n`,
+      `    Hata raporu için: github.com/natureco-official/natureco-skuld/issues\n\n`,
     );
     exit(1);
   };
 
   const onException = (err) => {
-    // EPIPE: çıktı bir boruya aktarılırken okuyucu kapandı (ör. `natureco help | head`).
+    // EPIPE: çıktı bir boruya aktarılırken okuyucu kapandı (ör. `nskuld help | head`).
     // Hata değil, normal akış — sessizce başarıyla çık.
     if (err && err.code === 'EPIPE') { exit(0); return; }
     const payload = { kind: 'uncaughtException', error: _serializeError(err) };
@@ -100,7 +100,7 @@ function install(opts = {}) {
       `\n  ✗ Beklenmedik bir hata oluştu (uncaught exception).\n` +
       `    Detay: ${payload.error.message}\n` +
       `    Log: ${ERROR_LOG_PATH}\n` +
-      `    Hata raporu için: github.com/natureco-official/natureco-cli/issues\n\n`,
+      `    Hata raporu için: github.com/natureco-official/natureco-skuld/issues\n\n`,
     );
     exit(1);
   };

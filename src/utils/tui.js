@@ -1,5 +1,5 @@
 /**
- * NatureCo CLI — Terminal UI Engine (Phase 9 — "DESKTOP-LIKE")
+ * NatureCo Skuld — Terminal UI Engine (Phase 9 — "DESKTOP-LIKE")
  *
  * Hedef: Kullanıcı terminal açık olduğunu unutsun.
  * PC uygulaması hissi için: animasyonlar, progress, interaktif box'lar,
@@ -619,7 +619,7 @@ function helpOverlay(shortcuts) {
 
 async function splash(options = {}) {
   const {
-    title = 'NatureCo CLI',
+    title = 'NatureCo Skuld',
     version = '4.2.0',
     subtitle = 'OpenClaw\'dan daha güvenli, daha hızlı, daha ucuz',
     duration = 1500,
@@ -684,7 +684,7 @@ function welcomeCard({ version, user, status, tips }) {
   lines.push(C.brand('╭' + '─'.repeat(w - 2) + '╮'));
 
   // Logo (küçük)
-  const logo = '🌿 NatureCo CLI';
+  const logo = '🌿 NatureCo Skuld';
   const ver = `v${version}`;
   const titlePadding = w - 2 - stringWidth(logo) - stringWidth(ver) - 2;
   lines.push(C.brand('│ ') + C.bold(logo) + ' '.repeat(titlePadding) + C.muted(ver) + C.brand(' │'));
@@ -708,7 +708,7 @@ function welcomeCard({ version, user, status, tips }) {
   lines.push(C.brand('├' + '─'.repeat(w - 2) + '┤'));
 
   // Tip
-  const tipText = tips || '🌱 natureco code  →  Edit & refactor any file';
+  const tipText = tips || '🌱 nskuld code  →  Edit & refactor any file';
   const tipLabel = '💡 İpucu';
   const tipLine = `  ${C.amber(tipLabel)}  ${C.dim(tipText)}`;
   lines.push(C.brand('│') + padTo(truncateAnsi(tipLine, w - 2), w - 2) + C.brand('│'));

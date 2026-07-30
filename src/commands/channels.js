@@ -23,7 +23,7 @@ async function channels(args) {
   if (action === 'resolve') return resolveIdentifier(params[0], params[1]);
 
   F.error(`Unknown command: ${action}`);
-  F.info('Usage: natureco channels [list|status|add|remove|login|logout|capabilities|resolve|logs]');
+  F.info('Usage: nskuld channels [list|status|add|remove|login|logout|capabilities|resolve|logs]');
   process.exit(1);
 }
 
@@ -51,7 +51,7 @@ function addChannel() {
 function loginChannel(channel) {
   if (!channel) {
     F.error('Channel name required');
-    F.info('Usage: natureco channels login <telegram|whatsapp|discord|slack|signal|irc|mattermost|imessage|sms|webhooks|matrix|teams|googlechat|zalo>');
+    F.info('Usage: nskuld channels login <telegram|whatsapp|discord|slack|signal|irc|mattermost|imessage|sms|webhooks|matrix|teams|googlechat|zalo>');
     process.exit(1);
   }
 
@@ -97,7 +97,7 @@ function loginChannel(channel) {
 function logoutChannel(channel) {
   if (!channel) {
     F.error('Channel name required');
-    F.info('Usage: natureco channels logout <telegram|whatsapp|discord|slack|signal|irc|mattermost|imessage|sms|webhooks|matrix|teams|googlechat|zalo>');
+    F.info('Usage: nskuld channels logout <telegram|whatsapp|discord|slack|signal|irc|mattermost|imessage|sms|webhooks|matrix|teams|googlechat|zalo>');
     process.exit(1);
   }
 
@@ -190,13 +190,13 @@ function capabilitiesChannels(channel) {
 function resolveIdentifier(channel, identifier) {
   if (!channel) {
     F.error('Channel name required');
-    F.info('Usage: natureco channels resolve <channel> <user/group>');
+    F.info('Usage: nskuld channels resolve <channel> <user/group>');
     process.exit(1);
   }
 
   if (!identifier) {
     F.error('User/group identifier required');
-    F.info('Usage: natureco channels resolve <channel> <user/group>');
+    F.info('Usage: nskuld channels resolve <channel> <user/group>');
     process.exit(1);
   }
 
@@ -375,7 +375,7 @@ function listChannels() {
     { key: 'detail', label: L('Detay', 'Detail'), minWidth: 30, render: r => tui.C.muted(r.detail) },
   ], { borderStyle: 'round', zebra: true }));
 
-  console.log('\n  ' + tui.C.muted(L('Kaldırmak için: ', 'To remove: ')) + tui.C.brand(L('natureco channels remove <kanal>', 'natureco channels remove <channel>')));
+  console.log('\n  ' + tui.C.muted(L('Kaldırmak için: ', 'To remove: ')) + tui.C.brand(L('nskuld channels remove <kanal>', 'nskuld channels remove <channel>')));
   console.log('');
 }
 
@@ -404,7 +404,7 @@ function statusChannels() {
 function removeChannel(channel) {
   if (!channel) {
     F.error('Channel name required');
-    F.info('Usage: natureco channels remove <telegram|whatsapp|discord|slack|signal|irc|mattermost|imessage|sms|webhooks|matrix|teams|googlechat|zalo>');
+    F.info('Usage: nskuld channels remove <telegram|whatsapp|discord|slack|signal|irc|mattermost|imessage|sms|webhooks|matrix|teams|googlechat|zalo>');
     process.exit(1);
   }
 

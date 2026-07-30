@@ -192,7 +192,7 @@ async function startGateway() {
       process.kill(pid, 0);
       console.log(chalk.yellow('\n⚠️  Gateway already running\n'));
       console.log(chalk.gray(`PID: ${pid}`));
-      console.log(chalk.gray('Stop with: natureco gateway stop\n'));
+      console.log(chalk.gray('Stop with: nskuld gateway stop\n'));
       return;
     } catch {
       // Process not running, remove stale PID file
@@ -230,9 +230,9 @@ async function startGateway() {
   console.log(chalk.green('✅ Gateway started in background'));
   console.log(chalk.cyan('PID:'), chalk.white(child.pid));
   console.log(chalk.cyan('Logs:'), chalk.white(LOG_FILE));
-  console.log(chalk.gray('\nView logs: natureco gateway logs'));
-  console.log(chalk.gray('Check status: natureco gateway status'));
-  console.log(chalk.gray('Stop gateway: natureco gateway stop\n'));
+  console.log(chalk.gray('\nView logs: nskuld gateway logs'));
+  console.log(chalk.gray('Check status: nskuld gateway status'));
+  console.log(chalk.gray('Stop gateway: nskuld gateway stop\n'));
   
   process.exit(0);
 }
@@ -247,7 +247,7 @@ async function runGatewayWorker() {
   const config = getConfig();
   
   if (!config || !config.providerUrl) {
-    log('gateway', 'Setup yapılmamış. Run "natureco setup" first.', 'red');
+    log('gateway', 'Setup yapılmamış. Run "nskuld setup" first.', 'red');
     process.exit(1);
   }
   

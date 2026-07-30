@@ -294,11 +294,11 @@ async function setup(params) {
     if (action === 'dirs') return cmdDirs();
 
     console.log(chalk.yellow('\n  Usage:'));
-    console.log(chalk.gray('    natureco setup               Interactive setup wizard'));
-    console.log(chalk.gray('    natureco setup config         Create default config'));
-    console.log(chalk.gray('    natureco setup workspace      Create workspace directories'));
-    console.log(chalk.gray('    natureco setup dirs           Create data directories'));
-    console.log(chalk.gray('    natureco setup status         Show setup status\n'));
+    console.log(chalk.gray('    nskuld setup               Interactive setup wizard'));
+    console.log(chalk.gray('    nskuld setup config         Create default config'));
+    console.log(chalk.gray('    nskuld setup workspace      Create workspace directories'));
+    console.log(chalk.gray('    nskuld setup dirs           Create data directories'));
+    console.log(chalk.gray('    nskuld setup status         Show setup status\n'));
   } catch (err) {
     console.log(chalk.red(`\n  Setup error: ${err.message}\n`));
   }
@@ -427,7 +427,7 @@ async function cmdWizard() {
   console.log('');
   console.log(chalk.white('  Step 2: API Key'));
   console.log(chalk.gray('  ─────────────────────────────────────────────'));
-  console.log(chalk.gray('  Get a key from: ') + chalk.cyan('developers.natureco.me'));
+  console.log(chalk.gray('  Get a key from: ') + chalk.cyan('developers.nskuld.me'));
   console.log(chalk.gray('  Or use your own provider API key.\n'));
 
   const currentKey = cfg.providerApiKey || '';
@@ -468,7 +468,7 @@ async function cmdWizard() {
         default: false,
       }]);
       if (!retry.continue) {
-        console.log(L('  Setup iptal edildi. Tekrar deneyin: natureco setup', '  Setup cancelled. Try again: natureco setup'));
+        console.log(L('  Setup iptal edildi. Tekrar deneyin: nskuld setup', '  Setup cancelled. Try again: nskuld setup'));
         process.exit(1);
       }
     } else {
@@ -524,7 +524,7 @@ async function cmdWizard() {
     { key: 'mattermostBotId', name: 'Mattermost', hint: L('Mattermost bot kullanıcı adı', 'Mattermost bot username') },
     { key: 'imessageBotId',   name: 'iMessage',   hint: L('iMessage bridge endpoint veya ad', 'iMessage bridge endpoint or name') },
     { key: 'smsBotId',        name: 'SMS (Twilio)', hint: L('Twilio hesap SID veya bot ID', 'Twilio account SID or bot ID') },
-    { key: 'webhooks',        name: 'Webhooks',   hint: L('Webhook URL (veya boş bırakın, sonra: natureco webhooks add)', 'Webhook URL (or leave blank, then: natureco webhooks add)') },
+    { key: 'webhooks',        name: 'Webhooks',   hint: L('Webhook URL (veya boş bırakın, sonra: nskuld webhooks add)', 'Webhook URL (or leave blank, then: nskuld webhooks add)') },
   ];
 
   for (const integ of integrations) {
@@ -558,10 +558,10 @@ async function cmdWizard() {
   console.log(chalk.white('  Config saved to: ') + chalk.gray(CONFIG_FILE));
   console.log('');
   console.log(chalk.white('  Next steps:'));
-  console.log(chalk.cyan('    natureco chat              Start chatting'));
-  console.log(chalk.cyan(L('    natureco repl              İnteraktif REPL (persistent memory)', '    natureco repl              Interactive REPL (persistent memory)')));
-  console.log(chalk.cyan(L('    natureco telegram connect  Telegram bot bağla (henüz yapılmadıysa)', '    natureco telegram connect  Connect Telegram bot (if not done yet)')));
-  console.log(chalk.cyan('    natureco help              View all commands'));
+  console.log(chalk.cyan('    nskuld chat              Start chatting'));
+  console.log(chalk.cyan(L('    nskuld repl              İnteraktif REPL (persistent memory)', '    nskuld repl              Interactive REPL (persistent memory)')));
+  console.log(chalk.cyan(L('    nskuld telegram connect  Telegram bot bağla (henüz yapılmadıysa)', '    nskuld telegram connect  Connect Telegram bot (if not done yet)')));
+  console.log(chalk.cyan('    nskuld help              View all commands'));
   console.log('');
 }
 

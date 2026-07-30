@@ -1,7 +1,7 @@
 /**
  * NatureCo Hesabı (SSO) — tek NatureCo hesabı, ekosistem geneli.
  * natureco.me Supabase Auth üstünde, bağımlılıksız (Supabase REST + global fetch).
- * Bu, developers.natureco.me API-KEY girişinden (config.json) AYRIDIR:
+ * Bu, developers.nskuld.me API-KEY girişinden (config.json) AYRIDIR:
  *   - API key  → bot/otomasyon API'si (config.json)
  *   - Hesap    → kişi kimliği / SSO (auth.json)  ← bu dosya
  * natureco-sdk'daki NatureCoAuth ile aynı protokol (paylaşılan auth.json).
@@ -13,8 +13,8 @@ const os = require('os');
 const path = require('path');
 
 // natureco.me kimlik projesi — anon key PUBLIC (client'lara gömülür, gizli değil)
-const SUPABASE_URL = process.env.NATURECO_SUPABASE_URL || 'https://mxnlehflfkesasclcldy.supabase.co';
-const SUPABASE_ANON = process.env.NATURECO_SUPABASE_ANON || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14bmxlaGZsZmtlc2FzY2xjbGR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDA5MzEsImV4cCI6MjA5MjIxNjkzMX0.93aPOg6bVmgFaJvsM5jVZwiX2TTuFIyAzhP6BlhBkGU';
+const SUPABASE_URL = process.env.SKULD_SUPABASE_URL || 'https://mxnlehflfkesasclcldy.supabase.co';
+const SUPABASE_ANON = process.env.SKULD_SUPABASE_ANON || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14bmxlaGZsZmtlc2FzY2xjbGR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDA5MzEsImV4cCI6MjA5MjIxNjkzMX0.93aPOg6bVmgFaJvsM5jVZwiX2TTuFIyAzhP6BlhBkGU';
 const AUTH_BASE = `${SUPABASE_URL}/auth/v1`;
 
 function authFile() {

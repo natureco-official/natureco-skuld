@@ -2,7 +2,7 @@
 /**
  * Tek güvenlik kapısı sınırı.
  *
- * Kaynak denetiminde natureco-cli'de 71 dosyanın süreç başlattığı, bunların
+ * Kaynak denetiminde natureco-skuld'de 71 dosyanın süreç başlattığı, bunların
  * yalnızca 17'sinin bir policy/approval sembolü de içerdiği ölçüldü. Bu bir
  * kanıt değil sinyaldi — ama policy katmanı 577 satırken 71 çağrı noktası
  * olması, "tek kapı" ilkesinin düzyazıyla korunamayacağını gösteriyor.

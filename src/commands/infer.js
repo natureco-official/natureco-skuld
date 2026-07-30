@@ -56,7 +56,7 @@ async function infer(args) {
   if (!action) {
     console.log(chalk.cyan('\n  OpenClaw Infer\n'));
     console.log(chalk.gray('  Usage:'));
-    console.log(chalk.white('    natureco infer <command> [options]'));
+    console.log(chalk.white('    nskuld infer <command> [options]'));
     console.log();
     console.log(chalk.gray('  Commands:'));
     console.log(chalk.white('    models                        ') + chalk.gray('List available models'));
@@ -114,7 +114,7 @@ async function infer(args) {
   if (action === 'inspect') {
     if (!sub1) {
       console.log(chalk.red('\n  \u274C Provider name required\n'));
-      console.log(chalk.gray('  Usage: natureco infer inspect <provider>\n'));
+      console.log(chalk.gray('  Usage: nskuld infer inspect <provider>\n'));
       process.exit(1);
     }
     return inferInspect(sub1);
@@ -123,13 +123,13 @@ async function infer(args) {
   if (action === 'model') {
     if (!sub1) {
       console.log(chalk.red('\n  \u274C Model subcommand required\n'));
-      console.log(chalk.gray('  Usage: natureco infer model <run|list|inspect|providers|auth>\n'));
+      console.log(chalk.gray('  Usage: nskuld infer model <run|list|inspect|providers|auth>\n'));
       process.exit(1);
     }
     if (sub1 === 'run') {
       if (!sub2) {
         console.log(chalk.red('\n  \u274C Prompt required\n'));
-        console.log(chalk.gray('  Usage: natureco infer model run [<model>] <prompt>\n'));
+        console.log(chalk.gray('  Usage: nskuld infer model run [<model>] <prompt>\n'));
         process.exit(1);
       }
       if (rest.length === 0) {
@@ -141,7 +141,7 @@ async function infer(args) {
     if (sub1 === 'inspect') {
       if (!sub2) {
         console.log(chalk.red('\n  \u274C Model name required\n'));
-        console.log(chalk.gray('  Usage: natureco infer model inspect <model>\n'));
+        console.log(chalk.gray('  Usage: nskuld infer model inspect <model>\n'));
         process.exit(1);
       }
       return inferModelInspect(sub2);
@@ -164,11 +164,11 @@ async function infer(args) {
       }
       if (sub2 === 'status') return inferModelAuthStatus();
       console.log(chalk.red('\n  \u274C Unknown model auth subcommand\n'));
-      console.log(chalk.gray('  Usage: natureco infer model auth <login|logout|status>\n'));
+      console.log(chalk.gray('  Usage: nskuld infer model auth <login|logout|status>\n'));
       process.exit(1);
     }
     console.log(chalk.red('\n  \u274C Unknown model subcommand: ' + sub1 + '\n'));
-    console.log(chalk.gray('  Usage: natureco infer model <run|list|inspect|providers|auth>\n'));
+    console.log(chalk.gray('  Usage: nskuld infer model <run|list|inspect|providers|auth>\n'));
     process.exit(1);
   }
 
@@ -180,7 +180,7 @@ async function infer(args) {
       const prompt = [sub2, ...rest].join(' ');
       if (!prompt.trim()) {
         console.log(chalk.red('\n  \u274C Prompt required\n'));
-        console.log(chalk.gray('  Usage: natureco infer image generate <prompt>\n'));
+        console.log(chalk.gray('  Usage: nskuld infer image generate <prompt>\n'));
         process.exit(1);
       }
       return inferImageGenerate(prompt);
@@ -220,7 +220,7 @@ async function infer(args) {
     if (sub1 === 'transcribe') {
       if (!sub2) {
         console.log(chalk.red('\n  \u274C Audio file path required\n'));
-        console.log(chalk.gray('  Usage: natureco infer audio transcribe <path>\n'));
+        console.log(chalk.gray('  Usage: nskuld infer audio transcribe <path>\n'));
         process.exit(1);
       }
       return inferAudioTranscribe(sub2);
@@ -235,7 +235,7 @@ async function infer(args) {
       const text = [sub2, ...rest].join(' ');
       if (!text.trim()) {
         console.log(chalk.red('\n  \u274C Text required\n'));
-        console.log(chalk.gray('  Usage: natureco infer tts convert <text>\n'));
+        console.log(chalk.gray('  Usage: nskuld infer tts convert <text>\n'));
         process.exit(1);
       }
       return inferTtsConvert(text);
@@ -261,7 +261,7 @@ async function infer(args) {
       const prompt = [sub2, ...rest].join(' ');
       if (!prompt.trim()) {
         console.log(chalk.red('\n  \u274C Prompt required\n'));
-        console.log(chalk.gray('  Usage: natureco infer video generate <prompt>\n'));
+        console.log(chalk.gray('  Usage: nskuld infer video generate <prompt>\n'));
         process.exit(1);
       }
       return inferVideoGenerate(prompt);
@@ -283,7 +283,7 @@ async function infer(args) {
       const query = [sub2, ...rest].join(' ');
       if (!query.trim()) {
         console.log(chalk.red('\n  \u274C Search query required\n'));
-        console.log(chalk.gray('  Usage: natureco infer web search <query>\n'));
+        console.log(chalk.gray('  Usage: nskuld infer web search <query>\n'));
         process.exit(1);
       }
       return inferWebSearch(query);
@@ -291,7 +291,7 @@ async function infer(args) {
     if (sub1 === 'fetch') {
       if (!sub2) {
         console.log(chalk.red('\n  \u274C URL required\n'));
-        console.log(chalk.gray('  Usage: natureco infer web fetch <url>\n'));
+        console.log(chalk.gray('  Usage: nskuld infer web fetch <url>\n'));
         process.exit(1);
       }
       return inferWebFetch(sub2);
@@ -306,7 +306,7 @@ async function infer(args) {
       const text = [sub2, ...rest].join(' ');
       if (!text.trim()) {
         console.log(chalk.red('\n  \u274C Text required\n'));
-        console.log(chalk.gray('  Usage: natureco infer embedding create <text>\n'));
+        console.log(chalk.gray('  Usage: nskuld infer embedding create <text>\n'));
         process.exit(1);
       }
       return inferEmbeddingCreate(text);
@@ -322,7 +322,7 @@ async function infer(args) {
     }
     if (sub1 === 'add') {
       if (!sub2 || rest.length === 0) {
-        console.log(chalk.red('\n  \u274C Usage: natureco infer auth add <provider> <key>\n'));
+        console.log(chalk.red('\n  \u274C Usage: nskuld infer auth add <provider> <key>\n'));
         process.exit(1);
       }
       return inferAuthAdd(sub2, rest.join(' '));
@@ -341,7 +341,7 @@ async function infer(args) {
       if (sub2 === 'get') return inferAuthOrderGet();
       if (sub2 === 'set') {
         if (rest.length === 0) {
-          console.log(chalk.red('\n  \u274C Usage: natureco infer auth order set <providers...>\n'));
+          console.log(chalk.red('\n  \u274C Usage: nskuld infer auth order set <providers...>\n'));
           process.exit(1);
         }
         return inferAuthOrderSet(rest);
@@ -354,7 +354,7 @@ async function infer(args) {
   }
 
   console.log(chalk.red('\n  \u274C Unknown command: ' + action + '\n'));
-  console.log(chalk.gray('  Usage: natureco infer [models|media|capabilities|list|inspect|model|image|audio|tts|video|web|embedding|auth]\n'));
+  console.log(chalk.gray('  Usage: nskuld infer [models|media|capabilities|list|inspect|model|image|audio|tts|video|web|embedding|auth]\n'));
   process.exit(1);
 }
 
@@ -419,7 +419,7 @@ async function inferModels() {
     }
   }
 
-  console.log(chalk.gray('\n  Set model: ') + chalk.cyan('natureco models set <model-id>\n'));
+  console.log(chalk.gray('\n  Set model: ') + chalk.cyan('nskuld models set <model-id>\n'));
 }
 
 async function inferMedia() {
@@ -643,7 +643,7 @@ function getKnownModels(providerUrl) {
 async function inferModelRun(prompt, modelOverride) {
   if (!prompt) {
     console.log(chalk.red('\n  \u274C Prompt gerekli\n'));
-    console.log(chalk.gray('  Kullan\u0131m: natureco infer model run [<model>] <prompt>\n'));
+    console.log(chalk.gray('  Kullan\u0131m: nskuld infer model run [<model>] <prompt>\n'));
     process.exit(1);
   }
   const config = getConfig();
@@ -709,7 +709,7 @@ async function inferAuth(provider) {
     console.log(chalk.cyan('\n  Testing ' + p.name + ' authentication...\n'));
     if (!p.key) {
       console.log(chalk.yellow('  \u26A0 No API key found\n'));
-      console.log(chalk.gray('  Set it: natureco secrets set ' + p.name + 'ApiKey <key>\n'));
+      console.log(chalk.gray('  Set it: nskuld secrets set ' + p.name + 'ApiKey <key>\n'));
       return;
     }
     if (!p.url) {
@@ -765,7 +765,7 @@ async function inferAuth(provider) {
 async function inferImage(prompt) {
   if (!prompt) {
     console.log(chalk.red('\n  \u274C Prompt gerekli\n'));
-    console.log(chalk.gray('  Kullan\u0131m: natureco infer image <prompt>\n'));
+    console.log(chalk.gray('  Kullan\u0131m: nskuld infer image <prompt>\n'));
     process.exit(1);
   }
   console.log(chalk.cyan('\n  Image Generation\n'));
@@ -779,7 +779,7 @@ async function inferImage(prompt) {
 async function inferAudio(prompt) {
   if (!prompt) {
     console.log(chalk.red('\n  \u274C Prompt gerekli\n'));
-    console.log(chalk.gray('  Kullan\u0131m: natureco infer audio <prompt>\n'));
+    console.log(chalk.gray('  Kullan\u0131m: nskuld infer audio <prompt>\n'));
     process.exit(1);
   }
   console.log(chalk.cyan('\n  Audio Generation\n'));
@@ -792,7 +792,7 @@ async function inferAudio(prompt) {
 async function inferTts(text) {
   if (!text) {
     console.log(chalk.red('\n  \u274C Text gerekli\n'));
-    console.log(chalk.gray('  Kullan\u0131m: natureco infer tts <text>\n'));
+    console.log(chalk.gray('  Kullan\u0131m: nskuld infer tts <text>\n'));
     process.exit(1);
   }
   console.log(chalk.cyan('\n  Text-to-Speech\n'));
@@ -805,7 +805,7 @@ async function inferTts(text) {
 async function inferVideo(prompt) {
   if (!prompt) {
     console.log(chalk.red('\n  \u274C Prompt gerekli\n'));
-    console.log(chalk.gray('  Kullan\u0131m: natureco infer video <prompt>\n'));
+    console.log(chalk.gray('  Kullan\u0131m: nskuld infer video <prompt>\n'));
     process.exit(1);
   }
   console.log(chalk.cyan('\n  Video Generation\n'));
@@ -818,7 +818,7 @@ async function inferVideo(prompt) {
 async function inferWeb(query) {
   if (!query) {
     console.log(chalk.red('\n  \u274C Query gerekli\n'));
-    console.log(chalk.gray('  Kullan\u0131m: natureco infer web <query>\n'));
+    console.log(chalk.gray('  Kullan\u0131m: nskuld infer web <query>\n'));
     process.exit(1);
   }
   console.log(chalk.cyan('\n  Web Search via AI\n'));
@@ -853,14 +853,14 @@ async function inferWeb(query) {
     }
   } else {
     console.log(chalk.gray('\n  No search API key configured (Tavily).'));
-    console.log(chalk.gray('  Set: natureco secrets set tavilyApiKey <key>\n'));
+    console.log(chalk.gray('  Set: nskuld secrets set tavilyApiKey <key>\n'));
   }
 }
 
 async function inferEmbedding(text) {
   if (!text) {
     console.log(chalk.red('\n  \u274C Text gerekli\n'));
-    console.log(chalk.gray('  Kullan\u0131m: natureco infer embedding <text>\n'));
+    console.log(chalk.gray('  Kullan\u0131m: nskuld infer embedding <text>\n'));
     process.exit(1);
   }
   const config = getConfig();
@@ -892,7 +892,7 @@ async function inferEmbedding(text) {
     }
   } else {
     console.log(chalk.gray('\n  No OpenAI API key configured.'));
-    console.log(chalk.gray('  Set: natureco secrets set openaiApiKey <key>\n'));
+    console.log(chalk.gray('  Set: nskuld secrets set openaiApiKey <key>\n'));
   }
 }
 
@@ -928,7 +928,7 @@ async function inferList() {
     console.log('  ' + icon + ' ' + chalk.white(p.name.padEnd(14)) + chalk.gray(p.description));
   }
 
-  console.log(chalk.gray('\n  Inspect: ') + chalk.cyan('natureco infer inspect <provider>'));
+  console.log(chalk.gray('\n  Inspect: ') + chalk.cyan('nskuld infer inspect <provider>'));
   console.log();
 }
 
@@ -990,7 +990,7 @@ async function inferInspect(provider) {
       console.log(chalk.yellow('  \u26A0 ' + err.message + '\n'));
     }
   } else if (!p.key) {
-    console.log(chalk.gray('  Set API key via: natureco secrets set ' + provider + 'ApiKey <key>\n'));
+    console.log(chalk.gray('  Set API key via: nskuld secrets set ' + provider + 'ApiKey <key>\n'));
   }
 }
 
@@ -1047,7 +1047,7 @@ async function inferModelList() {
     console.log();
   } else {
     console.log(chalk.gray('  No models found. Configure a provider with:\n'));
-    console.log(chalk.cyan('    natureco setup\n'));
+    console.log(chalk.cyan('    nskuld setup\n'));
   }
 }
 
@@ -1106,15 +1106,15 @@ async function inferModelAuthLogin(provider) {
     return;
   }
   console.log(chalk.cyan('\n  Authenticating with ' + provider + '...\n'));
-  console.log(chalk.gray('  Use: ') + chalk.white('natureco secrets set ' + provider + 'ApiKey <key>'));
-  console.log(chalk.gray('  Or:  ') + chalk.white('natureco infer auth add ' + provider + ' <key>'));
+  console.log(chalk.gray('  Use: ') + chalk.white('nskuld secrets set ' + provider + 'ApiKey <key>'));
+  console.log(chalk.gray('  Or:  ') + chalk.white('nskuld infer auth add ' + provider + ' <key>'));
   console.log();
 }
 
 async function inferModelAuthLogout(provider) {
   console.log(chalk.yellow('\n  \u26A0 Logout from ' + provider + '...\n'));
   console.log(chalk.gray('  Remove API key from secrets:'));
-  console.log(chalk.white('    natureco secrets delete ' + provider + 'ApiKey'));
+  console.log(chalk.white('    nskuld secrets delete ' + provider + 'ApiKey'));
   console.log();
 }
 
@@ -1210,7 +1210,7 @@ async function inferAudioTranscribe(audioPath) {
     console.log();
   } else {
     console.log(chalk.gray('  Status: ') + chalk.yellow('not configured'));
-    console.log(chalk.gray('  Set: natureco secrets set openaiApiKey <key>\n'));
+    console.log(chalk.gray('  Set: nskuld secrets set openaiApiKey <key>\n'));
   }
 }
 
@@ -1403,7 +1403,7 @@ async function inferEmbeddingProviders() {
 async function inferAuthAdd(provider, key) {
   console.log(chalk.cyan('\n  Adding auth for ' + provider + '...\n'));
   console.log(chalk.gray('  To persist, use:'));
-  console.log(chalk.white('    natureco secrets set ' + provider + 'ApiKey ' + key.slice(0, 8) + '...'));
+  console.log(chalk.white('    nskuld secrets set ' + provider + 'ApiKey ' + key.slice(0, 8) + '...'));
   console.log(chalk.gray('\n  Or set environment variable:'));
   console.log(chalk.white('    set ' + provider.toUpperCase() + '_API_KEY=' + key.slice(0, 8) + '...'));
   console.log();
@@ -1413,7 +1413,7 @@ async function inferAuthLogin(provider) {
   console.log(chalk.cyan('\n  OAuth Login: ' + provider + '\n'));
   console.log(chalk.gray('  Opening browser for OAuth flow...'));
   console.log(chalk.yellow('  \u26A0 OAuth not yet supported in CLI'));
-  console.log(chalk.gray('  Use: natureco secrets set ' + provider + 'ApiKey <key>\n'));
+  console.log(chalk.gray('  Use: nskuld secrets set ' + provider + 'ApiKey <key>\n'));
 }
 
 async function inferAuthLoginGithubCopilot() {
@@ -1421,16 +1421,16 @@ async function inferAuthLoginGithubCopilot() {
   console.log(chalk.gray('  To authenticate with GitHub Copilot:'));
   console.log(chalk.white('    1. Visit https://github.com/settings/tokens'));
   console.log(chalk.white('    2. Generate a token with copilot scope'));
-  console.log(chalk.white('    3. Run: natureco infer auth paste-token'));
+  console.log(chalk.white('    3. Run: nskuld infer auth paste-token'));
   console.log();
 }
 
 async function inferAuthSetupToken() {
   console.log(chalk.cyan('\n  Token Authentication Setup\n'));
   console.log(chalk.gray('  To set up token-based auth:'));
-  console.log(chalk.white('    natureco infer auth add <provider> <token>'));
+  console.log(chalk.white('    nskuld infer auth add <provider> <token>'));
   console.log(chalk.gray('  Or paste an existing token:'));
-  console.log(chalk.white('    natureco infer auth paste-token'));
+  console.log(chalk.white('    nskuld infer auth paste-token'));
   console.log();
 }
 
@@ -1438,7 +1438,7 @@ async function inferAuthPasteToken() {
   console.log(chalk.cyan('\n  Paste Auth Token\n'));
   console.log(chalk.gray('  Paste your token below:'));
   console.log(chalk.yellow('  \u26A0 Interactive input not yet supported'));
-  console.log(chalk.gray('  Use: natureco infer auth add <provider> <token>\n'));
+  console.log(chalk.gray('  Use: nskuld infer auth add <provider> <token>\n'));
 }
 
 async function inferAuthOrderGet() {
@@ -1449,7 +1449,7 @@ async function inferAuthOrderGet() {
   order.forEach((p, i) => {
     console.log('  ' + chalk.white((i + 1) + '.') + ' ' + chalk.cyan(p));
   });
-  console.log(chalk.gray('\n  Set: ') + chalk.white('natureco infer auth order set <providers...>'));
+  console.log(chalk.gray('\n  Set: ') + chalk.white('nskuld infer auth order set <providers...>'));
   console.log();
 }
 

@@ -35,7 +35,7 @@ function commitments(args) {
   if (action === 'delete') return deleteC(params[0]);
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco commitments [list|add|check|resolve|pending|summary|delete]\n', '  Usage: natureco commitments [list|add|check|resolve|pending|summary|delete]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld commitments [list|add|check|resolve|pending|summary|delete]\n', '  Usage: nskuld commitments [list|add|check|resolve|pending|summary|delete]\n')));
   process.exit(1);
 }
 

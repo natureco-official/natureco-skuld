@@ -170,7 +170,7 @@ class MCPClient extends EventEmitter {
         }
       },
       clientInfo: {
-        name: 'natureco-cli',
+        name: 'natureco-skuld',
         version: '2.10.0',
       },
     });

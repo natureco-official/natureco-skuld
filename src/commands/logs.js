@@ -22,7 +22,7 @@ function logs(args) {
   if (action === 'path') return cmdPath();
 
   console.log(chalk.red(`\n  Unknown logs action: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco logs <action> [params]'));
+  console.log(chalk.gray('  Usage: nskuld logs <action> [params]'));
   console.log(chalk.gray('  Actions: tail, show <lines>, search <term>, clear, path\n'));
   process.exit(1);
 }
@@ -71,7 +71,7 @@ function cmdTail() {
 
 function cmdSearch(term) {
   if (!term) {
-    console.log(chalk.red('\n  Usage: natureco logs search <term>\n'));
+    console.log(chalk.red('\n  Usage: nskuld logs search <term>\n'));
     process.exit(1);
   }
 

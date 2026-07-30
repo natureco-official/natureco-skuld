@@ -1,7 +1,7 @@
 /**
  * session-search — Full-text search across past sessions
  *
- * Sessions are stored in .natureco/sessions/ as JSON files.
+ * Sessions are stored in .nskuld/sessions/ as JSON files.
  * This utility indexes and searches them by keyword.
  */
 

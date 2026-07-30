@@ -18,7 +18,7 @@ function sessions(args) {
   if (action === 'prune') return cmdPrune(parseInt(params[0], 10));
 
   console.log(chalk.red(`\n  Unknown sessions action: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco sessions <action> [params]'));
+  console.log(chalk.gray('  Usage: nskuld sessions <action> [params]'));
   console.log(chalk.gray('  Actions: list, show <id>, cleanup, prune <days>\n'));
   process.exit(1);
 }
@@ -61,7 +61,7 @@ function cmdList() {
 
 function cmdShow(id) {
   if (!id) {
-    console.log(chalk.red('\n  Usage: natureco sessions show <id>\n'));
+    console.log(chalk.red('\n  Usage: nskuld sessions show <id>\n'));
     process.exit(1);
   }
 
@@ -105,7 +105,7 @@ function cmdCleanup() {
 
 function cmdPrune(days) {
   if (!days || isNaN(days) || days < 1) {
-    console.log(chalk.red('\n  Usage: natureco sessions prune <days>\n'));
+    console.log(chalk.red('\n  Usage: nskuld sessions prune <days>\n'));
     process.exit(1);
   }
 

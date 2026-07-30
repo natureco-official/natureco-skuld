@@ -37,7 +37,7 @@ function startGatewayServer() {
         log(`Message received for bot ${botId}: ${userMessage.slice(0, 50)}...`);
         
         // Send to NatureCo API
-        const response = await fetch('https://api.natureco.me/api/agent/chat', {
+        const response = await fetch('https://api.nskuld.me/api/agent/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

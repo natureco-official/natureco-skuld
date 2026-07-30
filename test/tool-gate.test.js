@@ -12,7 +12,7 @@ afterEach(() => {
 });
 
 /**
- * The headless agent (WhatsApp `!code`, gateway, `natureco code -p`) has no
+ * The headless agent (WhatsApp `!code`, gateway, `nskuld code -p`) has no
  * human to answer an approval prompt. It must refuse rather than either
  * hanging on a prompt nobody sees or — as it did before — executing ungated.
  */

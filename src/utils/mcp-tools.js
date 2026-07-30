@@ -4,7 +4,7 @@
  * MCP servers were only reachable from the chat/repl path (api.js wires them
  * into its own loop). The coding agent builds its tool list from
  * loadToolDefinitions(), which is the built-in manifest only, so a configured
- * MCP server was invisible to `natureco code` — the one mode where it matters
+ * MCP server was invisible to `nskuld code` — the one mode where it matters
  * most. This adapter turns each server's tools into the same
  * `{ name, description, parameters, execute }` shape the manifest produces, so
  * they flow through the normal execution gateway (guardrails, permissions,

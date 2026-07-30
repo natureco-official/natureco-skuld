@@ -213,7 +213,7 @@ async function getDefaultBot() {
   }
 
   if (!botList || !botList.bots || botList.bots.length === 0) {
-    console.log(chalk.gray('No bots found. Create one at https://developers.natureco.me\n'));
+    console.log(chalk.gray('No bots found. Create one at https://developers.nskuld.me\n'));
     process.exit(1);
   }
 

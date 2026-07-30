@@ -1,12 +1,12 @@
 /**
- * natureco dashboard — Local web dashboard (Phase 5)
+ * nskuld dashboard — Local web dashboard (Phase 5)
  *
  * Kullanım:
- *   natureco dashboard              Dashboard'u başlat ve tarayıcıda aç
- *   natureco dashboard start        Sadece başlat (arka plan)
- *   natureco dashboard status       Çalışıyor mu kontrol et
- *   natureco dashboard url          URL'i göster
- *   natureco dashboard stop         Durdur (PID file'dan)
+ *   nskuld dashboard              Dashboard'u başlat ve tarayıcıda aç
+ *   nskuld dashboard start        Sadece başlat (arka plan)
+ *   nskuld dashboard status       Çalışıyor mu kontrol et
+ *   nskuld dashboard url          URL'i göster
+ *   nskuld dashboard stop         Durdur (PID file'dan)
  *
  * Phase 5 — Vanilla JS, framework yok, port 7421
  */
@@ -97,7 +97,7 @@ async function cmdStatus() {
     if (pid) console.log(chalk.gray(`    PID: ${pid}`));
   } else {
     console.log(chalk.yellow(`\n  ⏸  Dashboard çalışmıyor`));
-    console.log(chalk.gray(`    Başlatmak için: natureco dashboard`));
+    console.log(chalk.gray(`    Başlatmak için: nskuld dashboard`));
   }
   console.log('');
 }
@@ -136,11 +136,11 @@ async function dashboard(params) {
     if (action === 'stop') { cmdStop(); return; }
 
     console.log(chalk.yellow('\n  Kullanım:'));
-    console.log(chalk.gray('    natureco dashboard            Başlat ve tarayıcıda aç'));
-    console.log(chalk.gray('    natureco dashboard start      Sadece başlat'));
-    console.log(chalk.gray('    natureco dashboard status     Çalışıyor mu?'));
-    console.log(chalk.gray('    natureco dashboard stop       Durdur'));
-    console.log(chalk.gray('    natureco dashboard url        URL göster'));
+    console.log(chalk.gray('    nskuld dashboard            Başlat ve tarayıcıda aç'));
+    console.log(chalk.gray('    nskuld dashboard start      Sadece başlat'));
+    console.log(chalk.gray('    nskuld dashboard status     Çalışıyor mu?'));
+    console.log(chalk.gray('    nskuld dashboard stop       Durdur'));
+    console.log(chalk.gray('    nskuld dashboard url        URL göster'));
     console.log('');
   } catch (err) {
     console.log(chalk.red(`\n  Dashboard error: ${err.message}\n`));

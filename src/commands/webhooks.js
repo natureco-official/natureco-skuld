@@ -25,7 +25,7 @@ function webhooks(args) {
   if (action === 'gmail' && subAction === 'run') return cmdGmailRun();
 
   console.log(chalk.red(`\n  Unknown webhooks action: ${action} ${subAction || ''}\n`));
-  console.log(chalk.gray('  Usage: natureco webhooks <action> [params]'));
+  console.log(chalk.gray('  Usage: nskuld webhooks <action> [params]'));
   console.log(chalk.gray('  Actions: list, gmail setup, gmail run\n'));
   process.exit(1);
 }
@@ -59,7 +59,7 @@ function cmdGmailSetup() {
   console.log(chalk.gray('    1. Enable Gmail API in Google Cloud Console'));
   console.log(chalk.gray('    2. Create a Pub/Sub topic'));
   console.log(chalk.gray('    3. Configure the push endpoint'));
-  console.log(chalk.gray('    4. Run: natureco webhooks gmail run'));
+  console.log(chalk.gray('    4. Run: nskuld webhooks gmail run'));
   console.log('');
 }
 

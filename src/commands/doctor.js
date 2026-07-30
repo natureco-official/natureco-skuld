@@ -18,7 +18,7 @@ const CHECKS = [
   { name: 'nodeVersion', label: 'Node.js version >= 18' },
   { name: 'npmPackages', label: 'Required npm packages installed' },
   { name: 'diskSpace', label: 'Sufficient disk space (>500 MB)' },
-  { name: 'writePermission', label: 'Write permission on ~/.natureco' },
+  { name: 'writePermission', label: 'Write permission on ~/.nskuld' },
   { name: 'apiKeyValid', label: 'API key format valid' },
   { name: 'providerReachable', label: 'Provider API reachable' },
   { name: 'dataDirs', label: 'All data directories exist' },
@@ -39,7 +39,7 @@ function doctor(params) {
     if (action === 'check') return cmdCheck(checkName);
 
     console.log(chalk.red(`\n  Unknown doctor action: ${action}\n`));
-    console.log(chalk.gray('  Usage: natureco doctor [run|list|check <name>|--fix]\n'));
+    console.log(chalk.gray('  Usage: nskuld doctor [run|list|check <name>|--fix]\n'));
   } catch (err) {
     console.log(chalk.red(`\n  Doctor error: ${err.message}\n`));
   }
@@ -52,7 +52,7 @@ function applyFixes() {
   const failed = [];
   // 1. Eksik veri dizinlerini oluştur
   const REQUIRED = ['sources', 'concepts', 'cache', 'skills', 'memory', 'sessions', 'backups', 'hooks', 'audit'];
-  try { if (!fs.existsSync(BASE_DIR)) fs.mkdirSync(BASE_DIR, { recursive: true, mode: 0o700 }); } catch (e) { failed.push('~/.natureco: ' + e.message); }
+  try { if (!fs.existsSync(BASE_DIR)) fs.mkdirSync(BASE_DIR, { recursive: true, mode: 0o700 }); } catch (e) { failed.push('~/.nskuld: ' + e.message); }
   for (const d of REQUIRED) {
     const dir = path.join(BASE_DIR, d);
     if (!fs.existsSync(dir)) {
@@ -62,7 +62,7 @@ function applyFixes() {
   }
   // 2. Hassas dosya/dizin izinlerini sıkılaştır (POSIX) — API key'li config gizli kalmalı
   if (process.platform !== 'win32') {
-    try { fs.chmodSync(BASE_DIR, 0o700); applied.push('~/.natureco → 0700'); } catch {}
+    try { fs.chmodSync(BASE_DIR, 0o700); applied.push('~/.nskuld → 0700'); } catch {}
     if (fs.existsSync(CONFIG_FILE)) {
       try {
         const cur = fs.statSync(CONFIG_FILE).mode & 0o777;
@@ -79,7 +79,7 @@ function cmdList() {
 
 function cmdCheck(name) {
   if (!name) {
-    console.log(chalk.red('\n  Usage: natureco doctor check <name>\n'));
+    console.log(chalk.red('\n  Usage: nskuld doctor check <name>\n'));
     console.log(chalk.gray('  Available checks: ' + CHECKS.map(c => c.name).join(', ') + '\n'));
     return;
   }
@@ -166,7 +166,7 @@ function cmdRun(opts = {}) {
   }).join('\n'));
 
   if (failed > 0) {
-    console.log('\n' + tui.C.amber(L('  ⚠️  Bazı kontroller başarısız. Detay için: ', '  ⚠️  Some checks failed. For details: ')) + tui.C.brand('natureco doctor check <name>'));
+    console.log('\n' + tui.C.amber(L('  ⚠️  Bazı kontroller başarısız. Detay için: ', '  ⚠️  Some checks failed. For details: ')) + tui.C.brand('nskuld doctor check <name>'));
   } else if (warnings > 0) {
     console.log('\n' + tui.C.amber(L('  ⚠️  Bazı kontroller belirlenemedi.', '  ⚠️  Some checks could not be determined.')));
   } else {
@@ -230,7 +230,7 @@ function runCheck(name, dependencies = {}) {
 
     case 'apiKeyValid': {
       try {
-        if (!fs.existsSync(CONFIG_FILE)) return { pass: false, message: 'Config missing — run `natureco setup`' };
+        if (!fs.existsSync(CONFIG_FILE)) return { pass: false, message: 'Config missing — run `nskuld setup`' };
         const cfg = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
         const key = cfg.providerApiKey || cfg.apiKey;
         if (!key) return { pass: false, message: L('API key tanımlı değil', 'API key not set') };

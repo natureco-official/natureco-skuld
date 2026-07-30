@@ -2,10 +2,10 @@
  * Centralized port + host defaults with env-var overrides.
  *
  * Hardcoding `7421` across multiple modules invited "port already in use"
- * crashes in environments where the user runs natureco alongside other
- * services on that port, or wants to run multiple natureco dashboards
+ * crashes in environments where the user runs nskuld alongside other
+ * services on that port, or wants to run multiple nskuld dashboards
  * (e.g. one per project worktree). This module is the single source of
- * truth — set NATURECO_DASHBOARD_PORT / NATURECO_DASHBOARD_HOST once and
+ * truth — set SKULD_DASHBOARD_PORT / SKULD_DASHBOARD_HOST once and
  * all callers pick it up.
  */
 
@@ -22,11 +22,11 @@ function _parsePort(raw, fallback) {
 }
 
 function getDashboardPort() {
-  return _parsePort(process.env.NATURECO_DASHBOARD_PORT, DEFAULT_DASHBOARD_PORT);
+  return _parsePort(process.env.SKULD_DASHBOARD_PORT, DEFAULT_DASHBOARD_PORT);
 }
 
 function getDashboardHost() {
-  const raw = process.env.NATURECO_DASHBOARD_HOST;
+  const raw = process.env.SKULD_DASHBOARD_HOST;
   return (raw && String(raw).trim()) || DEFAULT_DASHBOARD_HOST;
 }
 

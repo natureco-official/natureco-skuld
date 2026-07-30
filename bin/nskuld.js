@@ -12,10 +12,13 @@ const chalk = require('chalk');
 const packageJson = require('../package.json');
 // Küresel çökme/EPIPE yakalayıcıları — ham Node stack yerine düzgün mesaj + audit log
 require('../src/utils/process-errors').install();
+// Eski `NATURECO_*` ortam değişkenlerini `SKULD_*`'a köprüler. HERŞEYDEN ÖNCE
+// çalışması gerekiyor: aşağıdaki modüller yüklenirken ortamı okuyorlar.
+try { require('../src/utils/ortam-uyum').eskiAdlariKoprule(); } catch { /* asla komutu bozma */ }
 // Yeni sürüm bildirimi (önbellekten senkron basar; ağı arka planda, engellemeden tazeler).
 // Eski sürümde kalan kullanıcılar yeni skill/araçlardan haberdar olsun diye eklendi.
 try { require('../src/utils/update-check').maybeNotify(packageJson.version); } catch { /* asla komutu bozma */ }
-// Yerleşik skill/araçları ~/.natureco altında görünür yap (junction/symlink; kopya yok)
+// Yerleşik skill/araçları ~/.nskuld altında görünür yap (junction/symlink; kopya yok)
 try { require('../src/utils/builtin-links').ensureBuiltinLinks(); } catch { /* asla komutu bozma */ }
 const login = require('../src/commands/login');
 const logout = require('../src/commands/logout');
@@ -151,13 +154,13 @@ ${chalk.yellow('📦 Medya & İçerik')}
   ${chalk.cyan('browser')}       Browser automation (status|start|stop|tabs|open|close|navigate|screenshot|snapshot|click|type|press|resize|hover|drag|select|upload|fill|dialog|wait|evaluate|console|pdf|profiles|focus|reset-profile|create-profile|delete-profile)
 
 ${chalk.yellow('Örnekler:')}
-  ${chalk.gray('$ natureco setup')}              İlk kurulum
-  ${chalk.gray('$ natureco onbord')}             Onboarding
-  ${chalk.gray('$ natureco chat')}               Sohbet başlat
-  ${chalk.gray('$ natureco code')}               Code agent
-  ${chalk.gray('$ natureco doctor')}             Sistem kontrolü
-  ${chalk.gray('$ natureco agent run "dosya oku"')}  One-shot agent
-  ${chalk.gray('$ natureco completion bash')}    Shell completion
+  ${chalk.gray('$ nskuld setup')}              İlk kurulum
+  ${chalk.gray('$ nskuld onbord')}             Onboarding
+  ${chalk.gray('$ nskuld chat')}               Sohbet başlat
+  ${chalk.gray('$ nskuld code')}               Code agent
+  ${chalk.gray('$ nskuld doctor')}             Sistem kontrolü
+  ${chalk.gray('$ nskuld agent run "dosya oku"')}  One-shot agent
+  ${chalk.gray('$ nskuld completion bash')}    Shell completion
 `);
 
 program
@@ -238,7 +241,7 @@ program
 
 program
   .command('init')
-  .description('Initialize NatureCo project in current directory')
+  .description('Initialize a Skuld workspace in the current directory')
   .action(init);
 
 program
@@ -588,7 +591,7 @@ program
 
 program
   .command('uninstall')
-  .description('Uninstall NatureCo CLI data')
+  .description('Uninstall NatureCo Skuld data')
   .option('--all', 'Remove all data including config')
   .option('--yes, -y', 'Skip confirmation')
   .option('--dry-run', 'Preview actions without executing')
@@ -761,7 +764,7 @@ program
   .description('Alias for code command')
   .action((file) => {
     // Was pinned to the legacy agent, so this alias silently gave a different
-    // (older, un-merged) agent than `natureco code`.
+    // (older, un-merged) agent than `nskuld code`.
     const codeV5 = require('../src/commands/code_v5');
     codeV5(file ? path.dirname(path.resolve(file)) : process.cwd(), {});
   });
@@ -849,7 +852,7 @@ const skipFirstRun = argv.includes('--help') || argv.includes('-h')
   || argv[0] === 'doctor' || argv[0] === 'uninstall';
 
 // --no-splash flag'i ile splash atlanabilsin
-const noSplash = argv.includes('--no-splash') || process.env.NATURECO_NO_SPLASH;
+const noSplash = argv.includes('--no-splash') || process.env.SKULD_NO_SPLASH;
 
 function needsFirstRun() {
   try {
@@ -924,12 +927,12 @@ async function handleNoArgs() {
   // Global option'ları filtrele (--no-splash, --plain, --profile) ve parse et
   const opts = program.opts();
   if (opts.profile) {
-    process.env.NATURECO_PROFILE = opts.profile;
+    process.env.SKULD_PROFILE = opts.profile;
     // TODO: profile dizinini değiştir
   }
   if (opts.plain) {
     process.env.FORCE_COLOR = '0';
-    process.env.NATURECO_NO_SPLASH = '1';
+    process.env.SKULD_NO_SPLASH = '1';
   }
   program.parse(process.argv);
 }

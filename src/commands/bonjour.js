@@ -43,7 +43,7 @@ async function bonjour(args) {
   if (action === 'status') return statusBonjour();
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco bonjour [scan|discover|status]\n', '  Usage: natureco bonjour [scan|discover|status]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld bonjour [scan|discover|status]\n', '  Usage: nskuld bonjour [scan|discover|status]\n')));
   process.exit(1);
 }
 
@@ -87,7 +87,7 @@ async function scanNetwork() {
     console.log(chalk.gray(L('\n  Varsayılan ağ geçidi: ', '\n  Default gateway: ')) + chalk.cyan(gateway));
   }
 
-  console.log(chalk.gray(L('\n  Service discovery için: ', '\n  For service discovery: ')) + chalk.cyan('natureco bonjour discover\n'));
+  console.log(chalk.gray(L('\n  Service discovery için: ', '\n  For service discovery: ')) + chalk.cyan('nskuld bonjour discover\n'));
 }
 
 async function discoverServices() {
@@ -151,7 +151,7 @@ async function discoverServices() {
     console.log(`  ${chalk.green('●')} ${chalk.white(r.service)} ${chalk.gray(`→ ${r.host}:${r.port}`)}`);
   });
 
-  console.log(chalk.gray(L('\n  Özel port eklemek: ', '\n  Add custom port: ')) + chalk.cyan('natureco config set discoveryPorts [3000,4000]\n'));
+  console.log(chalk.gray(L('\n  Özel port eklemek: ', '\n  Add custom port: ')) + chalk.cyan('nskuld config set discoveryPorts [3000,4000]\n'));
 }
 
 function statusBonjour() {
@@ -163,7 +163,7 @@ function statusBonjour() {
   console.log(chalk.cyan('    discover  ') + chalk.gray(L('Yerel ağda NatureCo servislerini ara', 'Search for NatureCo services on the local network')));
   console.log(chalk.gray(L('\n  Port yapılandırması:', '\n  Port configuration:')));
   console.log(chalk.gray(L('    Varsayılan: 3848 (Gateway), 3849 (Dashboard)', '    Default: 3848 (Gateway), 3849 (Dashboard)')));
-  console.log(chalk.gray(L('    Özel: ', '    Custom: ')) + chalk.cyan('natureco config set discoveryPorts [3000,4000]\n'));
+  console.log(chalk.gray(L('    Özel: ', '    Custom: ')) + chalk.cyan('nskuld config set discoveryPorts [3000,4000]\n'));
 }
 
 module.exports = bonjour;

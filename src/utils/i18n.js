@@ -1,8 +1,8 @@
 'use strict';
 
 /**
- * NatureCo CLI — hafif i18n katmanı.
- * Dil `~/.natureco/config.json` içindeki `language` alanından okunur (tr | en).
+ * NatureCo Skuld — hafif i18n katmanı.
+ * Dil `~/.nskuld/config.json` içindeki `language` alanından okunur (tr | en).
  * Yoksa ortam değişkeninden (LANG/LC_ALL) tahmin edilir; varsayılan Türkçe.
  *
  * Kullanım:  const { t } = require('../utils/i18n');  t('dna.avgAi')
@@ -22,7 +22,7 @@ function getLang() {
       return _cache;
     }
   } catch (_) { /* config yoksa ortam değişkenine düş */ }
-  const env = (process.env.NATURECO_LANG || process.env.LANG || process.env.LC_ALL || '').toLowerCase();
+  const env = (process.env.SKULD_LANG || process.env.LANG || process.env.LC_ALL || '').toLowerCase();
   _cache = env.startsWith('en') ? 'en' : 'tr'; // varsayılan: Türkçe-öncelikli
   return _cache;
 }
@@ -51,7 +51,7 @@ const MESSAGES = {
     // lang
     'lang.current': 'Şu anki dil: {lang}',
     'lang.set': 'Dil ayarlandı: {lang} ✓',
-    'lang.usage': 'Kullanım: natureco lang <tr|en>',
+    'lang.usage': 'Kullanım: nskuld lang <tr|en>',
     'lang.invalid': 'Geçersiz dil. "tr" veya "en" kullanın.',
     'lang.restartHint': 'Değişiklik yeni komutlarda geçerli.',
   },
@@ -73,7 +73,7 @@ const MESSAGES = {
     // lang
     'lang.current': 'Current language: {lang}',
     'lang.set': 'Language set to: {lang} ✓',
-    'lang.usage': 'Usage: natureco lang <tr|en>',
+    'lang.usage': 'Usage: nskuld lang <tr|en>',
     'lang.invalid': 'Invalid language. Use "tr" or "en".',
     'lang.restartHint': 'Takes effect on the next commands.',
   },

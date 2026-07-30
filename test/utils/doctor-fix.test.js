@@ -1,5 +1,5 @@
 /**
- * v5.43.2 — natureco doctor --fix regresyonu.
+ * v5.43.2 — nskuld doctor --fix regresyonu.
  *
  * BUG: `doctor()` `--fix`'i hiç işlemiyordu → "Unknown doctor action: --fix"
  * (README'de belgeli olmasına rağmen). Artık --fix (ve `fix` alt-komutu) düzeltilebilir

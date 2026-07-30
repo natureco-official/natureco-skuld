@@ -17,7 +17,7 @@ async function sms(action) {
 async function connectSms() {
   const config = getConfig();
   if (!config.providerUrl) {
-    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "natureco setup" çalıştırın.\n', '\n❌ Setup not done. Run "natureco setup" first.\n')));
+    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "nskuld setup" çalıştırın.\n', '\n❌ Setup not done. Run "nskuld setup" first.\n')));
     process.exit(1);
   }
   console.log(chalk.yellow(L('\n⏳ SMS (Twilio) bağlantısı hazırlanıyor...\n', '\n⏳ Preparing SMS (Twilio) connection...\n')));
@@ -72,7 +72,7 @@ async function connectSms() {
       console.log(chalk.gray(L('  (önce bir genel URL ayarlayın)', '  (set a public URL first)')));
     }
   }
-  console.log(chalk.gray(L('\nGateway ile başlatmak için: natureco gateway start\n', '\nTo start with the gateway: natureco gateway start\n')));
+  console.log(chalk.gray(L('\nGateway ile başlatmak için: nskuld gateway start\n', '\nTo start with the gateway: nskuld gateway start\n')));
 }
 
 async function disconnectSms() {
@@ -99,7 +99,7 @@ function statusSms() {
   const config = getConfig();
   if (!config.smsBotId) {
     console.log(chalk.gray('\n⚠️  SMS not connected\n'));
-    console.log(chalk.gray('Connect with: natureco sms connect\n'));
+    console.log(chalk.gray('Connect with: nskuld sms connect\n'));
     return;
   }
   console.log(chalk.green('\n✅ SMS (Twilio) connected\n'));
@@ -108,14 +108,14 @@ function statusSms() {
   console.log(chalk.cyan(L('Numara:', 'Number:')), chalk.white(config.smsFromNumber || '(Messaging Service)'));
   console.log(chalk.cyan(L('DM Politikası:', 'DM Policy:')), chalk.white(config.smsDmPolicy || 'allowlist'));
   console.log(chalk.cyan('Webhook:'), chalk.white(config.smsEnableWebhook !== false ? L('Aktif', 'Active') : L('Devre Dışı', 'Disabled')));
-  console.log(chalk.gray('\nDisconnect with: natureco sms disconnect\n'));
+  console.log(chalk.gray('\nDisconnect with: nskuld sms disconnect\n'));
 }
 
 async function probeSms() {
   const config = getConfig();
   if (!config.smsAccountSid || !config.smsAuthToken) {
     console.log(chalk.red(L('\n❌ SMS bağlantısı yapılmamış\n', '\n❌ SMS connection not set up\n')));
-    console.log(chalk.gray(L('Önce: natureco sms connect\n', 'First: natureco sms connect\n')));
+    console.log(chalk.gray(L('Önce: nskuld sms connect\n', 'First: nskuld sms connect\n')));
     process.exit(1);
   }
 

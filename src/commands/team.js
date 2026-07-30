@@ -1,18 +1,18 @@
 /**
- * natureco team — Multi-agent orkestrasyon (Phase 7)
+ * nskuld team — Multi-agent orkestrasyon (Phase 7)
  *
  * Birden fazla uzman agent'ı aynı görev üzerinde paralel çalıştır.
  * Her biri kendi system prompt'u ve tool setiyle bağımsız çalışır.
  *
  * Kullanım:
- *   natureco team list                 Mevcut agent tipleri
- *   natureco team status               Son çalışan agent'lar
- *   natureco team spawn <type> <task>  Tek agent çalıştır
- *   natureco team parallel <spec>      Paralel çalıştır (JSON)
+ *   nskuld team list                 Mevcut agent tipleri
+ *   nskuld team status               Son çalışan agent'lar
+ *   nskuld team spawn <type> <task>  Tek agent çalıştır
+ *   nskuld team parallel <spec>      Paralel çalıştır (JSON)
  *
  * Örnek:
  *   natureco team spawn seo "natureco.me için anahtar kelime öner"
- *   natureco team parallel '[{"type":"seo","task":"..."}, {"type":"content","task":"..."}]'
+ *   nskuld team parallel '[{"type":"seo","task":"..."}, {"type":"content","task":"..."}]'
  */
 
 const chalk = require('chalk');
@@ -79,7 +79,7 @@ async function cmdSpawn(args) {
   const task = taskParts.join(' ');
 
   if (!type || !task) {
-    console.log(chalk.red(L('\n  Kullanım: natureco team spawn <type> <task>\n', '\n  Usage: natureco team spawn <type> <task>\n')));
+    console.log(chalk.red(L('\n  Kullanım: nskuld team spawn <type> <task>\n', '\n  Usage: nskuld team spawn <type> <task>\n')));
     console.log(chalk.gray(L('  Tipler: ', '  Types: ')) + Object.keys(subAgent.SYSTEM_PROMPTS).join(', '));
     console.log('');
     return;
@@ -111,8 +111,8 @@ async function cmdSpawn(args) {
 async function cmdParallel(args) {
   const spec = args.join(' ');
   if (!spec) {
-    console.log(chalk.red(L('\n  Kullanım: natureco team parallel \'<json-spec>\'\n', '\n  Usage: natureco team parallel \'<json-spec>\'\n')));
-    console.log(chalk.gray(L('  Örnek: natureco team parallel \'[{"type":"seo","task":"..."},{"type":"content","task":"..."}]\'\n', '  Example: natureco team parallel \'[{"type":"seo","task":"..."},{"type":"content","task":"..."}]\'\n')));
+    console.log(chalk.red(L('\n  Kullanım: nskuld team parallel \'<json-spec>\'\n', '\n  Usage: nskuld team parallel \'<json-spec>\'\n')));
+    console.log(chalk.gray(L('  Örnek: nskuld team parallel \'[{"type":"seo","task":"..."},{"type":"content","task":"..."}]\'\n', '  Example: nskuld team parallel \'[{"type":"seo","task":"..."},{"type":"content","task":"..."}]\'\n')));
     return;
   }
 
@@ -156,10 +156,10 @@ async function team(args) {
   const [action, ...params] = args || [];
   if (!action || action === 'help') {
     console.log(chalk.yellow(L('\n  Kullanım:', '\n  Usage:')));
-    console.log(chalk.gray(L('    natureco team list                  Agent tipleri', '    natureco team list                  Agent types')));
-    console.log(chalk.gray(L('    natureco team status                Son çalışan agent\'lar', '    natureco team status                Recently run agents')));
-    console.log(chalk.gray(L('    natureco team spawn <type> <task>   Tek agent çalıştır', '    natureco team spawn <type> <task>   Run a single agent')));
-    console.log(chalk.gray(L('    natureco team parallel <json>       Paralel çalıştır', '    natureco team parallel <json>       Run in parallel')));
+    console.log(chalk.gray(L('    nskuld team list                  Agent tipleri', '    nskuld team list                  Agent types')));
+    console.log(chalk.gray(L('    nskuld team status                Son çalışan agent\'lar', '    nskuld team status                Recently run agents')));
+    console.log(chalk.gray(L('    nskuld team spawn <type> <task>   Tek agent çalıştır', '    nskuld team spawn <type> <task>   Run a single agent')));
+    console.log(chalk.gray(L('    nskuld team parallel <json>       Paralel çalıştır', '    nskuld team parallel <json>       Run in parallel')));
     console.log('');
     return;
   }

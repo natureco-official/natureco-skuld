@@ -16,7 +16,7 @@ async function irc(action) {
 async function connectIrc() {
   const config = getConfig();
   if (!config.providerUrl) {
-    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "natureco setup" çalıştırın.\n', '\n❌ Setup not done. Run "natureco setup" first.\n')));
+    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "nskuld setup" çalıştırın.\n', '\n❌ Setup not done. Run "nskuld setup" first.\n')));
     process.exit(1);
   }
   console.log(chalk.yellow(L('\n⏳ IRC bağlantısı hazırlanıyor...\n', '\n⏳ Preparing IRC connection...\n')));
@@ -74,7 +74,7 @@ async function connectIrc() {
   console.log(chalk.cyan(L('Sunucu:', 'Server:')), chalk.white(`${answers.host.trim()}:${answers.port}`));
   console.log(chalk.cyan('Nick:'), chalk.white(answers.nick.trim()));
   if (config.ircChannels.length) console.log(chalk.cyan(L('Kanallar:', 'Channels:')), chalk.white(config.ircChannels.join(', ')));
-  console.log(chalk.gray(L('\nGateway ile başlatmak için: natureco gateway start\n', '\nTo start with the gateway: natureco gateway start\n')));
+  console.log(chalk.gray(L('\nGateway ile başlatmak için: nskuld gateway start\n', '\nTo start with the gateway: nskuld gateway start\n')));
 }
 
 async function disconnectIrc() {
@@ -102,7 +102,7 @@ function statusIrc() {
   const config = getConfig();
   if (!config.ircBotId) {
     console.log(chalk.gray('\n⚠️  IRC not connected\n'));
-    console.log(chalk.gray('Connect with: natureco irc connect\n'));
+    console.log(chalk.gray('Connect with: nskuld irc connect\n'));
     return;
   }
   console.log(chalk.green('\n✅ IRC connected\n'));
@@ -115,7 +115,7 @@ function statusIrc() {
   if (config.ircChannels?.length) console.log(chalk.cyan(L('Kanallar:', 'Channels:')), chalk.white(config.ircChannels.join(', ')));
   console.log(chalk.cyan('NickServ:'), chalk.white(config.ircNickservEnabled ? L('Evet', 'Yes') : L('Hayır', 'No')));
   console.log(chalk.cyan(L('DM Politikası:', 'DM Policy:')), chalk.white(config.ircDmPolicy || 'pairing'));
-  console.log(chalk.gray('\nDisconnect with: natureco irc disconnect\n'));
+  console.log(chalk.gray('\nDisconnect with: nskuld irc disconnect\n'));
 }
 
 module.exports = irc;

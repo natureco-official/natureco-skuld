@@ -11,7 +11,7 @@ async function ask(question, options = {}) {
   const apiKey = getApiKey();
 
   if (!apiKey) {
-    console.log(chalk.red(L('\n❌ Giriş yapılmamış. Önce "natureco login" çalıştırın.\n', '\n❌ Not signed in. Run "natureco login" first.\n')));
+    console.log(chalk.red(L('\n❌ Giriş yapılmamış. Önce "nskuld login" çalıştırın.\n', '\n❌ Not signed in. Run "nskuld login" first.\n')));
     process.exit(1);
   }
 
@@ -19,7 +19,7 @@ async function ask(question, options = {}) {
   let defaultBotId = config.defaultBotId;
 
   // defaultBotId ayarli degilse hesaptaki ILK botu otomatik sec — birincil bir komut
-  // ("natureco ask ...") kutu-cikisi patlamasin. (chat/code zaten cfg.botName ile calisir.)
+  // ("nskuld ask ...") kutu-cikisi patlamasin. (chat/code zaten cfg.botName ile calisir.)
   if (!defaultBotId) {
     try {
       const { bots } = await getBots(apiKey);
@@ -28,7 +28,7 @@ async function ask(question, options = {}) {
   }
 
   if (!defaultBotId) {
-    console.log(chalk.red(L('\n❌ Hiç bot bulunamadı. "natureco chat" ile yerel sağlayıcıyı kullanabilir ya da bir bot oluşturabilirsiniz.\n', '\n❌ No bots found. Use "natureco chat" for the local provider, or create a bot.\n')));
+    console.log(chalk.red(L('\n❌ Hiç bot bulunamadı. "nskuld chat" ile yerel sağlayıcıyı kullanabilir ya da bir bot oluşturabilirsiniz.\n', '\n❌ No bots found. Use "nskuld chat" for the local provider, or create a bot.\n')));
     process.exit(1);
   }
 

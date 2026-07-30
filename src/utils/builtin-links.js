@@ -1,17 +1,17 @@
 /**
- * builtin-links — yerleşik skill ve araçları ~/.natureco altında GÖRÜNÜR yapar.
+ * builtin-links — yerleşik skill ve araçları ~/.nskuld altında GÖRÜNÜR yapar.
  *
- * Saha raporu (v5.48 sonrası): "~/.natureco içinde skill/araç yok". Yerleşikler
- * npm paketinin içinde yaşar (node_modules/natureco-cli/...) ve işlevsel olarak
+ * Saha raporu (v5.48 sonrası): "~/.nskuld içinde skill/araç yok". Yerleşikler
+ * npm paketinin içinde yaşar (node_modules/natureco-skuld/...) ve işlevsel olarak
  * çalışırlar; ama kullanıcı "sistem dosyalarında" göremiyor. Kopyalamak yerine
  * dizin bağlantısı kurulur (Windows: junction — yönetici GEREKTİRMEZ; unix: symlink):
  *
- *   ~/.natureco/skills-builtin  →  <paket>/skills      (yerleşik skill'ler)
- *   ~/.natureco/tools           →  <paket>/src/tools   (araç kaynakları)
+ *   ~/.nskuld/skills-builtin  →  <paket>/skills      (yerleşik skill'ler)
+ *   ~/.nskuld/tools           →  <paket>/src/tools   (araç kaynakları)
  *
  * Kazanımlar: gezinilebilir + paket güncellenince otomatik güncel + sıfır kopya.
  * Skill keşfi bu bağlantıları TARAMAZ (çift sayım olmaz) — bu salt görünürlük.
- * Kullanıcının kendi skill'leri ~/.natureco/skills'te yaşamaya devam eder.
+ * Kullanıcının kendi skill'leri ~/.nskuld/skills'te yaşamaya devam eder.
  */
 
 const fs = require('fs');
@@ -25,7 +25,7 @@ const LINKS = [
 
 /**
  * Bağlantıları kurar/onarır. Hızlıdır (birkaç lstat) — her CLI açılışında çağrılır.
- * @param {string} [baseDir] test için ~/.natureco yerine kullanılacak dizin
+ * @param {string} [baseDir] test için ~/.nskuld yerine kullanılacak dizin
  */
 function ensureBuiltinLinks(baseDir) {
   const base = baseDir || path.join(os.homedir(), '.nskuld');

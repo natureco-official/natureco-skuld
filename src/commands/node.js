@@ -28,13 +28,13 @@ function node(args) {
   if (action === 'restart') return cmdRestart(params[0]);
 
   console.log(chalk.red(`\n  Unknown node action: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco node <action> [params]'));
+  console.log(chalk.gray('  Usage: nskuld node <action> [params]'));
   console.log(chalk.gray('  Actions: run <id>, status <id>, install, uninstall, stop <id>, restart <id>\n'));
   process.exit(1);
 }
 
 function cmdRun(id) {
-  if (!id) { console.log(chalk.red('\n  Usage: natureco node run <id>\n')); process.exit(1); }
+  if (!id) { console.log(chalk.red('\n  Usage: nskuld node run <id>\n')); process.exit(1); }
   const nodes = loadNodes();
   const n = nodes[id];
   if (!n) { console.log(chalk.yellow(`\n  Node "${id}" not found.\n`)); return; }
@@ -42,7 +42,7 @@ function cmdRun(id) {
 }
 
 function cmdStatus(id) {
-  if (!id) { console.log(chalk.red('\n  Usage: natureco node status <id>\n')); process.exit(1); }
+  if (!id) { console.log(chalk.red('\n  Usage: nskuld node status <id>\n')); process.exit(1); }
   const nodes = loadNodes();
   const n = nodes[id];
 
@@ -67,7 +67,7 @@ function cmdInstall() {
 }
 
 function cmdUninstall(id) {
-  if (!id) { console.log(chalk.red('\n  Usage: natureco node uninstall <id>\n')); process.exit(1); }
+  if (!id) { console.log(chalk.red('\n  Usage: nskuld node uninstall <id>\n')); process.exit(1); }
   const nodes = loadNodes();
   if (!nodes[id]) { console.log(chalk.yellow(`\n  Node "${id}" not found.\n`)); return; }
   delete nodes[id];
@@ -76,14 +76,14 @@ function cmdUninstall(id) {
 }
 
 function cmdStop(id) {
-  if (!id) { console.log(chalk.red('\n  Usage: natureco node stop <id>\n')); process.exit(1); }
+  if (!id) { console.log(chalk.red('\n  Usage: nskuld node stop <id>\n')); process.exit(1); }
   const nodes = loadNodes();
   if (!nodes[id]) { console.log(chalk.yellow(`\n  Node "${id}" not found.\n`)); return; }
   return notImplemented('stop');
 }
 
 function cmdRestart(id) {
-  if (!id) { console.log(chalk.red('\n  Usage: natureco node restart <id>\n')); process.exit(1); }
+  if (!id) { console.log(chalk.red('\n  Usage: nskuld node restart <id>\n')); process.exit(1); }
   const nodes = loadNodes();
   if (!nodes[id]) { console.log(chalk.yellow(`\n  Node "${id}" not found.\n`)); return; }
   return notImplemented('restart');

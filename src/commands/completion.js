@@ -27,7 +27,7 @@ function completion(params) {
     if (shell === 'install') return printInstall();
 
     console.log(chalk.red(`\n  Unknown shell: ${shell}\n`));
-    console.log(chalk.gray('  Usage: natureco completion [bash|zsh|fish|install]\n'));
+    console.log(chalk.gray('  Usage: nskuld completion [bash|zsh|fish|install]\n'));
   } catch (err) {
     console.log(chalk.red(`\n  Completion error: ${err.message}\n`));
   }
@@ -35,7 +35,7 @@ function completion(params) {
 
 function printBash() {
   const cmds = getCommands().join(' ');
-  console.log(`# natureco bash completion
+  console.log(`# nskuld bash completion
 _natureco() {
   local cur prev opts
   COMPREPLY=()
@@ -67,17 +67,17 @@ function printFish() {
 function printInstall() {
   console.log(chalk.cyan('\n  Shell Completion Installation\n'));
   console.log(chalk.white('  Bash:'));
-  console.log(chalk.gray('    natureco completion bash >> ~/.bashrc'));
+  console.log(chalk.gray('    nskuld completion bash >> ~/.bashrc'));
   console.log(chalk.gray('    source ~/.bashrc'));
   console.log('');
   console.log(chalk.white('  Zsh:'));
   console.log(chalk.gray('    mkdir -p ~/.zsh/completion'));
-  console.log(chalk.gray('    natureco completion zsh > ~/.zsh/completion/_natureco'));
+  console.log(chalk.gray('    nskuld completion zsh > ~/.zsh/completion/_natureco'));
   console.log(chalk.gray('    echo "fpath=(~/.zsh/completion \$fpath)" >> ~/.zshrc'));
   console.log(chalk.gray('    echo "autoload -Uz compinit && compinit" >> ~/.zshrc'));
   console.log('');
   console.log(chalk.white('  Fish:'));
-  console.log(chalk.gray('    natureco completion fish > ~/.config/fish/completions/natureco.fish'));
+  console.log(chalk.gray('    nskuld completion fish > ~/.config/fish/completions/natureco.fish'));
   console.log('');
 }
 

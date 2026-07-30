@@ -93,7 +93,7 @@ async function runBrain({ channel, chatKey, text }, deps = {}) {
   // işaretle — self-edit-guard bunu görünce paket kaynak koduna yazmayı, allow
   // bayrağı açık olsa bile KOŞULSUZ reddeder (kanalda interaktif onay yok).
   // Bilerek geri alınmaz: gateway sürecindeki her çalıştırma kanal kaynaklıdır.
-  process.env.NATURECO_CHANNEL_ORIGIN = '1';
+  process.env.SKULD_CHANNEL_ORIGIN = '1';
 
   const workflow = deps.workflow || require('../tools/workflow');
   const getConfig = deps.getConfig || require('./config').getConfig;

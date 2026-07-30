@@ -1,5 +1,5 @@
 /**
- * natureco xp — NatureCo XP/Level sistemi (Phase 6)
+ * nskuld xp — NatureCo XP/Level sistemi (Phase 6)
  *
  * XP/Level sistemi — kullanıcıları ödüllendirir.
  * XP kazanma yolları:
@@ -10,10 +10,10 @@
  *   - Haftalık aktif kullanım (50 XP bonus)
  *
  * Kullanım:
- *   natureco xp               Mevcut durum
- *   natureco xp stats         Detaylı istatistikler
- *   natureco xp leaderboard   Top kullanıcılar
- *   natureco xp rewards       Aktif ödüller
+ *   nskuld xp               Mevcut durum
+ *   nskuld xp stats         Detaylı istatistikler
+ *   nskuld xp leaderboard   Top kullanıcılar
+ *   nskuld xp rewards       Aktif ödüller
  */
 
 const chalk = require('chalk');
@@ -144,7 +144,7 @@ function cmdStats() {
 
 function cmdLeaderboard() {
   console.log(chalk.cyan(L('\n  🏆 Liderlik Tablosu\n', '\n  🏆 Leaderboard\n')));
-  console.log(chalk.gray(L('  Bu özellik api.natureco.me hazır olunca tam çalışacak.\n', '  This feature will fully work once api.natureco.me is ready.\n')));
+  console.log(chalk.gray(L('  Bu özellik api.nskuld.me hazır olunca tam çalışacak.\n', '  This feature will fully work once api.nskuld.me is ready.\n')));
   console.log(chalk.gray(L('  Şimdilik senin sıralaman local XP dosyanda.\n', '  For now your ranking is in your local XP file.\n')));
   cmdStatus();
 }
@@ -179,10 +179,10 @@ function xp(args) {
   if (action === 'rewards') return cmdRewards();
   if (action === 'help') {
     console.log(chalk.yellow(L('\n  Kullanım:', '\n  Usage:')));
-    console.log(chalk.gray(L('    natureco xp                  Mevcut durum', '    natureco xp                  Current status')));
-    console.log(chalk.gray(L('    natureco xp stats            İstatistikler', '    natureco xp stats            Statistics')));
-    console.log(chalk.gray(L('    natureco xp leaderboard     Liderlik', '    natureco xp leaderboard     Leaderboard')));
-    console.log(chalk.gray(L('    natureco xp rewards          Aktif ödüller', '    natureco xp rewards          Active rewards')));
+    console.log(chalk.gray(L('    nskuld xp                  Mevcut durum', '    nskuld xp                  Current status')));
+    console.log(chalk.gray(L('    nskuld xp stats            İstatistikler', '    nskuld xp stats            Statistics')));
+    console.log(chalk.gray(L('    nskuld xp leaderboard     Liderlik', '    nskuld xp leaderboard     Leaderboard')));
+    console.log(chalk.gray(L('    nskuld xp rewards          Aktif ödüller', '    nskuld xp rewards          Active rewards')));
     console.log('');
     return;
   }

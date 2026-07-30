@@ -11,7 +11,7 @@ async function run(scriptPath) {
   const apiKey = getApiKey();
 
   if (!apiKey) {
-    console.log(chalk.red(L('\n❌ Giriş yapılmamış. Önce "natureco login" çalıştırın.\n', '\n❌ Not signed in. Run "natureco login" first.\n')));
+    console.log(chalk.red(L('\n❌ Giriş yapılmamış. Önce "nskuld login" çalıştırın.\n', '\n❌ Not signed in. Run "nskuld login" first.\n')));
     process.exit(1);
   }
 
@@ -19,7 +19,7 @@ async function run(scriptPath) {
   const defaultBotId = config.defaultBotId;
 
   if (!defaultBotId) {
-    console.log(chalk.red(L('\n❌ Varsayılan bot ayarlanmamış. "natureco config set defaultBotId <bot-id>" ile ayarlayın.\n', '\n❌ No default bot set. Set one with "natureco config set defaultBotId <bot-id>".\n')));
+    console.log(chalk.red(L('\n❌ Varsayılan bot ayarlanmamış. "nskuld config set defaultBotId <bot-id>" ile ayarlayın.\n', '\n❌ No default bot set. Set one with "nskuld config set defaultBotId <bot-id>".\n')));
     process.exit(1);
   }
 

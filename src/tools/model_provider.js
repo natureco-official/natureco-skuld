@@ -38,7 +38,7 @@ async function execute(params) {
         available: avail,
         url: (cfg.providerUrl || '').replace(/\/\/.*@/, '//***@'),
         model: cfg.providerModel || '(not set)',
-        env: process.env.NATURECO_MODEL_PROVIDER || '(not set)',
+        env: process.env.SKULD_MODEL_PROVIDER || '(not set)',
         configValue: cfg.modelProvider || '(not set, using auto-detect)',
       };
     }

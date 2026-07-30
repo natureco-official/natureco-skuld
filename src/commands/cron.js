@@ -44,17 +44,17 @@ async function cron(action, options) {
   if (!action || !['add', 'list', 'remove', 'get', 'edit', 'enable', 'disable', 'runs', 'run'].includes(action)) {
     console.log(chalk.red(L('\n❌ Geçersiz aksiyon\n', '\n❌ Invalid action\n')));
     console.log(chalk.gray(L('Kullanım:', 'Usage:')));
-    console.log(chalk.cyan('  natureco cron add --name <name> --schedule <cron> --action <channel> --target <target> --prompt <prompt>'));
-    console.log(chalk.cyan('  natureco cron list'));
-    console.log(chalk.cyan('  natureco cron get <name>'));
-    console.log(chalk.cyan('  natureco cron edit <name> [--name <name>] [--schedule <cron>] [--action <channel>] [--target <target>] [--prompt <prompt>]'));
-    console.log(chalk.cyan('  natureco cron remove --name <name>'));
-    console.log(chalk.cyan('  natureco cron enable <name>'));
-    console.log(chalk.cyan('  natureco cron disable <name>'));
-    console.log(chalk.cyan('  natureco cron runs <name>'));
-    console.log(chalk.cyan('  natureco cron run <name>'));
+    console.log(chalk.cyan('  nskuld cron add --name <name> --schedule <cron> --action <channel> --target <target> --prompt <prompt>'));
+    console.log(chalk.cyan('  nskuld cron list'));
+    console.log(chalk.cyan('  nskuld cron get <name>'));
+    console.log(chalk.cyan('  nskuld cron edit <name> [--name <name>] [--schedule <cron>] [--action <channel>] [--target <target>] [--prompt <prompt>]'));
+    console.log(chalk.cyan('  nskuld cron remove --name <name>'));
+    console.log(chalk.cyan('  nskuld cron enable <name>'));
+    console.log(chalk.cyan('  nskuld cron disable <name>'));
+    console.log(chalk.cyan('  nskuld cron runs <name>'));
+    console.log(chalk.cyan('  nskuld cron run <name>'));
     console.log(chalk.gray(L('\nÖrnek:', '\nExample:')));
-    console.log(chalk.cyan(L('  natureco cron add --name "bitcoin-fiyat" --schedule "0 9 * * *" --action "whatsapp" --target "+905422842631" --prompt "Bugünkü Bitcoin fiyatını öğren ve kısaca bildir"\n', '  natureco cron add --name "bitcoin-price" --schedule "0 9 * * *" --action "whatsapp" --target "+905422842631" --prompt "Get today\'s Bitcoin price and report briefly"\n')));
+    console.log(chalk.cyan(L('  nskuld cron add --name "bitcoin-fiyat" --schedule "0 9 * * *" --action "whatsapp" --target "+905422842631" --prompt "Bugünkü Bitcoin fiyatını öğren ve kısaca bildir"\n', '  nskuld cron add --name "bitcoin-price" --schedule "0 9 * * *" --action "whatsapp" --target "+905422842631" --prompt "Get today\'s Bitcoin price and report briefly"\n')));
     process.exit(1);
   }
   
@@ -112,7 +112,7 @@ async function addCron(options) {
   // Check if name already exists
   if (crons.find(c => c.name === name)) {
     console.log(chalk.red(L('\n❌ Bu isimde bir cron zaten var\n', '\n❌ A cron with this name already exists\n')));
-    console.log(chalk.yellow(L('Önce silin:', 'Delete it first:')), chalk.cyan(`natureco cron remove --name "${name}"\n`));
+    console.log(chalk.yellow(L('Önce silin:', 'Delete it first:')), chalk.cyan(`nskuld cron remove --name "${name}"\n`));
     process.exit(1);
   }
   
@@ -136,7 +136,7 @@ async function addCron(options) {
   console.log(chalk.cyan(L('Hedef:', 'Target:')), chalk.white(target));
   console.log(chalk.cyan('Prompt:'), chalk.white(prompt));
   console.log(chalk.gray(L('\nCron\'lar gateway başlatıldığında aktif olur.', '\nCrons become active when the gateway starts.')));
-  console.log(chalk.gray(L('Gateway çalışıyorsa yeniden başlatın: natureco gateway stop && natureco gateway start\n', 'If the gateway is running, restart it: natureco gateway stop && natureco gateway start\n')));
+  console.log(chalk.gray(L('Gateway çalışıyorsa yeniden başlatın: nskuld gateway stop && nskuld gateway start\n', 'If the gateway is running, restart it: nskuld gateway stop && nskuld gateway start\n')));
 }
 
 function listCrons() {
@@ -146,7 +146,7 @@ function listCrons() {
     console.log('\n' + tui.styled(L('  ⏰ Zamanlanmış Görevler', '  ⏰ Scheduled Tasks'), { color: tui.PALETTE.primary, bold: true }));
     console.log(tui.styled('  ' + '─'.repeat(56), { color: tui.PALETTE.border }));
     console.log('\n  ' + tui.C.muted(L('Henüz cron tanımlı değil. Eklemek için:', 'No crons defined yet. To add:')));
-    console.log('  ' + tui.C.brand(L('natureco cron add --name "görev" --schedule "0 9 * * *" --action telegram --prompt "..."', 'natureco cron add --name "task" --schedule "0 9 * * *" --action telegram --prompt "..."')));
+    console.log('  ' + tui.C.brand(L('nskuld cron add --name "görev" --schedule "0 9 * * *" --action telegram --prompt "..."', 'nskuld cron add --name "task" --schedule "0 9 * * *" --action telegram --prompt "..."')));
     console.log('');
     return;
   }
@@ -214,13 +214,13 @@ function removeCron(options) {
   saveCrons(crons);
   
   F.success(L('Cron silindi!', 'Cron deleted!'));
-  F.meta(L('Gateway çalışıyorsa yeniden başlatın: natureco gateway stop && natureco gateway start', 'If the gateway is running, restart it: natureco gateway stop && natureco gateway start'));
+  F.meta(L('Gateway çalışıyorsa yeniden başlatın: nskuld gateway stop && nskuld gateway start', 'If the gateway is running, restart it: nskuld gateway stop && nskuld gateway start'));
 }
 
 function getCron(options) {
   const { name } = options;
   if (!name) {
-    F.error(L('Cron adı gerekli. Kullanım: natureco cron get <name>', 'Cron name required. Usage: natureco cron get <name>'));
+    F.error(L('Cron adı gerekli. Kullanım: nskuld cron get <name>', 'Cron name required. Usage: nskuld cron get <name>'));
     process.exit(1);
   }
 
@@ -246,7 +246,7 @@ function editCron(options) {
   const newName = options['newName'];
 
   if (!name) {
-    F.error(L('Cron adı gerekli. Kullanım: natureco cron edit <name> [--name <newName>] [--schedule <cron>] [--action <channel>] [--target <target>] [--prompt <prompt>]', 'Cron name required. Usage: natureco cron edit <name> [--name <newName>] [--schedule <cron>] [--action <channel>] [--target <target>] [--prompt <prompt>]'));
+    F.error(L('Cron adı gerekli. Kullanım: nskuld cron edit <name> [--name <newName>] [--schedule <cron>] [--action <channel>] [--target <target>] [--prompt <prompt>]', 'Cron name required. Usage: nskuld cron edit <name> [--name <newName>] [--schedule <cron>] [--action <channel>] [--target <target>] [--prompt <prompt>]'));
     process.exit(1);
   }
 
@@ -289,13 +289,13 @@ function editCron(options) {
   F.kv(L('Kanal', 'Channel'), cron.action);
   F.kv(L('Hedef', 'Target'), cron.target);
   F.kv('Prompt', cron.prompt);
-  F.meta(L('Gateway çalışıyorsa yeniden başlatın: natureco gateway stop && natureco gateway start', 'If the gateway is running, restart it: natureco gateway stop && natureco gateway start'));
+  F.meta(L('Gateway çalışıyorsa yeniden başlatın: nskuld gateway stop && nskuld gateway start', 'If the gateway is running, restart it: nskuld gateway stop && nskuld gateway start'));
 }
 
 function enableCron(options) {
   const { name } = options;
   if (!name) {
-    F.error(L('Cron adı gerekli. Kullanım: natureco cron enable <name>', 'Cron name required. Usage: natureco cron enable <name>'));
+    F.error(L('Cron adı gerekli. Kullanım: nskuld cron enable <name>', 'Cron name required. Usage: nskuld cron enable <name>'));
     process.exit(1);
   }
 
@@ -315,13 +315,13 @@ function enableCron(options) {
   saveCrons(crons);
   F.dot(true, name);
   F.success('"' + name + L('" cron aktifleştirildi', '" cron enabled'));
-  F.meta(L('Gateway çalışıyorsa yeniden başlatın: natureco gateway stop && natureco gateway start', 'If the gateway is running, restart it: natureco gateway stop && natureco gateway start'));
+  F.meta(L('Gateway çalışıyorsa yeniden başlatın: nskuld gateway stop && nskuld gateway start', 'If the gateway is running, restart it: nskuld gateway stop && nskuld gateway start'));
 }
 
 function disableCron(options) {
   const { name } = options;
   if (!name) {
-    F.error(L('Cron adı gerekli. Kullanım: natureco cron disable <name>', 'Cron name required. Usage: natureco cron disable <name>'));
+    F.error(L('Cron adı gerekli. Kullanım: nskuld cron disable <name>', 'Cron name required. Usage: nskuld cron disable <name>'));
     process.exit(1);
   }
 
@@ -341,7 +341,7 @@ function disableCron(options) {
   saveCrons(crons);
   F.dot(false, name);
   F.success('"' + name + L('" cron pasifleştirildi', '" cron disabled'));
-  F.meta(L('Gateway çalışıyorsa yeniden başlatın: natureco gateway stop && natureco gateway start', 'If the gateway is running, restart it: natureco gateway stop && natureco gateway start'));
+  F.meta(L('Gateway çalışıyorsa yeniden başlatın: nskuld gateway stop && nskuld gateway start', 'If the gateway is running, restart it: nskuld gateway stop && nskuld gateway start'));
 }
 
 function loadRuns() {
@@ -358,7 +358,7 @@ function loadRuns() {
 function showRuns(options) {
   const { name } = options;
   if (!name) {
-    F.error(L('Cron adı gerekli. Kullanım: natureco cron runs <name>', 'Cron name required. Usage: natureco cron runs <name>'));
+    F.error(L('Cron adı gerekli. Kullanım: nskuld cron runs <name>', 'Cron name required. Usage: nskuld cron runs <name>'));
     process.exit(1);
   }
 
@@ -382,7 +382,7 @@ function showRuns(options) {
 function runCron(options) {
   const { name } = options;
   if (!name) {
-    F.error(L('Cron adı gerekli. Kullanım: natureco cron run <name>', 'Cron name required. Usage: natureco cron run <name>'));
+    F.error(L('Cron adı gerekli. Kullanım: nskuld cron run <name>', 'Cron name required. Usage: nskuld cron run <name>'));
     process.exit(1);
   }
 

@@ -70,7 +70,7 @@ async function execute(params) {
   const model = params.model || cfg.providerModel || 'default';
 
   if (!providerUrl || !providerApiKey) {
-    return JSON.stringify({ success: false, error: 'Provider not configured. Run natureco setup first.' });
+    return JSON.stringify({ success: false, error: 'Provider not configured. Run nskuld setup first.' });
   }
 
   const systemContent = 'Sen bir alt-agentsin. Verilen gorevi tamamlamak icin elinden geleni yap. Kisa ve oz yanit ver.'

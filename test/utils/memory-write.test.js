@@ -24,8 +24,8 @@ beforeEach(() => {
   process.env.HOME = tmpHome;
   // Windows'ta os.homedir() USERPROFILE okur — ikisini de override et
   process.env.USERPROFILE = tmpHome;
-  delete process.env.NATURECO_MAX_FACTS;
-  process.env.NATURECO_QUIET_MEMORY = '1'; // silence warn for most tests
+  delete process.env.SKULD_MAX_FACTS;
+  process.env.SKULD_QUIET_MEMORY = '1'; // silence warn for most tests
   // Drop the require cache so MEMORY_DIR (computed at require time) re-uses HOME
   delete require.cache[require.resolve('../../src/tools/memory_write')];
   mod = require('../../src/tools/memory_write');
@@ -41,12 +41,12 @@ afterEach(() => {
 });
 
 describe('MAX_FACTS_PER_USER default + env override', () => {
-  it('defaults to 50 when NATURECO_MAX_FACTS is unset', () => {
+  it('defaults to 50 when SKULD_MAX_FACTS is unset', () => {
     expect(mod._internals.MAX_FACTS_PER_USER).toBe(50);
   });
 
-  it('respects NATURECO_MAX_FACTS env override', () => {
-    process.env.NATURECO_MAX_FACTS = '7';
+  it('respects SKULD_MAX_FACTS env override', () => {
+    process.env.SKULD_MAX_FACTS = '7';
     delete require.cache[require.resolve('../../src/tools/memory_write')];
     const m = require('../../src/tools/memory_write');
     expect(m._internals.MAX_FACTS_PER_USER).toBe(7);
@@ -61,7 +61,7 @@ describe('enforceFactLimit', () => {
   });
 
   it('keeps highest-score first, drops lowest-score on overflow', () => {
-    process.env.NATURECO_MAX_FACTS = '3';
+    process.env.SKULD_MAX_FACTS = '3';
     delete require.cache[require.resolve('../../src/tools/memory_write')];
     const m = require('../../src/tools/memory_write');
     const facts = [
@@ -75,7 +75,7 @@ describe('enforceFactLimit', () => {
   });
 
   it('pins the recently-pushed fact even if its score is low', () => {
-    process.env.NATURECO_MAX_FACTS = '3';
+    process.env.SKULD_MAX_FACTS = '3';
     delete require.cache[require.resolve('../../src/tools/memory_write')];
     const m = require('../../src/tools/memory_write');
     const facts = [
@@ -90,8 +90,8 @@ describe('enforceFactLimit', () => {
   });
 
   it('emits a stderr warn when capacity is breached and warn is enabled', () => {
-    process.env.NATURECO_MAX_FACTS = '2';
-    delete process.env.NATURECO_QUIET_MEMORY;
+    process.env.SKULD_MAX_FACTS = '2';
+    delete process.env.SKULD_QUIET_MEMORY;
     delete require.cache[require.resolve('../../src/tools/memory_write')];
     const m = require('../../src/tools/memory_write');
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -117,7 +117,7 @@ describe('addMemory end-to-end', () => {
   });
 
   it('does NOT silently drop the new fact when cap is full (the original bug)', () => {
-    process.env.NATURECO_MAX_FACTS = '3';
+    process.env.SKULD_MAX_FACTS = '3';
     delete require.cache[require.resolve('../../src/tools/memory_write')];
     const m = require('../../src/tools/memory_write');
     // Fill at the cap with high-score facts

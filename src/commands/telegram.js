@@ -21,7 +21,7 @@ async function telegram(action, chatId) {
   if (action === 'allow') {
     if (!chatId) {
       console.log(chalk.red(L('\n❌ Chat ID belirtmelisiniz\n', '\n❌ You must specify a Chat ID\n')));
-      console.log(chalk.gray(L('Kullanım: natureco telegram allow <chatId>\n', 'Usage: natureco telegram allow <chatId>\n')));
+      console.log(chalk.gray(L('Kullanım: nskuld telegram allow <chatId>\n', 'Usage: nskuld telegram allow <chatId>\n')));
       process.exit(1);
     }
     return allowChat(chatId);
@@ -41,7 +41,7 @@ async function connectTelegram() {
   const config = getConfig();
 
   if (!config.providerUrl) {
-    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "natureco setup" çalıştırın.\n', '\n❌ Setup not done. Run "natureco setup" first.\n')));
+    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "nskuld setup" çalıştırın.\n', '\n❌ Setup not done. Run "nskuld setup" first.\n')));
     process.exit(1);
   }
 
@@ -59,7 +59,7 @@ async function connectTelegram() {
     }]);
     if (!ans.change) {
       console.log(chalk.green(L('\n✅ Mevcut token kullanılacak.\n', '\n✅ Existing token will be used.\n')));
-      console.log(chalk.gray(L('Gateway başlat: natureco gateway start\n', 'Start gateway: natureco gateway start\n')));
+      console.log(chalk.gray(L('Gateway başlat: nskuld gateway start\n', 'Start gateway: nskuld gateway start\n')));
       return;
     }
   }
@@ -119,11 +119,11 @@ async function connectTelegram() {
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(answers.token)));
   console.log(chalk.cyan(L('İzin verilen chat:', 'Allowed chat:')), chalk.white(chatIdAnswer.chatId.trim()));
-  console.log(chalk.gray(L('\nSession kaydedildi: ~/.natureco/config.json', '\nSession saved: ~/.natureco/config.json')));
-  console.log(chalk.gray(L('Başka chat eklemek için: natureco telegram allow <chatId>', 'To add another chat: natureco telegram allow <chatId>')));
+  console.log(chalk.gray(L('\nSession kaydedildi: ~/.nskuld/config.json', '\nSession saved: ~/.nskuld/config.json')));
+  console.log(chalk.gray(L('Başka chat eklemek için: nskuld telegram allow <chatId>', 'To add another chat: nskuld telegram allow <chatId>')));
   
   console.log(chalk.green(L('\n✅ Kurulum tamamlandı!\n', '\n✅ Setup complete!\n')));
-  console.log(chalk.yellow(L('Gateway ile başlatmak için:', 'To start with the gateway:')), chalk.cyan('natureco gateway start'));
+  console.log(chalk.yellow(L('Gateway ile başlatmak için:', 'To start with the gateway:')), chalk.cyan('nskuld gateway start'));
   console.log(chalk.gray(L('Gateway, Telegram botunu otomatik olarak başlatacak.\n', 'The gateway will start the Telegram bot automatically.\n')));
 }
 
@@ -167,7 +167,7 @@ function statusTelegram() {
   
   if (!config.telegramToken) {
     console.log(chalk.gray('\n⚠️  Telegram not connected\n'));
-    console.log(chalk.gray('Connect with: natureco telegram connect\n'));
+    console.log(chalk.gray('Connect with: nskuld telegram connect\n'));
     return;
   }
   
@@ -187,7 +187,7 @@ function statusTelegram() {
     allowedChats.forEach(chatId => console.log(chalk.white(`  - ${chatId}`)));
   }
   
-  console.log(chalk.gray('\nDisconnect with: natureco telegram disconnect\n'));
+  console.log(chalk.gray('\nDisconnect with: nskuld telegram disconnect\n'));
 }
 
 function allowChat(chatId) {
@@ -195,7 +195,7 @@ function allowChat(chatId) {
   
   if (!config.telegramToken) {
     console.log(chalk.red('\n❌ Telegram not connected\n'));
-    console.log(chalk.gray('Connect first with: natureco telegram connect\n'));
+    console.log(chalk.gray('Connect first with: nskuld telegram connect\n'));
     process.exit(1);
   }
   
@@ -222,7 +222,7 @@ function allowChat(chatId) {
   console.log(chalk.green(L('\n✅ Chat ID izin listesine eklendi\n', '\n✅ Chat ID added to allowlist\n')));
   console.log(chalk.cyan('Chat ID:'), chalk.white(normalized));
   console.log(chalk.cyan(L('Toplam:', 'Total:')), chalk.white(`${allowedChats.length} chat`));
-  console.log(chalk.gray(L('\nGateway\'i yeniden başlatın: natureco gateway stop && natureco gateway start\n', '\nRestart the gateway: natureco gateway stop && natureco gateway start\n')));
+  console.log(chalk.gray(L('\nGateway\'i yeniden başlatın: nskuld gateway stop && nskuld gateway start\n', '\nRestart the gateway: nskuld gateway stop && nskuld gateway start\n')));
 }
 
 module.exports = telegram;
@@ -236,7 +236,7 @@ module.exports = telegram;
 async function autoDetectChatId() {
   const config = getConfig();
   if (!config.telegramToken) {
-    console.log(chalk.red(L('\n❌ Once natureco telegram connect yapin\n', '\n❌ First run natureco telegram connect\n')));
+    console.log(chalk.red(L('\n❌ Once nskuld telegram connect yapin\n', '\n❌ First run nskuld telegram connect\n')));
     process.exit(1);
   }
 

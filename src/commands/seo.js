@@ -1,14 +1,14 @@
 /**
- * natureco seo — SEO analiz aracı (Phase 6)
+ * nskuld seo — SEO analiz aracı (Phase 6)
  *
  * Herhangi bir URL için hızlı SEO denetimi.
  * Meta tags, başlık yapısı, performans ipuçları, schema.org kontrolü.
  *
  * Kullanım:
- *   natureco seo audit <url>          Tam SEO denetimi
- *   natureco seo meta <url>           Meta tag analizi
- *   natureco seo speed <url>          Hız ipuçları
- *   natureco seo keywords <url> <k>    Keyword density
+ *   nskuld seo audit <url>          Tam SEO denetimi
+ *   nskuld seo meta <url>           Meta tag analizi
+ *   nskuld seo speed <url>          Hız ipuçları
+ *   nskuld seo keywords <url> <k>    Keyword density
  */
 
 const chalk = require('chalk');
@@ -113,7 +113,7 @@ function extractMeta(html) {
 async function cmdAudit(args) {
   const targetUrl = args[0];
   if (!targetUrl) {
-    console.log(tui.C.red(L('\n  Kullanım: natureco seo audit <url>\n', '\n  Usage: natureco seo audit <url>\n')));
+    console.log(tui.C.red(L('\n  Kullanım: nskuld seo audit <url>\n', '\n  Usage: nskuld seo audit <url>\n')));
     return;
   }
 
@@ -249,9 +249,9 @@ async function seo(args) {
   const [action, ...params] = args || [];
   if (!action || action === 'help') {
     console.log(chalk.yellow(L('\n  Kullanım:', '\n  Usage:')));
-    console.log(chalk.gray(L('    natureco seo audit <url>           Tam SEO denetimi', '    natureco seo audit <url>           Full SEO audit')));
-    console.log(chalk.gray(L('    natureco seo meta <url>            Meta tag analizi', '    natureco seo meta <url>            Meta tag analysis')));
-    console.log(chalk.gray(L('    natureco seo speed <url>           Hız ipuçları', '    natureco seo speed <url>           Speed tips')));
+    console.log(chalk.gray(L('    nskuld seo audit <url>           Tam SEO denetimi', '    nskuld seo audit <url>           Full SEO audit')));
+    console.log(chalk.gray(L('    nskuld seo meta <url>            Meta tag analizi', '    nskuld seo meta <url>            Meta tag analysis')));
+    console.log(chalk.gray(L('    nskuld seo speed <url>           Hız ipuçları', '    nskuld seo speed <url>           Speed tips')));
     console.log('');
     return;
   }

@@ -64,9 +64,9 @@ function slugify(text) {
 async function generateSkillInstructions(taskDescription, skillName) {
   const cfg = getConfig();
   if (!cfg.providerUrl || !cfg.providerApiKey) {
-    throw new Error("Provider ayarli degil. Once: natureco setup");
+    throw new Error("Provider ayarli degil. Once: nskuld setup");
   }
-  const promptText = "Sen NatureCo CLI icin SKILL talimatlari yazarsin. Asagidaki gorev icin System Prompt'a eklenecek Turkce talimat yaz:\n\nGOREV: " + taskDescription + "\n\nKURALLAR:\n- Turkce, kisa, oz, madde madde yaz\n- 5-10 satir, dogrudan uygulanabilir\n- Hangi araclarin kullanilacagi (dosya/shell/web) acikca belirt\n- Ornek bir kucuk kullanim ornegi ekle\n- Yanlis ciktilari nasil onlenmesi gerektigini yaz\n\nDirekt SKILL.md icerigini yaz, baska aciklama yapma.";
+  const promptText = "Sen NatureCo Skuld icin SKILL talimatlari yazarsin. Asagidaki gorev icin System Prompt'a eklenecek Turkce talimat yaz:\n\nGOREV: " + taskDescription + "\n\nKURALLAR:\n- Turkce, kisa, oz, madde madde yaz\n- 5-10 satir, dogrudan uygulanabilir\n- Hangi araclarin kullanilacagi (dosya/shell/web) acikca belirt\n- Ornek bir kucuk kullanim ornegi ekle\n- Yanlis ciktilari nasil onlenmesi gerektigini yaz\n\nDirekt SKILL.md icerigini yaz, baska aciklama yapma.";
 
   const body = {
     model: cfg.providerModel || "MiniMax-M2.5",

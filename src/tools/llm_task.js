@@ -65,7 +65,7 @@ module.exports = {
       }
 
       if (!apiKey) {
-        return { success: false, error: `API key required for ${provider}. Set: natureco config set ${provider}ApiKey <key> veya providerApiKey` };
+        return { success: false, error: `API key required for ${provider}. Set: nskuld config set ${provider}ApiKey <key> veya providerApiKey` };
       }
 
       const systemPrompt = [

@@ -34,7 +34,7 @@ describe('previously uncovered process tools', () => {
     const started = await tool.execute({ action: 'start', taskId: 'task-proof', prompt: 'inspect safely', model: 'test-model', toolset: 'read-only' });
     expect(started).toMatchObject({ success: true, taskId: 'task-proof', status: 'running' });
     expect(spawn).toHaveBeenCalledWith(process.execPath, [process.argv[1] || 'natureco', 'ask', 'inspect safely', '--model', 'test-model', '--toolset', 'read-only'], expect.objectContaining({
-      detached: true, env: expect.objectContaining({ NATURECO_ASYNC: '1' }),
+      detached: true, env: expect.objectContaining({ SKULD_ASYNC: '1' }),
     }));
     expect(await tool.execute({ action: 'status', taskId: 'task-proof' })).toMatchObject({ success: true, status: 'running' });
     expect(await tool.execute({ action: 'cancel', taskId: 'task-proof' })).toMatchObject({ success: true, status: 'cancelled' });

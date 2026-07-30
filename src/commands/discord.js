@@ -29,7 +29,7 @@ async function connectDiscord() {
   const config = getConfig();
   
   if (!config.providerUrl) {
-    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "natureco setup" çalıştırın.\n', '\n❌ Setup not done. Run "natureco setup" first.\n')));
+    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "nskuld setup" çalıştırın.\n', '\n❌ Setup not done. Run "nskuld setup" first.\n')));
     process.exit(1);
   }
   
@@ -59,7 +59,7 @@ async function connectDiscord() {
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(answers.token)));
   console.log(chalk.gray(L('\nNot: Discord botunuzu Discord Developer Portal\'dan yapılandırmanız gerekiyor.', '\nNote: You need to configure your Discord bot from the Discord Developer Portal.')));
-  console.log(chalk.gray(L('Token config\'e kaydedildi: ~/.natureco/config.json\n', 'Token saved to config: ~/.natureco/config.json\n')));
+  console.log(chalk.gray(L('Token config\'e kaydedildi: ~/.nskuld/config.json\n', 'Token saved to config: ~/.nskuld/config.json\n')));
 }
 
 async function disconnectDiscord() {
@@ -101,7 +101,7 @@ function statusDiscord() {
   
   if (!config.discordToken) {
     console.log(chalk.gray('\n⚠️  Discord not connected\n'));
-    console.log(chalk.gray('Connect with: natureco discord connect\n'));
+    console.log(chalk.gray('Connect with: nskuld discord connect\n'));
     return;
   }
   
@@ -112,7 +112,7 @@ function statusDiscord() {
     console.log(chalk.cyan('Bot ID:'), chalk.white(config.discordBotId));
   }
   
-  console.log(chalk.gray('\nDisconnect with: natureco discord disconnect\n'));
+  console.log(chalk.gray('\nDisconnect with: nskuld discord disconnect\n'));
 }
 
 module.exports = discord;

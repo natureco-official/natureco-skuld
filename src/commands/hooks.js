@@ -29,7 +29,7 @@ function hooks(args) {
   if (action === 'update') return cmdUpdate(params[0]);
 
   console.log(chalk.red(`\n  Unknown hooks action: ${action}\n`));
-  console.log(chalk.gray('  Usage: natureco hooks <action> [params]'));
+  console.log(chalk.gray('  Usage: nskuld hooks <action> [params]'));
   console.log(chalk.gray('  Actions: list, info <name>, check <name>, enable <name>, disable <name>, install <url>, update <name>\n'));
   process.exit(1);
 }
@@ -55,7 +55,7 @@ function cmdList() {
 }
 
 function cmdInfo(name) {
-  if (!name) { console.log(chalk.red('\n  Usage: natureco hooks info <name>\n')); process.exit(1); }
+  if (!name) { console.log(chalk.red('\n  Usage: nskuld hooks info <name>\n')); process.exit(1); }
 
   const hooks = loadHooks();
   const h = hooks.find(x => x.name === name);
@@ -71,7 +71,7 @@ function cmdInfo(name) {
 }
 
 function cmdCheck(name) {
-  if (!name) { console.log(chalk.red('\n  Usage: natureco hooks check <name>\n')); process.exit(1); }
+  if (!name) { console.log(chalk.red('\n  Usage: nskuld hooks check <name>\n')); process.exit(1); }
 
   const hooks = loadHooks();
   const h = hooks.find(x => x.name === name);
@@ -93,7 +93,7 @@ function cmdCheck(name) {
 }
 
 function cmdEnable(name) {
-  if (!name) { console.log(chalk.red('\n  Usage: natureco hooks enable <name>\n')); process.exit(1); }
+  if (!name) { console.log(chalk.red('\n  Usage: nskuld hooks enable <name>\n')); process.exit(1); }
 
   const hooks = loadHooks();
   const h = hooks.find(x => x.name === name);
@@ -105,7 +105,7 @@ function cmdEnable(name) {
 }
 
 function cmdDisable(name) {
-  if (!name) { console.log(chalk.red('\n  Usage: natureco hooks disable <name>\n')); process.exit(1); }
+  if (!name) { console.log(chalk.red('\n  Usage: nskuld hooks disable <name>\n')); process.exit(1); }
 
   const hooks = loadHooks();
   const h = hooks.find(x => x.name === name);
@@ -117,7 +117,7 @@ function cmdDisable(name) {
 }
 
 function cmdInstall(url) {
-  if (!url) { console.log(chalk.red('\n  Usage: natureco hooks install <url>\n')); process.exit(1); }
+  if (!url) { console.log(chalk.red('\n  Usage: nskuld hooks install <url>\n')); process.exit(1); }
 
   const hooks = loadHooks();
   const name = path.basename(url, path.extname(url));
@@ -127,7 +127,7 @@ function cmdInstall(url) {
 }
 
 function cmdUpdate(name) {
-  if (!name) { console.log(chalk.red('\n  Usage: natureco hooks update <name>\n')); process.exit(1); }
+  if (!name) { console.log(chalk.red('\n  Usage: nskuld hooks update <name>\n')); process.exit(1); }
 
   const hooks = loadHooks();
   const h = hooks.find(x => x.name === name);

@@ -29,7 +29,7 @@ async function connectSlack() {
   const config = getConfig();
   
   if (!config.providerUrl) {
-    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "natureco setup" çalıştırın.\n', '\n❌ Setup not done. Run "natureco setup" first.\n')));
+    console.log(chalk.red(L('\n❌ Setup yapılmamış. Önce "nskuld setup" çalıştırın.\n', '\n❌ Setup not done. Run "nskuld setup" first.\n')));
     process.exit(1);
   }
   
@@ -64,7 +64,7 @@ async function connectSlack() {
   console.log(chalk.cyan('Bot ID:'), chalk.white(botId));
   console.log(chalk.cyan('Token:'), chalk.white(maskToken(answers.token)));
   console.log(chalk.gray(L('\nNot: Slack botunuzu Slack App settings\'ten yapılandırmanız gerekiyor.', '\nNote: You need to configure your Slack bot from the Slack App settings.')));
-  console.log(chalk.gray(L('Token config\'e kaydedildi: ~/.natureco/config.json\n', 'Token saved to config: ~/.natureco/config.json\n')));
+  console.log(chalk.gray(L('Token config\'e kaydedildi: ~/.nskuld/config.json\n', 'Token saved to config: ~/.nskuld/config.json\n')));
 }
 
 async function disconnectSlack() {
@@ -106,7 +106,7 @@ function statusSlack() {
   
   if (!config.slackToken) {
     console.log(chalk.gray('\n⚠️  Slack not connected\n'));
-    console.log(chalk.gray('Connect with: natureco slack connect\n'));
+    console.log(chalk.gray('Connect with: nskuld slack connect\n'));
     return;
   }
   
@@ -117,7 +117,7 @@ function statusSlack() {
     console.log(chalk.cyan('Bot ID:'), chalk.white(config.slackBotId));
   }
   
-  console.log(chalk.gray('\nDisconnect with: natureco slack disconnect\n'));
+  console.log(chalk.gray('\nDisconnect with: nskuld slack disconnect\n'));
 }
 
 module.exports = slack;

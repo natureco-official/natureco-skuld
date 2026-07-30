@@ -16,7 +16,7 @@ function tempHome(prefix) {
 function cli(args, home) {
   return spawnSync(process.execPath, [path.join(repoRoot, 'bin', 'nskuld.js'), ...args], {
     cwd: repoRoot,
-    env: { ...process.env, HOME: home, USERPROFILE: home, FORCE_COLOR: '0', NATURECO_LANG: 'en' },
+    env: { ...process.env, HOME: home, USERPROFILE: home, FORCE_COLOR: '0', SKULD_LANG: 'en' },
     encoding: 'utf8',
     timeout: 10000,
   });
@@ -31,7 +31,7 @@ afterEach(() => {
 describe('AUDIT_FINDINGS_3 medium-severity regressions', () => {
   it('M-01 passes a metacharacter path as literal df argv and reports measurement failure as unknown', async () => {
     const doctor = (await import('../../src/commands/doctor.js')).default;
-    const maliciousPath = '/tmp/home $(touch PWNED); echo bad/.natureco';
+    const maliciousPath = '/tmp/home $(touch PWNED); echo bad/.nskuld';
     const execFile = vi.fn(() => 'Filesystem 1024-blocks Used Available Capacity Mounted on\n/dev/test 1000000 1 900000 1% /tmp\n');
 
     expect(doctor.measureDiskSpace(maliciousPath, 'linux', execFile)).toBeCloseTo(900000 / 1024 / 1024);
@@ -127,7 +127,7 @@ describe('AUDIT_FINDINGS_3 medium-severity regressions', () => {
     expect(noBotResult.success).toBe(false);
     expect(typeof noBotResult.error).toBe('string');
     expect(noBotResult.error.length).toBeGreaterThan(0);
-    expect(['No bot selected. Run `natureco bots` first.', 'Bot seçilmedi. Önce `natureco bots` komutunu çalıştırın.']).toContain(
+    expect(['No bot selected. Run `nskuld agents` first.', 'Bot seçilmedi. Önce `nskuld agents` komutunu çalıştırın.']).toContain(
       noBotResult.error
     );
 
@@ -140,7 +140,7 @@ describe('AUDIT_FINDINGS_3 medium-severity regressions', () => {
     expect(acp.error).toBeUndefined();
     expect(acp.status).toBe(1);
     const acpOutput = acp.stdout + acp.stderr;
-    const mentionsNoBotSelected = acpOutput.includes('No bot selected. Run `natureco bots` first.') || acpOutput.includes('Bot seçilmedi. Önce `natureco bots` komutunu çalıştırın.');
+    const mentionsNoBotSelected = acpOutput.includes('No bot selected. Run `nskuld agents` first.') || acpOutput.includes('Bot seçilmedi. Önce `nskuld agents` komutunu çalıştırın.');
     expect(mentionsNoBotSelected).toBe(true);
     expect(acpOutput).not.toContain("Cannot read properties of undefined");
   });

@@ -104,7 +104,7 @@ function parseFrontmatter(content) {
 async function fetchGithubRepo(owner, repo) {
   // Use GitHub API to list contents of /skills directory
   const url = `https://api.github.com/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`;
-  const data = await httpsGet(url, { headers: { 'User-Agent': 'natureco-cli', 'Accept': 'application/vnd.github.v3+json' } });
+  const data = await httpsGet(url, { headers: { 'User-Agent': 'natureco-skuld', 'Accept': 'application/vnd.github.v3+json' } });
   const tree = JSON.parse(data).tree || [];
 
   // Find all SKILL.md files
@@ -221,7 +221,7 @@ async function execute(params) {
     const [owner, repo] = (source || '').split('/');
     if (!owner || !repo) return JSON.stringify({ success: false, error: 'source must be owner/repo (e.g. anthropics/skills)' });
     if (!isKnownRepo(owner, repo)) {
-      return JSON.stringify({ success: false, error: `Güvenlik: "${owner}/${repo}" bilinen/onaylı kaynaklar arasında değil. "natureco security skills-allowlist add ${owner}/${repo}" ile ekleyin veya "list_sources" ile bilinen kaynakları görün.` });
+      return JSON.stringify({ success: false, error: `Güvenlik: "${owner}/${repo}" bilinen/onaylı kaynaklar arasında değil. "nskuld security skills-allowlist add ${owner}/${repo}" ile ekleyin veya "list_sources" ile bilinen kaynakları görün.` });
     }
     const skills = await fetchGithubRepo(owner, repo);
     return JSON.stringify({ success: true, source, count: skills.length, skills: skills.map(s => ({ name: s.name, description: s.description })) });
@@ -231,7 +231,7 @@ async function execute(params) {
     const [owner, repo] = (source || '').split('/');
     if (!owner || !repo) return JSON.stringify({ success: false, error: 'source must be owner/repo' });
     if (!isKnownRepo(owner, repo)) {
-      return JSON.stringify({ success: false, error: `Güvenlik: "${owner}/${repo}" bilinen/onaylı kaynaklar arasında değil. Model kendi kendine keyfi repo indiremez; kullanıcı "natureco security skills-allowlist add ${owner}/${repo}" ile açıkça onaylamalı.` });
+      return JSON.stringify({ success: false, error: `Güvenlik: "${owner}/${repo}" bilinen/onaylı kaynaklar arasında değil. Model kendi kendine keyfi repo indiremez; kullanıcı "nskuld security skills-allowlist add ${owner}/${repo}" ile açıkça onaylamalı.` });
     }
     const skills = await fetchGithubRepo(owner, repo);
     const targetSkill = name ? skills.find(s => s.name === name) : null;
@@ -276,7 +276,7 @@ const inputSchema = {
     action: { type: 'string', enum: ['list_sources', 'list_skills', 'download', 'download_all'] },
     source: { type: 'string', description: 'Source repo in owner/repo format (e.g. anthropics/skills)' },
     name: { type: 'string', description: 'Specific skill name to download (optional, downloads all if not set)' },
-    target: { type: 'string', enum: ['builtin', 'user'], description: 'Target directory: builtin (project) or user (~/.natureco)' },
+    target: { type: 'string', enum: ['builtin', 'user'], description: 'Target directory: builtin (project) or user (~/.nskuld)' },
   },
   required: ['action'],
 };

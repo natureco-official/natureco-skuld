@@ -10,7 +10,7 @@ const { ensureTree, append, remove, readRoot, search, buildIndex, buildDigest, t
 const memoryTreeModule = path.resolve('src/tools/memory_tree.js');
 const originalHome = process.env.HOME;
 const originalUserProfile = process.env.USERPROFILE;
-const originalEngine = process.env.NATURECO_MEMORY_ENGINE;
+const originalEngine = process.env.SKULD_MEMORY_ENGINE;
 let tempHome;
 
 function restoreEnv(name, value) {
@@ -22,7 +22,7 @@ function runChild(script, args = [], timeoutMs = 60000) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, ['-e', script, ...args], {
       cwd: process.cwd(),
-      env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome, NATURECO_MEMORY_ENGINE: 'urdr' },
+      env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome, SKULD_MEMORY_ENGINE: 'urdr' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -56,13 +56,13 @@ beforeEach(() => {
   tempHome = fs.mkdtempSync(path.join(os.tmpdir(), 'natureco-urdr-test-'));
   process.env.HOME = tempHome;
   process.env.USERPROFILE = tempHome;
-  delete process.env.NATURECO_MEMORY_ENGINE;
+  delete process.env.SKULD_MEMORY_ENGINE;
 });
 
 afterEach(() => {
   restoreEnv('HOME', originalHome);
   restoreEnv('USERPROFILE', originalUserProfile);
-  restoreEnv('NATURECO_MEMORY_ENGINE', originalEngine);
+  restoreEnv('SKULD_MEMORY_ENGINE', originalEngine);
   fs.rmSync(tempHome, { recursive: true, force: true });
 });
 
@@ -74,8 +74,8 @@ describe('memory_tree Urðr engine integration', () => {
     expect(status.reason).toMatch(/available/i);
   });
 
-  it('NATURECO_MEMORY_ENGINE=legacy forces the real fallback path', async () => {
-    process.env.NATURECO_MEMORY_ENGINE = 'legacy';
+  it('SKULD_MEMORY_ENGINE=legacy forces the real fallback path', async () => {
+    process.env.SKULD_MEMORY_ENGINE = 'legacy';
     const result = await append('forced-legacy', '1-kisisel', 'Kimlik', 'legacy engine leaf');
     expect(result.engine).toBe('legacy');
     expect(readRoot('forced-legacy', '1-kisisel')).toContain('- legacy engine leaf');
@@ -97,7 +97,7 @@ describe('memory_tree Urðr engine integration', () => {
   });
 
   it('uses legacy append for a brand-new arbitrary branch and creates the section', async () => {
-    process.env.NATURECO_MEMORY_ENGINE = 'urdr';
+    process.env.SKULD_MEMORY_ENGINE = 'urdr';
     const user = 'new-branch';
     const result = await append(user, '3-kararlar', 'Never Seen Branch', 'brand new branch leaf');
     const content = readRoot(user, '3-kararlar');
@@ -137,10 +137,10 @@ describe('memory_tree Urðr engine integration', () => {
 
   it('adopts a pre-existing plain-Markdown tree without loss or duplication', async () => {
     const user = 'legacy-adoption';
-    process.env.NATURECO_MEMORY_ENGINE = 'legacy';
+    process.env.SKULD_MEMORY_ENGINE = 'legacy';
     await append(user, '2-teknik', 'Projeler', 'pre-existing legacy alpha');
     await append(user, '2-teknik', 'Projeler', 'pre-existing legacy beta');
-    process.env.NATURECO_MEMORY_ENGINE = 'urdr';
+    process.env.SKULD_MEMORY_ENGINE = 'urdr';
 
     const result = await append(user, '2-teknik', 'Projeler', 'first Urdr leaf');
     const content = readRoot(user, '2-teknik');
@@ -152,7 +152,7 @@ describe('memory_tree Urðr engine integration', () => {
 
   it('searches real appended leaves through Urðr in the legacy-compatible format', async () => {
     const user = 'hybrid-search';
-    process.env.NATURECO_MEMORY_ENGINE = 'urdr';
+    process.env.SKULD_MEMORY_ENGINE = 'urdr';
     expect((await append(user, '1-kisisel', 'Tercihler', 'prefers concise ocean reports')).engine).toBe('urdr');
     expect((await append(user, '2-teknik', 'Projeler', 'builds coastal sensor networks')).engine).toBe('urdr');
 
@@ -164,9 +164,9 @@ describe('memory_tree Urðr engine integration', () => {
 
   it('forces the live legacy search fallback with equivalent results', async () => {
     const user = 'legacy-search';
-    process.env.NATURECO_MEMORY_ENGINE = 'urdr';
+    process.env.SKULD_MEMORY_ENGINE = 'urdr';
     await append(user, '1-kisisel', 'Tercihler', 'prefers concise ocean reports');
-    process.env.NATURECO_MEMORY_ENGINE = 'legacy';
+    process.env.SKULD_MEMORY_ENGINE = 'legacy';
 
     expect(await search(user, 'ocean reports')).toEqual([
       '1-kisisel/Tercihler: - prefers concise ocean reports',
@@ -175,9 +175,9 @@ describe('memory_tree Urðr engine integration', () => {
 
   it.each(['urdr', 'legacy'])('finds İstanbul with lowercase Turkish folding through %s search', async (searchEngine) => {
     const user = `turkish-${searchEngine}`;
-    process.env.NATURECO_MEMORY_ENGINE = 'urdr';
+    process.env.SKULD_MEMORY_ENGINE = 'urdr';
     await append(user, '1-kisisel', 'Tercihler', 'İstanbul kıyı raporlarını tercih eder');
-    process.env.NATURECO_MEMORY_ENGINE = searchEngine;
+    process.env.SKULD_MEMORY_ENGINE = searchEngine;
 
     const results = await search(user, 'istanbul');
     expect(results).toEqual([
@@ -188,16 +188,16 @@ describe('memory_tree Urðr engine integration', () => {
 
   it.each(['urdr', 'legacy'])('returns an empty array for a miss through %s search', async (searchEngine) => {
     const user = `search-miss-${searchEngine}`;
-    process.env.NATURECO_MEMORY_ENGINE = 'urdr';
+    process.env.SKULD_MEMORY_ENGINE = 'urdr';
     await append(user, '2-teknik', 'Projeler', 'coastal sensor network');
-    process.env.NATURECO_MEMORY_ENGINE = searchEngine;
+    process.env.SKULD_MEMORY_ENGINE = searchEngine;
 
     expect(await search(user, 'unfindable zephyr quartz')).toEqual([]);
   });
 
   it('falls back to the linear scan when Urðr reports a search error', async () => {
     const user = 'search-error-fallback';
-    process.env.NATURECO_MEMORY_ENGINE = 'urdr';
+    process.env.SKULD_MEMORY_ENGINE = 'urdr';
     await append(user, '1-kisisel', 'Tercihler', 'literal [ bracket memory');
 
     expect(await search(user, '[')).toEqual([
@@ -207,9 +207,9 @@ describe('memory_tree Urðr engine integration', () => {
 
   it('searches pre-existing plain Markdown through Urðr after adoption', async () => {
     const user = 'search-legacy-adoption';
-    process.env.NATURECO_MEMORY_ENGINE = 'legacy';
+    process.env.SKULD_MEMORY_ENGINE = 'legacy';
     await append(user, '2-teknik', 'Projeler', 'pre-existing plain Markdown leaf');
-    process.env.NATURECO_MEMORY_ENGINE = 'urdr';
+    process.env.SKULD_MEMORY_ENGINE = 'urdr';
     expect((await append(user, '2-teknik', 'Projeler', 'first Urdr-backed leaf')).engine).toBe('urdr');
 
     expect(await search(user, 'pre-existing plain Markdown')).toEqual([
@@ -219,7 +219,7 @@ describe('memory_tree Urðr engine integration', () => {
 
   it('remove strips the paired ID comment and a later Urðr append reconciles cleanly', async () => {
     const user = 'remove-reconcile';
-    process.env.NATURECO_MEMORY_ENGINE = 'urdr';
+    process.env.SKULD_MEMORY_ENGINE = 'urdr';
     await append(user, '3-kararlar', 'Kararlar', 'remove this Urdr leaf');
     const before = readRoot(user, '3-kararlar');
     const idLine = before.match(/<!-- urdr:id:[^>]+-->/)?.[0];

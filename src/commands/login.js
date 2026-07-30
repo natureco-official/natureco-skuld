@@ -14,11 +14,11 @@ async function login() {
   console.log(chalk.green.bold('  (•ᴥ•)'));
   console.log(chalk.green('  />🌿'));
   console.log('');
-  console.log(chalk.green.bold('  ' + L('NatureCo CLI — Giriş', 'NatureCo CLI — Sign in')));
+  console.log(chalk.green.bold('  ' + L('NatureCo Skuld — Giriş', 'NatureCo Skuld — Sign in')));
   console.log(chalk.gray('  ' + L("API key'ini gir ve başla.", 'Enter your API key to get started.') + '\n'));
   console.log(chalk.gray('  ' + '─'.repeat(48)));
   console.log('');
-  console.log(chalk.gray('  ' + L('API key almak için: ', 'Get an API key at: ')) + chalk.cyan('developers.natureco.me'));
+  console.log(chalk.gray('  ' + L('API key almak için: ', 'Get an API key at: ')) + chalk.cyan('developers.nskuld.me'));
   console.log('');
 
   const { apiKey } = await inquirer.prompt([{
@@ -49,9 +49,9 @@ async function login() {
   saveApiKey(apiKey.trim());
 
   console.log(chalk.green('\n  ✓ ' + L('Giriş başarılı!', 'Signed in!')));
-  console.log(chalk.gray('  Config: ~/.natureco/config.json'));
+  console.log(chalk.gray('  Config: ~/.nskuld/config.json'));
   console.log('');
-  console.log(chalk.gray('  ' + L('Başlamak için: ', 'To get started: ')) + chalk.cyan('natureco chat'));
+  console.log(chalk.gray('  ' + L('Başlamak için: ', 'To get started: ')) + chalk.cyan('nskuld chat'));
   console.log('');
 }
 

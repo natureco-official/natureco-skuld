@@ -18,7 +18,7 @@ function secrets(args) {
   if (action === 'apply') return applySecrets();
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco secrets [list|set|get|unset|audit|reload|configure|apply]\n', '  Usage: natureco secrets [list|set|get|unset|audit|reload|configure|apply]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld secrets [list|set|get|unset|audit|reload|configure|apply]\n', '  Usage: nskuld secrets [list|set|get|unset|audit|reload|configure|apply]\n')));
   process.exit(1);
 }
 
@@ -195,7 +195,7 @@ function configureProvider(provider) {
     { label: 'Get key', value: info.url },
   ]);
 
-  F.info(`Set it: natureco secrets set ${info.key} <your-key>`);
+  F.info(`Set it: nskuld secrets set ${info.key} <your-key>`);
   F.info(`Or set env: $env:${info.env}="your-key"`);
 }
 
@@ -205,7 +205,7 @@ function applySecrets() {
   F.info('To make them available to running processes:');
   F.list([
     'Set environment variables and restart',
-    'Or use: natureco secrets reload',
+    'Or use: nskuld secrets reload',
   ]);
 }
 

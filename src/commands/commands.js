@@ -11,7 +11,7 @@ async function commands(action, ...args) {
     const name = args[0];
     if (!name) {
       console.log(chalk.red('\n❌ Command name required\n'));
-      console.log(chalk.gray('Usage: natureco commands create <name>\n'));
+      console.log(chalk.gray('Usage: nskuld commands create <name>\n'));
       process.exit(1);
     }
     return createCommandInteractive(name);
@@ -27,7 +27,7 @@ function listCommands() {
   
   if (commands.length === 0) {
     console.log(chalk.gray('\nNo custom commands found.\n'));
-    console.log(chalk.gray('Create one with: natureco commands create <name>\n'));
+    console.log(chalk.gray('Create one with: nskuld commands create <name>\n'));
     return;
   }
   

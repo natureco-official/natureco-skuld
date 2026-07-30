@@ -46,9 +46,9 @@ async function migrate(options) {
   }
   if (from !== 'openclaw') {
     console.log(chalk.red(L('\n❌ Desteklenen kaynaklar: openclaw, claude-code, hermes\n', '\n❌ Supported sources: openclaw, claude-code, hermes\n')));
-    console.log(chalk.gray(L('Kullanım: natureco migrate --from openclaw', 'Usage: natureco migrate --from openclaw')));
-    console.log(chalk.gray('         natureco migrate --from claude-code'));
-    console.log(chalk.gray('         natureco migrate --from hermes\n'));
+    console.log(chalk.gray(L('Kullanım: nskuld migrate --from openclaw', 'Usage: nskuld migrate --from openclaw')));
+    console.log(chalk.gray('         nskuld migrate --from claude-code'));
+    console.log(chalk.gray('         nskuld migrate --from hermes\n'));
     return;
   }
   
@@ -564,7 +564,7 @@ async function migrate(options) {
       
       if (report.skills > 0) {
         console.log(chalk.green(`✅ Skills: ${report.skills} ${L('skill migrate edildi', 'skills migrated')}`));
-        console.log(chalk.gray(L('   Konum: ~/.natureco/skills/', '   Location: ~/.natureco/skills/')));
+        console.log(chalk.gray(L('   Konum: ~/.nskuld/skills/', '   Location: ~/.nskuld/skills/')));
       }
     }
   } catch (err) {
@@ -606,9 +606,9 @@ async function migrate(options) {
   console.log('');
   console.log(chalk.yellow(L('⚠️  Manuel kurulum gerekli:', '⚠️  Manual setup required:')));
   console.log(chalk.gray(L('  - Provider URL ve API key ayarlayın:', '  - Set Provider URL and API key:')));
-  console.log(chalk.cyan('    natureco config set providerUrl https://api.groq.com/openai/v1'));
-  console.log(chalk.cyan('    natureco config set providerApiKey gsk_xxx'));
-  console.log(chalk.cyan('    natureco config set providerModel llama-3.3-70b-versatile'));
+  console.log(chalk.cyan('    nskuld config set providerUrl https://api.groq.com/openai/v1'));
+  console.log(chalk.cyan('    nskuld config set providerApiKey gsk_xxx'));
+  console.log(chalk.cyan('    nskuld config set providerModel llama-3.3-70b-versatile'));
   console.log('');
 }
 

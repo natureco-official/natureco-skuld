@@ -1,12 +1,31 @@
 /**
- * natureco help — Modern TUI help screen (v4.6+)
+ * nskuld help — Skuld'un kendi yardım ekranı.
  *
- * Categorized command list; uses the TUI box + table engine.
- * Bilingual (tr|en) via the i18n `L(tr, en)` helper.
+ * Bu dosya SIFIRDAN yazıldı. Devralınan hâli natureco-cli'nin ekranıydı:
+ * komut adı olarak `natureco` yazıyor, "NatureCo Native" gibi bölümleri var,
+ * ve **var olmayan 13 komut tanıtıyordu** — `telegram`, `whatsapp`, `discord`,
+ * `slack`, `signal`, `irc`, `mattermost`, `imessage`, `sms`, `naturehub`,
+ * `medium`, `seo`, `xp`. Hepsi komut kırpmada silinmişti; yardım ekranı
+ * güncellenmemişti.
+ *
+ * Yani kullanıcı `nskuld help` yazdığında başka bir ürünün menüsünü, üstelik
+ * çalışmayan komutlarla görüyordu.
+ *
+ * ── Tasarım ───────────────────────────────────────────────────────────────
+ *
+ * Görünüm Skuld'un: gümüş gradyan, yarım blok kelime işareti, kutu yok.
+ * natureco-cli emoji başlıklı çerçeveli tablolar kullanıyor; burada kasten
+ * öyle yapılmıyor — ayrım görünür olmalı.
+ *
+ * Bölümler ürünün ne OLDUĞUNA göre sıralı, alfabetik değil: kodlama döngüsü
+ * önce, çevresindekiler sonra. Bir kodlama ajanının yardım ekranında ilk
+ * görünen şey kodlama olmalı.
+ *
+ * `scripts/yardim-tutarlilik.mjs` bu dosyadaki her komutun gerçekten kayıtlı
+ * olduğunu doğruluyor — hayalet komut bir daha sessizce birikemez.
  */
 
-const chalk = require('chalk');
-const tui = require('../utils/tui');
+const tema = require('../utils/skuld-theme');
 const { getConfig } = require('../utils/config');
 const { getLang } = require('../utils/i18n');
 
@@ -21,225 +40,146 @@ function providerHostname(providerUrl) {
   }
 }
 
+/**
+ * Bölümler. Her `k` (komut) alanı `bin/nskuld.js` içinde KAYITLI olmalı;
+ * tutarlılık kontrolü bunu zorluyor.
+ */
+function bolumler() {
+  return [
+    {
+      baslik: L('Kodlama', 'Coding'),
+      satirlar: [
+        ['code', L('Kodlama ajanı — oku, yaz, çalıştır, doğrula', 'Coding agent — read, write, run, verify')],
+        ['code -p "<görev>"', L('Tek seferlik, etkileşimsiz (CI için)', 'One-shot, non-interactive (for CI)')],
+        ['ask "<soru>"', L('Tek soru, araç yok', 'One question, no tools')],
+        ['chat', L('Sohbet oturumu', 'Chat session')],
+        ['run <betik.md>', L('Markdown betiği çalıştır', 'Run a Markdown script')],
+        ['repl', L('Etkileşimli REPL', 'Interactive REPL')],
+        ['git', L('Git işlemleri (kapıdan geçer)', 'Git operations (through the gate)')],
+      ],
+    },
+    {
+      baslik: L('Ajan ve görev', 'Agents and tasks'),
+      satirlar: [
+        ['agent', L('Tek seferlik ajan (run|abort|tail|logs)', 'One-shot agent (run|abort|tail|logs)')],
+        ['agents', L('Ajan yönetimi', 'Agent management')],
+        ['tasks', L('Görev listesi', 'Task list')],
+        ['team', L('Çok ajanlı çalışma', 'Multi-agent work')],
+        ['approvals', L('Onay kayıtları ve beyaz liste', 'Approval records and allowlist')],
+      ],
+    },
+    {
+      baslik: L('Güvenlik', 'Security'),
+      satirlar: [
+        ['policy', L('Çalıştırma politikası', 'Execution policy')],
+        ['exec-policy', L('Komut izinleri', 'Command permissions')],
+        ['sandbox', L('Yalıtılmış çalışma alanı', 'Isolated workspace')],
+        ['secrets', L('Sır yönetimi', 'Secret management')],
+        ['security', L('Güvenlik denetimi', 'Security audit')],
+        ['audit', L('Denetim günlüğü', 'Audit log')],
+        ['dna', L('CodeDNA kalite kapısı', 'CodeDNA quality gate')],
+      ],
+    },
+    {
+      baslik: L('Hafıza ve oturum', 'Memory and sessions'),
+      satirlar: [
+        ['memory', L('Urðr hafızası', 'Urðr memory')],
+        ['sessions', L('Oturum yönetimi', 'Session management')],
+        ['transcripts', L('Konuşma kayıtları', 'Transcripts')],
+      ],
+    },
+    {
+      baslik: L('Kurulum ve teşhis', 'Setup and diagnostics'),
+      satirlar: [
+        ['setup', L('İlk kurulum', 'First-run setup')],
+        ['onboard', L('Adım adım kurulum', 'Step-by-step onboarding')],
+        ['config', L('Yapılandırma', 'Configuration')],
+        ['doctor', L('Sistem sağlığı', 'System health')],
+        ['status', L('Durum özeti', 'Status summary')],
+        ['models', L('Model listesi ve seçimi', 'Model list and selection')],
+        ['cost', L('Maliyet takibi', 'Cost tracking')],
+        ['login', L('API anahtarı ile giriş', 'Sign in with an API key')],
+      ],
+    },
+    {
+      baslik: L('Genişletme', 'Extending'),
+      satirlar: [
+        ['mcp', L('MCP sunucuları', 'MCP servers')],
+        ['skills', L('Skill yönetimi', 'Skill management')],
+        ['plugins', L('Plugin yönetimi', 'Plugin management')],
+        ['tools', L('Yüklü araçlar', 'Loaded tools')],
+        ['hooks', L('Kanca yönetimi', 'Hook management')],
+      ],
+    },
+    {
+      baslik: L('Otomasyon ve gözlem', 'Automation and observability'),
+      satirlar: [
+        ['cron', L('Zamanlanmış görevler', 'Scheduled jobs')],
+        ['webhooks', L('Webhook yönetimi', 'Webhook management')],
+        ['daemon', L('Arka plan süreci', 'Background daemon')],
+        ['dashboard', L('Web kontrol paneli', 'Web dashboard')],
+        ['workboard', L('İş panosu', 'Work board')],
+        ['logs', L('Günlükler', 'Logs')],
+      ],
+    },
+    {
+      baslik: L('Ağ ve içerik', 'Network and content'),
+      satirlar: [
+        ['web-fetch', L('URL getir (onay ister)', 'Fetch a URL (asks for approval)')],
+        ['browser', L('Tarayıcı denetimi', 'Browser control')],
+      ],
+    },
+  ];
+}
+
 function help() {
   const config = getConfig() || {};
-  const version = require('../../package.json').version;
-  const width = 64;
+  const surum = require('../../package.json').version;
+  const genislik = 74;
 
-  console.log('');
+  const s = [];
+  s.push('');
+  // Kelime işareti + sürüm. Kutu YOK: natureco-cli çerçeveli tablo kullanıyor,
+  // ayrım ilk bakışta görünmeli.
+  // `KELIME_ISARETI` bir DİZİ (satır başına bir eleman), dize değil.
+  for (const satir of tema.KELIME_ISARETI) {
+    s.push('  ' + tema.gradyan(satir, 200, 500));
+  }
+  s.push('');
+  s.push('  ' + tema.soluk(tema.gumus(500, L(
+    `v${surum} · terminal kodlama ajanı · kanıtsız "bitti" demez`,
+    `v${surum} · terminal coding agent · never claims done without evidence`,
+  ))));
 
-  // Header — TUI box
-  const headerLines = [
-    tui.styled('  ╭' + '─'.repeat(width) + '╮', { color: tui.PALETTE.primary }),
-    tui.styled('  │', { color: tui.PALETTE.primary }) + '  🌿 ' + tui.styled('NatureCo CLI', { color: tui.PALETTE.primary, bold: true }) + tui.C.muted('   v' + version) + '   ' + tui.C.muted('Terminal-native AI agent') + tui.styled(' │', { color: tui.PALETTE.primary }),
-    tui.styled('  ╰' + '─'.repeat(width) + '╯', { color: tui.PALETTE.primary }),
-  ];
-  console.log(headerLines.join('\n'));
+  const saglayici = providerHostname(config.providerUrl);
+  if (saglayici) {
+    s.push('  ' + tema.soluk(tema.gumus(600,
+      `${saglayici}${config.providerModel ? ` · ${config.providerModel}` : ''}`)));
+  } else {
+    s.push('  ' + tema.uyari(L('sağlayıcı ayarlı değil — `nskuld setup`', 'no provider configured — `nskuld setup`')));
+  }
+  s.push('');
 
-  const sections = [
-    {
-      icon: '⚙️ ',
-      title: L('Kurulum & Giriş', 'Setup & Sign-in'),
-      rows: [
-        { name: 'natureco setup', desc: L('İlk kurulum sihirbazı (provider, bot)', 'First-run wizard (provider, bot)') },
-        { name: 'natureco login', desc: L('API key ile giriş yap', 'Sign in with an API key') },
-        { name: 'natureco account', desc: L('NatureCo hesabı / SSO (login|logout|whoami)', 'NatureCo account / SSO (login|logout|whoami)') },
-        { name: 'natureco lang', desc: L('Arayüz dili (tr | en)', 'Interface language (tr | en)') },
-        { name: 'natureco logout', desc: L('Çıkış yap', 'Sign out') },
-        { name: 'natureco update', desc: L('Yeni versiyon kontrolü', 'Check for a new version') },
-        { name: 'natureco doctor', desc: L('Sistem sağlığı kontrolü (10 check)', 'System health check (10 checks)') },
-        { name: 'natureco status', desc: L('Sistem durumu (TUI kart)', 'System status (TUI card)') },
-      ],
-    },
-    {
-      icon: '💬',
-      title: 'Chat & Agent',
-      rows: [
-        { name: 'natureco chat', desc: L('Sohbet başlat (→ REPL engine)', 'Start a chat (→ REPL engine)') },
-        { name: 'natureco chat <bot>', desc: L('Belirli bot ile sohbet', 'Chat with a specific bot') },
-        { name: 'natureco chat --resume', desc: L('Son oturuma dön', 'Resume the last session') },
-        { name: 'natureco repl', desc: L('İnteraktif REPL (persistent memory)', 'Interactive REPL (persistent memory)') },
-        { name: 'natureco repl --resume <id>', desc: L('Önceki oturumu yükle', 'Load a previous session') },
-        { name: 'natureco ask "<soru>"', desc: L('Tek seferlik soru', 'One-off question') },
-        { name: 'natureco code <file>', desc: L('Code agent (Claude Code alternatifi)', 'Code agent (Claude Code alternative)') },
-        { name: 'natureco run <script.md>', desc: L('Markdown script çalıştır', 'Run a Markdown script') },
-        { name: 'natureco bots', desc: L('Bot listesi', 'List bots') },
-        { name: 'natureco team list', desc: L('Multi-agent tipleri (8 uzman)', 'Multi-agent types (8 specialists)') },
-        { name: 'natureco team spawn <type> <task>', desc: L('Sub-agent çalıştır', 'Run a sub-agent') },
-      ],
-    },
-    {
-      icon: '🛡️ ',
-      title: L('Güvenlik & Gözlem', 'Security & Observability'),
-      rows: [
-        { name: 'natureco audit today', desc: L('Bugünkü loglar', "Today's logs") },
-        { name: 'natureco audit stats', desc: L('24 saat istatistik', '24-hour statistics') },
-        { name: 'natureco audit files', desc: L('Log dosyaları', 'Log files') },
-        { name: 'natureco audit search <q>', desc: L('Log ara', 'Search logs') },
-        { name: 'natureco security audit', desc: L('Güvenlik denetimi', 'Security audit') },
-        { name: 'natureco doctor check <name>', desc: L('Tek sağlık check', 'Single health check') },
-      ],
-    },
-    {
-      icon: '💰',
-      title: L('Maliyet', 'Cost'),
-      rows: [
-        { name: 'natureco cost today', desc: L('Bugünkü maliyet', "Today's cost") },
-        { name: 'natureco cost week', desc: L('Bu hafta', 'This week') },
-        { name: 'natureco cost month', desc: L('Bu ay', 'This month') },
-        { name: 'natureco cost budget', desc: L('Bütçe durumu', 'Budget status') },
-        { name: 'natureco cost prices', desc: L('Model fiyatları (21+ model)', 'Model prices (21+ models)') },
-        { name: 'natureco cost model "<prompt>"', desc: L('Model önerisi (router)', 'Model recommendation (router)') },
-      ],
-    },
-    {
-      icon: '🌐',
-      title: L('Entegrasyonlar (10 kanal)', 'Integrations (10 channels)'),
-      rows: [
-        { name: 'natureco telegram connect', desc: L('Telegram bot bağla', 'Connect a Telegram bot') },
-        { name: 'natureco whatsapp connect', desc: L('WhatsApp QR ile bağla', 'Connect WhatsApp via QR') },
-        { name: 'natureco discord connect', desc: L('Discord bot bağla', 'Connect a Discord bot') },
-        { name: 'natureco slack connect', desc: L('Slack workspace bağla', 'Connect a Slack workspace') },
-        { name: 'natureco signal connect', desc: L('Signal REST API', 'Signal REST API') },
-        { name: 'natureco irc connect', desc: L('IRC sunucusu', 'IRC server') },
-        { name: 'natureco mattermost connect', desc: L('Mattermost bot', 'Mattermost bot') },
-        { name: 'natureco imessage connect', desc: L('iMessage bridge', 'iMessage bridge') },
-        { name: 'natureco sms connect', desc: L('Twilio SMS', 'Twilio SMS') },
-        { name: 'natureco webhooks connect', desc: L('Webhook ekle', 'Add a webhook') },
-      ],
-    },
-    {
-      icon: '🌿',
-      title: 'NatureCo Native',
-      rows: [
-        { name: 'natureco naturehub post "<text>"', desc: L('NatureCo API ile bota mesaj gönder', 'Send a message to a bot via the NatureCo API') },
-        { name: 'natureco naturehub list', desc: L('Botlarını listele', 'List your bots') },
-        { name: 'natureco naturehub info [bot_id]', desc: L('Bot detayı', 'Bot details') },
-        { name: 'natureco medium draft <file.md>', desc: L('Medium makale taslağı', 'Medium article draft') },
-        { name: 'natureco medium publish <file.md>', desc: L("Medium'da yayınla", 'Publish to Medium') },
-        { name: 'natureco seo audit <url>', desc: L('SEO denetimi (skor 0-100)', 'SEO audit (score 0-100)') },
-        { name: 'natureco xp', desc: L('XP/Level durumu', 'XP / level status') },
-        { name: 'natureco xp rewards', desc: L('Ödül listesi', 'Rewards list') },
-      ],
-    },
-    {
-      icon: '📊',
-      title: 'Skill & MCP',
-      rows: [
-        { name: 'natureco skills list', desc: L("Yüklü skill'ler", 'Installed skills') },
-        { name: 'natureco skills suggest', desc: L('Self-evolving öneriler', 'Self-evolving suggestions') },
-        { name: 'natureco skills accept <id>', desc: L('Öneriyi kabul et', 'Accept a suggestion') },
-        { name: 'natureco skills reject <id>', desc: L('Öneriyi reddet', 'Reject a suggestion') },
-        { name: 'natureco skills install <slug>', desc: L("NatureHub'dan yükle", 'Install from NatureHub') },
-        { name: 'natureco mcp list', desc: L('MCP sunucuları', 'MCP servers') },
-        { name: 'natureco mcp add <name>', desc: L('MCP sunucusu ekle', 'Add an MCP server') },
-      ],
-    },
-    {
-      icon: '⏰',
-      title: L('Otomasyon & Dashboard', 'Automation & Dashboard'),
-      rows: [
-        { name: 'natureco cron list', desc: L('Cron görevleri', 'Cron jobs') },
-        { name: 'natureco cron add', desc: L('Cron ekle', 'Add a cron job') },
-        { name: 'natureco hooks create <tip>', desc: L('Hook oluştur', 'Create a hook') },
-        { name: 'natureco dashboard', desc: L('Web dashboard (port 7421)', 'Web dashboard (port 7421)') },
-        { name: 'natureco gateway start', desc: L('Gateway arka plan', 'Gateway (background)') },
-      ],
-    },
-    {
-      icon: '⚙️ ',
-      title: L('Yapılandırma', 'Configuration'),
-      rows: [
-        { name: 'natureco config list', desc: L('Tüm ayarlar', 'All settings') },
-        { name: 'natureco config set <key> <val>', desc: L('Ayar değiştir', 'Change a setting') },
-        { name: 'natureco configure', desc: L('İnteraktif yapılandırma', 'Interactive configuration') },
-        { name: 'natureco sessions list', desc: L('Geçmiş oturumlar', 'Past sessions') },
-        { name: 'natureco sessions show <id>', desc: L('Oturum detayı', 'Session details') },
-        { name: 'natureco memory', desc: L('Memory yönetimi', 'Memory management') },
-        { name: 'natureco init', desc: L('Proje başlat (.natureco/)', 'Initialize a project (.natureco/)') },
-      ],
-    },
-    {
-      icon: '🛠️ ',
-      title: L('Diğer', 'Other'),
-      rows: [
-        { name: 'natureco agents list', desc: L('Agent listesi', 'List agents') },
-        { name: 'natureco models list', desc: L('Model listesi', 'List models') },
-        { name: 'natureco channels', desc: L('Bağlı kanallar', 'Connected channels') },
-        { name: 'natureco logs', desc: L('Gateway logları', 'Gateway logs') },
-        { name: 'natureco tasks list', desc: L('Arka plan görevleri', 'Background tasks') },
-        { name: 'natureco nodes', desc: L('Network nodes', 'Network nodes') },
-        { name: 'natureco security', desc: L('Güvenlik denetimi', 'Security audit') },
-        { name: 'natureco reset', desc: L('Sıfırla', 'Reset') },
-        { name: 'natureco uninstall', desc: L('Kaldır', 'Uninstall') },
-      ],
-    },
-    {
-      icon: '💬',
-      title: L('REPL İçi Komutlar (chat/repl)', 'In-REPL commands (chat/repl)'),
-      rows: [
-        { name: '/help', desc: L('Yardım', 'Help') },
-        { name: '/clear', desc: L('Ekranı temizle', 'Clear the screen') },
-        { name: '/memory', desc: L("Memory'i göster", 'Show memory') },
-        { name: '/forget', desc: L("Memory'i sil", 'Clear memory') },
-        { name: '/sessions', desc: L('Geçmiş oturumlar', 'Past sessions') },
-        { name: '/resume [id|last]', desc: L('Önceki oturuma dön', 'Resume a previous session') },
-        { name: '/system <text>', desc: L('System prompt', 'System prompt') },
-        { name: '/model <name>', desc: L('Model değiştir', 'Switch model') },
-        { name: '/identity [ad]', desc: L('Bot adı değiştir', 'Rename the bot') },
-        { name: '/tokens', desc: L('Token kullanımı', 'Token usage') },
-        { name: '/doctor, /cost, /audit, /team, /xp', desc: L('REPL içinden TUI komutlar', 'TUI commands from inside the REPL') },
-        { name: '/save, /exit, /quit', desc: L('Kaydet / Çıkış', 'Save / Exit') },
-      ],
-    },
-  ];
-
-  for (const section of sections) {
-    console.log('\n' + tui.styled(`  ${section.icon}  ${section.title}`, { color: tui.PALETTE.secondary, bold: true }));
-    console.log(tui.styled('  ' + '─'.repeat(56), { color: tui.PALETTE.border }));
-    console.log('\n' + tui.table(section.rows, [
-      { key: 'name', label: L('Komut', 'Command'), minWidth: 36, render: r => tui.styled(r.name, { color: tui.PALETTE.primary, bold: true }) },
-      { key: 'desc', label: L('Açıklama', 'Description'), minWidth: 35, render: r => tui.C.muted(r.desc) },
-    ], { borderStyle: 'round', zebra: false }));
+  for (const bolum of bolumler()) {
+    s.push('  ' + tema.kalin(tema.vurgu(bolum.baslik)));
+    for (const [komut, aciklama] of bolum.satirlar) {
+      const sol = `nskuld ${komut}`;
+      s.push('    ' + tema.gumus(200, sol.padEnd(26)) + tema.soluk(tema.gumus(500, aciklama)));
+    }
+    s.push('');
   }
 
-  // Current config (if any)
-  if (config.providerUrl || config.botName) {
-    console.log('\n' + tui.styled('  ⚙️  ' + L('Mevcut Yapılandırma', 'Current Configuration'), { color: tui.PALETTE.accent, bold: true }));
-    console.log(tui.styled('  ' + '─'.repeat(56), { color: tui.PALETTE.border }));
-    const cardW = 54;
-    const cardLines = [
-      tui.styled('  ╭' + '─'.repeat(cardW) + '╮', { color: tui.PALETTE.border }),
-    ];
-    if (config.providerUrl) {
-      const provider = providerHostname(config.providerUrl);
-      cardLines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Provider   ') + tui.styled(provider.padEnd(38), { color: tui.PALETTE.text, bold: true }) + tui.styled(' │', { color: tui.PALETTE.border }));
-    }
-    if (config.providerModel) {
-      cardLines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Model      ') + tui.styled((config.providerModel || '—').padEnd(38), { color: tui.PALETTE.primary, bold: true }) + tui.styled(' │', { color: tui.PALETTE.border }));
-    }
-    if (config.botName) {
-      cardLines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted('Bot        ') + tui.styled((config.botName || '—').padEnd(38), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
-    }
-    if (config.userName) {
-      cardLines.push(tui.styled('  │ ', { color: tui.PALETTE.border }) + tui.C.muted(L('Kullanıcı  ', 'User       ')) + tui.styled((config.userName || '—').padEnd(38), { color: tui.PALETTE.text }) + tui.styled(' │', { color: tui.PALETTE.border }));
-    }
-    cardLines.push(tui.styled('  ╰' + '─'.repeat(cardW) + '╯', { color: tui.PALETTE.border }));
-    console.log(cardLines.join('\n'));
-  }
+  s.push('  ' + tema.ayrac(genislik));
+  s.push('  ' + tema.soluk(tema.gumus(600, L(
+    'Tüm komutlar: nskuld --help   ·   Bir komutun ayrıntısı: nskuld <komut> --help',
+    'All commands: nskuld --help   ·   Details for one: nskuld <command> --help',
+  ))));
+  s.push('  ' + tema.soluk(tema.gumus(600, 'github.com/natureco-official/natureco-skuld')));
+  s.push('');
 
-  // Links
-  console.log('\n' + tui.styled('  🔗 ' + L('Kaynaklar', 'Resources'), { color: tui.PALETTE.secondary, bold: true }));
-  // Bağlantılar `package.json`dan türetiliyor, elle yazılmıyor. Fork'tan
-  // devralınan hâli `npmjs.com/package/natureco-cli`ye gidiyordu: nskuld
-  // kullanıcısını başka bir paketin sayfasına yolluyordu. Sabit yazılan bir
-  // URL, yeniden markalamada sessizce yanlış kalan ilk şeydir.
-  const paket = require('../../package.json');
-  console.log('   ' + tui.C.muted(L('Depo     ', 'Repo     ')) + tui.C.brand(paket.homepage));
-  console.log('   ' + tui.C.muted('SDK      ') + tui.C.brand('https://natureco.me/developer'));
-  console.log('   ' + tui.C.muted('npm      ') + tui.C.brand(`https://npmjs.com/package/${paket.name}`));
-  console.log('');
+  console.log(s.join('\n'));
 }
 
 module.exports = help;
 module.exports.providerHostname = providerHostname;
+module.exports._bolumler = bolumler;

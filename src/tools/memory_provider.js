@@ -3,7 +3,7 @@
  *
  * Uses the memory provider abstraction. Default: file (same as memory_write).
  * Switch provider via config: memoryProvider: "mem0" | "supermemory" | ...
- * Or env: NATURECO_MEMORY_PROVIDER=mem0
+ * Or env: SKULD_MEMORY_PROVIDER=mem0
  *
  * Actions:
  *   add    — save a memory
@@ -24,7 +24,7 @@ const loadConfig = () => {
 };
 
 const name = 'memory_provider';
-const description = 'Unified memory backend with pluggable providers. add/search/list/remove/clear/status. Default is file-based. Switch via NATURECO_MEMORY_PROVIDER env or config.memoryProvider.';
+const description = 'Unified memory backend with pluggable providers. add/search/list/remove/clear/status. Default is file-based. Switch via SKULD_MEMORY_PROVIDER env or config.memoryProvider.';
 const inputSchema = {
   type: 'object',
   properties: {
@@ -44,7 +44,7 @@ const inputSchema = {
 
 async function execute(params) {
   const cfg = loadConfig();
-  const providerName = params.provider || process.env.NATURECO_MEMORY_PROVIDER || cfg.memoryProvider;
+  const providerName = params.provider || process.env.SKULD_MEMORY_PROVIDER || cfg.memoryProvider;
   let Provider;
   if (providerName) {
     const { getProvider } = require('../utils/memory-provider');
@@ -89,7 +89,7 @@ async function execute(params) {
         available: avail,
         userId,
         config: cfg.memoryProvider || '(not set, using default)',
-        env: process.env.NATURECO_MEMORY_PROVIDER || '(not set)',
+        env: process.env.SKULD_MEMORY_PROVIDER || '(not set)',
       };
     }
 

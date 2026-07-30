@@ -110,7 +110,7 @@ const descriptor = {
       return {
         ok: false,
         error: L('Ne webhook URL ne de anahtar dosyası verilmiş', 'Neither a webhook URL nor a key file was provided'),
-        hint: L('En az birini girin: natureco googlechat connect', 'Provide at least one: natureco googlechat connect'),
+        hint: L('En az birini girin: nskuld googlechat connect', 'Provide at least one: nskuld googlechat connect'),
       };
     }
 

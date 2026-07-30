@@ -27,7 +27,7 @@ module.exports = {
         return {
           success: false,
           error: `Görsel analiz bu provider (${providerUrl}) için desteklenmiyor. Lütfen OpenAI, Anthropic, Gemini veya Groq provider'ı kullanın.`,
-          hint: 'natureco config set providerUrl https://api.openai.com/v1'
+          hint: 'nskuld config set providerUrl https://api.openai.com/v1'
         };
       }
 

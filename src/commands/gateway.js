@@ -26,7 +26,7 @@ async function gateway(action, ...args) {
     const method = args[0];
     if (!method) {
       F.error('Method name is required.');
-      F.info('Usage: natureco gateway call <method> [params...]');
+      F.info('Usage: nskuld gateway call <method> [params...]');
       return;
     }
     return notImplemented(`call ${method}`);
@@ -145,7 +145,7 @@ async function gateway(action, ...args) {
       console.log(chalk.gray('    <?xml version="1.0" encoding="UTF-8"?>'));
       console.log(chalk.gray('    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'));
       console.log(chalk.gray('    <plist version="1.0"><dict>'));
-      console.log(chalk.gray('      <key>Label</key><string>com.natureco.gateway</string>'));
+      console.log(chalk.gray('      <key>Label</key><string>com.nskuld.gateway</string>'));
       console.log(chalk.gray('      <key>ProgramArguments</key><array>'));
       console.log(chalk.gray('        <string>' + process.execPath + '</string>'));
       console.log(chalk.gray('        <string>' + path.resolve(__dirname, '../../index.js') + '</string>'));
@@ -161,7 +161,7 @@ async function gateway(action, ...args) {
     }
 
     F.section('Manual Process');
-    F.kv('Background', 'natureco gateway start &');
+    F.kv('Background', 'nskuld gateway start &');
     F.kv('Process Mgt', 'Use pm2 or screen for process management.');
     return notImplemented('install (instructions above are manual)');
   }
@@ -183,8 +183,8 @@ async function gateway(action, ...args) {
       F.info('sudo systemctl daemon-reload');
     } else if (platform === 'darwin') {
       F.section('macOS (launchd)');
-      F.info('launchctl unload ~/Library/LaunchAgents/com.natureco.gateway.plist');
-      F.info('rm ~/Library/LaunchAgents/com.natureco.gateway.plist');
+      F.info('launchctl unload ~/Library/LaunchAgents/com.nskuld.gateway.plist');
+      F.info('rm ~/Library/LaunchAgents/com.nskuld.gateway.plist');
     }
 
     return notImplemented('uninstall (instructions above are manual)');
@@ -257,7 +257,7 @@ async function gateway(action, ...args) {
       return;
     }
     F.error('Unknown diagnostics subcommand');
-    F.info('Usage: natureco gateway diagnostics export');
+    F.info('Usage: nskuld gateway diagnostics export');
     return;
   }
 
@@ -267,7 +267,7 @@ async function gateway(action, ...args) {
 
   if (action && action !== 'status') {
     F.error(`Unknown action: "${action}"`);
-    F.info('Usage: natureco gateway [start|status|call|usage-cost|probe|discover|install|uninstall|health|restart|diagnostics|run]');
+    F.info('Usage: nskuld gateway [start|status|call|usage-cost|probe|discover|install|uninstall|health|restart|diagnostics|run]');
     return;
   }
 
@@ -322,10 +322,10 @@ async function gateway(action, ...args) {
   }
 
   F.section('Quick Start');
-  F.kv('natureco chat', L('Bot ile sohbet başlat', 'Start chatting with the bot'));
-  F.kv('natureco setup', L('Kurulumu yeniden çalıştır', 'Re-run setup'));
-  F.kv('natureco gateway start', L('Gateway\'i arka planda başlat', 'Start the gateway in the background'));
-  F.kv('natureco help', L('Tüm komutları göster', 'Show all commands'));
+  F.kv('nskuld chat', L('Bot ile sohbet başlat', 'Start chatting with the bot'));
+  F.kv('nskuld setup', L('Kurulumu yeniden çalıştır', 'Re-run setup'));
+  F.kv('nskuld gateway start', L('Gateway\'i arka planda başlat', 'Start the gateway in the background'));
+  F.kv('nskuld help', L('Tüm komutları göster', 'Show all commands'));
 
   F.meta('Docs: natureco.me/cli');
 }
@@ -340,7 +340,7 @@ async function startGateway() {
   const config = getConfig();
 
   if (!config || !config.apiKey) {
-    console.log('\n' + tui.C.red('  ❌ Not logged in. Run "natureco login" first.') + '\n');
+    console.log('\n' + tui.C.red('  ❌ Not logged in. Run "nskuld login" first.') + '\n');
     process.exit(1);
   }
 
@@ -351,8 +351,8 @@ async function startGateway() {
     try {
       process.kill(existingPid, 0); // Test et, canlı mı
       console.log('\n' + tui.styled(L('  ⚠️  Gateway zaten çalışıyor (PID: ', '  ⚠️  Gateway already running (PID: ') + existingPid + ')', { color: tui.PALETTE.warning, bold: true }) + '\n');
-      console.log('  ' + tui.C.muted(L('Durdurmak için: ', 'To stop: ')) + tui.C.brand('natureco gateway stop'));
-      console.log('  ' + tui.C.muted(L('Durum için:     ', 'For status:     ')) + tui.C.brand('natureco gateway status'));
+      console.log('  ' + tui.C.muted(L('Durdurmak için: ', 'To stop: ')) + tui.C.brand('nskuld gateway stop'));
+      console.log('  ' + tui.C.muted(L('Durum için:     ', 'For status:     ')) + tui.C.brand('nskuld gateway status'));
       console.log('');
       return;
     } catch {
@@ -392,9 +392,9 @@ async function startGateway() {
   console.log(tui.styled('  ╰' + '─'.repeat(cardW) + '╯', { color: tui.PALETTE.border }));
 
   console.log('\n  ' + tui.C.muted(L('Komutlar:', 'Commands:')));
-  console.log('  ' + tui.C.muted(L('  Durum:  ', '  Status: ')) + tui.C.brand('natureco gateway status'));
-  console.log('  ' + tui.C.muted('  Log:    ') + tui.C.brand('natureco gateway logs') + ' ' + tui.C.muted(L('veya ', 'or ')) + tui.C.brand('tail -f ' + logFile));
-  console.log('  ' + tui.C.muted(L('  Dur:    ', '  Stop:   ')) + tui.C.brand('natureco gateway stop'));
+  console.log('  ' + tui.C.muted(L('  Durum:  ', '  Status: ')) + tui.C.brand('nskuld gateway status'));
+  console.log('  ' + tui.C.muted('  Log:    ') + tui.C.brand('nskuld gateway logs') + ' ' + tui.C.muted(L('veya ', 'or ')) + tui.C.brand('tail -f ' + logFile));
+  console.log('  ' + tui.C.muted(L('  Dur:    ', '  Stop:   ')) + tui.C.brand('nskuld gateway stop'));
   console.log('');
 }
 

@@ -38,7 +38,7 @@ function devicePair(args) {
   if (action === 'verify') return verifyPairing(params[0], params[1]);
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco device-pair [list|request|approve|reject|remove|pairing-code|verify]\n', '  Usage: natureco device-pair [list|request|approve|reject|remove|pairing-code|verify]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld device-pair [list|request|approve|reject|remove|pairing-code|verify]\n', '  Usage: nskuld device-pair [list|request|approve|reject|remove|pairing-code|verify]\n')));
   process.exit(1);
 }
 
@@ -69,8 +69,8 @@ function listDevices() {
       console.log(`    ${chalk.gray('Since:')} ${p.requestedAt ? new Date(p.requestedAt).toLocaleString() : '-'}`);
     }
     console.log(chalk.gray(L('\n  Onaylamak için:', '\n  To approve:')));
-    console.log(chalk.cyan('    natureco device-pair approve <code>'));
-    console.log(chalk.cyan('    natureco device-pair reject <code>'));
+    console.log(chalk.cyan('    nskuld device-pair approve <code>'));
+    console.log(chalk.cyan('    nskuld device-pair reject <code>'));
   }
 
   console.log();
@@ -104,8 +104,8 @@ function requestPairing(deviceName, deviceType) {
   console.log(`  ${chalk.white('ID:')}    ${chalk.gray(id)}`);
   console.log(chalk.gray(`\n  Pairing code expires: ${new Date(Date.now() + 15 * 60 * 1000).toLocaleString()}`));
   console.log(chalk.gray('\n  On another terminal:'));
-  console.log(chalk.cyan(`    natureco device-pair approve ${code}`));
-  console.log(chalk.cyan(`    natureco device-pair reject ${code}`));
+  console.log(chalk.cyan(`    nskuld device-pair approve ${code}`));
+  console.log(chalk.cyan(`    nskuld device-pair reject ${code}`));
   console.log();
 }
 
@@ -120,7 +120,7 @@ function approvePairing(code) {
 
   if (idx === -1) {
     console.log(chalk.red(`\n  ❌ ${L('Geçersiz pairing code', 'Invalid pairing code')}: ${code}\n`));
-    console.log(chalk.gray(L('  Bekleyen istekleri görmek için: natureco device-pair list\n', '  To see pending requests: natureco device-pair list\n')));
+    console.log(chalk.gray(L('  Bekleyen istekleri görmek için: nskuld device-pair list\n', '  To see pending requests: nskuld device-pair list\n')));
     process.exit(1);
   }
 
@@ -168,7 +168,7 @@ function rejectPairing(code) {
 function removeDevice(deviceId) {
   if (!deviceId) {
     console.log(chalk.red(L('\n  ❌ Device ID gerekli\n', '\n  ❌ Device ID required\n')));
-    console.log(chalk.cyan('    natureco device-pair remove dev_abc123\n'));
+    console.log(chalk.cyan('    nskuld device-pair remove dev_abc123\n'));
     process.exit(1);
   }
 
@@ -197,7 +197,7 @@ function showPairingCode() {
   console.log(`  Expires: ${chalk.gray(expiresAt.toLocaleString())}`);
   console.log(chalk.gray('\n  Share this code with the device to pair.\n'));
   console.log(chalk.gray('  On the other device:'));
-  console.log(chalk.cyan(`    natureco device-pair verify ${code} <device-name>\n`));
+  console.log(chalk.cyan(`    nskuld device-pair verify ${code} <device-name>\n`));
 }
 
 function verifyPairing(code, deviceName) {
@@ -212,7 +212,7 @@ function verifyPairing(code, deviceName) {
   if (pending.some(p => p.code === code)) {
     console.log(chalk.green('\n  ✅ Pairing code valid — awaiting approval\n'));
     console.log(chalk.gray('  Ask the admin to run:'));
-    console.log(chalk.cyan(`    natureco device-pair approve ${code}\n`));
+    console.log(chalk.cyan(`    nskuld device-pair approve ${code}\n`));
     return;
   }
 
@@ -244,7 +244,7 @@ function verifyPairing(code, deviceName) {
 
   console.log(chalk.yellow(`\n  ⏳ Pairing requested for "${name}" with code ${code}\n`));
   console.log(chalk.gray('  Admin should approve with:'));
-  console.log(chalk.cyan(`    natureco device-pair approve ${code}\n`));
+  console.log(chalk.cyan(`    nskuld device-pair approve ${code}\n`));
 }
 
 module.exports = devicePair;

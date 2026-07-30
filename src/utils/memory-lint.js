@@ -8,8 +8,8 @@
  *     "favori rengi kırmızı" vs "Favori rengi mavidir", or two different project code names.
  *     This is exactly why recall can return the "wrong" remembered value.
  *
- * Flat memory:  ~/.natureco/memory/<user>.json  (facts: [{value, ...}])
- * Tree memory:  ~/.natureco/memory/tree/<user>/*.md  (## branch → leaves)
+ * Flat memory:  ~/.nskuld/memory/<user>.json  (facts: [{value, ...}])
+ * Tree memory:  ~/.nskuld/memory/tree/<user>/*.md  (## branch → leaves)
  *
  * v5.45.1: matching is Turkish-aware (tr-text foldTr) and searchTree is regex-free so a
  * natural query like "proje kod adı (v2)" is matched literally, not as a regex.

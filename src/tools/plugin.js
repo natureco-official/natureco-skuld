@@ -4,7 +4,7 @@
  * Plugin sistemi — topluluk plugin uretimi ve yuklemesi
  *
  * Mimari:
- *   ~/.natureco/plugins/
+ *   ~/.nskuld/plugins/
  *     ├── my-plugin/
  *     │   ├── plugin.json      (metadata)
  *     │   ├── index.js         (ana giris, tools export eder)

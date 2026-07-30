@@ -28,16 +28,16 @@ describe('_shorten (açıklama kısaltma)', () => {
 });
 
 describe('buildSkillIndex — token bütçesi', () => {
-  it('NATURECO_SKILL_INDEX=off → boş (skill index hiç gönderilmez)', () => {
-    const prev = process.env.NATURECO_SKILL_INDEX;
-    process.env.NATURECO_SKILL_INDEX = 'off';
+  it('SKULD_SKILL_INDEX=off → boş (skill index hiç gönderilmez)', () => {
+    const prev = process.env.SKULD_SKILL_INDEX;
+    process.env.SKULD_SKILL_INDEX = 'off';
     try { expect(buildSkillIndex()).toBe(''); }
-    finally { if (prev === undefined) delete process.env.NATURECO_SKILL_INDEX; else process.env.NATURECO_SKILL_INDEX = prev; }
+    finally { if (prev === undefined) delete process.env.SKULD_SKILL_INDEX; else process.env.SKULD_SKILL_INDEX = prev; }
   });
 
   it('v5.51 varsayılanı (çok skill): TEK SATIR ipucu — isim listesi bile gömülmez', () => {
-    const prev = process.env.NATURECO_SKILL_INDEX;
-    delete process.env.NATURECO_SKILL_INDEX;
+    const prev = process.env.SKULD_SKILL_INDEX;
+    delete process.env.SKULD_SKILL_INDEX;
     try {
       const idx = buildSkillIndex();
       if (!idx) return; // hiç skill yoksa (CI) atla
@@ -49,12 +49,12 @@ describe('buildSkillIndex — token bütçesi', () => {
         expect(idx).toContain(String(skillCount));
         expect(idx.length).toBeLessThan(400); // 319 isim listesi ~5.800 chardı — geri gelmesin
       }
-    } finally { if (prev !== undefined) process.env.NATURECO_SKILL_INDEX = prev; }
+    } finally { if (prev !== undefined) process.env.SKULD_SKILL_INDEX = prev; }
   });
 
-  it('NATURECO_SKILL_INDEX=names → isim listesi geri gelir (opt-in) + skill başına az char', () => {
-    const prev = process.env.NATURECO_SKILL_INDEX;
-    process.env.NATURECO_SKILL_INDEX = 'names';
+  it('SKULD_SKILL_INDEX=names → isim listesi geri gelir (opt-in) + skill başına az char', () => {
+    const prev = process.env.SKULD_SKILL_INDEX;
+    process.env.SKULD_SKILL_INDEX = 'names';
     try {
       const idx = buildSkillIndex();
       if (!idx) return;
@@ -64,6 +64,6 @@ describe('buildSkillIndex — token bütçesi', () => {
         // Regresyon (v5.42): tam açıklama gömülmesin — isim modunda skill başına ~40 char
         expect(idx.length / skillCount).toBeLessThan(120);
       }
-    } finally { if (prev === undefined) delete process.env.NATURECO_SKILL_INDEX; else process.env.NATURECO_SKILL_INDEX = prev; }
+    } finally { if (prev === undefined) delete process.env.SKULD_SKILL_INDEX; else process.env.SKULD_SKILL_INDEX = prev; }
   });
 });

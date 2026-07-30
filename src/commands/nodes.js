@@ -34,7 +34,7 @@ function nodes(args) {
         const url = params[3];
         if (!nodeId || !url) {
           F.error('Node ID and URL required');
-          F.info('Usage: natureco nodes canvas a2ui push <nodeId> <url>');
+          F.info('Usage: nskuld nodes canvas a2ui push <nodeId> <url>');
           process.exit(1);
         }
         F.info(`Would push A2UI from ${url} to node ${nodeId}`);
@@ -46,14 +46,14 @@ function nodes(args) {
         return;
       }
       F.error(`Unknown canvas a2ui command: ${params[1]}`);
-      F.info('Usage: natureco nodes canvas a2ui [push|reset]');
+      F.info('Usage: nskuld nodes canvas a2ui [push|reset]');
       process.exit(1);
     }
     if (sub === 'snapshot') {
       const nodeId = params[1];
       if (!nodeId) {
         F.error('Node ID required');
-        F.info('Usage: natureco nodes canvas snapshot <nodeId>');
+        F.info('Usage: nskuld nodes canvas snapshot <nodeId>');
         process.exit(1);
       }
       F.info(`Would snapshot canvas on node ${nodeId}`);
@@ -64,7 +64,7 @@ function nodes(args) {
       const url = params[2];
       if (!nodeId || !url) {
         F.error('Node ID and URL required');
-        F.info('Usage: natureco nodes canvas present <nodeId> <url>');
+        F.info('Usage: nskuld nodes canvas present <nodeId> <url>');
         process.exit(1);
       }
       F.info(`Would present ${url} on node ${nodeId}`);
@@ -74,7 +74,7 @@ function nodes(args) {
       const nodeId = params[1];
       if (!nodeId) {
         F.error('Node ID required');
-        F.info('Usage: natureco nodes canvas hide <nodeId>');
+        F.info('Usage: nskuld nodes canvas hide <nodeId>');
         process.exit(1);
       }
       F.info(`Would hide canvas on node ${nodeId}`);
@@ -85,7 +85,7 @@ function nodes(args) {
       const url = params[2];
       if (!nodeId || !url) {
         F.error('Node ID and URL required');
-        F.info('Usage: natureco nodes canvas navigate <nodeId> <url>');
+        F.info('Usage: nskuld nodes canvas navigate <nodeId> <url>');
         process.exit(1);
       }
       F.info(`Would navigate node ${nodeId} to ${url}`);
@@ -96,7 +96,7 @@ function nodes(args) {
       const code = params.slice(2).join(' ');
       if (!nodeId || !code) {
         F.error('Node ID and code required');
-        F.info('Usage: natureco nodes canvas eval <nodeId> <code>');
+        F.info('Usage: nskuld nodes canvas eval <nodeId> <code>');
         process.exit(1);
       }
       F.info(`Would eval on node ${nodeId}: ${code}`);
@@ -115,7 +115,7 @@ function nodes(args) {
       const nodeId = params[1];
       if (!nodeId) {
         F.error('Node ID required');
-        F.info('Usage: natureco nodes camera snap <nodeId>');
+        F.info('Usage: nskuld nodes camera snap <nodeId>');
         process.exit(1);
       }
       F.info(`Would take snapshot on node ${nodeId}`);
@@ -125,7 +125,7 @@ function nodes(args) {
       const nodeId = params[1];
       if (!nodeId) {
         F.error('Node ID required');
-        F.info('Usage: natureco nodes camera clip <nodeId>');
+        F.info('Usage: nskuld nodes camera clip <nodeId>');
         process.exit(1);
       }
       F.info(`Would record clip on node ${nodeId}`);
@@ -139,7 +139,7 @@ function nodes(args) {
       const nodeId = params[1];
       if (!nodeId) {
         F.error('Node ID required');
-        F.info('Usage: natureco nodes screen record <nodeId>');
+        F.info('Usage: nskuld nodes screen record <nodeId>');
         process.exit(1);
       }
       F.info(`Would start screen recording on node ${nodeId}`);
@@ -153,7 +153,7 @@ function nodes(args) {
       const nodeId = params[1];
       if (!nodeId) {
         F.error('Node ID required');
-        F.info('Usage: natureco nodes location get <nodeId>');
+        F.info('Usage: nskuld nodes location get <nodeId>');
         process.exit(1);
       }
       F.kv('Node', nodeId);
@@ -167,7 +167,7 @@ function nodes(args) {
   if (action === 'describe') return nodeDescribe(params[0]);
 
   F.error(`Unknown command: ${action}`);
-  F.info('Usage: natureco nodes [list|pair|approve|reject|remove|rename|invoke|notify|push|canvas|camera|screen|location|status|describe]');
+  F.info('Usage: nskuld nodes [list|pair|approve|reject|remove|rename|invoke|notify|push|canvas|camera|screen|location|status|describe]');
   process.exit(1);
 }
 
@@ -338,7 +338,7 @@ function locationNode(nodeId) {
 function nodeStatus(nodeId) {
   if (!nodeId) {
     F.error('Node ID required');
-    F.info('Usage: natureco nodes status <nodeId>');
+    F.info('Usage: nskuld nodes status <nodeId>');
     process.exit(1);
   }
   const config = getConfig();
@@ -359,7 +359,7 @@ function nodeStatus(nodeId) {
 function nodeDescribe(nodeId) {
   if (!nodeId) {
     F.error('Node ID required');
-    F.info('Usage: natureco nodes describe <nodeId>');
+    F.info('Usage: nskuld nodes describe <nodeId>');
     process.exit(1);
   }
   const config = getConfig();

@@ -41,13 +41,13 @@ module.exports = {
         if (approval.reason === 'denied-by-policy') {
           return {
             success: false,
-            error: 'Command execution is denied by security policy. Use "natureco security allowlist add" to allow specific commands.',
+            error: 'Command execution is denied by security policy. Use "nskuld security allowlist add" to allow specific commands.',
           };
         }
         if (approval.reason === 'not-in-allowlist') {
           return {
             success: false,
-            error: 'Command is not in the allowlist. Use "natureco security allowlist add" to add it, or set a less restrictive policy.',
+            error: 'Command is not in the allowlist. Use "nskuld security allowlist add" to add it, or set a less restrictive policy.',
           };
         }
         return { success: false, error: `Command rejected: ${approval.reason}` };

@@ -3,7 +3,7 @@
 
 const tui = require('../src/utils/tui');
 
-const mode = String(process.env.NATURECO_RENDER_MODE || '').toLowerCase();
+const mode = String(process.env.SKULD_RENDER_MODE || '').toLowerCase();
 if (process.env.NO_COLOR || process.env.FORCE_COLOR === '0' || mode === 'none' || mode === 'no-color') {
   tui.CAPS.color = false;
   tui.CAPS.trueColor = false;

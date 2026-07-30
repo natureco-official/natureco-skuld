@@ -29,7 +29,7 @@ function vydra(args) {
   if (action === 'test') return testVydra();
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco vydra [status|configure|test]\n', '  Usage: natureco vydra [status|configure|test]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld vydra [status|configure|test]\n', '  Usage: nskuld vydra [status|configure|test]\n')));
   process.exit(1);
 }
 
@@ -72,7 +72,7 @@ async function testVydra() {
 
   if (!apiKey) {
     console.log(chalk.red('\n  ❌ Vydra API key gerekli\n'));
-    console.log(chalk.cyan('    natureco vydra configure <your-api-key>\n'));
+    console.log(chalk.cyan('    nskuld vydra configure <your-api-key>\n'));
     process.exit(1);
   }
 

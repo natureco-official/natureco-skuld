@@ -40,7 +40,7 @@ describe('tool runtime input validation', () => {
     try {
       const stdout = execFileSync(process.execPath, ['-e', script], {
         cwd: path.join(__dirname, '..', '..'),
-        env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome, NATURECO_MEMORY_PROVIDER: '' },
+        env: { ...process.env, HOME: tempHome, USERPROFILE: tempHome, SKULD_MEMORY_PROVIDER: '' },
         encoding: 'utf8',
       });
       const result = JSON.parse(stdout);

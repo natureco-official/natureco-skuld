@@ -2,7 +2,7 @@
  * Dangerous Command Approval (v5.6.16)
  *
  * Hermes Agent'taki "Command required approval" mekanizmasinin
- * NatureCo CLI versiyonu. Riskli komutlari calistirmadan once
+ * NatureCo Skuld versiyonu. Riskli komutlari calistirmadan once
  * kullanici onayi alir.
  *
  * Kullanim:
@@ -42,7 +42,7 @@ const RISK_RANK = { low: 0, medium: 1, high: 2, critical: 3 };
  */
 async function requireApproval(command, args = {}, risk = RISK.HIGH, reason = '') {
   // --force veya --yes flag kontrolu (CLI tarafinda eklenir)
-  if (process.env.NATURECO_FORCE === '1' || args.force || args.yes) {
+  if (process.env.SKULD_FORCE === '1' || args.force || args.yes) {
     return true;
   }
 

@@ -25,7 +25,7 @@ async function capability(args) {
   if (action === 'infer' || action === 'check') return inferCapabilities(params[0]);
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco capability [list|infer]\n', '  Usage: natureco capability [list|infer]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld capability [list|infer]\n', '  Usage: nskuld capability [list|infer]\n')));
   process.exit(1);
 }
 
@@ -106,7 +106,7 @@ async function listCapabilities() {
   }
 
   console.log(chalk.gray('\n  Capabilities are inferred from available models.\n'));
-  console.log(chalk.gray(L('  Detaylı sorgu: ', '  Detailed query: ')) + chalk.cyan('natureco capability infer <provider>\n'));
+  console.log(chalk.gray(L('  Detaylı sorgu: ', '  Detailed query: ')) + chalk.cyan('nskuld capability infer <provider>\n'));
 }
 
 function getKnownProviderModels(providerUrl) {

@@ -25,7 +25,7 @@ const DASHBOARD_HTML = `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NatureCo CLI Dashboard v2</title>
+  <title>NatureCo Skuld Dashboard v2</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -151,7 +151,7 @@ const DASHBOARD_HTML = `
 <body>
   <div class="container">
     <div class="header">
-      <h1>🌿 NatureCo CLI Dashboard</h1>
+      <h1>🌿 NatureCo Skuld Dashboard</h1>
       <p>v5.4.0 - Plugin Edition</p>
       <div class="status-pill" style="margin-top: 12px;">System Online</div>
     </div>
@@ -190,7 +190,7 @@ const DASHBOARD_HTML = `
     </div>
 
     <div class="footer">
-      <p>NatureCo CLI v5.4.0 - <span id="lastUpdate"></span></p>
+      <p>NatureCo Skuld v5.4.0 - <span id="lastUpdate"></span></p>
     </div>
   </div>
   <script>

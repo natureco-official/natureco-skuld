@@ -49,7 +49,7 @@ function proxy(args) {
   if (action === 'purge') return cmdPurge();
 
   console.log(chalk.red(`\n  ❌ Bilinmeyen komut: ${action}\n`));
-  console.log(chalk.gray(L('  Kullanım: natureco proxy [status|start|stop|capture|clear|run|coverage|sessions|query|blob|purge]\n', '  Usage: natureco proxy [status|start|stop|capture|clear|run|coverage|sessions|query|blob|purge]\n')));
+  console.log(chalk.gray(L('  Kullanım: nskuld proxy [status|start|stop|capture|clear|run|coverage|sessions|query|blob|purge]\n', '  Usage: nskuld proxy [status|start|stop|capture|clear|run|coverage|sessions|query|blob|purge]\n')));
   process.exit(1);
 }
 
@@ -242,7 +242,7 @@ function cmdQuery(pattern) {
 
   if (!pattern) {
     console.log(chalk.red('\n  ❌ Query pattern is required.\n'));
-    console.log(chalk.gray('  Usage: natureco proxy query <pattern>\n'));
+    console.log(chalk.gray('  Usage: nskuld proxy query <pattern>\n'));
     process.exit(1);
   }
 
@@ -272,7 +272,7 @@ function cmdBlob(hash) {
 
   if (!hash) {
     console.log(chalk.red('\n  ❌ Blob hash is required.\n'));
-    console.log(chalk.gray('  Usage: natureco proxy blob <hash>\n'));
+    console.log(chalk.gray('  Usage: nskuld proxy blob <hash>\n'));
     process.exit(1);
   }
 

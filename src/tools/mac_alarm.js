@@ -46,7 +46,7 @@ on run argv
   tell application "Reminders"
     set targetList to default list
     set reminderName to "⏰ " & alarmLabel & " - NatureCo"
-    set reminderBody to "NatureCo CLI tarafindan " & alarmHumanDate & " icin kuruldu"
+    set reminderBody to "NatureCo Skuld tarafindan " & alarmHumanDate & " icin kuruldu"
     set newReminder to make new reminder at end of targetList with properties {name:reminderName, body:reminderBody, due date:startDate}
     save
     return id of newReminder

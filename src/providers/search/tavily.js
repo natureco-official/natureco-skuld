@@ -9,7 +9,7 @@ class TavilyProvider extends SearchProvider {
   async search(query, options = {}) {
     const apiKey = this.config.tavilyApiKey || process.env.TAVILY_API_KEY;
     if (!apiKey) {
-      return { success: false, error: 'Tavily API key gerekli. Kur: natureco config set tavilyApiKey tvly_xxx', provider: this.name };
+      return { success: false, error: 'Tavily API key gerekli. Kur: nskuld config set tavilyApiKey tvly_xxx', provider: this.name };
     }
 
     const response = await fetch('https://api.tavily.com/search', {
