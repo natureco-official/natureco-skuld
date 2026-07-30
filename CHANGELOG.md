@@ -2,6 +2,32 @@
 
 All notable changes to NatureCo CLI will be documented in this file.
 
+## [0.1.1] - 2026-07-30 — Fix: the approval prompt showed the same directory two ways
+
+The first release was published from a green local suite; CI on Linux, macOS and Windows found
+what a single machine could not.
+
+### Fixed
+- **The approval prompt spelled the working directory differently depending on the code path.**
+  `cwd` in the approval request went through `yoluDogrula` — and therefore `realpath` — when the
+  request carried a path, but fell back to the raw workspace root when it did not. Same directory,
+  two spellings: `/var/...` versus `/private/var/...` on macOS, `RUNNER~1` versus `runneradmin` on
+  Windows. A human approving a destructive command reads that line to decide, so it must not
+  depend on which call site produced it. All three sites now resolve the root the same way, and
+  the shell approval — where the command is arbitrary — pins the directory as well as the command
+  text.
+- **CI handed a vitest flag to the package runner as a node flag.** `npm test` is
+  `vitest run && node scripts/run-tests.mjs`, and `npm test -- --reporter=dot` appends to the end
+  of that chain, so the flag reached the package runner, which forwarded its arguments as node
+  flags: `bad option: --reporter=dot`, exit 9, every test passing. The workflow now runs the
+  vitest step directly (the package tests already have their own step, so `npm test` was running
+  them twice), and the runner names any flag it ignores instead of turning it into an opaque
+  crash.
+- **Two tests only ever passed on one machine.** One required the natureco-cli repository through
+  an absolute `C:/Projects/...` path — which also quietly undid the decision to cut that
+  dependency; its reference model IDs are now frozen into the test as a ratchet. The other
+  asserted a Windows path is absolute on every platform.
+
 ## [0.1.0] - 2026-07-30 — NatureCo Code parity for Skuld
 
 ### Added
