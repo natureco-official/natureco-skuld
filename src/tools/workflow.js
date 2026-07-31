@@ -391,12 +391,20 @@ async function workflow(params) {
       role: 'system',
       content: 'Gorevin basit bir selamlasma/sohbet mi yoksa arac gerektiren bir islem mi oldugunu belirle. Sadece "simple" veya "complex" yaz, kesinlikle baska bir sey yazma. Noktalama isareti koyma.\n\nSimple: selamlasma, nasilsin, bugun ne yaptin, havadan sudan, genel bilgi sorusu, ben kimim, adim ne, kullanici bilgisi sorgulama, hatirlatma talebi\nComplex: dosya islemleri, kod yazma, arastirma, karsilastirma, duzenleme, otomasyon, proje yonetimi, debug, internette arama gerektiren isler'
     };
-    const simpleBody = { model, stream: false, messages: [simpleCheckPrompt, { role: 'user', content: task }], temperature: 0, max_tokens: 20 };
+    // max_tokens: cevap tek kelime ama BÜTÇE tek kelimelik olamaz — düşünen modellerde
+    // (MiniMax M2, o-serisi, ...) akıl yürütme tokenları da bu bütçeden harcanıyor ve
+    // `content` boş dönüyor. 20 token ölçüldüğünde: finish_reason=length, content='',
+    // isSimple=false — yani "selam" bile araç planlanan karmaşık yola düşüyordu.
+    const simpleBody = { model, stream: false, messages: [simpleCheckPrompt, { role: 'user', content: task }], temperature: 0, max_tokens: 2000 };
     let isSimple = false;
     try {
       const simpleResult = await apiCall(providerUrl, providerApiKey, simpleBody);
-      const raw = (simpleResult.choices?.[0]?.message?.content || '').trim().toLowerCase().replace(/[^a-z]/g, '');
-      isSimple = raw === 'simple';
+      const raw = (simpleResult.choices?.[0]?.message?.content || '').toLowerCase();
+      // Kelime sınırıyla ara: model tek kelime yerine "Simple." ya da bir cümle
+      // döndürdüğünde de karar okunabilsin. İkisi birden geçerse karmaşık kabul et.
+      const saysSimple = /\bsimple\b/.test(raw);
+      const saysComplex = /\bcomplex\b/.test(raw);
+      isSimple = saysSimple && !saysComplex;
     } catch {}
 
     if (isSimple) {
@@ -527,7 +535,16 @@ async function workflow(params) {
             normalizeSuccess: value => value,
             normalizeError: error => ({ success: false, error }),
           });
-          stepResults.push({ step: step.step, tool: step.tool, status: 'done', args, result: toolResult });
+          // Araç `{ success: false }` döndürdüyse bu adım BAŞARISIZ. Koşulsuz 'done'
+          // yazmak, reddedilen bir çağrıyı (ör. zorunlu parametresi eksik `clarify`)
+          // kanala ✓ olarak gösteriyordu; sonraki adımlar da olmayan çıktıya dayanıyordu.
+          // 'Tool cagrisi yapilmadi' dalıyla aynı semantik: hata + kalan adımları durdur.
+          if (toolResult && toolResult.success === false) {
+            stepResults.push({ step: step.step, tool: step.tool, status: 'error', args, result: toolResult, error: toolResult.error || 'Arac basarisiz' });
+            failed = true;
+          } else {
+            stepResults.push({ step: step.step, tool: step.tool, status: 'done', args, result: toolResult });
+          }
         } else if (msg.content) {
           stepResults.push({ step: step.step, tool: step.tool, status: 'done', note: 'Tool cagrilmadi, model dogrudan yanit verdi', content: msg.content.slice(0, 500) });
         } else {

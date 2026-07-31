@@ -80,6 +80,56 @@ function chunkText(text, maxLen) {
 }
 
 /**
+ * Adim sonuclarindan kullaniciya GONDERILEBILIR bir metin cikarir.
+ *
+ * Eskisi yalnizca arac ADLARINI listeliyordu ("Görev tamamlandı:\n✓ clarify"). Kanalda
+ * bu iki turlu yanlisti: araclarin urettigi metni atiyordu — `clarify`'in tum amaci
+ * kullaniciya soru sormakken sorusu kayboluyordu — ve basarisiz cagrilara ✓ koyuyordu.
+ * Terminalde adim listesi anlamli, cunku ciktiyi zaten goruyorsun; Telegram'da gordugun
+ * tek sey bu satir.
+ */
+function textFromResult(r) {
+  const res = r && r.result;
+  const candidates = [
+    res && res.reply, res && res.content, res && res.output, res && res.message,
+    res && res.text, r && r.content,
+  ];
+  for (const c of candidates) {
+    if (typeof c === 'string' && c.trim()) return c.trim();
+  }
+  return '';
+}
+
+function replyFromResults(results) {
+  // 1) Netlestirme sorusu: kullaniciya dogrudan sorulmus bir soru varsa yanit odur.
+  for (const r of results) {
+    const res = r && r.result;
+    if (res && res.clarification && String(res.question || '').trim()) {
+      const opts = Array.isArray(res.options) ? res.options : [];
+      return String(res.question).trim()
+        + (opts.length ? '\n' + opts.map((o, i) => `${i + 1}. ${o}`).join('\n') : '');
+    }
+  }
+
+  // 2) Adimlarin urettigi metin + basarisiz adimlarin GERCEK sebebi, adim sirasiyla.
+  const parts = [];
+  for (const r of results) {
+    const failed = r && (r.status === 'error' || (r.result && r.result.success === false));
+    if (failed) {
+      parts.push(`✗ ${r.tool || r.name || 'adım'}: ${r.error || (r.result && r.result.error) || 'bilinmeyen hata'}`);
+      continue;
+    }
+    const text = textFromResult(r);
+    if (text) parts.push(text);
+  }
+  if (parts.length) return parts.join('\n\n');
+
+  // 3) Son care: hicbir adim metin uretmedi — hic degilse ne calistigini DOGRU isaretle.
+  const lines = results.map(r => `${r.status === 'done' ? '✓' : '✗'} ${r.tool || r.name || '?'}`);
+  return 'Görev tamamlandı:\n' + lines.join('\n');
+}
+
+/**
  * Guvenilir kanal mesajini terminaldekiyle AYNI ajana calistirir.
  * @param {object} p
  * @param {string} p.channel  'telegram' | 'whatsapp' | 'signal' | ...
@@ -111,15 +161,10 @@ async function runBrain({ channel, chatKey, text }, deps = {}) {
   let reply = '';
   if (wf && wf.reply != null && String(wf.reply).trim()) {
     reply = String(wf.reply);
-  } else if (wf && wf.status === 'completed' && Array.isArray(wf.results) && wf.results.length > 0) {
-    // Tool-calls yolu (OpenAI/Anthropic) plan+adim sonucu dondurebilir; kisa ozet uret
-    const lines = wf.results.map(r => {
-      const t = r.tool || r.name || '?';
-      const s = r.status === 'done' ? '✓' : '✗';
-      return `${s} ${t}`;
-    });
-    reply = 'Görev tamamlandı:\n' + lines.join('\n');
-  } else if (wf && wf.success === false) {
+  } else if (wf && Array.isArray(wf.results) && wf.results.length > 0) {
+    reply = replyFromResults(wf.results);
+  }
+  if (!reply && wf && wf.success === false) {
     reply = 'Bir sorun oluştu: ' + (wf.error || 'yanıt alınamadı');
   }
 
@@ -137,5 +182,6 @@ module.exports = {
   runBrain,
   sanitizeReply,
   chunkText,
+  replyFromResults,
   _internal: { loadHistory, saveHistory, historyFile, HISTORY_DIR, MAX_HISTORY, SEND_HISTORY },
 };
