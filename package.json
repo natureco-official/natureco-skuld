@@ -1,6 +1,6 @@
 {
   "name": "natureco-skuld",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "NatureCo Skuld — coding-first AI agent with persistent memory and a post-change quality gate",
   "bin": {
     "nskuld": "bin/nskuld.js"

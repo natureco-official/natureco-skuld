@@ -2,6 +2,37 @@
 
 All notable changes to NatureCo CLI will be documented in this file.
 
+## [0.1.2] - 2026-07-31 — Fix: the Telegram bot never started
+
+A user connected Telegram, sent a message, and got silence. Not an error, not a timeout — silence.
+
+### Fixed
+- **Every Telegram entry point died at construction.** `node-telegram-bot-api` 1.x exports the
+  class by name (`{ TelegramBot }`); 0.6x exported it as `module.exports` itself. All three call
+  sites — the remote coding worker, the gateway provider, and chat-ID autodetection — still
+  assumed the old shape, so `new TelegramBot(...)` threw `TelegramBot is not a constructor` the
+  moment the bot was created. The installed version was 1.2.0, inside the declared `^1.1.2` range.
+
+  What made this expensive was *where* it broke. The crash happened before the process ever
+  reached Telegram, so there was no bot to send an error through: the failure surfaced as one line
+  in `~/.nskuld/remote/telegram.log` and, to the person holding the phone, as nothing at all.
+  Resolution now lives in one place, `loadTelegramBotClass`, which accepts either export shape and
+  refuses loudly — naming the type it actually received — instead of handing back a
+  non-constructor.
+
+- **The test suite could not have caught it.** Every Telegram test injects a fake bot class
+  through `deps.TelegramBot`, which is the right thing for testing the message boundary and the
+  reason the real `require` had never once been executed under test. The suite was green while the
+  shipped path was dead. There is now a test that loads the actual installed package and
+  constructs it, so the dependency's export shape is a ratchet rather than an assumption.
+
+- **The gateway ignored the encrypted token store.** `nskuld remote setup` moves the bot token
+  into the OS keychain and deletes it from `config.json`; the gateway only ever read
+  `config.telegramToken`, so after that setup it logged `telegram: not configured, skipping` and
+  skipped the channel — for a user who had, visibly, just configured it. The gateway now completes
+  the token from the store. The completed copy reaches the provider only, never the object the
+  gateway persists, so the token is not written back to `config.json` in plaintext.
+
 ## [0.1.1] - 2026-07-30 — Fix: the approval prompt showed the same directory two ways
 
 The first release was published from a green local suite; CI on Linux, macOS and Windows found
