@@ -5,6 +5,7 @@ const path = require('path');
 const { getConfig } = require('./config');
 const { runBrain, chunkText } = require('./channel-brain');
 const { configWithToken } = require('./telegram-token-store');
+const { loadTelegramBotClass } = require('./telegram-bot-class');
 
 const MAX_TASK_CHARS = 12000;
 const MIN_MESSAGE_INTERVAL_MS = 750;
@@ -30,7 +31,7 @@ async function startRemoteService(deps = {}) {
   if (deps.chdir !== false) process.chdir(workspace);
   process.env.SKULD_CHANNEL_ORIGIN = '1';
 
-  const TelegramBot = deps.TelegramBot || require('node-telegram-bot-api');
+  const TelegramBot = deps.TelegramBot || loadTelegramBotClass();
   const bot = new TelegramBot(config.telegramToken, { polling: true });
   const execute = deps.runBrain || runBrain;
   const splitReply = deps.chunkText || chunkText;

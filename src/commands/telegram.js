@@ -243,7 +243,8 @@ async function autoDetectChatId() {
   console.log(chalk.cyan(L('\n🤖 Telegram bot calistiriliyor, ilk mesaji bekliyorum...\n', '\n🤖 Running Telegram bot, waiting for first message...\n')));
   console.log(chalk.gray(L('Telegramda botunuza /start yazin veya bir mesaj gonderin\n', 'Send /start or a message to your bot on Telegram\n')));
 
-  const TelegramBot = require('node-telegram-bot-api');
+  const { loadTelegramBotClass } = require('../utils/telegram-bot-class');
+  const TelegramBot = loadTelegramBotClass();
   const bot = new TelegramBot(config.telegramToken, { polling: true });
 
   let detected = false;

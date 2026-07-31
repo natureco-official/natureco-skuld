@@ -245,7 +245,7 @@ async function runGatewayWorker() {
   // Load config
   const { getConfig, saveConfig } = require('../utils/config');
   const config = getConfig();
-  
+
   if (!config || !config.providerUrl) {
     log('gateway', 'Setup yapılmamış. Run "nskuld setup" first.', 'red');
     process.exit(1);
@@ -272,13 +272,20 @@ async function runGatewayWorker() {
   }
   
   // Start Telegram if configured (v5.5.2: sadece token yeterli, botId otomatik)
-  if (config.telegramToken) {
+  // `nskuld remote setup` tokenı şifreli depoya taşıyıp config.json'dan siliyor; token
+  // yalnızca config'de aranırsa gateway o kurulumdan sonra Telegram'ı "yapılandırılmamış"
+  // sanıp sessizce atlıyordu. Depodan tamamlanmış kopya SADECE sağlayıcıya gidiyor —
+  // aşağıdaki saveConfig düz metin tokenı config.json'a geri yazmasın diye.
+  const { configWithToken } = require('../utils/telegram-token-store');
+  const telegramConfig = configWithToken(config);
+  if (telegramConfig.telegramToken) {
     if (!config.telegramBotId) {
       config.telegramBotId = `telegram_${Date.now()}`;
       saveConfig(config);
+      telegramConfig.telegramBotId = config.telegramBotId;
     }
     log('telegram', 'starting bot...', 'cyan');
-    startTelegramProvider(config);
+    startTelegramProvider(telegramConfig);
   } else {
     log('telegram', 'not configured, skipping', 'gray');
   }
@@ -756,9 +763,10 @@ async function startTelegramProvider(config) {
     // Lazy load node-telegram-bot-api
     let TelegramBot;
     try {
-      TelegramBot = require('node-telegram-bot-api');
+      const { loadTelegramBotClass } = require('../utils/telegram-bot-class');
+      TelegramBot = loadTelegramBotClass();
     } catch (err) {
-      log('telegram', 'node-telegram-bot-api not installed', 'red');
+      log('telegram', `node-telegram-bot-api kullanılamadı: ${err.message}`, 'red');
       log('telegram', 'Install with: npm install -g node-telegram-bot-api', 'yellow');
       return;
     }
