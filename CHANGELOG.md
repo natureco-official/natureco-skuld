@@ -2,6 +2,37 @@
 
 All notable changes to NatureCo CLI will be documented in this file.
 
+## [0.1.3] - 2026-07-31 — Fix: the bot answered, but never with an answer
+
+0.1.2 got the Telegram bot running. What it then said was `Task finished without a textual
+response.` to "hello", and `Görev tamamlandı: ✓ clarify` to everything else. Three defects in a
+row, each hiding the next.
+
+### Fixed
+- **A 20-token budget decided every message was a complex task.** Phase 0 asks the model whether
+  a message is simple chat or tool work, and gives it `max_tokens: 20` — one word is all the
+  answer needs. But on a reasoning model the thinking tokens are drawn from that same budget:
+  `finish_reason: length`, `content: ""`, `reasoning_content` full of deliberation that never got
+  to the verdict. An empty answer is not "simple", so *every* message — "hello" included — was
+  routed to the workflow planner, which is the path that dresses a greeting up as a tool plan.
+  The budget is now 2000, and the verdict is read on a word boundary so `Simple.` or a sentence
+  is still understood.
+
+- **Rejected tool calls were recorded as successes.** The planner, asked to plan a greeting,
+  produced steps whose required arguments it never filled: `memory` without `action`, `clarify`
+  without `question`. The gateway rejected both — and the step was pushed with `status: 'done'`
+  regardless. The workflow then reported `completed`, so a rejected call reached the user as a
+  green check. A tool returning `{ success: false }` is now an error like any other, with the same
+  halt-and-report semantics the surrounding branches already used.
+
+- **The channel showed tool names instead of tool output.** Chat channels summarized results as
+  `✓ <tool>` per step. In a terminal that is a reasonable summary, because the output is already
+  on screen; on Telegram it is the *entire* message. So `clarify` — a tool whose only purpose is
+  to ask the user a question — delivered the fact that a question existed, and not the question.
+  Replies are now built from what the steps actually produced: a clarification question (with its
+  options) becomes the reply, tool text is carried through, and failures name their real reason
+  instead of a checkmark. The name list survives only as a last resort, and now marks correctly.
+
 ## [0.1.2] - 2026-07-31 — Fix: the Telegram bot never started
 
 A user connected Telegram, sent a message, and got silence. Not an error, not a timeout — silence.
