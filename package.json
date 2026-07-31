@@ -87,7 +87,7 @@
     "@slack/web-api": "^8.0.0",
     "@whiskeysockets/baileys": "^7.0.0-rc10",
     "chalk": "^4.1.2",
-    "commander": "^11.1.0",
+    "commander": "^14.0.3",
     "diff": "^5.2.2",
     "discord.js": "^14.26.5",
     "irc": "^0.5.2",
